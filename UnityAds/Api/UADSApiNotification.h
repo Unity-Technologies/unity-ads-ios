@@ -1,0 +1,5 @@
+
+
+@interface UADSApiNotification : NSObject
+
+@end

@@ -1,0 +1,4 @@
+
+@interface UADSApiConnectivity : NSObject
+
+@end

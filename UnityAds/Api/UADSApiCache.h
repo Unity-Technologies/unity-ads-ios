@@ -1,0 +1,4 @@
+
+
+@interface UADSApiCache : NSObject
+@end

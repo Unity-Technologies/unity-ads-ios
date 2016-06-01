@@ -1,0 +1,4 @@
+
+
+@interface UADSApiResolve : NSObject
+@end

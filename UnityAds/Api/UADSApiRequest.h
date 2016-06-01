@@ -1,0 +1,5 @@
+
+
+@interface UADSApiRequest : NSObject
+
+@end
