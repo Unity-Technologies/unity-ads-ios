@@ -6,7 +6,7 @@
 #import "UADSWebRequest.h"
 #import "UADSWebRequestQueue.h"
 #import "UADSCacheQueue.h"
-#import "UADSApiPlacement.h"
+#import "UADSPlacement.h"
 #import "NSString+Hash.h"
 
 @implementation UADSInitialize
@@ -75,35 +75,33 @@ static dispatch_once_t onceToken;
         [currentWebViewApp setWebAppLoaded:false];
         [currentWebViewApp setWebAppInitialized:false];
         NSCondition *blockCondition = [[NSCondition alloc] init];
+        [blockCondition lock];
         
         if ([currentWebViewApp webView] != NULL) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                if ([[currentWebViewApp webView] superview]) {
+                if ([currentWebViewApp webView] && [[currentWebViewApp webView] superview]) {
                     [[currentWebViewApp webView] removeFromSuperview];
                 }
-
+                
+                [currentWebViewApp setWebView:NULL];
                 [blockCondition lock];
                 [blockCondition signal];
                 [blockCondition unlock];
             });
-            
-            [currentWebViewApp setWebView:NULL];
         }
         
-        [blockCondition lock];
         BOOL success = [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:10]];
         [blockCondition unlock];
         
         if (!success) {
-            UADSLog(@"WIERD ERROR, DISPATCH ASYNC DID NOT RUN THROUGH WHILE RESETTING SDK")
-            return NULL;
+            UADSLogError(@"Unity Ads init: dispatch async did not run through while resetting SDK");
         }
 
         [UADSWebViewApp setCurrentApp:NULL];
     }
     
     [UADSSdkProperties setInitialized:false];
-    [UADSApiPlacement reset];
+    [UADSPlacement reset];
     [UADSCacheQueue cancelAllDownloads];
     [UADSConnectivityMonitor stopAll];
     [UADSStorageManager init];
@@ -132,6 +130,8 @@ static dispatch_once_t onceToken;
 }
 
 - (instancetype)execute {
+    UADSLogInfo(@"Unity Ads init: load configuration from %@", [UADSSdkProperties getConfigUrl]);
+
     [self.configuration setConfigUrl:[UADSSdkProperties getConfigUrl]];
     [self.configuration makeRequest];
     
@@ -171,7 +171,7 @@ static dispatch_once_t onceToken;
         NSString *localWebViewHash = [fileString sha256];
         
         if (!localWebViewHash || (localWebViewHash && [localWebViewHash isEqualToString:self.configuration.webViewHash])) {
-            UADSLog(@"Loaded WebView from Cache");
+            UADSLogInfo(@"Unity Ads init: webapp loaded from local cache");
             id nextState = [[UADSInitializeStateCreate alloc] initWithConfiguration:self.configuration webViewData:fileString];
             [nextState setQueue:self.queue];
             return nextState;
@@ -203,6 +203,9 @@ static dispatch_once_t onceToken;
 
 - (instancetype)execute {
     NSString *urlString = [NSString stringWithFormat:@"%@", [self.configuration webViewUrl]];
+
+    UADSLogInfo(@"Unity Ads init: loading webapp from %@", urlString);
+    
     UADSWebRequest *webRequest = [[UADSWebRequest alloc] initWithUrl:urlString requestType:@"GET" headers:NULL connectTimeout:30000];
     NSData *responseData = [webRequest makeRequest];
 
@@ -236,6 +239,8 @@ static dispatch_once_t onceToken;
 @implementation UADSInitializeStateCreate : UADSInitializeState
 
 - (instancetype)execute {
+    UADSLogDebug(@"Unity Ads init: creating webapp");
+    
     [NSURLProtocol registerClass:[UADSURLProtocol class]];
     [self.configuration setWebViewData:[self webViewData]];
     [UADSWebViewApp create:self.configuration];
@@ -261,7 +266,6 @@ static dispatch_once_t onceToken;
 
 @implementation UADSInitializeStateComplete : UADSInitializeState
 - (instancetype)execute {
-    UADSLog(@"COMPLETE");
     return NULL;
 }
 @end
@@ -290,6 +294,8 @@ static dispatch_once_t onceToken;
 @implementation UADSInitializeStateNetworkError : UADSInitializeStateError
 
 - (void)connected {
+    UADSLogDebug(@"Unity Ads init got connected event");
+    
     self.receivedConnectedEvents++;
     
     if ([self shouldHandleConnectedEvent]) {
@@ -302,10 +308,12 @@ static dispatch_once_t onceToken;
 }
 
 - (void)disconnected {
-    UADSLog(@"GOT DISCONNECTED EVENT");
+    UADSLogDebug(@"Unity Ads init got disconnected event");
 }
 
 - (instancetype)execute {
+    UADSLogError(@"Unity Ads init: network error, waiting for connection events");
+
     [UADSConnectivityMonitor startListening:self];
     
     self.blockCondition = [[NSCondition alloc] init];
@@ -351,6 +359,8 @@ static dispatch_once_t onceToken;
 }
 
 - (instancetype)execute {
+    UADSLogDebug(@"Unity Ads init: retrying in %d seconds ", self.retryDelay);
+    
     NSCondition *blockCondition = [[NSCondition alloc] init];
     [blockCondition lock];
     [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:self.retryDelay]];

@@ -2,12 +2,15 @@
 
 typedef NS_ENUM(NSInteger, UnityAdsAVPlayerEvent) {
     kUnityAdsAVPlayerEventPrepared,
-    kUnityAdsAVPPlayerEventProgress,
+    kUnityAdsAVPlayerEventProgress,
     kUnityAdsAVPlayerEventCompleted,
     kUnityAdsAVPlayerEventSeekTo,
     kUnityAdsAVPlayerEventLikelyToKeepUp,
     kUnityAdsAVPlayerEventBufferEmpty,
-    kUnityAdsAVPlayerEventBufferFull
+    kUnityAdsAVPlayerEventBufferFull,
+    kUnityAdsAVPlayerEventPlay,
+    kUnityAdsAVPlayerEventPause,
+    kUnityAdsAVPlayerEventStop
 };
 
 NSString *NSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent);

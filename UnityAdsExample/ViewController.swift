@@ -128,7 +128,7 @@ extension ViewController: UnityAdsDelegate {
     }
     
     func unityAdsDidError(error: UnityAdsError, withMessage message: String) {
-        print("UnityAds ERROR");
+        print("UnityAds ERROR: " + "\(error.rawValue) " + message);
         dispatch_async(dispatch_get_main_queue()) { [unowned self] in
             self.initButton.enabled = true;
             if #available(iOS 8.0, *) {

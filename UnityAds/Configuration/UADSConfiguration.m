@@ -26,7 +26,7 @@ NSString* const kUnityAdsConfigValueVersion = @"version";
 
 - (void)makeRequest {
     NSString *urlString = [NSString stringWithFormat:@"%@%@", [self configUrl], [self buildQueryString]];
-    UADSLog(@"Requesting configuration with: %@", urlString);
+    UADSLogDebug(@"Requesting configuration with: %@", urlString);
 
     NSError *error;
     UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:urlString requestType:@"GET" headers:NULL connectTimeout:30000];
@@ -36,7 +36,7 @@ NSString* const kUnityAdsConfigValueVersion = @"version";
         NSDictionary *configDictionary = [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:&error];
         
         if (!error) {
-            UADSLog(@"Fetched config: %@", [configDictionary description]);
+            UADSLogDebug(@"Fetched config: %@", [configDictionary description]);
             [self setWebViewHash:configDictionary[kUnityAdsConfigValueHash]];
             [self setWebViewUrl:configDictionary[kUnityAdsConfigValueUrl]];
             [self setWebViewVersion:configDictionary[kUnityAdsConfigValueVersion]];
@@ -47,7 +47,7 @@ NSString* const kUnityAdsConfigValueVersion = @"version";
     }
     else {
         [self setError:@"ERROR_REQUESTING_CONFIG"];
-        UADSLog(@"There was an error!");
+        UADSLogDebug(@"Configuration request failed");
     }
 }
 

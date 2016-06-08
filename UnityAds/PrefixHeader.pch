@@ -2,7 +2,6 @@
 #define PrefixHeader_pch
 
 #import <Foundation/Foundation.h>
-
-#define UADSLog(fmt, ...) if([UnityAds getDebugMode]) { NSLog((@"UnityAds: %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }
+#import "UADSDeviceLog.h"
 
 #endif /* PrefixHeader_pch */

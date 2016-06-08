@@ -44,11 +44,11 @@
             [storage sendEvent:@"SET" values:self.entries];
         }
         else {
-            UADSLog(@"No storage found!");
+            UADSLogDebug(@"No storage found!");
         }
     }
     else {
-        UADSLog(@"Init storages failed!");
+        UADSLogError(@"Init storages failed!");
     }
 }
 

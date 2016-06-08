@@ -7,6 +7,10 @@ static NSString *eventSeekTo = @"SEEKTO";
 static NSString *eventLikelyToKeepUp = @"LIKELY_TO_KEEP_UP";
 static NSString *eventBufferFull = @"BUFFER_FULL";
 static NSString *eventBufferEmpty = @"BUFFER_EMPTY";
+static NSString *eventPlay = @"PLAY";
+static NSString *eventPause = @"PAUSE";
+static NSString *eventStop = @"STOP";
+
 
 static NSString *prepareError = @"PREPARE_ERROR";
 static NSString *genericError = @"GENERIC_ERROR";
@@ -16,7 +20,7 @@ NSString *NSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent event) {
     switch (event) {
         case kUnityAdsAVPlayerEventPrepared:
             return eventPrepared;
-        case kUnityAdsAVPPlayerEventProgress:
+        case kUnityAdsAVPlayerEventProgress:
             return eventProgress;
         case kUnityAdsAVPlayerEventCompleted:
             return eventCompleted;
@@ -28,6 +32,12 @@ NSString *NSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent event) {
             return eventBufferFull;
         case kUnityAdsAVPlayerEventBufferEmpty:
             return eventBufferEmpty;
+        case kUnityAdsAVPlayerEventPlay:
+            return eventPlay;
+        case kUnityAdsAVPlayerEventPause:
+            return eventPause;
+        case kUnityAdsAVPlayerEventStop:
+            return eventStop;
     }
 }
 

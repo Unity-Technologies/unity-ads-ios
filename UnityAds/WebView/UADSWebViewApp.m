@@ -63,13 +63,13 @@ static UADSWebViewApp *currentApp = NULL;
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:params options:0 error:nil];
         NSString *paramStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         NSString *javaScriptString = [[NSString alloc] initWithFormat:@"window.%@.%@(%@);", className, methodName, paramStr];
-        UADSLog(@"JS_STRING: %@", javaScriptString);
+        UADSLogDebug(@"JS_STRING: %@", javaScriptString);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.webView stringByEvaluatingJavaScriptFromString:javaScriptString];
         });
     }
     else {
-        UADSLog(@"FATAL_ERROR: Tried to invoke javascript with data that could not be parsed to JSON: %@", [params description]);
+        UADSLogError(@"FATAL_ERROR: Tried to invoke javascript with data that could not be parsed to JSON: %@", [params description]);
     }
 }
 
@@ -165,7 +165,7 @@ static UADSWebViewApp *currentApp = NULL;
         return true;
     }
     else {
-        UADSLog(@"WebApp not loaded!");
+        UADSLogDebug(@"WebApp not loaded!");
     }
 
     return false;

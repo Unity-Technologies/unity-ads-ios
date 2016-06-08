@@ -1,6 +1,6 @@
 #import "UADSWebViewShowOperation.h"
 #import "UADSClientProperties.h"
-#import "UADSApiPlacement.h"
+#import "UADSPlacement.h"
 #import "UADSCacheQueue.h"
 #import "UADSConnectivityMonitor.h"
 
@@ -16,6 +16,7 @@
     [super main];
 
     if (!self.success) {
+        UADSLogError(@"Unity Ads webapp timeout, shutting down Unity Ads");
         id delegate = [UADSClientProperties getDelegate];
         if (delegate) {
             if ([delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
@@ -27,12 +28,12 @@
             }
         }
         
-        [UADSApiPlacement reset];
+        [UADSPlacement reset];
         [UADSCacheQueue cancelAllDownloads];
         [UADSConnectivityMonitor stopAll];
     }
     else {
-        UADSLog(@"SHOW SUCCESS");
+        UADSLogDebug(@"SHOW SUCCESS");
     }
 }
 

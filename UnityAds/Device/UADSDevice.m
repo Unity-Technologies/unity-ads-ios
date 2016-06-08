@@ -192,7 +192,7 @@
     vm_statistics_data_t vm_stat;
     
     if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
-        UADSLog(@"Failed to fetch vm statistics");
+        UADSLogDebug(@"Failed to fetch vm statistics");
     }
     
     unsigned long long mem_used = (vm_stat.active_count +
@@ -200,7 +200,7 @@
                           vm_stat.wire_count) * (unsigned int)pagesize;
     unsigned long long mem_free = vm_stat.free_count * (unsigned long long)pagesize;
     unsigned long long mem_total = mem_used + mem_free;
-    UADSLog(@"used: %llu free: %llu total: %llu", mem_used, mem_free, mem_total);
+    UADSLogDebug(@"used: %llu free: %llu total: %llu", mem_used, mem_free, mem_total);
     
     return [NSNumber numberWithUnsignedLongLong:(unsigned long long)mem_total/1024];
 }
@@ -218,14 +218,14 @@
     vm_statistics_data_t vm_stat;
     
     if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
-        UADSLog(@"Failed to fetch vm statistics");
+        UADSLogDebug(@"Failed to fetch vm statistics");
     }
     
     unsigned long long mem_used = (vm_stat.active_count +
                           vm_stat.inactive_count +
                           vm_stat.wire_count) * (unsigned int)pagesize;
     unsigned long long mem_free = vm_stat.free_count * (unsigned long long)pagesize;
-    UADSLog(@"used: %llu free: %llu", mem_used, mem_free);
+    UADSLogDebug(@"used: %llu free: %llu", mem_used, mem_free);
     
     return [NSNumber numberWithLongLong:(unsigned long long)mem_free/1024];
 }

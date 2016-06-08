@@ -7,7 +7,7 @@
 #import "UADSStorageManager.h"
 #import "UADSStorage.h"
 #import "UADSSdkProperties.h"
-#import "UADSApiPlacement.h"
+#import "UADSPlacement.h"
 #import "UADSWebRequestQueue.h"
 #import "UADSWebRequest.h"
 #import "UADSWebViewApp.h"

@@ -9,7 +9,7 @@
 @implementation UADSApiSdk
 
 + (void)WebViewExposed_loadComplete:(UADSWebViewCallback *)callback {
-    UADSLog(@"LOAD COMPLETE %@", callback);
+    UADSLogDebug(@"Web application loaded");
     [[UADSWebViewApp getCurrentApp] setWebAppLoaded:true];
 
     [callback invoke:
@@ -28,7 +28,7 @@
 }
 
 + (void)WebViewExposed_initComplete:(UADSWebViewCallback *)callback {
-    UADSLog(@"INIT COMPLETE %@", callback);
+    UADSLogDebug(@"Web application initialized");
     [UADSSdkProperties setInitialized:true];
     [[UADSWebViewApp getCurrentApp] setWebAppInitialized:true];
     [callback invoke:nil];
@@ -44,22 +44,22 @@
 }
 
 + (void)WebViewExposed_logError:(NSString *)message callback:(UADSWebViewCallback *)callback {
-    UADSLog(@"ERROR: %@", message);
+    UADSLogError(@"%@", message);
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_logWarning:(NSString *)message callback:(UADSWebViewCallback *)callback {
-    UADSLog(@"WARNING: %@", message);
+    UADSLogWarning(@"%@", message);
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_logInfo:(NSString *)message callback:(UADSWebViewCallback *)callback {
-    UADSLog(@"INFO: %@", message);
+    UADSLogInfo(@"%@", message);
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_logDebug:(NSString *)message callback:(UADSWebViewCallback *)callback {
-    UADSLog(@"DEBUG: %@", message);
+    UADSLogDebug(@"%@", message);
     [callback invoke:nil];
 }
 
@@ -70,7 +70,6 @@
 
 + (void)WebViewExposed_reinitialize:(UADSWebViewCallback *)callback {
     [UADSInitialize initialize:[[UADSWebViewApp getCurrentApp] configuration]];
-    [callback invoke:nil];
 }
 
 @end

@@ -16,17 +16,10 @@ static NSString *webRequestEventCategory = @"REQUEST";
 
     UnityAdsWebRequestCompletion completeBlock = ^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString*,NSString*> *headers) {
         if (!error) {
-            [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityAdsWebRequestEventComplete)
-                                             category:webRequestEventCategory
-                                               param1:requestId,
-                url,
-                response,
-                [NSNumber numberWithLong:responseCode],
-                headers,
-             nil];
+            [UADSApiRequest sendSuccess:requestId url:url response:response responseCode:responseCode headers:headers];
         }
         else {
-            [UADSApiRequest sendFailed:requestId url:url errorCode:error.code errorDomain:error.domain];
+            [UADSApiRequest sendFailed:requestId url:url error:error];
         }
     };
 
@@ -41,17 +34,10 @@ static NSString *webRequestEventCategory = @"REQUEST";
 
     UnityAdsWebRequestCompletion completeBlock = ^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString*,NSString*> *headers) {
         if (!error) {
-            [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityAdsWebRequestEventComplete)
-                                             category:webRequestEventCategory
-                                               param1:requestId,
-                url,
-                response,
-                [NSNumber numberWithLong:responseCode],
-                headers,
-             nil];
+            [UADSApiRequest sendSuccess:requestId url:url response:response responseCode:responseCode headers:headers];
         }
         else {
-            [UADSApiRequest sendFailed:requestId url:url errorCode:error.code errorDomain:error.domain];
+            [UADSApiRequest sendFailed:requestId url:url error:error];
         }
     };
 
@@ -67,22 +53,14 @@ static NSString *webRequestEventCategory = @"REQUEST";
 
     UnityAdsWebRequestCompletion completeBlock = ^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString*,NSString*> *headers) {
         if (!error) {
-            [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityAdsWebRequestEventComplete)
-                                             category:webRequestEventCategory
-                                               param1:requestId,
-                url,
-                response,
-                [NSNumber numberWithLong:responseCode],
-                headers,
-             nil];
+            [UADSApiRequest sendSuccess:requestId url:url response:response responseCode:responseCode headers:headers];
         }
         else {
-            [UADSApiRequest sendFailed:requestId url:url errorCode:error.code errorDomain:error.domain];
+            [UADSApiRequest sendFailed:requestId url:url error:error];
         }
     };
 
     [UADSWebRequestQueue requestUrl:url type:@"POST" headers:[UADSApiRequest getHeadersMap:headers] body:body completeBlock:completeBlock connectTimeout:[connectTimeout intValue]];
-
     [callback invoke:requestId, nil];
 }
 
@@ -103,12 +81,35 @@ static NSString *webRequestEventCategory = @"REQUEST";
     return mappedHeaders;
 }
 
-+ (void)sendFailed:(NSString *)requestId url:(NSString *)url errorCode:(NSInteger)errorCode errorDomain:(NSString *)errorDomain {
++ (void)sendSuccess:(NSString *)requestId url:(NSString *)url response:(NSString *)response responseCode:(long)responseCode headers:(NSDictionary<NSString*,NSString*> *)headers {
+    [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityAdsWebRequestEventComplete)
+                                         category:webRequestEventCategory
+                                           param1:requestId,
+            url,
+            response,
+            [NSNumber numberWithLong:responseCode],
+            headers,
+         nil];
+}
+
++ (void)sendFailed:(NSString *)requestId url:(NSString *)url error:(NSError *)error {
+    NSNumber *errorCode = 0;
+    NSString *errorMessage = @"";
+
+    if (error.userInfo) {
+        if ([error.userInfo objectForKey:@"code"]) {
+            errorCode = [error.userInfo objectForKey:@"code"];
+        }
+        if ([error.userInfo objectForKey:@"message"]) {
+            errorMessage = [error.userInfo objectForKey:@"message"];
+        }
+    }
+
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityAdsWebRequestEventFailed)
                                      category:webRequestEventCategory
                                        param1:requestId,
         url,
-     [NSString stringWithFormat:@"%@: %ld", errorDomain, (long)errorCode],
+        [NSString stringWithFormat:@"%@: %ld", errorMessage, [errorCode longValue]],
      nil];
 }
 

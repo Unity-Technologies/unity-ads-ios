@@ -28,7 +28,7 @@ static UADSViewController *adUnitViewController = NULL;
 + (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate callback:(UADSWebViewCallback *)callback {
     
     dispatch_async(dispatch_get_main_queue(), ^(void) {
-        UADSLog(@"PRESENTING VIEWCONTROLLER");
+        UADSLogDebug(@"PRESENTING VIEWCONTROLLER");
         UADSViewController *adUnit = [[UADSViewController alloc] initWithViews:views supportedOrientations:supportedOrientations statusBarHidden:[statusBarHidden boolValue] shouldAutorotate:[shouldAutorotate boolValue]];
         [adUnit setModalPresentationCapturesStatusBarAppearance:true];
         [[UADSClientProperties getCurrentViewController] presentViewController:adUnit animated:YES completion:NULL];

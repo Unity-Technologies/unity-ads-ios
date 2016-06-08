@@ -17,7 +17,10 @@ NSMutableArray<NSString *> *eventArray;
     [eventArray addObject:eventId];
     
     if (eventId && [eventId isEqualToString:@"VIEW_CONTROLLER_DID_DISAPPEAR"]) {
-        [self.expectation fulfill];
+        if (self.expectation) {
+           [self.expectation fulfill];
+            self.expectation = nil;
+        }
         return true;
         
     }
@@ -66,4 +69,32 @@ NSMutableArray<NSString *> *eventArray;
     XCTAssertTrue([@"VIEW_CONTROLLER_WILL_DISAPPEAR" isEqualToString:eventArray[2]], @"Third event should be VIEW_CONTROLLER_WILL_DISAPPEAR");
     XCTAssertTrue([@"VIEW_CONTROLLER_DID_DISAPPEAR" isEqualToString:eventArray[3]], @"Fourth event should be VIEW_CONTROLLER_DID_DISAPPEAR");
 }
+
+- (void)testSetViews {
+    UADSViewController *viewController = [[UADSViewController alloc] init];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:nil];
+    
+    NSArray *views = @[@"videoplayer"];
+    
+    [viewController setViews:views];
+    
+    XCTAssertTrue([[[viewController currentViews] objectAtIndex:0] isEqualToString:@"videoplayer"], @"First view should be 'videoplayer'");
+    
+    XCTAssertNotNil(viewController.videoView, @"Video view should not be nil");
+    
+    XCTAssertNotNil(viewController.videoPlayer, @"Video player should not be nil");
+    
+    views = @[@"webview"];
+    
+    [viewController setViews:views];
+    
+    XCTAssertTrue([[[viewController currentViews] objectAtIndex:0] isEqualToString:@"webview"], @"First view should be 'webview'");
+    
+    XCTAssertNil(viewController.videoView, @"Video view should be nil");
+    
+    XCTAssertNil(viewController.videoPlayer, @"Video player should be nil");
+    
+    [viewController dismissViewControllerAnimated:true completion:nil];
+}
+
 @end

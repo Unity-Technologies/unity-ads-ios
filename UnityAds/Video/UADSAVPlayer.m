@@ -20,7 +20,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 - (void)prepare:(NSString *)url initialVolume:(float)volume {
     [self stopObserving];
     self.url = url;
-    UADSLog(@"PREPARING ITEM: %@", self.url);
+    UADSLogDebug(@"Preparing item: %@", self.url);
     NSURL *videoURL = [NSURL URLWithString:self.url];
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
     self.playerItem = [AVPlayerItem playerItemWithAsset:asset];
@@ -82,7 +82,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)onPrepareTimeoutListener:(NSNotification *)notification {
-    UADSLog(@"VIDEO PREPARE TIMEOUT");
+    UADSLogError(@"Video prepare timeout");
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerPrepareError)
                                          category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
@@ -91,7 +91,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)onCompletionListener:(NSNotification *)notification {
-    UADSLog(@"VIDEO PLAYBACK COMPLETED");
+    UADSLogDebug(@"Video playback completed");
     self.isPlaying = false;
     [self stopVideoProgressTimer];
     [self stopObserving];
@@ -116,14 +116,14 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 
 - (void)videoProgressTimer:(NSTimer *)timer {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPPlayerEventProgress)
+        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventProgress)
                                          category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
                                            param1:[NSNumber numberWithInt:[self getMsFromCMTime:self.currentTime]], nil];
     });
 }
 
 - (void)play {
-    UADSLog(@"STARTING PLAYBACK");
+    UADSLogDebug(@"Starting video playback");
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCompletionListener:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.currentItem];
 
@@ -131,18 +131,40 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     self.isPlaying = true;
     [self stopVideoProgressTimer];
     [self startVideoProgressTimer];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPlay)
+                                         category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
+                                           param1:self.url, nil];
+    });
 }
 
 - (void)pause {
-    UADSLog(@"PAUSING PLAYBACK");
+    UADSLogDebug(@"Pausing video playback");
 
     [super pause];
     self.isPlaying = false;
     [self stopVideoProgressTimer];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPause)
+                                         category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
+                                           param1:self.url, nil];
+    });
 }
 
 - (void)stop {
-    [self pause];
+    UADSLogDebug(@"Stopping video playback");
+
+    [super pause];
+    self.isPlaying = false;
+    [self stopVideoProgressTimer];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventStop)
+                                         category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
+                                           param1:self.url, nil];
+    });
 }
 
 - (void)seekTo:(int)msec {
@@ -165,7 +187,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == itemStatusChangeToken) {
-        UADSLog(@"VIDEOPLAYERITEM_STATUS: %li", (long)self.currentItem.status);
+        UADSLogDebug(@"VIDEOPLAYERITEM_STATUS: %li", (long)self.currentItem.status);
         
         AVPlayerItemStatus playerItemStatus = self.playerItem.status;
         if (playerItemStatus == AVPlayerItemStatusReadyToPlay) {
@@ -185,7 +207,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
             [self stopPrepareTimeoutTimer];
         }
         else if (playerItemStatus == AVPlayerItemStatusFailed) {
-            UADSLog(@"VIDEOPLAYER_ERROR: %@", self.currentItem.error.description);
+            UADSLogError(@"VIDEOPLAYER_ERROR: %@", self.currentItem.error.description);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerGenericError)
                                                  category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)

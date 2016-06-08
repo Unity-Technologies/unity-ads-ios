@@ -47,7 +47,7 @@ static NSNumber *callbackCount = 0;
             invocation.target = class;
         }
         else {
-            UADSLog(@"Could not get signature!");
+            UADSLogError(@"Could not find signature for selector %@", self.callback);
             NSException* exception = [NSException
                                       exceptionWithName:@"NoSignatureException"
                                       reason:[NSString stringWithFormat:@"Could not find signature for selector: %@", self.callback]
@@ -61,7 +61,7 @@ static NSNumber *callbackCount = 0;
             [invocation invoke];
         }
         else {
-            UADSLog(@"Could not create invocation!");
+            UADSLogError(@"Could not create invocation for %@.%@", self.receiverClass, self.callback);
             NSException* exception = [NSException
                                       exceptionWithName:@"NoInvocationException"
                                       reason:[NSString stringWithFormat:@"Could not create invocation for: %@.%@", self.receiverClass, self.callback]

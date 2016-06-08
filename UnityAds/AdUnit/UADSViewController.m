@@ -130,7 +130,7 @@
 
 - (void)handleViewPlacement:(UIView *)view {
     if ([view superview] && [[view superview] isEqual:self.view]) {
-        UADSLog(@"Bringing to front: %@", view);
+        UADSLogDebug(@"Bringing to front: %@", view);
         [self.view bringSubviewToFront:view];
     }
     else {
@@ -142,7 +142,7 @@
         [view setCenter:[self.view convertPoint:self.view.center fromView:self.view.superview]];
         [view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
         
-        UADSLog(@"Adding to view: %@", view);
+        UADSLogDebug(@"Adding to view: %@", view);
         [self.view addSubview:view];
     }
 }

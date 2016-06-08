@@ -104,7 +104,7 @@ class UnityAdsClassSelectorAvailabilityTests: XCTestCase, UnityAdsDelegate {
     
     // MARK: getPlacementState()
     func testPlacementStateGetter() {
-        XCTAssertTrue(UnityAds.respondsToSelector(#selector(UnityAds.getPlacementState)), "UnityAds does not respond to getPlacementState")
+        XCTAssertTrue(UnityAds.respondsToSelector(#selector(UnityAds.getPlacementState as () -> UnityAdsPlacementState)), "UnityAds does not respond to getPlacementState")
     }
     
     func testPerformancePlacementStateGetter() {
@@ -121,21 +121,21 @@ class UnityAdsClassSelectorAvailabilityTests: XCTestCase, UnityAdsDelegate {
         }
     }
     
-    // MARK: getPlacementStateWithPlacementId(placementIdString)
+    // MARK: getPlacementState(placementId)
     func testPlacementStateGetterWithPlacementIdString() {
-        XCTAssertTrue(UnityAds.respondsToSelector(#selector(UnityAds.getPlacementStateWithPlacementId(_:))), "UnityAds does not respond to getPlacementStateWithPlacementId:")
+        XCTAssertTrue(UnityAds.respondsToSelector(#selector(UnityAds.getPlacementState(_:))), "UnityAds does not respond to getPlacementState:placementId")
     }
     
     func testPerformancePlacementStateForPlacementIdGetter() {
         self.measureBlock {
-            UnityAds.getPlacementStateWithPlacementId(UnityAdsTestConstants.defaultPlacementId)
+            UnityAds.getPlacementState(UnityAdsTestConstants.defaultPlacementId)
         }
     }
     
     func testPerformancePlacementStateForPlacementIdGetterRepeatedly() {
         self.measureBlock {
             for _ in [0...UnityAdsTestConstants.hammerTime] {
-                UnityAds.getPlacementStateWithPlacementId(UnityAdsTestConstants.defaultPlacementId)
+                UnityAds.getPlacementState(UnityAdsTestConstants.defaultPlacementId)
             }
         }
     }

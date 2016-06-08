@@ -28,7 +28,7 @@
         [invocation setInvocationResponseWithStatus:status error:error params:combinedParams];
     }
     else {
-        UADSLog(@"Couldn't get invocation");
+        UADSLogError(@"Couldn't get invocation");
     }
 }
 

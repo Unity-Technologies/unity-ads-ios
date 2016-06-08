@@ -26,7 +26,7 @@
     
     if (![[NSFileManager defaultManager] fileExistsAtPath:self.target]) {
         if (![[NSFileManager defaultManager] createFileAtPath:self.target contents:nil attributes:nil]) {
-            UADSLog(@"Couldn't create target file");
+            UADSLogError(@"Unity Ads cache: couldn't create target file %@", self.target);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
                                                  category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
@@ -52,6 +52,8 @@
             fileSize = [fileHandle seekToEndOfFile];
             NSDictionary<NSString*,NSArray*> *headers = @{@"Range": [NSArray arrayWithObject:[NSString stringWithFormat:@"bytes=%llu-", fileSize]]};
             [self.request setHeaders:headers];
+            
+            UADSLogDebug(@"Unity Ads cache: resuming download from %@ to %@ at %llu bytes", self.source, self.target, fileSize);
         } @catch (NSException *exception) {
             [fileHandle closeFile];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -64,6 +66,7 @@
         }
     } else {
         fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.target];
+        UADSLogDebug(@"Unity Ads cache: starting download from %@ to %@", self.source, self.target);
     }
 
     [self.request setProgressBlock:^(NSString *url, long long bytes, long long totalBytes) {
@@ -95,7 +98,7 @@
         NSError *deleteError;
         [[NSFileManager defaultManager] removeItemAtPath:self.target error:&deleteError];
         if (deleteError) {
-            UADSLog(@"Error occured while removing file: %@",[deleteError userInfo]);
+            UADSLogError(@"Unity Ads cache: error occured while removing file: %@",[deleteError userInfo]);
         }
 
         [self stopObserving];
@@ -106,7 +109,7 @@
         [fileHandle writeData:fileData];
         [fileHandle synchronizeFile];
     } @catch (NSException *exception) {
-        UADSLog(@"Couldn't write file. Error name: %@ reason: %@", exception.name, exception.reason);
+        UADSLogError(@"Unity Ads cache: couldn't write file. Error name: %@ reason: %@", exception.name, exception.reason);
         [fileHandle closeFile];
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
@@ -125,7 +128,7 @@
     long duration = ([[NSDate date] timeIntervalSince1970] * 1000) - startTime;
 
     if (![self isCancelled]) {
-        UADSLog("Unity Ads cache: File %@ of %llu bytes downloaded in %lums", self.target, dataLength, duration);
+        UADSLogDebug(@"Unity Ads cache: file %@ of %llu bytes downloaded in %lums", self.target, dataLength, duration);
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadEnd)
                 category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
@@ -143,8 +146,8 @@
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadStopped)
                 category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
                 param1:self.source,
-                [NSNumber numberWithLong:dataLength],
-                [NSNumber numberWithLongLong:self.expectedContentSize],
+                [NSNumber numberWithLong:(long) dataLength],
+                [NSNumber numberWithLongLong:(long) self.expectedContentSize],
                 [NSNumber numberWithLong:duration],
                 [NSNumber numberWithLong:responseCode],
                 responseHeaders,

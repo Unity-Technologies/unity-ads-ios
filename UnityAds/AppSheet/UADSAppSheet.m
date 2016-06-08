@@ -55,7 +55,7 @@
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.prepareTimeoutInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 if (!finished) {
                     cancelled = YES;
-                    UADSLog(@"Timeout. Preloading product information failed for id: %@", iTunesId);
+                    UADSLogDebug(@"Timeout. Preloading product information failed for id: %@", iTunesId);
                     block(false, NSStringFromAppSheetError(kUnityAdsAppSheetErrorTimeout));
                 }
             });
@@ -67,11 +67,11 @@
                 }
                 
                 if (result) {
-                    UADSLog(@"Preloading product information succeeded for id: %@.", iTunesId);
+                    UADSLogDebug(@"Preloading product information succeeded for id: %@.", iTunesId);
                     [self.appSheetCache setValue:viewController forKey:iTunesId];
                     block(true, nil);
                 } else {
-                    UADSLog(@"Preloading product information failed for id: %@ with error: %@", iTunesId, error);
+                    UADSLogDebug(@"Preloading product information failed for id: %@ with error: %@", iTunesId, error);
                     block(false, [error description]);
                 }
             }];

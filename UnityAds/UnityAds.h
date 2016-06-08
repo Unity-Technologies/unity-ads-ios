@@ -9,27 +9,27 @@
  */
 typedef NS_ENUM(NSInteger, UnityAdsPlacementState) {
     /**
-     *  A state that indicates that the placement is currently disabled. The placement can be enabled in the Unity Ads admin tools.
+     *  A state that indicates that the placement is ready to show an ad. The `show:` selector can be called.
      */
-    kUnityAdsPlacementStateDisabled,
-    /**
-     *  A state that indicates that the placement is properly configured, but there are currently no ads available for the placement.
-     */
-    kUnityAdsPlacementStateNoFill,
+    kUnityAdsPlacementStateReady,
     /**
      *  A state that indicates that no state is information is available.
      *  @warning This state can that UnityAds is not initialized or that the placement is not correctly configured in the Unity Ads admin tool.
      */
     kUnityAdsPlacementStateNotAvailable,
     /**
-     *  A state that indicates that the placement is ready to show an ad. The `show:` selector can be called.
+     *  A state that indicates that the placement is currently disabled. The placement can be enabled in the Unity Ads admin tools.
      */
-    kUnityAdsPlacementStateReady,
+    kUnityAdsPlacementStateDisabled,
     /**
      *  A state that indicates that the placement is not currently ready, but will be in the future.
      *  @note This state most likely indicates that the ad content is currently caching.
      */
-    kUnityAdsPlacementStateWaiting
+    kUnityAdsPlacementStateWaiting,
+    /**
+     *  A state that indicates that the placement is properly configured, but there are currently no ads available for the placement.
+     */
+    kUnityAdsPlacementStateNoFill
 };
 
 /**
@@ -37,13 +37,13 @@ typedef NS_ENUM(NSInteger, UnityAdsPlacementState) {
  */
 typedef NS_ENUM(NSInteger, UnityAdsFinishState) {
     /**
-     *  A state that indicates that the ad was played entirely.
-     */
-    kUnityAdsFinishStateCompleted,
-    /**
      *  A state that indicates that the ad did not successfully display.
      */
     kUnityAdsFinishStateError,
+    /**
+     *  A state that indicates that the ad was played entirely.
+     */
+    kUnityAdsFinishStateCompleted,
     /**
      *  A state that indicates that the user skipped the ad.
      */
@@ -237,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return If this is `kUnityAdsPlacementStateReady`, the placement is ready to show ads. Other states represent errors.
  */
-+ (UnityAdsPlacementState)getPlacementStateWithPlacementId:(NSString *)placementId;
++ (UnityAdsPlacementState)getPlacementState:(NSString *)placementId;
 /**
  *  Check the version of this `UnityAds` SDK
  *

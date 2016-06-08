@@ -16,6 +16,9 @@
 }
 
 - (void)resolve {
+    self.blockCondition = [[NSCondition alloc] init];
+    [self.blockCondition lock];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
         const char* hostnameCstring = [self.hostName UTF8String];
         struct hostent *host_entry = gethostbyname(hostnameCstring);
@@ -34,8 +37,6 @@
         [self openBlock];
     });
     
-    self.blockCondition = [[NSCondition alloc] init];
-    [self.blockCondition lock];
     BOOL success = [self.blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:30]];
     [self.blockCondition unlock];
     

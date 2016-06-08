@@ -7,7 +7,7 @@
 #import "UADSInitialize.h"
 #import "UADSViewController.h"
 #import "UADSWebViewApp.h"
-#import "UADSApiPlacement.h"
+#import "UADSPlacement.h"
 
 #import "UADSWebViewMethodInvokeQueue.h"
 #import "UADSWebViewShowOperation.h"
@@ -41,7 +41,8 @@ static BOOL _initializing = NO;
         unityAdsError = kUnityAdsErrorInitSanityCheckFail;
     }
     // Bad game id or nil delegate
-    if ([gameId length] == 0 || delegate == nil) {
+    if (!gameId || [gameId length] == 0 || delegate == nil) {
+        UADSLogError(@"Unity ads init: invalid argument, halting init");
         didError = YES;
         unityAdsError = kUnityAdsErrorInvalidArgument;
     }
@@ -50,12 +51,18 @@ static BOOL _initializing = NO;
         if (delegate != nil && [delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
             [delegate unityAdsDidError:unityAdsError withMessage:@""];
         }
+        
+        return;
     }
     
     _initializing = YES;
     @synchronized (self) {
-        UADSLog(@"Testmode: %@", testMode ? @"TEST" : @"PRODUCTION");
-        
+        if(testMode) {
+            UADSLogInfo(@"Initializing Unity Ads %@ (%d) with game id %@ in test mode", [UADSSdkProperties getVersionName], [UADSSdkProperties getVersionCode], gameId);
+        } else {
+            UADSLogInfo(@"Initializing Unity Ads %@ (%d) with game id %@ in production mode", [UADSSdkProperties getVersionName], [UADSSdkProperties getVersionCode], gameId);
+        }
+
         if ([UADSEnvironmentProperties isEnvironmentOk]) {
             // TODO: Log environment OK
         }
@@ -94,23 +101,34 @@ static BOOL _initializing = NO;
 }
 
 + (void)show:(UIViewController *)viewController {
-    [UnityAds show:viewController placementId:[UADSApiPlacement getDefaultPlacement]];
+    [UnityAds show:viewController placementId:[UADSPlacement getDefaultPlacement]];
 }
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId {
     if ([UnityAds isReady:placementId]) {
+        UADSLogInfo(@"Unity Ads opening new ad unit for placement %@", placementId);
+
         [UADSClientProperties setCurrentViewController:viewController];
         
         int supportedOrientations = [[UIApplication sharedApplication]supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication]keyWindow]];
 
-        NSDictionary *parametersDictioanry = @{@"shouldAutorotate" : [NSNumber numberWithBool:viewController.shouldAutorotate],
+        NSDictionary *parametersDictionary = @{@"shouldAutorotate" : [NSNumber numberWithBool:viewController.shouldAutorotate],
                                                @"supportedOrientations" : [NSNumber numberWithInt:supportedOrientations], };
 
         
         UADSWebViewShowOperation *operation = [[UADSWebViewShowOperation alloc] initWithPlacementId:placementId
-                                                                     parametersDictionary:parametersDictioanry];
+                                                                     parametersDictionary:parametersDictionary];
         
         [UADSWebViewMethodInvokeQueue addOperation:operation];
+    } else {
+        if (![self isSupported]) {
+            [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not supported for this device"];
+        } else if (![self isInitialized]) {
+            [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not initialized"];
+        } else {
+            NSString *message = [NSString stringWithFormat:@"Placement \"%@""\" is not ready", placementId];
+            [self handleShowError:placementId unityAdsError:kUnityAdsErrorShowError message:message];
+        }
     }
 }
 
@@ -128,7 +146,7 @@ static BOOL _initializing = NO;
 
 + (void)setDebugMode:(BOOL)enableDebugMode {
     _debugMode = enableDebugMode;
-    UADSLog(@"%@", _debugMode ? @"debug enabled" : @"debug disabled" );
+    UADSLogDebug(@"%@", _debugMode ? @"debug enabled" : @"debug disabled" );
 }
 
 + (BOOL)isSupported {
@@ -139,19 +157,19 @@ static BOOL _initializing = NO;
 }
 
 + (BOOL)isReady {
-    return [UnityAds isSupported] && [UnityAds isInitialized] && [UADSApiPlacement isReady];
+    return [UnityAds isSupported] && [UnityAds isInitialized] && [UADSPlacement isReady];
 }
 
 + (BOOL)isReady:(NSString *)placementId {
-    return [UnityAds isSupported] && [UnityAds isInitialized] && [UADSApiPlacement isReady:placementId];
+    return [UnityAds isSupported] && [UnityAds isInitialized] && [UADSPlacement isReady:placementId];
 }
 
 + (UnityAdsPlacementState)getPlacementState {
-    return [UADSApiPlacement getPlacementState];
+    return [UADSPlacement getPlacementState];
 }
 
-+ (UnityAdsPlacementState)getPlacementStateWithPlacementId:(NSString *)placementId {
-    return [UADSApiPlacement getPlacementState:placementId];
++ (UnityAdsPlacementState)getPlacementState:(NSString *)placementId {
+    return [UADSPlacement getPlacementState:placementId];
 }
 
 + (NSString *)getVersion {
@@ -162,38 +180,11 @@ static BOOL _initializing = NO;
     return [UADSSdkProperties isInitialized];
 }
 
-+ (NSString *)NSStringFromUnityAdsError:(UnityAdsError) error {
-    switch (error) {
-        case kUnityAdsErrorAdBlockerDetected:
-            return @"AdBlockerDetected";
-            break;
-        case kUnityAdsErrorDeviceIdError:
-            return @"DeviceIdError";
-            break;
-        case kUnityAdsErrorFileIoError:
-            return @"ErrorFileIoError";
-            break;
-        case kUnityAdsErrorInitSanityCheckFail:
-            return @"InitSanityCheckFail";
-            break;
-        case kUnityAdsErrorInitializedFailed:
-            return @"InitializedFailed";
-            break;
-        case kUnityAdsErrorInternalError:
-            return @"InternalError";
-            break;
-        case kUnityAdsErrorInvalidArgument:
-            return @"InvalidArgument";
-            break;
-        case kUnityAdsErrorNotInitialized:
-            return @"NotInitialized";
-            break;
-        case kUnityAdsErrorShowError:
-            return @"ShowError";
-            break;
-        case kUnityAdsErrorVideoPlayerError:
-            return @"VideoPlayerError";
-            break;
++ (void)handleShowError:(NSString *)placementId unityAdsError:(UnityAdsError)unityAdsError message:(NSString *)message {
+    if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+        NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
+        UADSLogError(@"%@", errorMessage);
+        [[self getDelegate] unityAdsDidError:unityAdsError withMessage:errorMessage];
     }
 }
 

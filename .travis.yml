@@ -1,0 +1,24 @@
+language: objective-c
+osx_image: xcode7.3
+notifications:
+  slack: unity:6IbRRuDaxbbtBzcJ1nhTSHO2
+script:
+- ./generate-project.rb
+- xcodebuild -project UnityAds.xcodeproj -configuration Debug -target UnityAdsTests -sdk iphonesimulator -destination "platform=iOS Simulator,OS=9.3,name=iPad 2" analyze &> analyze.log && ! grep -q "warning generated" analyze.log
+- xcodebuild -project UnityAds.xcodeproj -enableCodeCoverage YES -configuration Debug -scheme UnityAds -sdk iphonesimulator -destination "platform=iOS Simulator,OS=9.3,name=iPhone 6" clean build test
+before_install:
+- rm -rf /Users/travis/Library/Developer/Xcode/DerivedData/
+- |
+  echo "hackety hack around https://github.com/direnv/direnv/issues/210" &&
+  echo "shell_session_update() { :; }" >> ~/.direnvrc &&
+  cat ~/.direnvrc &&
+  echo "^above should have the line we need" &&
+  echo "shell_session_update() { :; }" >> ~/.envrc &&
+  source ~/.envrc
+install:
+- gem list xcodeproj
+- gem install xcodeproj
+- gem list xcodeproj
+- gem install slather --no-rdoc --no-ri --no-document
+after_success:
+- slather

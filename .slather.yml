@@ -1,0 +1,11 @@
+ci_service: travis_pro
+coverage_access_token: 8NXlsKOaGOngUznK3VFIlT0mgH0xJLDUJ
+coverage_service: coveralls
+xcodeproj: UnityAds.xcodeproj
+source_directory: UnityAds
+build_directory: /Users/travis/Library/Developer/Xcode/DerivedData
+scheme: UnityAds
+ignore:
+      - UnityAds/Api/*
+      - ../../../../../Applications/*
+      - ../../../../Applications/*

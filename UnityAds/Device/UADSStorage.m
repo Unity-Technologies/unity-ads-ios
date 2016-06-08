@@ -160,7 +160,7 @@
         BOOL success = [[UADSWebViewApp getCurrentApp] sendEvent:eventType category:@"STORAGE" params:params];
 
         if (!success) {
-            UADSLog(@"Coudn't send storage event to WebApp!");
+            UADSLogDebug(@"Coudn't send storage event to WebApp!");
         }
     }
 }

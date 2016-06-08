@@ -56,15 +56,15 @@
     NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:false];
     [self setConnection:connection];
     [connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-    [connection start];
-    
     self.blockCondition = [[NSCondition alloc] init];
     [self.blockCondition lock];
+
+    [connection start];
+
     [self.blockCondition wait];
     [self.blockCondition unlock];
 
     if (self.canceled) {
-        
     }
 
     return self.receivedData;
@@ -74,7 +74,7 @@
     [self.blockCondition lock];
     [self setError:[NSError errorWithDomain:@"com.unity3d.ads.UnityAds.Error"
                                        code:kUnityAdsWebRequestErrorRequestTimedOut
-                                   userInfo:nil]];
+                                   userInfo:[self makeUserInfoDictionary:kUnityAdsWebRequestErrorRequestTimedOut message:@"Request timed out"]]];
     self.finished = true;
     [self.blockCondition signal];
     [self.blockCondition unlock];
@@ -96,7 +96,11 @@
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     self.responseCode = [httpResponse statusCode];
     self.responseHeaders = [httpResponse allHeaderFields];
-    
+
+    if (!self.responseHeaders) {
+        self.responseHeaders = [[NSDictionary alloc] init];
+    }
+
     if (self.startBlock) {
         self.startBlock(self.url, self.expectedContentLength);
     }
@@ -111,7 +115,6 @@
 }
 
 - (NSURLRequest *)connection:(NSURLConnection *)connection willSendRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse {
-
     if (!redirectResponse) {
         return request;
     }
@@ -119,9 +122,15 @@
     return nil;
 }
 
+- (NSDictionary *)makeUserInfoDictionary:(long)errorCode message:(NSString *)message {
+    return @{@"code":[NSNumber numberWithLong:errorCode], @"message":message};
+}
+
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
     [self.blockCondition lock];
-    [self setError:error];
+    [self setError:[NSError errorWithDomain:@"com.unity3d.ads.UnityAds.Error"
+                                       code:kUnityAdsWebRequestGenericError
+                                   userInfo:[self makeUserInfoDictionary:error.code message:error.description]]];
     self.finished = true;
     [self.blockCondition signal];
     [self.blockCondition unlock];

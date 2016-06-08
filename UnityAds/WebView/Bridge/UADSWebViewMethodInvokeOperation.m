@@ -24,24 +24,25 @@ static NSCondition *lock;
     NSString *receiverClass = NSStringFromClass(self.class);
     NSString *receiverSelector = @"callback:";
 
+    lock = [[NSCondition alloc] init];
+    [lock lock];
+
     [[UADSWebViewApp getCurrentApp] invokeMethod:self.webViewMethod className:self.webViewClass receiverClass:receiverClass callback:receiverSelector params:self.parameters];
     
     if (self.waitTime > 0) {
-        UADSLog(@"Locking");
-        lock = [[NSCondition alloc] init];
-        [lock lock];
+        UADSLogDebug(@"Locking");
         self.success = [lock waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:self.waitTime]];
         [lock unlock];
         
         if (!self.success) {
-            UADSLog(@"Callback timed out!");
+            UADSLogError(@"Unity Ads callback timed out! %@ %@", receiverClass, receiverSelector);
         }
     }
 }
 
 + (void)callback:(NSArray *)params {
     if (lock) {
-        UADSLog(@"Unlocking");
+        UADSLogDebug(@"Unlocking");
         [lock lock];
         [lock signal];
         [lock unlock];

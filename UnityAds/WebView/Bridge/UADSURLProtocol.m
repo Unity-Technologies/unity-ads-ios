@@ -67,10 +67,10 @@ static NSString* const kUnityAdsURLProtocolHostname = @"webviewbridge.unityads.u
             NSArray* jsonArray = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&jsonError];
 
             if (jsonError) {
-                UADSLog(@"JSON ERROR: %@", [jsonError description]);
+                UADSLogError(@"JSON ERROR: %@", [jsonError description]);
             }
             else if (!jsonArray || ![jsonArray isKindOfClass:[NSArray class]]) {
-                UADSLog(@"ERROR PARSING JSON TO ARRAY: %@", jsonError);
+                UADSLogError(@"ERROR PARSING JSON TO ARRAY: %@", jsonError);
                 return;
             }
 
@@ -80,10 +80,10 @@ static NSString* const kUnityAdsURLProtocolHostname = @"webviewbridge.unityads.u
             NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&jsonError];
 
             if (jsonError) {
-                UADSLog(@"JSON ERROR: %@", [jsonError description]);
+                UADSLogError(@"JSON ERROR: %@", [jsonError description]);
             }
             else if (!jsonDictionary || ![jsonDictionary isKindOfClass:[NSDictionary class]]) {
-                UADSLog(@"ERROR PARSING JSON TO DICTIONARY: %@", jsonError);
+                UADSLogError(@"ERROR PARSING JSON TO DICTIONARY: %@", jsonError);
                 return;
             }
 
@@ -95,7 +95,7 @@ static NSString* const kUnityAdsURLProtocolHostname = @"webviewbridge.unityads.u
 - (void)handleInvocation:(NSArray *)invocations {
     UADSInvocation *batch = [[UADSInvocation alloc] init];
     
-    UADSLog(@"%@", invocations);
+    UADSLogDebug(@"%@", invocations);
     NSMutableDictionary *failedIndices = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *failedCallbacks = [[NSMutableDictionary alloc] init];
     
@@ -120,7 +120,7 @@ static NSString* const kUnityAdsURLProtocolHostname = @"webviewbridge.unityads.u
             [batch addInvocation:className methodName:methodName parameters:parameters callback:webViewCallback];
         }
         @catch (NSException *exception) {
-            UADSLog(@"Error while adding invocation: %@", [exception reason]);
+            UADSLogError(@"Error while adding invocation: %@", [exception reason]);
             [failedIndices setObject:exception forKey:[NSNumber numberWithInt:idx]];
             [failedCallbacks setObject:webViewCallback forKey:[NSNumber numberWithInt:idx]];
         }
