@@ -1,6 +1,6 @@
 # Unity Ads 2.0 iOS Release Repository
 
-Welcome to the Unity Ads 2.0 iOS release repository
+Welcome to the Unity Ads 2.0 iOS release repository. *Please note that SDK 2.0 is still in BETA*.
 
 ## Binaries
 
