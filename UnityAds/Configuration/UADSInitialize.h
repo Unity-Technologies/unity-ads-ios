@@ -14,7 +14,6 @@
 @interface UADSInitializeState : NSOperation
 
 @property (nonatomic, assign) UADSConfiguration *configuration;
-@property (nonatomic, assign) NSOperationQueue *queue;
 
 - (instancetype)execute;
 - (instancetype)initWithConfiguration:(UADSConfiguration *)configuration;
@@ -61,7 +60,7 @@
 
 @interface UADSInitializeStateCreate : UADSInitializeState
 
-@property (atomic, retain) NSString *webViewData;
+@property (atomic, strong) NSString *webViewData;
 
 - (instancetype)initWithConfiguration:(UADSConfiguration *)configuration webViewData:(NSString *)webViewData;
 

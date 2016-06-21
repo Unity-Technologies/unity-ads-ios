@@ -19,11 +19,12 @@
 @implementation UADSAppSheet
 
 + (instancetype)instance {
-    static UADSAppSheet *sharedInstance = nil;
+    static UADSAppSheet *sharedInstance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[UADSAppSheet alloc] init];
     });
+    
     return sharedInstance;
 }
 
@@ -46,10 +47,12 @@
         block(true, nil);
     } else if(![self.appSheetLoading containsObject:iTunesId]) {
         [self.appSheetLoading addObject:iTunesId];
-        SKStoreProductViewController *viewController = [[UADSAppSheetViewController alloc] init];
-        [viewController setDelegate:self];
-        [viewController setModalPresentationCapturesStatusBarAppearance:true];
+        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            SKStoreProductViewController *viewController = [[UADSAppSheetViewController alloc] init];
+            [viewController setDelegate:self];
+            [viewController setModalPresentationCapturesStatusBarAppearance:true];
+            
             __block BOOL finished = NO;
             __block BOOL cancelled = NO;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.prepareTimeoutInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -91,11 +94,14 @@
         }
         self.presentingParameters = parameters;
         self.presentingAnimated = animated;
-        [[UADSApiAdUnit getAdUnit] presentViewController:cachedController animated:animated completion:^{
-            if ([UADSWebViewApp getCurrentApp]) {
-                [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAppSheetEvent(kAppSheetOpened) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAppSheet) param1:parameters, nil];
-            }
-        }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UADSApiAdUnit getAdUnit] presentViewController:cachedController animated:animated completion:^{
+                if ([UADSWebViewApp getCurrentApp]) {
+                    [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAppSheetEvent(kAppSheetOpened) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAppSheet) param1:parameters, nil];
+                }
+            }];
+        });
+        
         block(true, nil);
     } else {
         block(false, NSStringFromAppSheetError(kUnityAdsAppSheetErrorNotFound));

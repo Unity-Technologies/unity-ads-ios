@@ -3,7 +3,7 @@
 NSString * const kUnityAdsCacheDirName = @"UnityAdsCache";
 NSString * const kUnityAdsLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityAdsLocalStorageFilePrefix  = @"UnityAdsStorage-";
-NSString * const kUnityAdsVersionName = @"2.0.0-beta2";
+NSString * const kUnityAdsVersionName = @"2.0.0-beta3";
 NSString * const kUnityAdsFlavorDebug = @"debug";
 NSString * const kUnityAdsFlavorRelease = @"release";
 int const kUnityAdsVersionCode = 2000;
@@ -101,7 +101,18 @@ static BOOL debug = true;
 + (NSString *)getCacheDirectory {
     if (cacheDirectory == NULL) {
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-        cacheDirectory = [paths firstObject];
+        
+        BOOL cacheLocationIsDirectory = YES;
+        if (paths.count != 0) {
+            [[NSFileManager defaultManager] fileExistsAtPath:[paths firstObject] isDirectory:&cacheLocationIsDirectory];
+        }
+        
+        if (cacheLocationIsDirectory) {
+            cacheDirectory = [paths firstObject];
+        } else {
+            cacheDirectory = NSTemporaryDirectory();
+        }
+        
     }
 
     return cacheDirectory;

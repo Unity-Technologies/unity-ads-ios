@@ -44,4 +44,13 @@ static dispatch_once_t onceToken;
     return false;
 }
 
++ (void)cancelAllOperations {
+    if (requestQueue) {
+        [requestQueue cancelAllOperations];
+    }
+    if (resolveQueue) {
+        [resolveQueue cancelAllOperations];
+    }
+}
+
 @end

@@ -125,7 +125,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
             [webViewApp sendEvent: Connected category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:TRUE], [NSNumber numberWithInt:0], nil];
             break;
         case ReachableViaWWAN:
-            [webViewApp sendEvent: Connected category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:FALSE], [UADSConnectivityUtils getNetworkType], nil];
+            [webViewApp sendEvent: Connected category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:FALSE], [NSNumber numberWithInteger:[UADSConnectivityUtils getNetworkType]], nil];
             break;
         default:
             break;

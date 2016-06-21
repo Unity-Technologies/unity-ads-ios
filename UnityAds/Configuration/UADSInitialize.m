@@ -7,6 +7,7 @@
 #import "UADSWebRequestQueue.h"
 #import "UADSCacheQueue.h"
 #import "UADSPlacement.h"
+#import "UADSNotificationObserver.h"
 #import "NSString+Hash.h"
 
 @implementation UADSInitialize
@@ -26,7 +27,6 @@ static dispatch_once_t onceToken;
     if (initializeQueue && initializeQueue.operationCount == 0) {
         currentConfiguration = configuration;
         id state = [[UADSInitializeStateReset alloc] initWithConfiguration:currentConfiguration];
-        [state setQueue:initializeQueue];
         [initializeQueue addOperation:state];
     }
 }
@@ -41,8 +41,8 @@ static dispatch_once_t onceToken;
 
 - (void)main {
     id nextState = [self execute];
-    if (nextState && self.queue) {
-        [self.queue addOperation:nextState];
+    if (nextState && initializeQueue) {
+        [initializeQueue addOperation:nextState];
     }
 }
 
@@ -103,11 +103,14 @@ static dispatch_once_t onceToken;
     [UADSSdkProperties setInitialized:false];
     [UADSPlacement reset];
     [UADSCacheQueue cancelAllDownloads];
-    [UADSConnectivityMonitor stopAll];
+    [UADSWebRequestQueue cancelAllOperations];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UADSConnectivityMonitor stopAll];
+    });
     [UADSStorageManager init];
+    [UADSNotificationObserver unregisterNotificationObserver];
     
     id nextState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0];
-    [nextState setQueue:self.queue];
     return nextState;
 }
 
@@ -137,20 +140,17 @@ static dispatch_once_t onceToken;
     
     if (!self.configuration.error) {
         id nextState = [[UADSInitializeStateLoadCache alloc] initWithConfiguration:self.configuration];
-        [nextState setQueue:self.queue];
         return nextState;
     }
     else if (self.configuration.error && self.retries < self.maxRetries) {
         self.retries++;
         id retryState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries];
         id nextState = [[UADSInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
-        [nextState setQueue:self.queue];
         return nextState;
     }
     else {
         id erroredState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries];
         id nextState = [[UADSInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState];
-        [nextState setQueue:self.queue];
         return nextState;
     }
 }
@@ -173,13 +173,11 @@ static dispatch_once_t onceToken;
         if (!localWebViewHash || (localWebViewHash && [localWebViewHash isEqualToString:self.configuration.webViewHash])) {
             UADSLogInfo(@"Unity Ads init: webapp loaded from local cache");
             id nextState = [[UADSInitializeStateCreate alloc] initWithConfiguration:self.configuration webViewData:fileString];
-            [nextState setQueue:self.queue];
             return nextState;
         }
     }
     
     id nextState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0];
-    [nextState setQueue:self.queue];
     return nextState;
 }
 
@@ -216,19 +214,16 @@ static dispatch_once_t onceToken;
         self.retries++;
         id retryState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries];
         id nextState = [[UADSInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
-        [nextState setQueue:self.queue];
         return nextState;
     }
     else if (webRequest.error) {
         id erroredState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries];
         id nextState = [[UADSInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState];
-        [nextState setQueue:self.queue];
         return nextState;
     }
 
     NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
     id nextState = [[UADSInitializeStateCreate alloc] initWithConfiguration:self.configuration webViewData:responseString];
-    [nextState setQueue:self.queue];
     return nextState;
 }
 
@@ -246,7 +241,6 @@ static dispatch_once_t onceToken;
     [UADSWebViewApp create:self.configuration];
 
     id nextState = [[UADSInitializeStateComplete alloc] initWithConfiguration:self.configuration];
-    [nextState setQueue:self.queue];
     return nextState;
 }
 
@@ -313,19 +307,29 @@ static dispatch_once_t onceToken;
 
 - (instancetype)execute {
     UADSLogError(@"Unity Ads init: network error, waiting for connection events");
-
-    [UADSConnectivityMonitor startListening:self];
-    
+        
     self.blockCondition = [[NSCondition alloc] init];
     [self.blockCondition lock];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [UADSConnectivityMonitor startListening:self];
+    });
+    
     BOOL success = [self.blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:10000 * 60]];
     
     if (success) {
-        [UADSConnectivityMonitor stopListening:self];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UADSConnectivityMonitor stopListening:self];
+        });
+        
+        [self.blockCondition unlock];
         return self.erroredState;
     }
     else {
-        [UADSConnectivityMonitor stopListening:self];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UADSConnectivityMonitor stopListening:self];
+            
+        });
     }
 
     [self.blockCondition unlock];

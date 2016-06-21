@@ -9,7 +9,7 @@ typedef NS_ENUM(NSInteger, UnityAdsStorageType) {
 
 @property (nonatomic, assign) NSString *targetFileName;
 @property (nonatomic, assign) UnityAdsStorageType type;
-@property (nonatomic, retain) NSMutableDictionary *storageContents;
+@property (nonatomic, strong) NSMutableDictionary *storageContents;
 
 - (instancetype)initWithLocation:(NSString *)fileLocation type:(UnityAdsStorageType)type;
 - (BOOL)setValue:(id)value forKey:(NSString *)key;

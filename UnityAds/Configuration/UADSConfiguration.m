@@ -28,6 +28,7 @@ NSString* const kUnityAdsConfigValueVersion = @"version";
     NSString *urlString = [NSString stringWithFormat:@"%@%@", [self configUrl], [self buildQueryString]];
     UADSLogDebug(@"Requesting configuration with: %@", urlString);
 
+    [self setError:nil];
     NSError *error;
     UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:urlString requestType:@"GET" headers:NULL connectTimeout:30000];
     NSData *responseData = [request makeRequest];

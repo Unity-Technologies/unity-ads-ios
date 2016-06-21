@@ -2,8 +2,8 @@
 
 @interface UADSInvocation : NSObject
 
-@property (nonatomic, retain) NSMutableArray<NSInvocation*> *invocations;
-@property (nonatomic, retain) NSMutableArray<NSArray*> *responses;
+@property (nonatomic, strong) NSMutableArray<NSInvocation*> *invocations;
+@property (nonatomic, strong) NSMutableArray<NSArray*> *responses;
 @property (nonatomic, assign) int invocationId;
 
 - (void)addInvocation:(NSString *)className methodName:(NSString *)methodName parameters:(NSArray *)parameters callback:(UADSWebViewCallback *)callback;

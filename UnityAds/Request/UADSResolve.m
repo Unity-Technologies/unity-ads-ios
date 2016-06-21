@@ -10,6 +10,7 @@
     
     if (self) {
         [self setHostName:hostName];
+        [self setCanceled:false];
     }
     
     return self;
@@ -50,6 +51,11 @@
     [self.blockCondition lock];
     [self.blockCondition signal];
     [self.blockCondition unlock];
+}
+
+- (void)cancel {
+    [self setCanceled:true];
+    [self openBlock];
 }
 
 @end

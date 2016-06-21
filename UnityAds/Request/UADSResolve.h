@@ -7,8 +7,10 @@
 @property (nonatomic, strong) NSCondition *blockCondition;
 @property (nonatomic, strong) NSString *error;
 @property (nonatomic, strong) NSString *errorMessage;
+@property (nonatomic, assign) BOOL canceled;
 
 - (instancetype)initWithHostName:(NSString *)hostName;
 - (void)resolve;
+- (void)cancel;
 
 @end
