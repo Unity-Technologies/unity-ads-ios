@@ -31,6 +31,7 @@
     
     if (self.expectation) {
         [self.expectation fulfill];
+        self.expectation = NULL;
     }
     
     return NULL;

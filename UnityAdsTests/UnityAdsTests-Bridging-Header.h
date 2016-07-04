@@ -23,6 +23,7 @@
 #import "UADSClientProperties.h"
 #import "NSString+Hash.h"
 #import "UADSURLProtocol.h"
+#import "UADSInitialize.h"
 
 // METADATA
 #import "UADSMetaData.h"

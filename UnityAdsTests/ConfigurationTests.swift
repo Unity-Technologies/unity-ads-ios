@@ -41,4 +41,46 @@ class ConfigurationTests: XCTestCase {
         confClass.configUrl = url
         XCTAssertTrue(confClass.configUrl == "hello world", "Contents of configUrl not what was expected")
     }
+    
+    func testMakeRequest () {
+        let configuration = UADSConfiguration.init(configUrl: UADSSdkProperties.getConfigUrl());
+        
+        let expectation = self.expectationWithDescription("configRequestExpectation")
+        
+        let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+        dispatch_async(queue) {
+            configuration.makeRequest()
+            expectation.fulfill()
+        }
+        
+        self.waitForExpectationsWithTimeout(30) {
+            error in
+            XCTAssertTrue(true, "Did complete")
+        }
+        
+        XCTAssertNotNil(configuration.webViewUrl, "Web view url shouldn't be nil")
+        XCTAssertNil(configuration.error, "Error should be nil")
+    }
+    
+    func testMakeRequestNotValidUrl () {
+    
+        let configuration = UADSConfiguration.init(configUrl: "https://cdn.unityadsssss.unity3d.com/webview/master/release/config.json");
+        
+        let expectation = self.expectationWithDescription("configRequestExpectation")
+        
+        let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
+        dispatch_async(queue) {
+            configuration.makeRequest()
+            expectation.fulfill()
+        }
+        
+        self.waitForExpectationsWithTimeout(30) {
+            error in
+            XCTAssertTrue(true, "Did complete")
+        }
+        
+        XCTAssertNotNil(configuration.error, "Error shouldn't be nil")
+        XCTAssertTrue("ERROR_REQUESTING_CONFIG" == configuration.error, "Error message should be equal to 'ERROR_REQUESTING_CONFIG'")
+        
+    }
 }

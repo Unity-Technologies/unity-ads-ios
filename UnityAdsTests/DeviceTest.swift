@@ -33,6 +33,10 @@ class DeviceTest: XCTestCase {
         
     }
     
+    func testGetAdvertisingTrackingId() {
+        XCTAssertNotNil(UADSDevice.getAdvertisingTrackingId(), "Advertising id shouldn't be nil");
+    }
+    
     func testGetNetworkType() {
         XCTAssertTrue(UADSDevice.getNetworkType() >= 0)
     }
@@ -89,6 +93,13 @@ class DeviceTest: XCTestCase {
         NSLog("timeZone: " + timeZone)
         XCTAssertNotNil(timeZone);
 
+    }
+    
+    func testGetTimeZoneWithDaylightSavingTime() {
+        let timeZone:String! = UADSDevice.getTimeZone(true);
+        NSLog("timeZone: " + timeZone)
+        XCTAssertNotNil(timeZone);
+        
     }
     
     func testOuputVolume() {
