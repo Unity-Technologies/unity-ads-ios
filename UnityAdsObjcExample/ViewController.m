@@ -88,6 +88,11 @@ static NSString * const kGameIdKey = @"adsExampleAppGameId";
     [mediationMetaData setOrdinal:1];
     [mediationMetaData commit];
     
+    UADSMetaData *debugMetaData = [[UADSMetaData alloc] init];
+    [debugMetaData set:@"test.debugOverlayEnabled" value:@YES];
+    [debugMetaData commit];
+    
+    
     self.initializeButton.enabled = NO;
     self.initializeButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.gameIdTextField.enabled = NO;

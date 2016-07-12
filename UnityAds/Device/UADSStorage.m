@@ -82,7 +82,7 @@
 
                 if (subkeys) {
                     for (NSString *subkey in subkeys) {
-                        [combinedKeys addObject:[NSString stringWithFormat:@"%@.%@", key, subkey]];
+                        [combinedKeys addObject:[NSString stringWithFormat:@"%@.%@", currentKey, subkey]];
                     }
                 }
             }

@@ -198,7 +198,6 @@ class StorageGeneralTests: XCTestCase {
         let type = UnityAdsStorageType.init(rawValue: 1)
         let storage:UADSStorage = UADSStorageManager.getStorage(type!)
         let value1:NSNumber = NSNumber.init(int: 12345)
-        NSLog("TADAAA: %@", storage.storageContents)
         XCTAssertEqual(false, storage.hasData(), "Storage should hold no data in the beginning of the test: ")
         XCTAssertEqual(true, storage.setValue(value1, forKey: "tests.deletethis"), "Should have been able to set key \"tests.deletethis\" with value: 12345")
         XCTAssertEqual(true, storage.writeStorage(), "Write storage should have succeeded")
@@ -217,5 +216,150 @@ class StorageGeneralTests: XCTestCase {
         XCTAssertEqual(false, storage.hasData(), "Storage was reset, should hold no data")
         XCTAssertEqual(true, storage.readStorage(), "Read storage failed for some reason even though it shouldn't have")
         XCTAssertNil(storage.getValueForKey("tests.deletethis"), "Storage should be empty but wasn't")
+    }
+    
+    func testGetKeys () {
+        let type = UnityAdsStorageType.init(rawValue: 1)
+        let storage:UADSStorage = UADSStorageManager.getStorage(type!)
+        let value:NSNumber = NSNumber.init(int: 12345)
+        let expected:NSArray = ["DB62D2FF-F4F3-4050-BC22-EE7242638F71", "EC71F5DB-D8B8-466B-B878-FEF018298493", "7D2526C4-8123-4068-B481-0EB9680BE974"];
+        
+        storage.setValue(value, forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts")
+        storage.setValue(value, forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data")
+
+        storage.writeStorage()
+        storage.clearData()
+        storage.readStorage()
+
+        storage.setValue(value, forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts")
+        storage.setValue(value, forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data")
+
+        storage.writeStorage()
+        storage.clearData()
+        storage.readStorage()
+        
+        storage.setValue(value, forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.ts")
+        storage.setValue(value, forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data")
+
+        
+        let keys:NSArray = storage.getKeys("session", recursive: false);
+        
+        XCTAssertEqual(expected.count, keys.count, "Expected an actual key amount differ")
+        
+        for key in keys {
+            XCTAssertTrue(expected.containsObject(key), "Expected keys don't contain key")
+        }
+    }
+    
+    func testGetKeysNonRecursive () {
+        let type = UnityAdsStorageType.init(rawValue: 1)
+        let storage:UADSStorage = UADSStorageManager.getStorage(type!)
+        let value:NSNumber = NSNumber.init(int: 12345)
+        let expected:NSArray = ["DB62D2FF-F4F3-4050-BC22-EE7242638F71", "EC71F5DB-D8B8-466B-B878-FEF018298493", "7D2526C4-8123-4068-B481-0EB9680BE974"];
+        
+        storage.setValue(value, forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts")
+        storage.setValue("heips", forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data")
+        storage.setValue("http://moi.com", forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.url")
+        
+        storage.writeStorage()
+        storage.deleteKey("session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.writeStorage()
+        storage.clearData()
+        
+        storage.readStorage()
+        
+        storage.setValue(value, forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts")
+        storage.setValue(value, forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.data")
+        storage.setValue("http://moi.com", forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.url")
+        
+        storage.writeStorage()
+        storage.deleteKey("session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.writeStorage()
+        storage.clearData()
+        
+        storage.readStorage()
+
+        storage.setValue(value, forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.ts")
+        storage.setValue(value, forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.data")
+        storage.setValue("http://moi.com", forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url")
+        
+        storage.writeStorage()
+        storage.deleteKey("session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.writeStorage()
+        storage.clearData()
+        
+        storage.readStorage()
+
+        let keys:NSArray = storage.getKeys("session", recursive: false);
+        
+        NSLog("%@", keys);
+        
+        XCTAssertEqual(expected.count, keys.count, "Expected an actual key amount differ")
+        
+        for key in keys {
+            XCTAssertTrue(expected.containsObject(key), "Expected keys don't contain key")
+        }
+    }
+    
+    func testGetKeysRecursive () {
+        let type = UnityAdsStorageType.init(rawValue: 1)
+        let storage:UADSStorage = UADSStorageManager.getStorage(type!)
+        let value:NSNumber = NSNumber.init(int: 12345)
+        let expected:NSArray = [
+            "DB62D2FF-F4F3-4050-BC22-EE7242638F71",
+            "DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts",
+            "DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative",
+            
+            "EC71F5DB-D8B8-466B-B878-FEF018298493",
+            "EC71F5DB-D8B8-466B-B878-FEF018298493.ts",
+            "EC71F5DB-D8B8-466B-B878-FEF018298493.operative",
+            
+            "7D2526C4-8123-4068-B481-0EB9680BE974",
+            "7D2526C4-8123-4068-B481-0EB9680BE974.ts",
+            "7D2526C4-8123-4068-B481-0EB9680BE974.operative",
+        ];
+        
+        storage.setValue(value, forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts")
+        storage.setValue("heips", forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data")
+        storage.setValue("http://moi.com", forKey: "session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.url")
+        
+        storage.writeStorage()
+        storage.deleteKey("session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.writeStorage()
+        storage.clearData()
+        
+        storage.readStorage()
+        
+        storage.setValue(value, forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts")
+        storage.setValue(value, forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.data")
+        storage.setValue("http://moi.com", forKey: "session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.url")
+        
+        storage.writeStorage()
+        storage.deleteKey("session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.writeStorage()
+        storage.clearData()
+        
+        storage.readStorage()
+        
+        storage.setValue(value, forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.ts")
+        storage.setValue(value, forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.data")
+        storage.setValue("http://moi.com", forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url")
+        
+        storage.writeStorage()
+        storage.deleteKey("session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.writeStorage()
+        storage.clearData()
+        
+        storage.readStorage()
+        
+        let keys:NSArray = storage.getKeys("session", recursive: true);
+        
+        NSLog("%@", keys);
+        
+        XCTAssertEqual(expected.count, keys.count, "Expected an actual key amount differ")
+        
+        for key in keys {
+            XCTAssertTrue(expected.containsObject(key), "Expected keys don't contain key")
+        }
     }
 }

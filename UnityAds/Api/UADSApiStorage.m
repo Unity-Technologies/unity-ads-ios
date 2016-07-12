@@ -125,13 +125,13 @@
     }
 }
 
-+ (void)WebViewExposed_getKeys:(NSString *)type key:(NSString *)key recursive:(BOOL)recursive callback:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_getKeys:(NSString *)type key:(NSString *)key recursive:(NSNumber *)recursive callback:(UADSWebViewCallback *)callback {
     UnityAdsStorageType storageType = [UADSApiStorage getStorageTypeFromString:type];
     UADSStorage *storage = [UADSStorageManager getStorage:storageType];
 
     if (storage) {
         [callback invoke:
-            [storage getKeys:key recursive:recursive],
+            [storage getKeys:key recursive:[recursive boolValue]],
          nil];
     }
     else {
