@@ -284,7 +284,7 @@ class StorageGeneralTests: XCTestCase {
         storage.setValue("http://moi.com", forKey: "session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url")
         
         storage.writeStorage()
-        storage.deleteKey("session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605");
+        storage.deleteKey("session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605");
         storage.writeStorage()
         storage.clearData()
         

@@ -38,11 +38,30 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     if (self.playerItem) {
         @try {
             [self.playerItem addObserver:self forKeyPath:@"status" options:0 context:itemStatusChangeToken];
+        }
+        @catch (id exception) {
+            UADSLogDebug(@"Failed adding observer for 'status'");
+        }
+
+        @try {
             [self.playerItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:playbackBufferEmpty];
+        }
+        @catch (id exception) {
+            UADSLogDebug(@"Failed adding observer for 'playbackBufferEmpty'");
+        }
+        
+        @try {
             [self.playerItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:0 context:playbackLikelyToKeepUpKVOToken];
+        }
+        @catch (id exception) {
+            UADSLogDebug(@"Failed adding observer for 'playbackLikelyToKeepUp'");
+        }
+        
+        @try {
             [self.playerItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:playbackBufferFull];
         }
         @catch (id exception) {
+            UADSLogDebug(@"Failed adding observer for 'playbackBufferFull'");
         }
     }
 }
@@ -51,12 +70,32 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     if (self.playerItem) {
         @try {
             [self.playerItem removeObserver:self forKeyPath:@"status" context:itemStatusChangeToken];
+        }
+        @catch (id exception) {
+            UADSLogDebug(@"Failed removing observer for 'status'");
+        }
+        
+        @try {
             [self.playerItem removeObserver:self forKeyPath:@"playbackBufferEmpty" context:playbackBufferEmpty];
+        }
+        @catch (id exception) {
+            UADSLogDebug(@"Failed removing observer for 'playbackBufferEmpty'");
+        }
+
+        @try {
             [self.playerItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp" context:playbackLikelyToKeepUpKVOToken];
+        }
+        @catch (id exception) {
+            UADSLogDebug(@"Failed removing observer for 'playbackLikelyToKeepUp'");
+        }
+
+        @try {
             [self.playerItem removeObserver:self forKeyPath:@"playbackBufferFull" context:playbackBufferFull];
         }
         @catch (id exception) {
+            UADSLogDebug(@"Failed removing observer for 'playbackBufferFull'");
         }
+
     }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];

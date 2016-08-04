@@ -60,6 +60,7 @@ class ViewController: UIViewController {
         initButton.backgroundColor = UIColor(red:0.13, green:0.17, blue:0.22, alpha:0.8)
         gameIdTextField.enabled = false
         testModeButton.enabled = false
+        UnityAds.setDebugMode(true);
         UnityAds.initialize(gameId, delegate: self, testMode: self.testMode)
     }
     

@@ -4,6 +4,7 @@
 #import "UADSAdUnitEvent.h"
 #import "UADSWebViewEventCategory.h"
 #import "UnityAds.h"
+#import <sys/utsname.h>
 
 @interface UADSViewController ()
 
@@ -34,6 +35,8 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+    [self setViews:self.currentViews];
 
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidAppear) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAdunit) param1:nil];
 }
@@ -142,13 +145,14 @@
             [view removeFromSuperview];
         }
 
-        [view setFrame:[self getRect]];
+        
         [view setCenter:[self.view convertPoint:self.view.center fromView:self.view.superview]];
         [view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
         
         UADSLogDebug(@"Adding to view: %@", view);
         [self.view addSubview:view];
     }
+    [view setFrame:[self getRect]];
 }
 
 - (void)createVideoPlayer {

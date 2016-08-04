@@ -16,7 +16,7 @@ NSString* const kUnityAdsErrorDomain = @"com.unity3d.ads.UnityAds.Error";
 
 
 
-static BOOL _debugMode = YES;
+static BOOL _debugMode = NO;
 static BOOL _initializing = NO;
 
 @implementation UnityAds
@@ -70,6 +70,8 @@ static BOOL _initializing = NO;
             // TODO: Log environment not OK and send init sanity check fail to delegate
             _initializing = NO;
         }
+        
+        [UnityAds setDebugMode:_debugMode];
         
         [UADSClientProperties setGameId:gameId];
         [UADSClientProperties setDelegate:delegate];
@@ -146,7 +148,12 @@ static BOOL _initializing = NO;
 
 + (void)setDebugMode:(BOOL)enableDebugMode {
     _debugMode = enableDebugMode;
-    UADSLogDebug(@"%@", _debugMode ? @"debug enabled" : @"debug disabled" );
+    
+    if(_debugMode) {
+        [UADSDeviceLog setLogLevel:kUnityAdsLogLevelDebug];
+    } else {
+        [UADSDeviceLog setLogLevel:kUnityAdsLogLevelInfo];
+    }
 }
 
 + (BOOL)isSupported {

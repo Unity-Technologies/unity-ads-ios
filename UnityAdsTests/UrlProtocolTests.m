@@ -59,7 +59,7 @@ static NSString *nativeCallbackValue = NULL;
 @end
 
 @interface UrlProtocolMockWebView : UIWebView
-@property (nonatomic, strong) XCTestExpectation *expectation;
+@property (nonatomic, weak) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSString *lastJSString;
 @end
 
@@ -70,6 +70,7 @@ static NSString *nativeCallbackValue = NULL;
 - (nullable NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script {
     if (self.expectation) {
         [self.expectation fulfill];
+        self.expectation = NULL;
     }
     
     [self setLastJSString:script];
@@ -87,7 +88,7 @@ static NSString *nativeCallbackValue = NULL;
     UADSConfiguration *config = [[UADSConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
     [config setWebAppApiClassList:@[@"WebViewBridgeTestApi"]];
     UrlProtocolMockWebView *mockWebView = [[UrlProtocolMockWebView alloc] init];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    __block __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [UADSWebViewApp create:config];
@@ -98,6 +99,7 @@ static NSString *nativeCallbackValue = NULL;
     });
     
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+        expectation = NULL;
     }];
 }
 
@@ -160,7 +162,7 @@ static NSString *nativeCallbackValue = NULL;
         receivedException = exception;
     }
     
-    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     [(UrlProtocolMockWebView *)[[UADSWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -187,7 +189,7 @@ static NSString *nativeCallbackValue = NULL;
         receivedException = exception;
     }
     
-    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     [(UrlProtocolMockWebView *)[[UADSWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
