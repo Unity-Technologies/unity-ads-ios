@@ -3,10 +3,10 @@
 NSString * const kUnityAdsCacheDirName = @"UnityAdsCache";
 NSString * const kUnityAdsLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityAdsLocalStorageFilePrefix  = @"UnityAdsStorage-";
-NSString * const kUnityAdsVersionName = @"2.0.0-rc1";
+NSString * const kUnityAdsVersionName = @"2.0.2";
 NSString * const kUnityAdsFlavorDebug = @"debug";
 NSString * const kUnityAdsFlavorRelease = @"release";
-int const kUnityAdsVersionCode = 2001;
+int const kUnityAdsVersionCode = 2002;
 
 @implementation UADSSdkProperties
 
