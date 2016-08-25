@@ -8,7 +8,7 @@ Binaries can be found from the [releases tab](https://github.com/Unity-Technolog
 
 ## Integration Guide
 
-Integration guide can be found [here](https://github.com/Unity-Technologies/unity-ads-ios/wiki/sdk_ios_integration_guide)
+Integration guide can be found [here](https://github.com/Unity-Technologies/unity-ads-ios/wiki/sdk_ios_integration_guide). There are integration tutorial videos for [Objective-C](https://www.youtube.com/watch?v=T6VIC5E_Wt0) and [Swift](https://www.youtube.com/watch?v=Dhxivc9wWZ8).
 
 ## API Reference
 
