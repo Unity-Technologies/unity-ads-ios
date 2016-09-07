@@ -18,11 +18,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityAdsCouldntSetValue) arg1:nil];
+            [callback error:NSStringFromStorageError(kUnityAdsCouldntSetValue) arg1:key, value, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, key, value, nil];
     }
 }
 
@@ -39,11 +39,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityAdsCouldntGetValue) arg1:nil];
+            [callback error:NSStringFromStorageError(kUnityAdsCouldntGetValue) arg1:key, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, key, nil];
     }
 }
 
@@ -58,7 +58,7 @@
          nil];
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -75,11 +75,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityAdsCouldntWriteStorageToCache) arg1:nil];
+            [callback error:NSStringFromStorageError(kUnityAdsCouldntWriteStorageToCache) arg1:type, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -96,11 +96,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityAdsCouldntClearStorage) arg1:nil];
+            [callback error:NSStringFromStorageError(kUnityAdsCouldntClearStorage) arg1:type, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -117,11 +117,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityAdsCouldntDeleteValue) arg1:nil];
+            [callback error:NSStringFromStorageError(kUnityAdsCouldntDeleteValue) arg1:type, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -135,7 +135,7 @@
          nil];
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:nil];
+        [callback error:NSStringFromStorageError(kUnityAdsCouldntGetStorage) arg1:type, key, nil];
     }
 }
 

@@ -2,7 +2,6 @@
 @import AdSupport;
 @import AVFoundation;
 @import CoreTelephony;
-@import WatchConnectivity;
 
 #import <sys/utsname.h>
 #import <mach/mach.h>
@@ -11,11 +10,6 @@
 #import "UnityAds.h"
 #import "UADSDevice.h"
 #import "UADSConnectivityUtils.h"
-
-@interface WatchSessionDelegate : NSObject <WCSessionDelegate>
-@end
-@implementation WatchSessionDelegate
-@end
 
 @implementation UADSDevice
 
@@ -59,7 +53,8 @@
 }
 
 + (BOOL)isLimitTrackingEnabled {
-    return [ASIdentifierManager sharedManager].isAdvertisingTrackingEnabled;
+    // Note that isAdvertisingTrackingEnabled == !isLimitTrackingEnabled
+    return ![ASIdentifierManager sharedManager].isAdvertisingTrackingEnabled;
 }
 
 + (BOOL)isUsingWifi {
@@ -259,19 +254,6 @@
 
 + (NSInteger)getUserInterfaceIdiom {
     return [[UIDevice currentDevice] userInterfaceIdiom];
-}
-
-+ (BOOL)isAppleWatchPaired {
-    if ([WCSession isSupported]) {
-        WatchSessionDelegate *delegate = [[WatchSessionDelegate alloc]init];
-        [[WCSession defaultSession] setDelegate:delegate];
-        [[WCSession defaultSession] activateSession];
-        if ([WCSession defaultSession].paired) {
-            delegate = nil;
-            return true;
-        }
-    }
-    return false;
 }
 
 @end

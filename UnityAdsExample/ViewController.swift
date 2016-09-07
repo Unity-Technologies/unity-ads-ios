@@ -15,6 +15,7 @@ class ViewController: UIViewController {
     var interstitialPlacementId = ""
     var incentivizedPlacementId = ""
     var testMode : Bool = true
+    var ordinal : Int32 = 1
     
     
     override func viewDidLoad() {
@@ -53,7 +54,6 @@ class ViewController: UIViewController {
         let mediationMetaData = UADSMediationMetaData.init()
         mediationMetaData.setName("mediationPartner")
         mediationMetaData.setVersion("v12345")
-        mediationMetaData.setOrdinal(1)
         mediationMetaData.commit()
 
         initButton.enabled = false
@@ -72,6 +72,12 @@ class ViewController: UIViewController {
             playerMetaData.setServerId("rikshot")
             playerMetaData.commit()
             
+            let mediationMetaData = UADSMediationMetaData.init()
+            mediationMetaData.setOrdinal(self.ordinal)
+            mediationMetaData.commit()
+
+            self.ordinal = self.ordinal + 1
+
             UnityAds.show(self, placementId: interstitialPlacementId)
         }
     }
@@ -84,6 +90,12 @@ class ViewController: UIViewController {
             playerMetaData.setServerId("rikshot")
             playerMetaData.commit()
             
+            let mediationMetaData = UADSMediationMetaData.init()
+            mediationMetaData.setOrdinal(self.ordinal)
+            mediationMetaData.commit()
+
+            self.ordinal = self.ordinal + 1
+
             UnityAds.show(self, placementId: incentivizedPlacementId)
         }
     }

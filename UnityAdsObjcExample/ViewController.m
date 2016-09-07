@@ -2,6 +2,7 @@
 
 static NSString * const kDefaultGameId = @"14850";
 static NSString * const kGameIdKey = @"adsExampleAppGameId";
+static int kMediationOrdinal = 1;
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UIButton *interstitialButton;
@@ -60,6 +61,10 @@ static NSString * const kGameIdKey = @"adsExampleAppGameId";
         [playerMetaData setServerId:@"rikshot"];
         [playerMetaData commit];
         
+        UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
+        [mediationMetaData setOrdinal:kMediationOrdinal++];
+        [mediationMetaData commit];
+
         [UnityAds show:self placementId:self.incentivizedPlacementId];
     }
 }
@@ -71,6 +76,10 @@ static NSString * const kGameIdKey = @"adsExampleAppGameId";
         [playerMetaData setServerId:@"rikshot"];
         [playerMetaData commit];
         
+        UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
+        [mediationMetaData setOrdinal:kMediationOrdinal++];
+        [mediationMetaData commit];
+
         [UnityAds show:self placementId:self.interstitialPlacementId];
     }
 }
@@ -85,7 +94,6 @@ static NSString * const kGameIdKey = @"adsExampleAppGameId";
     UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
     [mediationMetaData setName:@"mediationPartner"];
     [mediationMetaData setVersion:@"v12345"];
-    [mediationMetaData setOrdinal:1];
     [mediationMetaData commit];
     
     UADSMetaData *debugMetaData = [[UADSMetaData alloc] init];
@@ -97,7 +105,9 @@ static NSString * const kGameIdKey = @"adsExampleAppGameId";
     self.initializeButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.gameIdTextField.enabled = NO;
     self.testModeButton.enabled = NO;
-    
+
+    [UnityAds setDebugMode:true];
+
     [UnityAds initialize:gameId delegate:self testMode:self.testMode];
 }
 

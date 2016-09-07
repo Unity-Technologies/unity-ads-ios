@@ -3,12 +3,13 @@
 #import "UADSPlacement.h"
 #import "UADSCacheQueue.h"
 #import "UADSConnectivityMonitor.h"
+#import "UADSSdkProperties.h"
 
 @implementation UADSWebViewShowOperation
 
 - (instancetype)initWithPlacementId:(NSString *)placementId parametersDictionary:(NSDictionary *)parametersDictionary {
     NSArray *params = @[placementId, parametersDictionary];
-    self = [super initWithMethod:@"show" webViewClass:@"webview" parameters:params waitTime:20];
+    self = [super initWithMethod:@"show" webViewClass:@"webview" parameters:params waitTime:[UADSSdkProperties getShowTimeout] / 1000];
     return self;
 }
 

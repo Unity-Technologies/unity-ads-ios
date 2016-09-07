@@ -81,6 +81,18 @@ static NSString *webRequestEventCategory = @"REQUEST";
     return mappedHeaders;
 }
 
++ (NSArray<NSArray<NSString*>*> *)getHeadersArray:(NSDictionary<NSString*,NSString*> *)headersMap {
+    __block NSArray *headersArray = [NSArray array];
+    
+    if (headersMap && headersMap.count > 0) {
+        [headersMap enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+            headersArray = [headersArray arrayByAddingObject:@[key, obj]];
+        }];
+    }
+    
+    return headersArray;
+}
+
 + (void)sendSuccess:(NSString *)requestId url:(NSString *)url response:(NSString *)response responseCode:(long)responseCode headers:(NSDictionary<NSString*,NSString*> *)headers {
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityAdsWebRequestEventComplete)
                                          category:webRequestEventCategory
@@ -88,7 +100,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
             url,
             response,
             [NSNumber numberWithLong:responseCode],
-            headers,
+            [UADSApiRequest getHeadersArray:headers],
          nil];
 }
 

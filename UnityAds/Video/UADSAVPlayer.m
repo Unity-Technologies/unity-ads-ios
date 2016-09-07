@@ -251,6 +251,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
                 [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerGenericError)
                                                  category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
                                                    param1:self.url,
+                    self.currentItem.error.description,
                  nil];
             });
         }

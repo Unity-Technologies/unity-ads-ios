@@ -22,6 +22,10 @@
     NSData *data = [self.request makeRequest];
     NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
+    if (!responseString) {
+        responseString = [NSString stringWithFormat:@""];
+    }
+
     [self stopObserving];
 
     if (self.completeBlock && self.request && !self.request.canceled) {

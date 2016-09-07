@@ -120,8 +120,4 @@
     [callback invoke:[NSNumber numberWithBool:[UADSDevice isSimulator]], nil];
 }
 
-+ (void)WebViewExposed_isAppleWatchPaired:(UADSWebViewCallback *)callback {
-    [callback invoke:[NSNumber numberWithBool:[UADSDevice isAppleWatchPaired]], nil];
-}
-
 @end

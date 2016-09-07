@@ -58,6 +58,4 @@
 
 + (NSInteger)getUserInterfaceIdiom;
 
-+ (BOOL)isAppleWatchPaired;
-
 @end

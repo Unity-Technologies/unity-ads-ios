@@ -3,6 +3,7 @@
 #import "UADSWebViewApp.h"
 #import "UADSCacheEvent.h"
 #import "UADSWebViewEventCategory.h"
+#import "UADSApiRequest.h"
 
 @implementation UADSCacheOperation
 
@@ -85,7 +86,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadStarted)
                                              category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
-                                               param1:weakSelf.source, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:weakSelf.expectedContentSize], [NSNumber numberWithLong:responseCode], responseHeaders, nil];
+                                               param1:weakSelf.source, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:weakSelf.expectedContentSize], [NSNumber numberWithLong:responseCode], [UADSApiRequest getHeadersArray:responseHeaders], nil];
         });
     }];
 
@@ -137,7 +138,7 @@
                 [NSNumber numberWithLongLong:self.expectedContentSize],
                 [NSNumber numberWithLong:duration],
                 [NSNumber numberWithLong:responseCode],
-                responseHeaders,
+                [UADSApiRequest getHeadersArray:responseHeaders],
              nil];
         });
     }
@@ -150,7 +151,7 @@
                 [NSNumber numberWithLongLong:(long) self.expectedContentSize],
                 [NSNumber numberWithLong:duration],
                 [NSNumber numberWithLong:responseCode],
-                responseHeaders,
+                [UADSApiRequest getHeadersArray:responseHeaders],
              nil];
         });
     }
