@@ -24,7 +24,7 @@
                 [delegate unityAdsDidError:kUnityAdsErrorShowError withMessage:@"Webapp timeout, shutting down Unity Ads"];
             }
             if ([delegate respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
-                NSString *placementId = [self.parameters objectAtIndex:1];
+                NSString *placementId = [self.parameters objectAtIndex:0];
                 [delegate unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
             }
         }
