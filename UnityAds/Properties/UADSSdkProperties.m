@@ -3,10 +3,10 @@
 NSString * const kUnityAdsCacheDirName = @"UnityAdsCache";
 NSString * const kUnityAdsLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityAdsLocalStorageFilePrefix  = @"UnityAdsStorage-";
-NSString * const kUnityAdsVersionName = @"2.0.4";
+NSString * const kUnityAdsVersionName = @"2.0.5";
 NSString * const kUnityAdsFlavorDebug = @"debug";
 NSString * const kUnityAdsFlavorRelease = @"release";
-int const kUnityAdsVersionCode = 2004;
+int const kUnityAdsVersionCode = 2005;
 
 @implementation UADSSdkProperties
 
@@ -73,7 +73,7 @@ static BOOL debug = true;
 #define STRINGIZE2(x) STRINGIZE(x)
 
 + (NSString *)getDefaultConfigUrl:(NSString *)flavor {
-    NSString *defaultConfigUrl = @"https://cdn.unityads.unity3d.com/webview/";
+    NSString *defaultConfigUrl = @"https://config.unityads.unity3d.com/webview/";
     
 #ifdef DEBUG
 #ifdef UADSWEBVIEW_BRANCH

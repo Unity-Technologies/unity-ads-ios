@@ -33,6 +33,8 @@ typedef enum : NSInteger {
 
 @interface UADSConnectivityUtils : NSObject
 
++ (void) initCarrierInfo;
+
 + (NSInteger)getNetworkType;
 
 + (NetworkStatus)getNetworkStatus;

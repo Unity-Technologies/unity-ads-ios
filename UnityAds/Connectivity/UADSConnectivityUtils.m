@@ -1,12 +1,18 @@
 #import <netdb.h>
+@import CoreTelephony;
 
 
 #import "UADSConnectivityUtils.h"
 
+static CTTelephonyNetworkInfo *netinfo;
+
 @implementation UADSConnectivityUtils
 
++ (void)initCarrierInfo {
+    netinfo = [CTTelephonyNetworkInfo new];
+}
+
 + (NSInteger)getNetworkType {
-    CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
     if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
         NSLog(@"GPRS");
         return NetworkTypeGPRS;

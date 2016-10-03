@@ -1,6 +1,7 @@
 
 
 @interface UADSDevice : NSObject
++ (void) initCarrierUpdates;
 
 + (NSString *)getOsVersion;
 

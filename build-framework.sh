@@ -56,13 +56,13 @@ function build_frameworks {
     echo "FUNC '$FUNCNAME': configuration_target_type: '$configuration_target_type'"
 
     # Do the build
-    xcodebuild -project UnityAdsStaticLibrary.xcodeproj -configuration "$configuration_target_type"
+    xcodebuild -project UnityAdsStaticLibrary.xcodeproj -configuration "$configuration_target_type" > /dev/null
 }
 
 
 
 echo "Generating XCODE project file"
-./generate-project.rb
+./generate-project.rb release
 if [ $? -ne 0 ]; then
     echo -e "\n\nGenerating XCODE project file errored\n\n"
     exit 1

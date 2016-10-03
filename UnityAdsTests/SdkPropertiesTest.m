@@ -58,7 +58,7 @@
 }
 
 -(void)testSetConfigUrl {
-    NSString *defaultConfigUrl = @"https://cdn.unityads.unity3d.com/webview/master/release/config.json";
+    NSString *defaultConfigUrl = @"https://config.unityads.unity3d.com/webview/master/release/config.json";
 
     XCTAssertTrue([defaultConfigUrl isEqualToString:[UADSSdkProperties getConfigUrl]], @"defaultConfigUrl should be equal to %@", defaultConfigUrl);
     

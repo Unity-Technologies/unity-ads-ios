@@ -1,10 +1,18 @@
 #!/usr/bin/env ruby
 
-require 'xcodeproj'
+require 'bundler'
 require 'fileutils'
+Bundler.require(:default)
+
+# Get project configuration as arguement from command
+project_configuration_type_name = ARGV[0]
+
+if project_configuration_type_name.nil?
+  project_configuration_type_name = "dev"
+end
 
 # Get test target name as arguement from command
-test_target_name = ARGV[0]
+test_target_name = ARGV[1]
 
 # Set default test target name if it wasn't given in the command
 if test_target_name.nil?
@@ -12,10 +20,10 @@ if test_target_name.nil?
 end
 
 # Get example app target name as arguement from command
-example_target_name = ARGV[1]
+example_target_name = ARGV[2]
 
 if example_target_name.nil?
-  example_target_name = "UnityAdsExample"
+  example_target_name = "UnityAdsObjcExample"
 end
 
 # create group for current dir_name
@@ -217,6 +225,7 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = "NO"
     bc.build_settings['CLANG_ENABLE_MODULES'] = "YES"
     
+    bc.build_settings['ARCHS_0800'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0700'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0600'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0500'] = "$(ARCHS_STANDARD_INCLUDING_64_BIT)"
@@ -279,6 +288,14 @@ def generate_static_library_project(xcode_project_name, project_name)
 end
 
 
-generate_framework_project("UnityAds.xcodeproj", "UnityAds", test_target_name, example_target_name)
-generate_example_project("UnityAdsExample.xcodeproj", "UnityAdsExample")
-generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds")
+if project_configuration_type_name == "dev"
+  generate_framework_project("UnityAds.xcodeproj", "UnityAds", test_target_name, example_target_name)
+end
+
+if project_configuration_type_name == "example"
+  generate_example_project("UnityAdsExample.xcodeproj", "UnityAdsExample")
+end
+
+if project_configuration_type_name == "release"
+  generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds")
+end

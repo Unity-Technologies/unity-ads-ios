@@ -61,7 +61,7 @@
 
 - (void)testSetAndGetLong {
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
-    NSNumber *value = [NSNumber numberWithLong:123451234512345];
+    NSNumber *value = [NSNumber numberWithLongLong:123451234512345];
     
     [storage setValue:value forKey:@"tests.long"];
     [storage writeStorage];
@@ -160,7 +160,7 @@
     XCTAssertNotNil([storage getValueForKey:@"tests.value1"], "First value should not be NULL");
     XCTAssertEqualObjects(value1, [storage getValueForKey:@"tests.value1"], "First value was not what was expected");
     XCTAssertNotNil([storage getValueForKey:@"tests.value2"], "Second value should not be NULL");
-    XCTAssertEqual(value2, [storage getValueForKey:@"tests.value2"], "Second value was not what was expected");
+    XCTAssertTrue([value2 isEqualToString:[storage getValueForKey:@"tests.value2"]], "Second value was not what was expected");
     XCTAssertNotNil([storage getValueForKey:@"tests.value3"], "Third value should not be NULL");
     XCTAssertEqualObjects(value3, [storage getValueForKey:@"tests.value3"], "Third value was not what was expected");
 }

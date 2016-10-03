@@ -9,6 +9,8 @@
 #import "UADSPlacement.h"
 #import "UADSNotificationObserver.h"
 #import "NSString+Hash.h"
+#import "UADSDevice.h"
+#import "UADSConnectivityUtils.h"
 
 @implementation UADSInitialize
 
@@ -99,7 +101,8 @@ static dispatch_once_t onceToken;
 
         [UADSWebViewApp setCurrentApp:NULL];
     }
-    
+    [UADSDevice initCarrierUpdates];
+    [UADSConnectivityUtils initCarrierInfo];
     [UADSSdkProperties setInitialized:false];
     [UADSPlacement reset];
     [UADSCacheQueue cancelAllDownloads];

@@ -188,10 +188,13 @@ static BOOL _initializing = NO;
 }
 
 + (void)handleShowError:(NSString *)placementId unityAdsError:(UnityAdsError)unityAdsError message:(NSString *)message {
+    NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
+    UADSLogError(@"%@", errorMessage);
     if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
-        NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
-        UADSLogError(@"%@", errorMessage);
         [[self getDelegate] unityAdsDidError:unityAdsError withMessage:errorMessage];
+    }
+    if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
+        [[self getDelegate] unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
     }
 }
 

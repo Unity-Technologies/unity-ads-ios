@@ -11,7 +11,14 @@
 #import "UADSDevice.h"
 #import "UADSConnectivityUtils.h"
 
+static CTTelephonyNetworkInfo *uadsTelephonyInfo;
+
 @implementation UADSDevice
+
++ (void)initCarrierUpdates {
+    uadsTelephonyInfo = [CTTelephonyNetworkInfo new];
+    uadsTelephonyInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier *carrier) { };
+}
 
 + (NSString *)getOsVersion {
     NSString *osVersion = [[UIDevice currentDevice] systemVersion];
@@ -70,18 +77,15 @@
 }
 
 + (NSString *)getNetworkOperator {
-    CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
-    
-    NSString *networkOperator = netinfo.subscriberCellularProvider.mobileCountryCode;
-    networkOperator = [networkOperator stringByAppendingString:netinfo.subscriberCellularProvider.mobileNetworkCode];
+    NSString *networkOperator = uadsTelephonyInfo.subscriberCellularProvider.mobileCountryCode;
+    networkOperator = [networkOperator stringByAppendingString:uadsTelephonyInfo.subscriberCellularProvider.mobileNetworkCode];
     
     return networkOperator;
 ;
 }
 
 + (NSString *)getNetworkOperatorName {
-    CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
-    return netinfo.subscriberCellularProvider.carrierName;
+    return uadsTelephonyInfo.subscriberCellularProvider.carrierName;
 
 }
 

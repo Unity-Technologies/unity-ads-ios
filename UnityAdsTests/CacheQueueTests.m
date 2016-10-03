@@ -99,45 +99,6 @@ static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_tes
     
 }
 
-- (void)testResumeDownload {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"downloadProgressExpectation"];
-    MockWebViewApp *mockApp = (MockWebViewApp *)[UADSWebViewApp getCurrentApp];
-    [mockApp setProgressExpectation:expectation];
-    NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"resume_test.mp4"];
-    [[NSFileManager defaultManager]removeItemAtPath:fileName error:nil];
-    
-    [UADSCacheQueue setProgressInterval:50];
-    [UADSCacheQueue download:videoUrl target:fileName];
-    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
-        [mockApp setProgressExpectation:nil];
-        
-    }];
-
-    [UADSCacheQueue cancelAllDownloads];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        XCTAssertFalse([UADSCacheQueue hasOperations], "Operation queue should be empty");
-        XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
-        NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
-        
-        unsigned long long fileSize = [fileHandle seekToEndOfFile];
-        XCTAssertTrue(fileSize > kMinFileSize, "File size should be over 10000");
-        XCTAssertTrue(fileSize < kVideoSize, "File size should be less than kVideoSize (1445875)");
-        
-        [UADSCacheQueue download:videoUrl target:fileName];
-    });
-    
-    XCTestExpectation *endExpectation  = [self expectationWithDescription:@"downloadEndExpectation"];
-    [mockApp setResumeEndExpectation:endExpectation];
-    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
-    }];
-    
-    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
-    NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
-    unsigned long long fileSize = [fileHandle seekToEndOfFile];
-    XCTAssertEqual(fileSize, kVideoSize, "File size should be same as kVideoSize");
-}
-
 - (void)testSetProgressInterval {
     [UADSCacheQueue setProgressInterval:500];
     XCTAssertEqual(500, [UADSCacheQueue getProgressInterval], @"Progress interval should be equal to 500");
