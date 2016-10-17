@@ -17,3 +17,5 @@ API Reference can be found [here](https://github.com/Unity-Technologies/unity-ad
 ## Transition guide from Unity Ads 1.5
 
 Transition guide from Unity Ads 1.5 can be found [here](https://github.com/Unity-Technologies/unity-ads-ios/wiki/sdk_ios_transition_guide)
+
+azurebld@qq.com
