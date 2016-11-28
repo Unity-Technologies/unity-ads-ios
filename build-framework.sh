@@ -1,4 +1,5 @@
 CONFIGURATION_TARGET_TYPE="Release"
+WEBVIEW_BRANCH="master"
 BUILD_BOTH_TARGETS=true
 
 USAGE="$(basename $0) is program that compiles the iOS DEBUG or RELEASE frameworks
@@ -6,9 +7,10 @@ USAGE
     ./build-framework                Build both DEBUG and RELEASE versions of the framework
     ./build-framework -c DEBUG       Builds the DEBUG version of the framework
     ./build-framework -c RELEASE     Builds the RELEASE version of the framework
+    ./build-framework -w             Sets specific webview branch to the DEBUG version   
 "
 
-while getopts hc: OPTIONS; do
+while getopts hc:w: OPTIONS; do
     case $OPTIONS in
         h )
             echo "$USAGE"
@@ -26,6 +28,11 @@ while getopts hc: OPTIONS; do
             fi
             echo "building $CONFIGURATION_TARGET_TYPE Framework"
             BUILD_BOTH_TARGETS=false
+            ;;
+        w )
+            echo "got webview branch: $OPTARG"
+
+            WEBVIEW_BRANCH=$(echo "$OPTARG")
             ;;
         * )
             echo "Invalid args passed"
@@ -52,17 +59,15 @@ function build_frameworks {
     fi
 
     local configuration_target_type="$1"
-	
+
     echo "FUNC '$FUNCNAME': configuration_target_type: '$configuration_target_type'"
 
     # Do the build
     xcodebuild -project UnityAdsStaticLibrary.xcodeproj -configuration "$configuration_target_type" > /dev/null
 }
 
-
-
-echo "Generating XCODE project file"
-./generate-project.rb release
+echo "Generating XCODE project file"       
+./generate-project.rb -c library -w "$WEBVIEW_BRANCH"
 if [ $? -ne 0 ]; then
     echo -e "\n\nGenerating XCODE project file errored\n\n"
     exit 1

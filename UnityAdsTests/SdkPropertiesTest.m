@@ -57,19 +57,6 @@
     XCTAssertTrue([@"UnityAdsStorage-" isEqualToString:[UADSSdkProperties getLocalStorageFilePrefix]], @"Local storage file prefix should be equal to 'UnityAdsStorage-'");
 }
 
--(void)testSetConfigUrl {
-    NSString *defaultConfigUrl = @"https://config.unityads.unity3d.com/webview/master/release/config.json";
-
-    XCTAssertTrue([defaultConfigUrl isEqualToString:[UADSSdkProperties getConfigUrl]], @"defaultConfigUrl should be equal to %@", defaultConfigUrl);
-    
-    [UADSSdkProperties setConfigUrl:@"https://testitesti.fi/config.json"];
-    XCTAssertTrue([@"https://testitesti.fi/config.json" isEqualToString:[UADSSdkProperties getConfigUrl]]);
-    
-    [UADSSdkProperties setConfigUrl:nil];
-    XCTAssertTrue([defaultConfigUrl isEqualToString:[UADSSdkProperties getConfigUrl]], @"defaultConfigUrl should be equal to %@", defaultConfigUrl);
-}
-
-
 
 -(void)testGetLocalWebViewFile {
     NSString *fileName = [UADSSdkProperties getCacheDirectory];

@@ -2,6 +2,7 @@
 #import "UADSWebViewCallback.h"
 #import "UADSClientProperties.h"
 #import "UADSAdUnitError.h"
+#import "UADSWebViewApp.h"
 
 @implementation UADSApiAdUnit
 
@@ -129,6 +130,80 @@ static UADSViewController *adUnitViewController = NULL;
 + (void)WebViewExposed_getShouldAutorotate:(UADSWebViewCallback *)callback {
     if ([UADSApiAdUnit getAdUnit]) {
         [callback invoke:[NSNumber numberWithInt:[[UADSApiAdUnit getAdUnit] autorotate]], nil];
+    }
+    else {
+        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_setTransform:(NSNumber *)transform callback:(UADSWebViewCallback *)callback {
+    if ([UADSApiAdUnit getAdUnit]) {
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            [[UADSApiAdUnit getAdUnit] setTransform:[transform floatValue]];
+            [callback invoke:transform, nil];
+        });
+    }
+    else {
+        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_setViewFrame:(NSString *)view x:(NSNumber *)x y:(NSNumber *)y width:(NSNumber *)width height:(NSNumber *)height callback:(UADSWebViewCallback *)callback {
+    if ([UADSApiAdUnit getAdUnit]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UADSApiAdUnit getAdUnit] setViewFrame:view x:[x intValue] y:[y intValue] width:[width intValue] height:[height intValue]];
+        });
+        [callback invoke:nil];
+    }
+    else {
+        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_getTransform:(UADSWebViewCallback *)callback {
+    if ([UADSApiAdUnit getAdUnit]) {
+        if ([[UADSApiAdUnit getAdUnit].view valueForKeyPath:@"layer.transform.rotation.z"]) {
+            [callback invoke:[(NSNumber *)[UADSApiAdUnit getAdUnit].view valueForKeyPath:@"layer.transform.rotation.z"], nil];
+        }
+        else {
+            [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNoRotationZ) arg1:nil];
+        }
+    }
+    else {
+        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_getViewFrame:(NSString *)view callback:(UADSWebViewCallback *)callback {
+    if ([UADSApiAdUnit getAdUnit]) {
+        UIView *targetView = NULL;
+        
+        if ([view isEqualToString:@"adunit"]) {
+            targetView = [UADSApiAdUnit getAdUnit].view;
+        }
+        else if ([view isEqualToString:@"videoplayer"]) {
+            targetView = [UADSApiAdUnit getAdUnit].videoView;
+        }
+        else if ([view isEqualToString:@"webview"]) {
+            targetView = [[UADSWebViewApp getCurrentApp] webView];
+        }
+        else {
+            [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerUnknownView) arg1:nil];
+            return;
+        }
+        
+        if (targetView) {
+            CGRect targetFrame = targetView.frame;
+            [callback invoke:[NSNumber numberWithFloat:targetFrame.origin.x],
+                [NSNumber numberWithFloat:targetFrame.origin.y],
+                [NSNumber numberWithFloat:targetFrame.size.width],
+                [NSNumber numberWithFloat:targetFrame.size.height],
+             nil];
+        }
+        else {
+            [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerTargetViewNull) arg1:nil];
+            return;
+        }
     }
     else {
         [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];

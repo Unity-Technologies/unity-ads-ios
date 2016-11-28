@@ -142,4 +142,84 @@ NSMutableArray<NSString *> *eventArray;
 
 }
 
+- (void)testSetTransform {
+    XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initExpectation"];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    NSArray *views = @[@"videoplayer", @"webview"];
+    
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
+        [presentExpectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
+    
+    [adUnitViewController setTransform:0.9];
+    
+    XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [delayExpectation fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+    }];
+    
+    NSNumber *transform = [(NSNumber *)adUnitViewController.view valueForKeyPath:@"layer.transform.rotation.z"];
+    XCTAssertEqual([transform doubleValue], 0.9f, @"Expected 0.9 as transform value");
+    
+    XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
+    mockApp.expectation = dismissExpectation;
+    
+    [adUnitViewController dismissViewControllerAnimated:true completion:nil];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
+}
+
+- (void)testSetViewFrame {
+    UIWebView *webView = NULL;
+    webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
+    
+    XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initExpectation"];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    [[UADSWebViewApp getCurrentApp] setWebView:webView];
+    NSArray *views = @[@"videoplayer", @"webview"];
+    
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
+        [presentExpectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
+    
+    [adUnitViewController setViewFrame:@"adunit" x:50 y:60 width:510 height:520];
+    [adUnitViewController setViewFrame:@"videoplayer" x:110 y:120 width:130 height:140];
+    [adUnitViewController setViewFrame:@"webview" x:210 y:220 width:230 height:240];
+
+    XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [delayExpectation fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+    }];
+    
+    XCTAssertEqual([adUnitViewController view].frame.origin.x, 50, "ViewController view origin x not what was expected");
+    XCTAssertEqual([adUnitViewController view].frame.origin.y, 60, "ViewController view origin y not what was expected");
+    XCTAssertEqual([adUnitViewController view].frame.size.width, 510, "ViewController view width not what was expected");
+    XCTAssertEqual([adUnitViewController view].frame.size.height, 520, "ViewController view height not what was expected");
+
+    XCTAssertEqual([adUnitViewController videoView].frame.origin.x, 110, "VideoView view origin x not what was expected");
+    XCTAssertEqual([adUnitViewController videoView].frame.origin.y, 120, "VideoView view origin y not what was expected");
+    XCTAssertEqual([adUnitViewController videoView].frame.size.width, 130, "VideoView view width not what was expected");
+    XCTAssertEqual([adUnitViewController videoView].frame.size.height, 140, "VideoView view height not what was expected");
+
+    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.origin.x, 210, "WebView view origin x not what was expected");
+    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.origin.y, 220, "WebView view origin y not what was expected");
+    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.size.width, 230, "WebView view width not what was expected");
+    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.size.height, 240, "WebView view height not what was expected");
+}
+
 @end

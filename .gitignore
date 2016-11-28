@@ -75,3 +75,6 @@ UnityAdsTests/index.html
 UnityAds.framework
 
 .DS_Store
+
+# Bundler for Ruby gems
+Gemfile.lock

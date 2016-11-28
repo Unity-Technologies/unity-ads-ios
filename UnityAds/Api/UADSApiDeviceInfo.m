@@ -2,6 +2,8 @@
 #import "UADSWebViewCallback.h"
 #import "UADSDevice.h"
 #import "UADSConnectivityUtils.h"
+#import "UADSClientProperties.h"
+
 
 @implementation UADSApiDeviceInfo
 
@@ -118,6 +120,14 @@
 
 + (void)WebViewExposed_isSimulator:(UADSWebViewCallback *)callback {
     [callback invoke:[NSNumber numberWithBool:[UADSDevice isSimulator]], nil];
+}
+
++ (void)WebViewExposed_getSupportedOrientationsPlist:(UADSWebViewCallback *)callback {
+    [callback invoke:[UADSClientProperties getSupportedOrientationsPlist], nil];
+}
+
++ (void)WebViewExposed_getSupportedOrientations:(UADSWebViewCallback *)callback {
+    [callback invoke:[NSNumber numberWithInt:[UADSClientProperties getSupportedOrientations]], nil];
 }
 
 @end

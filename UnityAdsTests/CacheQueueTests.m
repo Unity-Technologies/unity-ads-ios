@@ -96,8 +96,51 @@ static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_tes
 - (void)testSetConnectTimeout {
     [UADSCacheQueue setConnectTimeout:15000];
     XCTAssertEqual([UADSCacheQueue getConnectTimeout], 15000, "Connect timeout was not the same as expected");
-    
 }
+
+- (void)testResumeDownload {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"downloadProgressExpectation"];
+    MockWebViewApp *mockApp = (MockWebViewApp *)[UADSWebViewApp getCurrentApp];
+    [mockApp setProgressExpectation:expectation];
+    NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"resume_test.mp4"];
+    [[NSFileManager defaultManager] removeItemAtPath:fileName error:nil];
+    
+    [UADSCacheQueue setProgressInterval:50];
+    [UADSCacheQueue download:videoUrl target:fileName];
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+        [mockApp setProgressExpectation:nil];
+    }];
+    
+    [UADSCacheQueue cancelAllDownloads];
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
+
+    XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [delayExpectation fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+    }];
+    
+    NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
+    unsigned long long fileSize = [fileHandle seekToEndOfFile];
+    XCTAssertTrue(fileSize > kMinFileSize, "File size should be over 5000 %llu", fileSize);
+    XCTAssertTrue(fileSize < kVideoSize, "File size should be less than kVideoSize (1445875)");
+        
+    XCTestExpectation *endExpectation  = [self expectationWithDescription:@"downloadEndExpectation"];
+    [mockApp setResumeEndExpectation:endExpectation];
+
+    [UADSCacheQueue download:videoUrl target:fileName];
+        
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
+    NSFileHandle *fileHandle2 = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
+    unsigned long long fileSize2 = [fileHandle2 seekToEndOfFile];
+    XCTAssertEqual(fileSize2, kVideoSize, "File size should be same as kVideoSize");
+}
+
 
 - (void)testSetProgressInterval {
     [UADSCacheQueue setProgressInterval:500];

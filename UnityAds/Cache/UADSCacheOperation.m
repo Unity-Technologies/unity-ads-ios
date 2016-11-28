@@ -23,20 +23,9 @@
 }
 
 - (void)main {
-    [self startObserving];
+    UADSLogDebug(@"Unity Ads cache: Cache operation started for file %@", self.target);
     
-    if (![[NSFileManager defaultManager] fileExistsAtPath:self.target]) {
-        if (![[NSFileManager defaultManager] createFileAtPath:self.target contents:nil attributes:nil]) {
-            UADSLogError(@"Unity Ads cache: couldn't create target file %@", self.target);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
-                                                 category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
-                                                   param1:self.target, [NSNumber numberWithLongLong:0], [NSNumber numberWithLongLong:0], nil];
-            });
-            [self stopObserving];
-            return;
-        };
-    }
+    [self startObserving];
 
     NSFileHandle *fileHandle = nil;
     unsigned long long fileSize = 0;
@@ -51,10 +40,9 @@
         @try {
             fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:self.target];
             fileSize = [fileHandle seekToEndOfFile];
+            UADSLogDebug(@"Unity Ads cache: resuming download from %@ to %@ at %llu bytes", self.source, self.target, fileSize);
             NSDictionary<NSString*,NSArray*> *headers = @{@"Range": [NSArray arrayWithObject:[NSString stringWithFormat:@"bytes=%llu-", fileSize]]};
             [self.request setHeaders:headers];
-            
-            UADSLogDebug(@"Unity Ads cache: resuming download from %@ to %@ at %llu bytes", self.source, self.target, fileSize);
         } @catch (NSException *exception) {
             [fileHandle closeFile];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -66,8 +54,20 @@
             return;
         }
     } else {
-        fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.target];
-        UADSLogDebug(@"Unity Ads cache: starting download from %@ to %@", self.source, self.target);
+        @try {
+            UADSLogDebug(@"Unity Ads cache: starting download from %@ to %@", self.source, self.target);
+            [[NSFileManager defaultManager] createFileAtPath:self.target contents:nil attributes:nil];
+            fileHandle = [NSFileHandle fileHandleForWritingAtPath:self.target];
+        } @catch (NSException *exception) {
+            [fileHandle closeFile];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
+                                                 category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
+                                                   param1:self.target, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:self.expectedContentSize], exception.name, exception.reason, nil];
+            });
+            [self stopObserving];
+            return;
+        }
     }
 
     [self.request setProgressBlock:^(NSString *url, long long bytes, long long totalBytes) {
@@ -95,12 +95,10 @@
         [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
                                          category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
                                            param1:self.target, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:self.expectedContentSize], nil];
+        [fileHandle writeData:fileData];
+        [fileHandle synchronizeFile];
         [fileHandle closeFile];
-        NSError *deleteError;
-        [[NSFileManager defaultManager] removeItemAtPath:self.target error:&deleteError];
-        if (deleteError) {
-            UADSLogError(@"Unity Ads cache: error occured while removing file: %@",[deleteError userInfo]);
-        }
+        fileHandle = nil;
 
         [self stopObserving];
         return;
@@ -157,6 +155,7 @@
     }
     
     [self stopObserving];
+    UADSLogDebug(@"Unity Ads cache: Cache operation finished for file %@", self.target);
 }
 
 - (void)startObserving {

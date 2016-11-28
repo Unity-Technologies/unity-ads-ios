@@ -2,6 +2,7 @@
 #import "UADSWebViewCallback.h"
 #import "UADSClientProperties.h"
 #import "NSString+UnityAdsError.h"
+#import "UnityAdsExtended.h"
 
 UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
     if (state) {
@@ -63,6 +64,23 @@ UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
                 if ((int)state != -10000) {
                     [[UADSClientProperties getDelegate] unityAdsDidFinish:placementId withFinishState:state];
                 }
+            });
+            [callback invoke:nil];
+        }
+        else {
+            [callback error:NSStringFromListenerError(kUnityAdsCouldNotFindSelector) arg1:nil];
+        }
+    }
+    else {
+        [callback error:NSStringFromListenerError(kUnityAdsDelegateNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_sendClickEvent:(NSString *)placementId callback:(UADSWebViewCallback *)callback {
+    if ([UADSClientProperties getDelegate] && [[UADSClientProperties getDelegate] conformsToProtocol:@protocol(UnityAdsExtendedDelegate)]) {
+        if ([(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidClick:)]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                    [(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] unityAdsDidClick:placementId];
             });
             [callback invoke:nil];
         }

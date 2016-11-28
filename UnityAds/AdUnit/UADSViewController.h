@@ -13,5 +13,7 @@
 
 - (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate;
 - (void)setViews:(NSArray<NSString*>*)views;
+- (void)setTransform:(float)transform;
+- (void)setViewFrame:(NSString *)view x:(int)x y:(int)y width:(int)width height:(int)height;
 
 @end

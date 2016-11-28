@@ -7,16 +7,11 @@
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    if ([[[[UIDevice currentDevice] systemVersion] substringToIndex:1]intValue]
-            >= 8 && [[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPad) {
-        return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
-    }
     return UIInterfaceOrientationMaskAll;
 }
 
 - (BOOL)shouldAutorotate {
-      return [[[[UIDevice currentDevice] systemVersion] substringToIndex:1]intValue] < 8
-            || [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
+      return YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {

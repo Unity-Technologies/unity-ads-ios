@@ -15,6 +15,11 @@
     [super tearDown];
 }
 
+- (void)testGetSupportedOrientations {
+    NSNumber *numberOfSupportedOrientations = [NSNumber numberWithUnsignedLong:[[UADSClientProperties getSupportedOrientationsPlist] count]];
+    XCTAssertTrue([numberOfSupportedOrientations isEqualToNumber:[NSNumber numberWithInt:4]], "App should support all orientations");
+}
+
 - (void)testGetAppName {
     XCTAssertEqualObjects([UADSClientProperties getAppName], @"com.unity3d.ads.example", "App name should be eqaul to 'com.unity3d.ads.example");
 }

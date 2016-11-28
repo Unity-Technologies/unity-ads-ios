@@ -63,6 +63,24 @@
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidDisappear) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAdunit) param1:nil];
 }
 
+- (void)setViewFrame:(NSString *)view x:(int)x y:(int)y width:(int)width height:(int)height {
+    UIView *targetView = NULL;
+
+    if ([view isEqualToString:@"adunit"]) {
+        targetView = self.view;
+    }
+    else if ([view isEqualToString:@"videoplayer"]) {
+        targetView = self.videoView;
+    }
+    else if ([view isEqualToString:@"webview"]) {
+        targetView = [[UADSWebViewApp getCurrentApp] webView];
+    }
+
+    if (targetView) {
+        [targetView setFrame:CGRectMake(x, y, width, height)];
+    }
+}
+
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return self.supportedOrientations;
 }
@@ -79,6 +97,10 @@
 - (void)setStatusBarHidden:(BOOL)statusBarHidden {
     _statusBarHidden = statusBarHidden;
     [self setNeedsStatusBarAppearanceUpdate];
+}
+
+- (void)setTransform:(float)transform {
+    self.view.transform = CGAffineTransformMakeRotation(transform);
 }
 
 - (BOOL)prefersStatusBarHidden {

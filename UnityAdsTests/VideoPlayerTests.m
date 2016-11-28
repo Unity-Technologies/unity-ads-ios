@@ -182,7 +182,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:expectation];
@@ -213,7 +213,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
@@ -258,7 +258,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:invalidVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:invalidVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
@@ -289,7 +289,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
@@ -345,7 +345,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
@@ -396,7 +396,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
@@ -450,7 +450,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [self.videoPlayer setProgressEventInterval:333];
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
@@ -507,7 +507,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f];
+        [self.videoPlayer prepare:validVideoUrl initialVolume:1.0f timeout:10000];
     });
     
     [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];

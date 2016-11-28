@@ -8,7 +8,7 @@
 @property (nonatomic, assign) BOOL isPlaying;
 
 - (void)setProgressEventInterval:(int)progressEventInterval;
-- (void)prepare:(NSString *)url initialVolume:(float)volume;
+- (void)prepare:(NSString *)url initialVolume:(float)volume timeout:(NSInteger)timeout;
 - (void)stop;
 - (void)stopObserving;
 - (void)seekTo:(int)msec;

@@ -13,6 +13,7 @@ static NSString *eventStop = @"STOP";
 
 
 static NSString *prepareError = @"PREPARE_ERROR";
+static NSString *prepareTimeout = @"PREPARE_TIMEOUT";
 static NSString *genericError = @"GENERIC_ERROR";
 
 
@@ -45,6 +46,8 @@ NSString *NSStringFromAVPlayerError(UnityAdsAVPlayerError error) {
     switch (error) {
         case kUnityAdsAVPlayerPrepareError:
             return prepareError;
+        case kUnityAdsAVPlayerPrepareTimeout:
+            return prepareTimeout;
         case kUnityAdsAVPlayerGenericError:
             return genericError;
     }

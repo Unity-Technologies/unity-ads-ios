@@ -113,7 +113,7 @@ static dispatch_once_t onceToken;
     [UADSStorageManager init];
     [UADSNotificationObserver unregisterNotificationObserver];
     
-    id nextState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0];
+    id nextState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0 retryDelay:5];
     return nextState;
 }
 
@@ -123,13 +123,13 @@ static dispatch_once_t onceToken;
 
 @implementation UADSInitializeStateConfig : UADSInitializeState
 
-- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries {
+- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay {
     self = [super initWithConfiguration:configuration];
     
     if (self) {
         [self setRetries:retries];
-        [self setMaxRetries:2];
-        [self setRetryDelay:10];
+        [self setMaxRetries:6];
+        [self setRetryDelay:retryDelay];
     }
     
     return self;
@@ -146,13 +146,14 @@ static dispatch_once_t onceToken;
         return nextState;
     }
     else if (self.configuration.error && self.retries < self.maxRetries) {
+        self.retryDelay = self.retryDelay * 2;
         self.retries++;
-        id retryState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries];
+        id retryState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
         id nextState = [[UADSInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
         return nextState;
     }
     else {
-        id erroredState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries];
+        id erroredState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
         id nextState = [[UADSInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState];
         return nextState;
     }
@@ -180,7 +181,7 @@ static dispatch_once_t onceToken;
         }
     }
     
-    id nextState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0];
+    id nextState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0 retryDelay:5];
     return nextState;
 }
 
@@ -190,13 +191,13 @@ static dispatch_once_t onceToken;
 
 @implementation UADSInitializeStateLoadWeb : UADSInitializeState
 
-- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries {
+- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay {
     self = [super initWithConfiguration:configuration];
     
     if (self) {
         [self setRetries:retries];
-        [self setMaxRetries:2];
-        [self setRetryDelay:10];
+        [self setMaxRetries:6];
+        [self setRetryDelay:retryDelay];
     }
     
     return self;
@@ -214,13 +215,14 @@ static dispatch_once_t onceToken;
         [responseData writeToFile:[UADSSdkProperties getLocalWebViewFile] atomically:YES];
     }
     else if (webRequest.error && self.retries < self.maxRetries) {
+        self.retryDelay = self.retryDelay * 2;
         self.retries++;
-        id retryState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries];
+        id retryState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
         id nextState = [[UADSInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
         return nextState;
     }
     else if (webRequest.error) {
-        id erroredState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries];
+        id erroredState = [[UADSInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
         id nextState = [[UADSInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState];
         return nextState;
     }

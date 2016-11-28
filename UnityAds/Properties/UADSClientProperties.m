@@ -15,6 +15,14 @@ static id<UnityAdsDelegate> _delegate = nil;
     return _gameId;
 }
 
++ (NSArray<NSString*>*)getSupportedOrientationsPlist {
+    return [NSBundle.mainBundle.infoDictionary objectForKey:@"UISupportedInterfaceOrientations"];
+}
+
++ (int)getSupportedOrientations {
+    return [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication] keyWindow]];
+}
+
 + (NSString *)getAppName {
     return [NSBundle.mainBundle.infoDictionary objectForKey:@"CFBundleIdentifier"];
 }

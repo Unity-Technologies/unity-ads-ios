@@ -34,7 +34,7 @@
 @property (nonatomic, assign) int maxRetries;
 @property (nonatomic, assign) int retryDelay;
 
-- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries;
+- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay;
 
 @end
 
@@ -48,7 +48,7 @@
 
 @interface UADSInitializeStateLoadWeb : UADSInitializeState
 
-- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries;
+- (instancetype)initWithConfiguration:(UADSConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay;
 
 @property (nonatomic, assign) int retries;
 @property (nonatomic, assign) int maxRetries;

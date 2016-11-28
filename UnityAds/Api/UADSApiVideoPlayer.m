@@ -35,10 +35,10 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
     }
 }
 
-+ (void)WebViewExposed_prepare:(NSString *)url initialVolume:(NSNumber *)initialVolume callback:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_prepare:(NSString *)url initialVolume:(NSNumber *)initialVolume timeout:(NSNumber *)timeout callback:(UADSWebViewCallback *)callback {
     if ([[UADSApiAdUnit getAdUnit] videoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[[UADSApiAdUnit getAdUnit] videoPlayer] prepare:url initialVolume:[initialVolume floatValue]];
+            [[[UADSApiAdUnit getAdUnit] videoPlayer] prepare:url initialVolume:[initialVolume floatValue] timeout:[timeout integerValue]];
         });
         
         [callback invoke:nil];

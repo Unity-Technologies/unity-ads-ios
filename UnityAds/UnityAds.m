@@ -112,10 +112,12 @@ static BOOL _initializing = NO;
 
         [UADSClientProperties setCurrentViewController:viewController];
         
-        int supportedOrientations = [[UIApplication sharedApplication]supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication]keyWindow]];
+        UIInterfaceOrientation statusBarOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 
         NSDictionary *parametersDictionary = @{@"shouldAutorotate" : [NSNumber numberWithBool:viewController.shouldAutorotate],
-                                               @"supportedOrientations" : [NSNumber numberWithInt:supportedOrientations], };
+                                               @"supportedOrientations" : [NSNumber numberWithInt:[UADSClientProperties getSupportedOrientations]],
+                                               @"supportedOrientationsPlist" : [UADSClientProperties getSupportedOrientationsPlist],
+                                               @"statusBarOrientation" : [NSNumber numberWithInteger:statusBarOrientation] };
 
         
         UADSWebViewShowOperation *operation = [[UADSWebViewShowOperation alloc] initWithPlacementId:placementId

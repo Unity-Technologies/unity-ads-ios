@@ -24,7 +24,7 @@ static dispatch_once_t onceToken;
 }
 
 + (BOOL)downloadFile:(NSString *)source target:(NSString *)target {
-    if (source && target && cacheQueue.operationCount == 0) {
+    if (source && target) {
         UADSCacheOperation *cacheOperation = [[UADSCacheOperation alloc] initWithSource:source target:target connectTimeout:connectTimeout];
         if (progressInterval > 0) {
             [cacheOperation setProgressEventInterval:progressInterval];

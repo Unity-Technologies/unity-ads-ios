@@ -4,26 +4,24 @@ require 'bundler'
 require 'fileutils'
 Bundler.require(:default)
 
-# Get project configuration as arguement from command
-project_configuration_type_name = ARGV[0]
-
-if project_configuration_type_name.nil?
-  project_configuration_type_name = "dev"
+# Handle command line arguments
+opts = Trollop::options do
+  opt :configuration_type, "Type of configuration to use options: ['example', 'dev', 'library']",
+      :type => :string, :default => 'dev'
+  opt :test_target_name, "Name of the test target to build",
+      :type => :string, :default => 'UnityAdsTests'
+  opt :example_target_name, "Name of the example target to build",
+      :type => :string, :default => 'UnityAdsObjcExample'
+  opt :webview_branch, "Webview branch to use, only applicable for 'dev' configuration. Example: 'master' or 'staging/2.0.0-beta3'",
+      :type => :string, :default => nil
 end
+project_configuration_type_name = opts[:configuration_type]
+test_target_name = opts[:test_target_name]
+example_target_name = opts[:example_target_name]
+webview_branch = opts[:webview_branch]
 
-# Get test target name as arguement from command
-test_target_name = ARGV[1]
-
-# Set default test target name if it wasn't given in the command
-if test_target_name.nil?
-  test_target_name = "UnityAdsTests"
-end
-
-# Get example app target name as arguement from command
-example_target_name = ARGV[2]
-
-if example_target_name.nil?
-  example_target_name = "UnityAdsObjcExample"
+if ARGV.length > 0
+  raise "Unkown arguments '#{ARGV}', check usage with '--help' flag!"
 end
 
 # create group for current dir_name
@@ -32,10 +30,10 @@ end
 def create_groups_from_dir(root_dir, parent_group, target, is_example_project = false)
   Dir.glob(root_dir).select{|d| File.directory? d}.each do |subdirectory|
     dir_name = File.basename(subdirectory)
-    
+
     Dir.chdir(subdirectory)
     g = parent_group.new_group(dir_name)
-    
+
     if !is_example_project
       Dir.glob("#{target}-Bridging-Header.h") do |f|
         file_to_add = g.new_file(Dir.pwd + '/' + f)
@@ -44,36 +42,36 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         end
       end
     end
-    
+
     Dir.glob("*.pch") do |f|
       g.new_file(Dir.pwd + '/' + f)
-      target.build_configurations.each  do |bc| 
+      target.build_configurations.each  do |bc|
         bc.build_settings['GCC_PREFIX_HEADER'] = "#{target}/#{f}"
       end
     end
-    
+
     Dir.glob("Info.plist") do |f|
       file_to_add = g.new_file(Dir.pwd + '/' + f)
-      target.build_configurations.each  do |bc| 
+      target.build_configurations.each  do |bc|
         bc.build_settings['INFOPLIST_FILE'] = "$(SRCROOT)/#{target}/#{f}"
       end
     end
-    
+
     Dir.glob("*.xcassets") do |f|
       file_to_add = g.new_file(Dir.pwd + '/' + f)
       target.add_resources([file_to_add])
     end
-    
+
     Dir.glob("*.storyboard") do |f|
       file_to_add = g.new_file(Dir.pwd + '/' + f)
       target.add_resources([file_to_add])
     end
-    
+
     Dir.glob("*.swift") do |f|
       file_to_add = g.new_file(Dir.pwd + '/' + f)
       target.source_build_phase.add_file_reference(file_to_add, true)
     end
-    
+
     if !is_example_project
       Dir.glob("*.m") do |f|
         file_to_add = g.new_file(Dir.pwd + '/' + f)
@@ -84,21 +82,21 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         file_to_add = g.new_file(Dir.pwd + '/' + f)
         added_file = target.headers_build_phase.add_file_reference(file_to_add, true)
         added_file.settings ||= {}
-        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/
+        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/ or "#{f}" =~ /UnityAdsExtended\.h/
           added_file.settings['ATTRIBUTES'] = ['Public']
         else
           added_file.settings['ATTRIBUTES'] = ['Project']
         end
       end
     end
-    
+
     create_groups_from_dir("#{Dir.pwd}/*", g, target)
-      
+
     Dir.chdir("../")
   end
 end
 
-def generate_framework_project(xcode_project_name, project_name, test_target_name, example_target_name)
+def generate_framework_project(xcode_project_name, project_name, test_target_name, example_target_name, webview_branch)
   FileUtils.rm_rf(xcode_project_name)
   project = Xcodeproj::Project.new(project_name)
 
@@ -118,8 +116,8 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
     bc.build_settings['HEADER_SEARCH_PATHS'] = "UnityAds/"
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
-    if bc.name == "Debug"
-      bc.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ["UADSWEBVIEW_BRANCH=\"master\"", "DEBUG=1", "$(inherited)"]
+    if webview_branch
+      bc.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ["UADSWEBVIEW_BRANCH=\"#{webview_branch}\"", "DEBUG=1", "$(inherited)"]
     end
   end
 
@@ -197,7 +195,7 @@ def generate_example_project(xcode_project_name, project_name)
   scheme.save_as(xcode_project_name, project_name, true)
 end
 
-def generate_static_library_project(xcode_project_name, project_name)
+def generate_static_library_project(xcode_project_name, project_name, webview_branch)
   FileUtils.rm_rf(xcode_project_name)
   project = Xcodeproj::Project.new(project_name)
 
@@ -214,17 +212,17 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['HEADER_SEARCH_PATHS'] = "UnityAds/"
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "$(TARGET_$(CURRENT_ARCH))"
     bc.build_settings['SDKROOT'] = "iphoneos"
-    
+
     bc.build_settings['ONLY_ACTIVE_ARCH'] = "NO"
     bc.build_settings['ENABLE_BITCODE'] = "YES"
     bc.build_settings['BITCODE_GENERATION_MODE'] = "bitcode"
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
-    
+
     bc.build_settings['ARCHS'] = "$(ARCHS_$(XCODE_VERSION_MAJOR))"
     bc.build_settings['HIDE_BITCODE_SYMBOLS'] = "NO"
     bc.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = "NO"
     bc.build_settings['CLANG_ENABLE_MODULES'] = "YES"
-    
+
     bc.build_settings['ARCHS_0800'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0700'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0600'] = "$(ARCHS_STANDARD) armv7s"
@@ -235,11 +233,11 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['TARGET_x86_64'] = "7.0"
     bc.build_settings['TARGET_i386'] = "7.0"
     bc.build_settings['TARGET_armv7s'] = "7.0"
-    
+
     bc.build_settings['HIDE_BITCODE_SYMBOLS'] = "NO"
     bc.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = "NO"
     bc.build_settings['CLANG_ENABLE_MODULES'] = "YES"
-    
+
     bc.build_settings['WRAPPER_EXTENSION'] = "framework"
     bc.build_settings['FRAMEWORK_VERSION'] = "A"
     bc.build_settings['MACH_O_TYPE'] = "mh_object"
@@ -259,18 +257,20 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['INFOPLIST_PATH'] = "$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Info.plist"
     bc.build_settings['PRODUCT_NAME'] = "$(TARGET_NAME)"
     bc.build_settings['COPY_PHASE_STRIP'] = "YES"
-    
-     
+
+    if webview_branch
+      bc.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ["UADSWEBVIEW_BRANCH=\"#{webview_branch}\"", "DEBUG=1", "$(inherited)"]
+    end
+
     if bc.name == "Debug"
-      bc.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ["UADSWEBVIEW_BRANCH=\"master\"", "DEBUG=1", "$(inherited)"]
       bc.build_settings['ENABLE_BITCODE'] = "NO"
     end
   end
-  
+
   setup_build_phase = project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
   setup_build_phase.shell_script = "./scripts/clean-framework.sh"
   framework_target.build_phases.unshift(setup_build_phase)
-  
+
   header_build_phase = project.new(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
   header_build_phase.shell_script = "./scripts/export-framework.sh"
   framework_target.build_phases << header_build_phase
@@ -289,13 +289,14 @@ end
 
 
 if project_configuration_type_name == "dev"
-  generate_framework_project("UnityAds.xcodeproj", "UnityAds", test_target_name, example_target_name)
+  generate_framework_project("UnityAds.xcodeproj", "UnityAds", test_target_name, example_target_name, webview_branch)
 end
 
 if project_configuration_type_name == "example"
   generate_example_project("UnityAdsExample.xcodeproj", "UnityAdsExample")
 end
 
-if project_configuration_type_name == "release"
-  generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds")
+if project_configuration_type_name == "library"
+  generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds", webview_branch)
+
 end

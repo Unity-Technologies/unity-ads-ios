@@ -7,7 +7,6 @@
 @interface UADSAVPlayer ()
     @property (nonatomic, assign) id progressTimer;
     @property (nonatomic, assign) id prepareTimeoutTimer;
-    @property (nonatomic, strong) AVPlayerItem *playerItem;
 @end
 
 @implementation UADSAVPlayer
@@ -17,48 +16,49 @@ static void *playbackBufferEmpty = &playbackBufferEmpty;
 static void *playbackBufferFull = &playbackBufferFull;
 static void *itemStatusChangeToken = &itemStatusChangeToken;
 
-- (void)prepare:(NSString *)url initialVolume:(float)volume {
+- (void)prepare:(NSString *)url initialVolume:(float)volume timeout:(NSInteger)timeout {
     [self stopObserving];
     self.url = url;
     UADSLogDebug(@"Preparing item: %@", self.url);
     NSURL *videoURL = [NSURL URLWithString:self.url];
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:videoURL options:nil];
-    self.playerItem = [AVPlayerItem playerItemWithAsset:asset];
+    NSInteger adjustedTimeout = timeout / 1000;
+    AVPlayerItem *playerItem = [AVPlayerItem playerItemWithAsset:asset];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self.progressInterval = 300;
         [self setVolume:volume];
-        [self replaceCurrentItemWithPlayerItem:self.playerItem];
+        [self replaceCurrentItemWithPlayerItem:playerItem];
         [self startObserving];
-        [self startPrepareTimeoutTimer];
+        [self startPrepareTimeoutTimer:adjustedTimeout];
     });
 }
 
 - (void)startObserving {
-    if (self.playerItem) {
+    if (self.currentItem) {
         @try {
-            [self.playerItem addObserver:self forKeyPath:@"status" options:0 context:itemStatusChangeToken];
+            [self.currentItem addObserver:self forKeyPath:@"status" options:0 context:itemStatusChangeToken];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed adding observer for 'status'");
         }
 
         @try {
-            [self.playerItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:playbackBufferEmpty];
+            [self.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:playbackBufferEmpty];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed adding observer for 'playbackBufferEmpty'");
         }
         
         @try {
-            [self.playerItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:0 context:playbackLikelyToKeepUpKVOToken];
+            [self.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp" options:0 context:playbackLikelyToKeepUpKVOToken];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed adding observer for 'playbackLikelyToKeepUp'");
         }
         
         @try {
-            [self.playerItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:playbackBufferFull];
+            [self.currentItem addObserver:self forKeyPath:@"playbackBufferFull" options:0 context:playbackBufferFull];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed adding observer for 'playbackBufferFull'");
@@ -67,30 +67,31 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)stopObserving {
-    if (self.playerItem) {
+    UADSLogDebug("Attempting to remove observers for item: %@", self.url);
+    if (self.currentItem) {
         @try {
-            [self.playerItem removeObserver:self forKeyPath:@"status" context:itemStatusChangeToken];
+            [self.currentItem removeObserver:self forKeyPath:@"status" context:itemStatusChangeToken];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed removing observer for 'status'");
         }
         
         @try {
-            [self.playerItem removeObserver:self forKeyPath:@"playbackBufferEmpty" context:playbackBufferEmpty];
+            [self.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty" context:playbackBufferEmpty];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed removing observer for 'playbackBufferEmpty'");
         }
 
         @try {
-            [self.playerItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp" context:playbackLikelyToKeepUpKVOToken];
+            [self.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp" context:playbackLikelyToKeepUpKVOToken];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed removing observer for 'playbackLikelyToKeepUp'");
         }
 
         @try {
-            [self.playerItem removeObserver:self forKeyPath:@"playbackBufferFull" context:playbackBufferFull];
+            [self.currentItem removeObserver:self forKeyPath:@"playbackBufferFull" context:playbackBufferFull];
         }
         @catch (id exception) {
             UADSLogDebug(@"Failed removing observer for 'playbackBufferFull'");
@@ -109,8 +110,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     }
 }
 
-- (void)startPrepareTimeoutTimer {
-    self.prepareTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(onPrepareTimeoutListener:) userInfo:nil repeats:false];
+- (void)startPrepareTimeoutTimer:(NSInteger)timeout {
+    self.prepareTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:timeout target:self selector:@selector(onPrepareTimeoutListener:) userInfo:nil repeats:false];
 }
 
 - (void)stopPrepareTimeoutTimer {
@@ -123,7 +124,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 - (void)onPrepareTimeoutListener:(NSNotification *)notification {
     UADSLogError(@"Video prepare timeout");
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerPrepareError)
+        [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerPrepareTimeout)
                                          category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
                                            param1:self.url, nil];
     });
@@ -227,8 +228,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (context == itemStatusChangeToken) {
         UADSLogDebug(@"VIDEOPLAYERITEM_STATUS: %li", (long)self.currentItem.status);
-        
-        AVPlayerItemStatus playerItemStatus = self.playerItem.status;
+
+        AVPlayerItemStatus playerItemStatus = self.currentItem.status;
         if (playerItemStatus == AVPlayerItemStatusReadyToPlay) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSArray *tracks = [self.currentItem.asset tracksWithMediaType:AVMediaTypeVideo];
@@ -254,6 +255,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
                     self.currentItem.error.description,
                  nil];
             });
+
+            [self stopPrepareTimeoutTimer];
         }
     }
     else if (context == playbackLikelyToKeepUpKVOToken) {
@@ -261,7 +264,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventLikelyToKeepUp)
                                              category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
                                                param1:self.url,
-                [NSNumber numberWithBool:self.playerItem.isPlaybackLikelyToKeepUp],
+                [NSNumber numberWithBool:self.currentItem.isPlaybackLikelyToKeepUp],
              nil];
         });
     }
@@ -270,7 +273,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventBufferEmpty)
                                              category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
                                                param1:self.url,
-                [NSNumber numberWithBool:self.playerItem.isPlaybackBufferEmpty],
+                [NSNumber numberWithBool:self.currentItem.isPlaybackBufferEmpty],
              nil];
         });
     }
@@ -279,7 +282,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventBufferFull)
                                              category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
                                                param1:self.url,
-                [NSNumber numberWithBool:self.playerItem.isPlaybackBufferFull],
+                [NSNumber numberWithBool:self.currentItem.isPlaybackBufferFull],
              nil];
         });
     }
