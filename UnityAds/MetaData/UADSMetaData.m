@@ -33,18 +33,20 @@
     if ([UADSStorageManager init]) {
         UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
 
-        for (NSString *key in [self.entries allKeys]) {
-            if (storage) {
-                [storage setValue:[self.entries objectForKey:key] forKey:key];
+        if (self.entries) {
+            for (NSString *key in [self.entries allKeys]) {
+                if (storage) {
+                    [storage setValue:[self.entries objectForKey:key] forKey:key];
+                }
             }
-        }
-
-        if (storage) {
-            [storage writeStorage];
-            [storage sendEvent:@"SET" values:self.entries];
-        }
-        else {
-            UADSLogDebug(@"No storage found!");
+            
+            if (storage) {
+                [storage writeStorage];
+                [storage sendEvent:@"SET" values:self.entries];
+            }
+            else {
+                UADSLogDebug(@"No storage found!");
+            }
         }
     }
     else {

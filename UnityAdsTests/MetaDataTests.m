@@ -134,4 +134,15 @@
     }
 }
 
+- (void)testCommitWithoutMetaDataSet {
+    MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
+    [UADSWebViewApp setCurrentApp:webApp];
+    UADSMetaData *metadata = [[UADSMetaData alloc] init];
+    
+    [metadata setCategory:@"test"];
+    [metadata commit];
+    
+    XCTAssertNil([metadata entries], "Entries should still be NULL");
+}
+
 @end

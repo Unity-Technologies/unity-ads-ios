@@ -140,8 +140,8 @@ static UADSViewController *adUnitViewController = NULL;
     if ([UADSApiAdUnit getAdUnit]) {
         dispatch_async(dispatch_get_main_queue(), ^(void) {
             [[UADSApiAdUnit getAdUnit] setTransform:[transform floatValue]];
-            [callback invoke:transform, nil];
         });
+        [callback invoke:transform, nil];
     }
     else {
         [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];

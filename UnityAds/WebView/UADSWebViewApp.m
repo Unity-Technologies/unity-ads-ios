@@ -20,6 +20,8 @@ static UADSWebViewApp *currentApp = NULL;
     dispatch_sync(dispatch_get_main_queue(), ^(void) {
         UIWebView *webView = NULL;
         webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
+        webView.mediaPlaybackRequiresUserAction = NO;
+        webView.allowsInlineMediaPlayback = YES;
         [webView setBackgroundColor:[UIColor clearColor]];
         [webView setOpaque:false];
         webView.scrollView.bounces = NO;
