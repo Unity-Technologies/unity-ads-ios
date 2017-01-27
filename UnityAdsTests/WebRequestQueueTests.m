@@ -16,7 +16,7 @@
 }
 
 - (void)testBasicGetRequest {
-    __block NSString *targetUrl = @"https://www.google.fi/";
+    __block NSString *targetUrl = [TestUtilities getTestServerAddress];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     
     [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
@@ -36,7 +36,7 @@
 }
 
 - (void)testMultipleGetRequests {
-    __block NSString *targetUrl = @"https://www.google.fi/";
+    __block NSString *targetUrl = [TestUtilities getTestServerAddress];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     NSMutableArray *completions = [[NSMutableArray alloc] init];
 

@@ -130,4 +130,19 @@
     [callback invoke:[NSNumber numberWithInt:[UADSClientProperties getSupportedOrientations]], nil];
 }
 
++ (void)WebViewExposed_getStatusBarWidth:(UADSWebViewCallback *)callback {
+    NSNumber *width = [NSNumber numberWithFloat:[UIApplication sharedApplication].statusBarFrame.size.width];
+    [callback invoke:width, nil];
+}
+
++ (void)WebViewExposed_getStatusBarHeight:(UADSWebViewCallback *)callback {
+    NSNumber *height = [NSNumber numberWithFloat: [UIApplication sharedApplication].statusBarFrame.size.height];
+    [callback invoke:height, nil];
+}
+
++ (void)WebViewExposed_isStatusBarHidden:(UADSWebViewCallback *)callback {
+    NSNumber *isHidden = [NSNumber numberWithBool:[UIApplication sharedApplication].statusBarHidden];
+    [callback invoke:isHidden, nil];
+}
+
 @end

@@ -48,7 +48,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
                                                  category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
-                                                   param1:self.target, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:self.expectedContentSize], exception.name, exception.reason, nil];
+                                                   param1:weakSelf.target, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:weakSelf.expectedContentSize], exception.name, exception.reason, nil];
             });
             [self stopObserving];
             return;
@@ -63,7 +63,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
                                                  category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
-                                                   param1:self.target, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:self.expectedContentSize], exception.name, exception.reason, nil];
+                                                   param1:weakSelf.target, [NSNumber numberWithLongLong:fileSize], [NSNumber numberWithLongLong:weakSelf.expectedContentSize], exception.name, exception.reason, nil];
             });
             [self stopObserving];
             return;
@@ -72,7 +72,7 @@
 
     [self.request setProgressBlock:^(NSString *url, long long bytes, long long totalBytes) {
         long currentTime = ([[NSDate date] timeIntervalSince1970] * 1000);
-        if (![weakSelf isCancelled] && self.progressEventInterval > 0 && self.lastProgressEvent + self.progressEventInterval <= currentTime) {
+        if (![weakSelf isCancelled] && self.progressEventInterval > 0 && weakSelf.lastProgressEvent + weakSelf.progressEventInterval <= currentTime) {
             [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadProgress)
                                              category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
                                                param1:weakSelf.source, [NSNumber numberWithLongLong:bytes], [NSNumber numberWithLongLong:weakSelf.expectedContentSize], nil];

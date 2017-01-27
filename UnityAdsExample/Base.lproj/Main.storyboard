@@ -10,7 +10,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="UnityAdsExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -37,7 +37,7 @@
                                     </mask>
                                 </variation>
                                 <connections>
-                                    <action selector="interstitialButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7go-yi-1nr"/>
+                                    <action selector="interstitialButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="D0u-DE-6ZE"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="clip" translatesAutoresizingMaskIntoConstraints="NO" id="P3t-2o-TPJ">
@@ -48,7 +48,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="incentivizedButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pLn-2L-wHy"/>
+                                    <action selector="incentivizedButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Gp3-oZ-5ax"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1IU-B5-HMM">
@@ -61,7 +61,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="initButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="jNL-lz-dve"/>
+                                    <action selector="initializeButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="9Cw-Xn-Dzf"/>
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nfD-eH-adK">
@@ -86,7 +86,7 @@
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
-                                            <action selector="toggleTestMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="F38-Zb-lfq"/>
+                                            <action selector="toggleTestMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4BF-wr-oMb"/>
                                         </connections>
                                     </button>
                                     <textField opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="bezel" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bRN-yr-6ze">
@@ -103,7 +103,7 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                         <textInputTraits key="textInputTraits" enablesReturnKeyAutomatically="YES"/>
                                         <connections>
-                                            <action selector="doneEditingGameId:" destination="BYZ-38-t0r" eventType="editingDidEndOnExit" id="qud-GM-dCo"/>
+                                            <action selector="doneEditingGameId:" destination="BYZ-38-t0r" eventType="editingDidEndOnExit" id="w8l-c3-vWa"/>
                                         </connections>
                                     </textField>
                                 </subviews>
@@ -178,11 +178,11 @@
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="gameIdTextField" destination="jre-Sp-HCJ" id="tnr-nC-6Jp"/>
-                        <outlet property="incentivizedButton" destination="P3t-2o-TPJ" id="nxM-8D-Sav"/>
-                        <outlet property="initButton" destination="1IU-B5-HMM" id="xKl-T9-LFt"/>
-                        <outlet property="interstitialButton" destination="8N2-WU-BDg" id="9w9-fM-w2b"/>
-                        <outlet property="testModeButton" destination="tjl-Jc-0O5" id="Mqf-fu-xpZ"/>
+                        <outlet property="gameIdTextField" destination="jre-Sp-HCJ" id="YZ8-1C-jg0"/>
+                        <outlet property="incentivizedButton" destination="P3t-2o-TPJ" id="T7o-5f-99V"/>
+                        <outlet property="initializeButton" destination="1IU-B5-HMM" id="PCj-Hr-O6R"/>
+                        <outlet property="interstitialButton" destination="8N2-WU-BDg" id="Wb3-1l-28j"/>
+                        <outlet property="testModeButton" destination="tjl-Jc-0O5" id="Qae-AO-Er3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

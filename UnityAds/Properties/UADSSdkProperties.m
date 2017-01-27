@@ -3,10 +3,11 @@
 NSString * const kUnityAdsCacheDirName = @"UnityAdsCache";
 NSString * const kUnityAdsLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityAdsLocalStorageFilePrefix  = @"UnityAdsStorage-";
-NSString * const kUnityAdsVersionName = @"2.0.7";
+NSString * const kUnityAdsWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
+NSString * const kUnityAdsVersionName = @"2.0.8";
 NSString * const kUnityAdsFlavorDebug = @"debug";
 NSString * const kUnityAdsFlavorRelease = @"release";
-int const kUnityAdsVersionCode = 2007;
+int const kUnityAdsVersionCode = 2008;
 
 @implementation UADSSdkProperties
 
@@ -69,18 +70,15 @@ static BOOL debug = true;
     return configUrl;
 }
 
-#define STRINGIZE(x) #x
-#define STRINGIZE2(x) STRINGIZE(x)
-
 + (NSString *)getDefaultConfigUrl:(NSString *)flavor {
     NSString *defaultConfigUrl = @"https://config.unityads.unity3d.com/webview/";
-    
-
-#ifdef UADSWEBVIEW_BRANCH
-    NSString *versionString = @STRINGIZE2(UADSWEBVIEW_BRANCH);
-#else
     NSString *versionString = [UADSSdkProperties getVersionName];
-#endif
+    
+    // If there is a string object for the key UADSWebviewBranch in the Info.plist of the hosting application,
+    // then point the SDK to the webview deployed at that path.
+    if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:kUnityAdsWebviewBranchInfoDictionaryKey] isKindOfClass:[NSString class]]) {
+        versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:kUnityAdsWebviewBranchInfoDictionaryKey];
+    }
 
     defaultConfigUrl = [defaultConfigUrl stringByAppendingFormat:@"%@/%@/config.json", versionString, flavor];
     

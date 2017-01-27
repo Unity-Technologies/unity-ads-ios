@@ -16,7 +16,7 @@
 
 
 - (void)testBasicGetRequest {
-    NSString *url = @"https://www.google.fi/";
+    NSString *url = [TestUtilities getTestServerAddress];
     UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
@@ -36,12 +36,13 @@
     }];
     
     XCTAssertNil(request.error, "Error should be null");
-    XCTAssertEqual(request.url, url, "URL's should still be the same");
+    XCTAssertEqualObjects(request.url, url, "URL's should still be the same");
     XCTAssertNotNil(data, "Data should not be null");
+    XCTAssertEqualObjects(@"OK", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], "Data should contain 'OK'");
 }
 
 - (void)testBasicPostRequest {
-    NSString *url = @"https://www.google.fi/";
+    NSString *url =  [TestUtilities getTestServerAddress];
     UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     [request setBody:@"hello=world"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -62,7 +63,7 @@
     }];
     
     XCTAssertNil(request.error, "Error should be null");
-    XCTAssertEqual(request.url, url, "URL's should still be the same");
+    XCTAssertEqualObjects(request.url, url, "URL's should still be the same");
     XCTAssertNotNil(data, "Data should not be null");
 }
 

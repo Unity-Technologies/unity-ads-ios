@@ -5,6 +5,7 @@
 FOUNDATION_EXPORT NSString * const kUnityAdsCacheDirName;
 FOUNDATION_EXPORT NSString * const kUnityAdsLocalCacheFilePrefix;
 FOUNDATION_EXPORT NSString * const kUnityAdsLocalStorageFilePrefix;
+FOUNDATION_EXPORT NSString * const kUnityAdsWebviewBranchInfoDictionaryKey;
 FOUNDATION_EXPORT NSString * const kUnityAdsVersionName;
 FOUNDATION_EXPORT int const kUnityAdsVersionCode;
 FOUNDATION_EXPORT NSString * const kUnityAdsFlavorDebug;

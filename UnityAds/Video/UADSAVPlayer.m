@@ -134,7 +134,6 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     UADSLogDebug(@"Video playback completed");
     self.isPlaying = false;
     [self stopVideoProgressTimer];
-    [self stopObserving];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventCompleted)

@@ -2,9 +2,9 @@
 
 @interface UADSNotificationObserver : NSObject
 
-+ (void)addObserver:(NSString *)name userInfoKeys:(NSArray *)keys;
++ (void)addObserver:(NSString *)name userInfoKeys:(NSArray *)keys targetObject:(id)targetObject;
 
-+ (void)removeObserver:(NSString *)name;
++ (void)removeObserver:(NSString *)name targetObject:(id)targetObject;
 
 + (void)unregisterNotificationObserver;
 

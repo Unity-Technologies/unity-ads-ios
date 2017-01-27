@@ -4,13 +4,16 @@
 
 
 typedef NS_ENUM(NSInteger, UnityAdsVideoPlayerError) {
-    kUnityAdsVideoViewNull
+    kUnityAdsVideoViewNull,
+    kUnityAdsVideoViewReflectionError
 };
 
 NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
     switch (error) {
         case kUnityAdsVideoViewNull:
             return @"VIDEOVIEW_NULL";
+        case kUnityAdsVideoViewReflectionError:
+            return @"REFLECTION_ERROR";
     }
 }
 
@@ -126,6 +129,26 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
 + (void)WebViewExposed_getCurrentPosition:(UADSWebViewCallback *)callback {
     if ([[UADSApiAdUnit getAdUnit] videoPlayer]) {
         [callback invoke:[NSNumber numberWithInt:[[[UADSApiAdUnit getAdUnit] videoPlayer] getCurrentPosition]], nil];
+    }
+    else {
+        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_setAutomaticallyWaitsToMinimizeStalling:(NSNumber *)waits callback:(UADSWebViewCallback *)callback {
+    if ([[UADSApiAdUnit getAdUnit] videoPlayer]) {
+        SEL waitsSelector = NSSelectorFromString(@"setAutomaticallyWaitsToMinimizeStalling:");
+        if ([[[UADSApiAdUnit getAdUnit] videoPlayer] respondsToSelector:waitsSelector]) {
+            IMP waitsImp = [[[UADSApiAdUnit getAdUnit] videoPlayer] methodForSelector:waitsSelector];
+            if (waitsImp) {
+                void (*waitsFunc)(id, SEL, BOOL) = (void *)waitsImp;
+                waitsFunc([[UADSApiAdUnit getAdUnit] videoPlayer], waitsSelector, [waits boolValue]);
+                [callback invoke:nil];
+                return;
+            }
+        }
+
+        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewReflectionError) arg1:nil];
     }
     else {
         [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];

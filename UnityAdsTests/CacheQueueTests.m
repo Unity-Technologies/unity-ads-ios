@@ -1,11 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-static long kVideoSize = 1445875;
 static long kMinFileSize = 5000;
-static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_test_trailer.mp4";
-
-
 
 @interface MockWebViewApp : UADSWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
@@ -85,7 +81,7 @@ static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_tes
     NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"test.mp4"];
     [[NSFileManager defaultManager]removeItemAtPath:fileName error:nil];
     
-    [UADSCacheQueue download:@"https://static.applifier.com/impact/videos/41566/a8d822f017e100c5/adcap-trailer-badge-logo-1280x720/m31-1000.mp4" target:fileName];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName];
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
     
@@ -106,7 +102,7 @@ static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_tes
     [[NSFileManager defaultManager] removeItemAtPath:fileName error:nil];
     
     [UADSCacheQueue setProgressInterval:50];
-    [UADSCacheQueue download:videoUrl target:fileName];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName];
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         [mockApp setProgressExpectation:nil];
     }];
@@ -125,12 +121,12 @@ static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_tes
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
     unsigned long long fileSize = [fileHandle seekToEndOfFile];
     XCTAssertTrue(fileSize > kMinFileSize, "File size should be over 5000 %llu", fileSize);
-    XCTAssertTrue(fileSize < kVideoSize, "File size should be less than kVideoSize (1445875)");
+    XCTAssertTrue(fileSize < [TestUtilities getTestVideoExpectedSize], "File size should be less than kVideoSize (%d)", [TestUtilities getTestVideoExpectedSize]);
         
     XCTestExpectation *endExpectation  = [self expectationWithDescription:@"downloadEndExpectation"];
     [mockApp setResumeEndExpectation:endExpectation];
 
-    [UADSCacheQueue download:videoUrl target:fileName];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName];
         
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
@@ -138,7 +134,7 @@ static NSString *videoUrl = @"https://static.applifier.com/impact/11017/blue_tes
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
     NSFileHandle *fileHandle2 = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
     unsigned long long fileSize2 = [fileHandle2 seekToEndOfFile];
-    XCTAssertEqual(fileSize2, kVideoSize, "File size should be same as kVideoSize");
+    XCTAssertEqual(fileSize2, [TestUtilities getTestVideoExpectedSize], "File size should be less than kVideoSize (%d)", [TestUtilities getTestVideoExpectedSize]);
 }
 
 

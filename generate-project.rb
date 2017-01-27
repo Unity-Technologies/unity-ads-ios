@@ -6,19 +6,16 @@ Bundler.require(:default)
 
 # Handle command line arguments
 opts = Trollop::options do
-  opt :configuration_type, "Type of configuration to use options: ['example', 'dev', 'library']",
+  opt :configuration_type, "Type of configuration to use options: ['dev', 'library']",
       :type => :string, :default => 'dev'
   opt :test_target_name, "Name of the test target to build",
       :type => :string, :default => 'UnityAdsTests'
   opt :example_target_name, "Name of the example target to build",
-      :type => :string, :default => 'UnityAdsObjcExample'
-  opt :webview_branch, "Webview branch to use, only applicable for 'dev' configuration. Example: 'master' or 'staging/2.0.0-beta3'",
-      :type => :string, :default => nil
+      :type => :string, :default => 'UnityAdsExample'
 end
 project_configuration_type_name = opts[:configuration_type]
 test_target_name = opts[:test_target_name]
 example_target_name = opts[:example_target_name]
-webview_branch = opts[:webview_branch]
 
 if ARGV.length > 0
   raise "Unkown arguments '#{ARGV}', check usage with '--help' flag!"
@@ -96,7 +93,7 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
   end
 end
 
-def generate_framework_project(xcode_project_name, project_name, test_target_name, example_target_name, webview_branch)
+def generate_framework_project(xcode_project_name, project_name, test_target_name, example_target_name)
   FileUtils.rm_rf(xcode_project_name)
   project = Xcodeproj::Project.new(project_name)
 
@@ -116,9 +113,6 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
     bc.build_settings['HEADER_SEARCH_PATHS'] = "UnityAds/"
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
-    if webview_branch
-      bc.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ["UADSWEBVIEW_BRANCH=\"#{webview_branch}\"", "DEBUG=1", "$(inherited)"]
-    end
   end
 
   # Configure the example target
@@ -166,36 +160,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   scheme.save_as(xcode_project_name, project_name, true)
 end
 
-def generate_example_project(xcode_project_name, project_name)
-  FileUtils.rm_rf(xcode_project_name)
-  project = Xcodeproj::Project.new(project_name)
-
-  # Construct targets
-  framework_example_target = project.new_target(:application, project_name, :ios)
-
-  # Use our function to add resources to targets from subdirectories
-  create_groups_from_dir(project_name, project, framework_example_target, is_example_project: true)
-
-  # Configure the example target
-  framework_example_target.build_configurations.each do |bc|
-    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.example"
-    bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
-    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
-    bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
-  end
-
-  # Load Saved Scheme
-  scheme_dir = 'xcschemes/'
-  scheme_name = 'UnityAdsExample.xcscheme'
-  temp_file = File.join(scheme_dir, scheme_name)
-  scheme = Xcodeproj::XCScheme.new(temp_file)
-
-  # Serialize and save project + scheme
-  project.save(xcode_project_name)
-  scheme.save_as(xcode_project_name, project_name, true)
-end
-
-def generate_static_library_project(xcode_project_name, project_name, webview_branch)
+def generate_static_library_project(xcode_project_name, project_name)
   FileUtils.rm_rf(xcode_project_name)
   project = Xcodeproj::Project.new(project_name)
 
@@ -258,10 +223,6 @@ def generate_static_library_project(xcode_project_name, project_name, webview_br
     bc.build_settings['PRODUCT_NAME'] = "$(TARGET_NAME)"
     bc.build_settings['COPY_PHASE_STRIP'] = "YES"
 
-    if webview_branch
-      bc.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = ["UADSWEBVIEW_BRANCH=\"#{webview_branch}\"", "DEBUG=1", "$(inherited)"]
-    end
-
     if bc.name == "Debug"
       bc.build_settings['ENABLE_BITCODE'] = "NO"
     end
@@ -289,14 +250,10 @@ end
 
 
 if project_configuration_type_name == "dev"
-  generate_framework_project("UnityAds.xcodeproj", "UnityAds", test_target_name, example_target_name, webview_branch)
-end
-
-if project_configuration_type_name == "example"
-  generate_example_project("UnityAdsExample.xcodeproj", "UnityAdsExample")
+  generate_framework_project("UnityAds.xcodeproj", "UnityAds", test_target_name, example_target_name)
 end
 
 if project_configuration_type_name == "library"
-  generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds", webview_branch)
+  generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds")
 
 end

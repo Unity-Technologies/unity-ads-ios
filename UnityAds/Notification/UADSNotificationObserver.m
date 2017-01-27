@@ -7,8 +7,8 @@ static NSMutableDictionary *notificationKeyDictionary;
 
 @implementation UADSNotificationObserver
 
-+ (void)addObserver:(NSString *)name userInfoKeys:(NSArray *)keys {
-    [self removeObserver:name];
++ (void)addObserver:(NSString *)name userInfoKeys:(NSArray *)keys targetObject:(id)targetObject {
+    [self removeObserver:name targetObject:nil];
     if (!notificationKeyDictionary) {
         notificationKeyDictionary = [[NSMutableDictionary alloc]init];
     }
@@ -16,15 +16,15 @@ static NSMutableDictionary *notificationKeyDictionary;
     if (keys) {
         [notificationKeyDictionary setObject:keys forKey:name];
     }
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(nsNotificationReceived:) name:name object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(nsNotificationReceived:) name:name object:targetObject];
 }
 
-+ (void)removeObserver:(NSString *)name {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:name object:nil];
++ (void)removeObserver:(NSString *)name targetObject:(id)targetObject {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:name object:targetObject];
 }
 
 + (void)unregisterNotificationObserver {
-    [[NSNotificationCenter defaultCenter]removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 + (void)nsNotificationReceived:(NSNotification *)notification {

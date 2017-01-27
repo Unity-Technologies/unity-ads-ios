@@ -75,14 +75,14 @@
     MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[UADSWebViewApp getCurrentApp];
     [mockApp setTestReceiveNotificationException:expectation];
     
-    [UADSNotificationObserver addObserver:@"TestReceiveNotification" userInfoKeys:nil];
+    [UADSNotificationObserver addObserver:@"TestReceiveNotification" userInfoKeys:nil targetObject:nil];
 
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestReceiveNotification" object:nil];
     
     [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
     }];
     
-    [UADSNotificationObserver removeObserver:@"TestReceiveNotification"];
+    [UADSNotificationObserver removeObserver:@"TestReceiveNotification" targetObject:nil];
 
 }
 
@@ -95,7 +95,7 @@
     
     NSArray *keyArray = @[@"cat", @"dog", @"squirrel"];
     
-    [UADSNotificationObserver addObserver:@"TestReceiveNotificationWithParameters" userInfoKeys:keyArray];
+    [UADSNotificationObserver addObserver:@"TestReceiveNotificationWithParameters" userInfoKeys:keyArray targetObject:nil];
     
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestReceiveNotificationWithParameters" object:nil userInfo:userInfo];
     
@@ -108,7 +108,7 @@
     XCTAssertTrue([@"Siamese" isEqualToString:[dictionary valueForKey:@"cat"]], @"Value should be equal to Siamese");
     XCTAssertTrue([@"German Shepherd" isEqualToString:[dictionary valueForKey:@"dog"]], @"Value should be equal to German Shepherd");
     
-    [UADSNotificationObserver removeObserver:@"TestReceiveNotificationWithParameters"];
+    [UADSNotificationObserver removeObserver:@"TestReceiveNotificationWithParameters" targetObject:nil];
     
 }
 
@@ -120,8 +120,8 @@
     [mockApp setTestReceiveTwoNotificationsException2:expectation2];
     
     NSArray *keyArray = @[@"cat", @"dog"];
-    [UADSNotificationObserver addObserver:@"TestTwoNotifications1" userInfoKeys:nil];
-    [UADSNotificationObserver addObserver:@"TestTwoNotifications2" userInfoKeys:keyArray];
+    [UADSNotificationObserver addObserver:@"TestTwoNotifications1" userInfoKeys:nil targetObject:nil];
+    [UADSNotificationObserver addObserver:@"TestTwoNotifications2" userInfoKeys:keyArray targetObject:nil];
     
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestTwoNotifications1" object:nil];
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestTwoNotifications2" object:nil];
