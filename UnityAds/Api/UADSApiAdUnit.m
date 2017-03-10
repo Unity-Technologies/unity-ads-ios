@@ -22,8 +22,6 @@ static UADSViewController *adUnitViewController = NULL;
 
 + (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden callback:(UADSWebViewCallback *)callback {
     [UADSApiAdUnit WebViewExposed_open:views supportedOrientations:supportedOrientations statusBarHidden:[NSNumber numberWithInt:0] shouldAutorotate:[NSNumber numberWithBool:YES] callback:callback];
-    
-    [callback invoke:nil];
 }
 
 + (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate callback:(UADSWebViewCallback *)callback {
