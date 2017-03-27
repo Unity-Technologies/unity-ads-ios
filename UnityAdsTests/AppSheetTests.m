@@ -138,7 +138,6 @@ UADSAppSheet *appSheet = nil;
         XCTAssertTrue([error isEqualToString:@"APPSHEET_NOT_FOUND"], "Error message should equal to APPSHEET_NOT_FOUND");
 
     }];
-
 }
 
 - (void)testPresent {
@@ -147,24 +146,25 @@ UADSAppSheet *appSheet = nil;
         return;
     }
     
-    XCTestExpectation *expectation = [self expectationWithDescription:@"presentAppSheetPrepare"];
-
-    
     NSDictionary *parameters = @{ @"id" : @453467175 };
     
     UADSViewController *viewController = [[UADSViewController alloc] init];
     
+    XCTestExpectation *viewControllerExpectation = [self expectationWithDescription:@"presentViewController"];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:^{
-        
+        [viewControllerExpectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+        XCTAssertTrue(true, "Didn't timeout");
     }];
     
     [UADSApiAdUnit setAdUnit:viewController];
     
-    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"presentAppSheetPrepare"];
     [appSheet prepareAppSheet:parameters prepareTimeoutInSeconds:5 completionBlock:^(BOOL result, NSString * _Nullable error) {
         [expectation fulfill];
         XCTAssertTrue(true, "Should be prepared");
-
     }];
     
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
@@ -172,18 +172,33 @@ UADSAppSheet *appSheet = nil;
     }];
     
     [appSheet presentAppSheet:parameters animated:true completionBlock:^(BOOL result, NSString * _Nullable error) {
-        
     }];
     
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"presentAppSheetEventExpectation"];
     MockWebViewAppForAppSheetTests *mockApp = (MockWebViewAppForAppSheetTests *)[UADSWebViewApp getCurrentApp];
     [mockApp setPresentException:expectation2];
-    
+
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
         XCTAssertTrue(true, "Didn't timeout");
     }];
     
-    [viewController dismissViewControllerAnimated:false completion:nil];
+    XCTestExpectation *appsheetDismissExpectation = [self expectationWithDescription:@"appSheetDismissViewController"];
+    [viewController dismissViewControllerAnimated:false completion:^{
+        [appsheetDismissExpectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+        XCTAssertTrue(true, "Didn't timeout");
+    }];
+
+    XCTestExpectation *viewControllerDismissExpectation = [self expectationWithDescription:@"dismissViewController"];
+    [viewController dismissViewControllerAnimated:false completion:^{
+        [viewControllerDismissExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+        XCTAssertTrue(true, "Didn't timeout");
+    }];
 }
 
 // TODO: unstable test

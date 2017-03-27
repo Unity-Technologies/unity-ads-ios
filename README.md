@@ -2,6 +2,10 @@
 
 Welcome to the Unity Ads 2.0 iOS release repository.
 
+## Supported Integration Configurations
+
+Always use the pre-built release framework when integrating Unity Ads into your project. Integration using the source-code is not supported.
+
 ## Binaries
 
 Binaries can be found from the [releases tab](https://github.com/Unity-Technologies/unity-ads-ios/releases).

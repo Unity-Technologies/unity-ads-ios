@@ -18,4 +18,6 @@
 
 + (void)reset;
 
++ (UnityAdsPlacementState)formatStringToPlacementState:(NSString *)placementState;
+
 @end

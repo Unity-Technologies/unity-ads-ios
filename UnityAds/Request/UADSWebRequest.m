@@ -143,4 +143,8 @@
     [self.blockCondition unlock];
 }
 
+- (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse {
+    return nil;
+}
+
 @end

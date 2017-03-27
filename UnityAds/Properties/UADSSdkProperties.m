@@ -4,14 +4,16 @@ NSString * const kUnityAdsCacheDirName = @"UnityAdsCache";
 NSString * const kUnityAdsLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityAdsLocalStorageFilePrefix  = @"UnityAdsStorage-";
 NSString * const kUnityAdsWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
-NSString * const kUnityAdsVersionName = @"2.0.8";
+NSString * const kUnityAdsVersionName = @"2.1.0";
 NSString * const kUnityAdsFlavorDebug = @"debug";
 NSString * const kUnityAdsFlavorRelease = @"release";
-int const kUnityAdsVersionCode = 2008;
+int const kUnityAdsVersionCode = 2100;
 
 @implementation UADSSdkProperties
 
 static BOOL initialized = false;
+static BOOL reinitialized = false;
+static long long initializationTime = 0;
 static BOOL testMode = false;
 static int showTimeout = 5000;
 static NSString *configUrl = NULL;
@@ -117,4 +119,19 @@ static BOOL debug = true;
     return showTimeout;
 }
 
++ (void)setInitializationTime:(long long)milliseconds {
+    initializationTime = milliseconds;
+}
+
++ (long long)getInitializationTime {
+    return initializationTime;
+}
+
++ (void)setReinitialized:(BOOL)status {
+    reinitialized = status;
+}
+
++ (BOOL)isReinitialized {
+    return reinitialized;
+}
 @end

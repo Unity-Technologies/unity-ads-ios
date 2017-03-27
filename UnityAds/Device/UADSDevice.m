@@ -6,6 +6,7 @@
 #import <sys/utsname.h>
 #import <mach/mach.h>
 #import <mach/mach_host.h>
+#import <objc/runtime.h>
 
 #import "UnityAds.h"
 #import "UADSDevice.h"
@@ -77,16 +78,20 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 }
 
 + (NSString *)getNetworkOperator {
-    NSString *networkOperator = uadsTelephonyInfo.subscriberCellularProvider.mobileCountryCode;
-    networkOperator = [networkOperator stringByAppendingString:uadsTelephonyInfo.subscriberCellularProvider.mobileNetworkCode];
-    
-    return networkOperator;
-;
+    NSString *countryCode = uadsTelephonyInfo.subscriberCellularProvider.mobileCountryCode;
+    NSString *networkCode = uadsTelephonyInfo.subscriberCellularProvider.mobileNetworkCode;
+    if(countryCode == nil || networkCode == nil) {
+        return @"";
+    }
+    return [countryCode stringByAppendingString:networkCode];
 }
 
 + (NSString *)getNetworkOperatorName {
-    return uadsTelephonyInfo.subscriberCellularProvider.carrierName;
-
+    NSString *carrierName = uadsTelephonyInfo.subscriberCellularProvider.carrierName;
+    if(carrierName == nil) {
+        return @"";
+    }
+    return carrierName;
 }
 
 + (float)getScreenScale {
@@ -258,6 +263,79 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 
 + (NSInteger)getUserInterfaceIdiom {
     return [[UIDevice currentDevice] userInterfaceIdiom];
+}
+
++ (NSArray<NSString *>*)getSensorList {
+    id motionManagerClass = objc_getClass("CMMotionManager");
+    BOOL gyroAvailable = false;
+    BOOL accelerometerAvailable = false;
+    BOOL magnetometerAvailable = false;
+
+    if (motionManagerClass) {
+        UADSLogDebug(@"MotionManager class found");
+        id motionManagerObject = [[motionManagerClass alloc] init];
+
+        if (motionManagerObject) {
+            UADSLogDebug(@"MotionManager object created");
+
+            SEL gyroSelector = NSSelectorFromString(@"isGyroAvailable");
+            if ([motionManagerObject respondsToSelector:gyroSelector]) {
+                UADSLogDebug(@"Performing gyro selector");
+                IMP gyroImp = [motionManagerObject methodForSelector:gyroSelector];
+                BOOL (*gyroFunc)(id, SEL) = (void *)gyroImp;
+                gyroAvailable = gyroFunc(motionManagerObject, gyroSelector);
+            }
+
+            SEL accelerometerSelector = NSSelectorFromString(@"isAccelerometerAvailable");
+            if ([motionManagerObject respondsToSelector:accelerometerSelector]) {
+                UADSLogDebug(@"Performing accelerometer selector");
+                IMP accelerometerImp = [motionManagerObject methodForSelector:accelerometerSelector];
+                BOOL (*accelerometerFunc)(id, SEL) = (void *)accelerometerImp;
+                accelerometerAvailable = accelerometerFunc(motionManagerObject, accelerometerSelector);
+            }
+
+            SEL magnetometerSelector = NSSelectorFromString(@"isMagnetometerAvailable");
+            if ([motionManagerObject respondsToSelector:magnetometerSelector]) {
+                UADSLogDebug(@"Performing magnetometer selector");
+                IMP magnetometerImp = [motionManagerObject methodForSelector:magnetometerSelector];
+                BOOL (*magnetometerFunc)(id, SEL) = (void *)magnetometerImp;
+                magnetometerAvailable = magnetometerFunc(motionManagerObject, magnetometerSelector);
+            }
+
+            NSMutableArray<NSString *> *availableSensors = [[NSMutableArray alloc] init];
+
+            if (gyroAvailable) {
+                [availableSensors addObject:@"gyro"];
+            }
+            if (accelerometerAvailable) {
+                [availableSensors addObject:@"accelerometer"];
+            }
+            if (magnetometerAvailable) {
+                [availableSensors addObject:@"magnetometer"];
+            }
+
+            return availableSensors;
+        }
+    }
+
+    return NULL;
+}
+
++ (NSString *)getGLVersion {
+    EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+
+    if (context == nil) {
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+
+        if (context == nil) {
+            return [NSString stringWithFormat:@"1.1"];
+        }
+
+        return [NSString stringWithFormat:@"2.0"];
+    }
+    else {
+        return [NSString stringWithFormat:@"3.0"];
+    }
 }
 
 @end

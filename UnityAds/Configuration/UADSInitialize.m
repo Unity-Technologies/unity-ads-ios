@@ -1,7 +1,6 @@
 #import "UADSInitialize.h"
 #import "UADSWebViewApp.h"
 #import "UADSSdkProperties.h"
-#import "UADSURLProtocol.h"
 #import "UADSStorageManager.h"
 #import "UADSWebRequest.h"
 #import "UADSWebRequestQueue.h"
@@ -11,6 +10,7 @@
 #import "NSString+Hash.h"
 #import "UADSDevice.h"
 #import "UADSConnectivityUtils.h"
+#import "UADSWKWebViewApp.h"
 
 @implementation UADSInitialize
 
@@ -241,9 +241,26 @@ static dispatch_once_t onceToken;
 - (instancetype)execute {
     UADSLogDebug(@"Unity Ads init: creating webapp");
     
-    [NSURLProtocol registerClass:[UADSURLProtocol class]];
     [self.configuration setWebViewData:[self webViewData]];
-    [UADSWebViewApp create:self.configuration];
+    
+    NSString *osVersion = [UADSDevice getOsVersion];
+    NSArray<NSString *> *splitString = [osVersion componentsSeparatedByString:@"."];
+    NSString *osMajorVersionString = [splitString objectAtIndex:0];
+    int osMajorVersion = [osMajorVersionString intValue];
+    
+    if (osMajorVersion > 8) {
+        UADSLogDebug(@"Using WKWebView");
+        [UADSWKWebViewApp create:self.configuration];
+        
+        if (![UADSWKWebViewApp getCurrentApp]) {
+            UADSLogDebug(@"Error creating WKWebView, falling back to UIWebView");
+            [UADSWebViewApp create:self.configuration];
+        }
+    }
+    else {
+        UADSLogDebug(@"Using UIWebView");
+        [UADSWebViewApp create:self.configuration];
+    }
 
     id nextState = [[UADSInitializeStateComplete alloc] initWithConfiguration:self.configuration];
     return nextState;
@@ -342,7 +359,7 @@ static dispatch_once_t onceToken;
 }
 
 - (BOOL)shouldHandleConnectedEvent {
-    long currentTimeMs = [[NSDate date] timeIntervalSince1970] * 1000;
+    long long currentTimeMs = [[NSDate date] timeIntervalSince1970] * 1000;
     if (currentTimeMs - self.lastConnectedEventTimeMs >= 10000 && self.receivedConnectedEvents < 500) {
         return true;
     }

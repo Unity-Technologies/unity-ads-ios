@@ -2,12 +2,14 @@
 #import "UADSConfiguration.h"
 #import "UADSInvocation.h"
 #import "UADSNativeCallback.h"
+#import "UADSWebViewBackgroundView.h"
 
 @interface UADSWebViewApp : NSObject
 
 @property (nonatomic, assign) BOOL webAppLoaded;
 @property (nonatomic, assign) BOOL webAppInitialized;
-@property (nonatomic, strong) UIWebView *webView;
+@property (nonatomic, strong) UIView *webView;
+@property (nonatomic, strong) UADSWebViewBackgroundView *backgroundView;
 @property (nonatomic, strong) UADSConfiguration *configuration;
 @property (nonatomic, strong) NSMutableDictionary *nativeCallbacks;
 
@@ -23,5 +25,7 @@
 - (void)addCallback:(UADSNativeCallback *)callback;
 - (void)removeCallback:(UADSNativeCallback *)callback;
 - (UADSNativeCallback *)getCallbackWithId:(NSString *)callbackId;
-
+- (void)invokeJavascriptString:(NSString *)javaScriptString;
+- (void)placeWebViewToBackgroundView;
+- (void)createBackgroundView;
 @end

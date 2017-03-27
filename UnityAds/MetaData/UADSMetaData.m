@@ -25,7 +25,7 @@
     }
     
     [self.entries setObject:value forKey:[NSString stringWithFormat:@"%@.value", finalKey]];
-    NSNumber *timestamp = [NSNumber numberWithLong:[[NSDate date] timeIntervalSince1970] * 1000];
+    NSNumber *timestamp = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970] * 1000];
     [self.entries setObject:timestamp forKey:[NSString stringWithFormat:@"%@.ts", finalKey]];
 }
 

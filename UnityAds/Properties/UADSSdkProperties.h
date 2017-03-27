@@ -27,4 +27,8 @@ FOUNDATION_EXPORT NSString * const kUnityAdsFlavorRelease;
 + (NSString *)getCacheDirectory;
 + (void)setShowTimeout:(int)timeout;
 + (int)getShowTimeout;
++ (void)setInitializationTime:(long long)milliseconds;
++ (long long)getInitializationTime;
++ (void)setReinitialized:(BOOL)status;
++ (BOOL)isReinitialized;
 @end

@@ -121,6 +121,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
+    bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
   # Configure the test target
@@ -130,6 +131,8 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds"]
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
     bc.build_settings['TEST_HOST'] = "$(BUILT_PRODUCTS_DIR)/UnityAdsExample.app/UnityAdsExample"
+    bc.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "iPhone Developer"
+    bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
   # Add target dependencies

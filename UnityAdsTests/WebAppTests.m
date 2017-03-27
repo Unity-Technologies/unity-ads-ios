@@ -445,4 +445,18 @@ static BOOL nativeCallbackMethodInvoked = false;
     XCTAssertNotNil([(WebAppTestWebView *)[[UADSWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
 }
 
+- (void)testTryRemoving {
+    UADSWebViewBackgroundView *backgroundView = [[UADSWebViewBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];
+    [[[[UIApplication sharedApplication] windows] firstObject] addSubview:backgroundView];
+    [backgroundView removeFromSuperview];
+    XCTAssertTrue([backgroundView superview], @"Should still have superview");
+}
+
+- (void)testTryAccessingSubviews {
+    UIView *backgroundView = [[UADSWebViewBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];
+    [backgroundView addSubview:view];
+    XCTAssertEqual(0, [[backgroundView subviews] count], @"View count should seem 0");
+}
+
 @end

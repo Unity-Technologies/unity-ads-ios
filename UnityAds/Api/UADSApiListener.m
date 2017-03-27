@@ -3,6 +3,7 @@
 #import "UADSClientProperties.h"
 #import "NSString+UnityAdsError.h"
 #import "UnityAdsExtended.h"
+#import "UADSPlacement.h"
 
 UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
     if (state) {
@@ -23,91 +24,80 @@ UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
 @implementation UADSApiListener
 
 + (void)WebViewExposed_sendReadyEvent:(NSString *)placementId callback:(UADSWebViewCallback *)callback {
-    if ([UADSClientProperties getDelegate]) {
-        if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsReady:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate]) {
+            if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsReady:)]) {
                 [[UADSClientProperties getDelegate] unityAdsReady:placementId];
-            });
-            [callback invoke:nil];
+            }
         }
-        else {
-            [callback error:NSStringFromListenerError(kUnityAdsCouldNotFindSelector) arg1:nil];
-        }
-    }
-    else {
-        [callback error:NSStringFromListenerError(kUnityAdsDelegateNull) arg1:nil];
-    }
+    });
+
+    [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendStartEvent:(NSString *)placementId callback:(UADSWebViewCallback *)callback {
-    if ([UADSClientProperties getDelegate]) {
-        if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidStart:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate]) {
+            if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidStart:)]) {
                 [[UADSClientProperties getDelegate] unityAdsDidStart:placementId];
-            });
-            [callback invoke:nil];
+            }
         }
-        else {
-            [callback error:NSStringFromListenerError(kUnityAdsCouldNotFindSelector) arg1:nil];
-        }
-    }
-    else {
-        [callback error:NSStringFromListenerError(kUnityAdsDelegateNull) arg1:nil];
-    }
+    });
+
+    [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendFinishEvent:(NSString *)placementId result:(NSString *)result callback:(UADSWebViewCallback *)callback {
-    if ([UADSClientProperties getDelegate]) {
-        if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate]) {
+            if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
                 UnityAdsFinishState state = UnityAdsFinishStateFromNSString(result);
                 if ((int)state != -10000) {
                     [[UADSClientProperties getDelegate] unityAdsDidFinish:placementId withFinishState:state];
                 }
-            });
-            [callback invoke:nil];
+            }
         }
-        else {
-            [callback error:NSStringFromListenerError(kUnityAdsCouldNotFindSelector) arg1:nil];
-        }
-    }
-    else {
-        [callback error:NSStringFromListenerError(kUnityAdsDelegateNull) arg1:nil];
-    }
+    });
+
+    [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendClickEvent:(NSString *)placementId callback:(UADSWebViewCallback *)callback {
-    if ([UADSClientProperties getDelegate] && [[UADSClientProperties getDelegate] conformsToProtocol:@protocol(UnityAdsExtendedDelegate)]) {
-        if ([(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidClick:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                    [(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] unityAdsDidClick:placementId];
-            });
-            [callback invoke:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate] && [[UADSClientProperties getDelegate] conformsToProtocol:@protocol(UnityAdsExtendedDelegate)]) {
+            if ([(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidClick:)]) {
+                [(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] unityAdsDidClick:placementId];
+            }
         }
-        else {
-            [callback error:NSStringFromListenerError(kUnityAdsCouldNotFindSelector) arg1:nil];
+    });
+
+    [callback invoke:nil];
+}
+
++ (void)WebViewExposed_sendPlacementStateChangedEvent:(NSString *)placementId oldState:(NSString *)oldState newState:(NSString *)newState callback:(UADSWebViewCallback *)callback {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate] && [[UADSClientProperties getDelegate] conformsToProtocol:@protocol(UnityAdsExtendedDelegate)]) {
+            if ([(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsPlacementStateChanged:oldState:newState:)]) {
+                UnityAdsPlacementState oldStateInteger = [UADSPlacement formatStringToPlacementState:oldState];
+                UnityAdsPlacementState newStateInteger = [UADSPlacement formatStringToPlacementState:newState];
+                [(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] unityAdsPlacementStateChanged:placementId oldState:oldStateInteger newState:newStateInteger];
+            }
         }
-    }
-    else {
-        [callback error:NSStringFromListenerError(kUnityAdsDelegateNull) arg1:nil];
-    }
+    });
+    
+    [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendErrorEvent:(NSString *)errorString message:(NSString *)message callback:(UADSWebViewCallback *)callback {
-    if ([UADSClientProperties getDelegate]) {
-        if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate]) {
+            if ([[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
                 [[UADSClientProperties getDelegate] unityAdsDidError:[errorString unityAdsErrorFromString] withMessage:message];
-            });
-            [callback invoke:nil];
+            }
         }
-        else {
-            [callback error:NSStringFromListenerError(kUnityAdsCouldNotFindSelector) arg1:nil];
-        }
-    }
-    else {
-        [callback error:NSStringFromListenerError(kUnityAdsDelegateNull) arg1:nil];
-    }
+    });
+
+    [callback invoke:nil];
 }
 
 @end

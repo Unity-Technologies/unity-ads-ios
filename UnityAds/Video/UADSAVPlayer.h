@@ -11,7 +11,7 @@
 - (void)prepare:(NSString *)url initialVolume:(float)volume timeout:(NSInteger)timeout;
 - (void)stop;
 - (void)stopObserving;
-- (void)seekTo:(int)msec;
-- (int)getCurrentPosition;
+- (void)seekTo:(long)msec;
+- (long)getCurrentPosition;
 
 @end

@@ -59,4 +59,8 @@
 
 + (NSInteger)getUserInterfaceIdiom;
 
++ (NSArray<NSString *>*)getSensorList;
+
++ (NSString *)getGLVersion;
+
 @end

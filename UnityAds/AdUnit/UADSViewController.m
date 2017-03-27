@@ -1,6 +1,5 @@
 #import "UADSViewController.h"
 #import "UADSWebViewApp.h"
-#import <StoreKit/SKStoreProductViewController.h>
 #import "UADSAdUnitEvent.h"
 #import "UADSWebViewEventCategory.h"
 #import "UnityAds.h"
@@ -59,7 +58,7 @@
     [self destroyVideoPlayer];
     [self destroyVideoView];
     [[[UADSWebViewApp getCurrentApp] webView] removeFromSuperview];
-    
+    [[UADSWebViewApp getCurrentApp] placeWebViewToBackgroundView];
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidDisappear) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAdunit) param1:nil];
 }
 
@@ -167,7 +166,7 @@
             [view removeFromSuperview];
         }
 
-        
+        [view setHidden:false];
         [view setCenter:[self.view convertPoint:self.view.center fromView:self.view.superview]];
         [view setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
         

@@ -97,7 +97,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
 + (void)WebViewExposed_seekTo:(NSNumber *)time callback:(UADSWebViewCallback *)callback {
     if ([[UADSApiAdUnit getAdUnit] videoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[[UADSApiAdUnit getAdUnit] videoPlayer] seekTo:[time intValue]];
+            [[[UADSApiAdUnit getAdUnit] videoPlayer] seekTo:[time longValue]];
         });
 
         [callback invoke:nil];
@@ -128,7 +128,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
 
 + (void)WebViewExposed_getCurrentPosition:(UADSWebViewCallback *)callback {
     if ([[UADSApiAdUnit getAdUnit] videoPlayer]) {
-        [callback invoke:[NSNumber numberWithInt:[[[UADSApiAdUnit getAdUnit] videoPlayer] getCurrentPosition]], nil];
+        [callback invoke:[NSNumber numberWithLong:[[[UADSApiAdUnit getAdUnit] videoPlayer] getCurrentPosition]], nil];
     }
     else {
         [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];

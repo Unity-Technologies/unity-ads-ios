@@ -1,5 +1,6 @@
 #import "UADSWebRequestQueue.h"
 #import "UADSWebRequest.h"
+#import "UADSResolveError.h"
 
 @implementation UADSWebRequestQueue
 
@@ -34,14 +35,15 @@ static dispatch_once_t onceToken;
 }
 
 + (BOOL)resolve:(NSString *)host completeBlock:(UnityAdsResolveRequestCompletion)completeBlock {
-    if (resolveQueue && host && completeBlock) {
-        UADSResolveOperation *operation = [[UADSResolveOperation alloc] initWithHostName:host completeBlock:completeBlock];
-        [resolveQueue addOperation:operation];
-
-        return true;
+    if (!host || host.length < 3 || [host isEqual:[NSNull null]]) {
+        completeBlock(host, NULL, NSStringFromResolveError(kUnityAdsResolveErrorInvalidHost), @"Invalid host");
+        return false;
     }
 
-    return false;
+    UADSResolveOperation *operation = [[UADSResolveOperation alloc] initWithHostName:host completeBlock:completeBlock];
+    [resolveQueue addOperation:operation];
+
+    return true;
 }
 
 + (void)cancelAllOperations {

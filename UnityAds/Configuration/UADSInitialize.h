@@ -88,7 +88,7 @@
 
 @property (nonatomic, strong) NSCondition *blockCondition;
 @property (nonatomic, assign) int receivedConnectedEvents;
-@property (nonatomic, assign) long lastConnectedEventTimeMs;
+@property (nonatomic, assign) long long lastConnectedEventTimeMs;
 
 @end
 

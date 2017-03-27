@@ -23,7 +23,7 @@ static NSString *resolveCategory = @"RESOLVE";
         else if (webApp) {
             [webApp sendEvent:NSStringFromResolveEvent(kUnityAdsResolveEventFailed) category:resolveCategory
                 param1:resolveId,
-                host,
+                host ? host : [NSNull null],
                 error,
                 errorMessage,
              nil];
@@ -34,7 +34,7 @@ static NSString *resolveCategory = @"RESOLVE";
         [callback invoke:resolveId, nil];
     }
     else {
-        [callback error:NSStringFromResolveError(kUnityAdsResolveErrorUnexpectedException) arg1:resolveId, nil];
+        [callback error:NSStringFromResolveError(kUnityAdsResolveErrorInvalidHost) arg1:resolveId, nil];
     }
 }
 

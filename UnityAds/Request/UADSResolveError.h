@@ -3,7 +3,7 @@
 typedef NS_ENUM(NSInteger, UnityAdsResolveError) {
     kUnityAdsResolveErrorTimedOut,
     kUnityAdsResolveErrorUnknownHost,
-    kUnityAdsResolveErrorUnexpectedException
+    kUnityAdsResolveErrorInvalidHost
 };
 
 NSString *NSStringFromResolveError(UnityAdsResolveError);

@@ -2,7 +2,7 @@
 
 static NSString *timedOut = @"TIMEOUT";
 static NSString *unknownHost = @"UNKNOWN_HOST";
-static NSString *unexpectedException = @"UNEXPECTED_EXCEPTION";
+static NSString *invalidHost = @"INVALID_HOST";
 
 NSString *NSStringFromResolveError(UnityAdsResolveError error) {
     switch (error) {
@@ -10,7 +10,7 @@ NSString *NSStringFromResolveError(UnityAdsResolveError error) {
             return timedOut;
         case kUnityAdsResolveErrorUnknownHost:
             return unknownHost;
-        case kUnityAdsResolveErrorUnexpectedException:
-            return unexpectedException;
+        case kUnityAdsResolveErrorInvalidHost:
+            return invalidHost;
     }
 }

@@ -24,6 +24,7 @@
 #import "NSString+Hash.h"
 #import "UADSURLProtocol.h"
 #import "UADSInitialize.h"
+#import "UADSWebViewMethodInvokeHandler.h"
 
 // METADATA
 #import "UADSMetaData.h"

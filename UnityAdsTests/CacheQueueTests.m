@@ -81,7 +81,8 @@ static long kMinFileSize = 5000;
     NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"test.mp4"];
     [[NSFileManager defaultManager]removeItemAtPath:fileName error:nil];
     
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil];
+    
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
     
@@ -102,7 +103,8 @@ static long kMinFileSize = 5000;
     [[NSFileManager defaultManager] removeItemAtPath:fileName error:nil];
     
     [UADSCacheQueue setProgressInterval:50];
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil];
+
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         [mockApp setProgressExpectation:nil];
     }];
@@ -126,8 +128,8 @@ static long kMinFileSize = 5000;
     XCTestExpectation *endExpectation  = [self expectationWithDescription:@"downloadEndExpectation"];
     [mockApp setResumeEndExpectation:endExpectation];
 
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName];
-        
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil];
+
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
 

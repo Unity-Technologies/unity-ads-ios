@@ -20,8 +20,8 @@ NSString* const kUnityAdsConfigValueVersion = @"version";
 }
 
 - (NSString *)buildQueryString {
-    long ts = [[NSDate date] timeIntervalSince1970] * 1000;
-    return [NSString stringWithFormat:@"?ts=%ld&sdkVersion=%d&sdkVersionName=%@", ts, [UADSSdkProperties getVersionCode], [UADSSdkProperties getVersionName]];
+    long long ts = [[NSDate date] timeIntervalSince1970] * 1000;
+    return [NSString stringWithFormat:@"?ts=%lld&sdkVersion=%d&sdkVersionName=%@", ts, [UADSSdkProperties getVersionCode], [UADSSdkProperties getVersionName]];
 }
 
 - (void)makeRequest {

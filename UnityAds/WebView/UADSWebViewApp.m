@@ -1,6 +1,7 @@
 #import "UnityAds.h"
 #import "UADSWebViewApp.h"
 #import "UADSSdkProperties.h"
+#import "UADSURLProtocol.h"
 
 @implementation UADSWebViewApp
 
@@ -15,6 +16,7 @@ static UADSWebViewApp *currentApp = NULL;
 }
 
 + (void)create:(UADSConfiguration *)configuration; {
+    [NSURLProtocol registerClass:[UADSURLProtocol class]];
     UADSWebViewApp *webViewApp = [[UADSWebViewApp alloc] initWithConfiguration:configuration];
 
     dispatch_sync(dispatch_get_main_queue(), ^(void) {
@@ -33,7 +35,11 @@ static UADSWebViewApp *currentApp = NULL;
             queryString = [queryString stringByAppendingString:[NSString stringWithFormat:@"&version=%1@", [UADSWebViewApp urlEncode:configuration.webViewVersion]]];
         }
         
-        [[webViewApp webView] loadData:[NSData dataWithContentsOfFile:localWebViewUrl] MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:[NSURL URLWithString:queryString]];
+        [(UIWebView *)[webViewApp webView] loadData:[NSData dataWithContentsOfFile:localWebViewUrl] MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:[NSURL URLWithString:queryString]];
+
+        [webViewApp createBackgroundView];
+        [webViewApp.backgroundView placeViewToBackground];
+        [webViewApp placeWebViewToBackgroundView];
     });
 
     [UADSWebViewApp setCurrentApp:webViewApp];
@@ -66,13 +72,17 @@ static UADSWebViewApp *currentApp = NULL;
         NSString *paramStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         NSString *javaScriptString = [[NSString alloc] initWithFormat:@"window.%@.%@(%@);", className, methodName, paramStr];
         UADSLogDebug(@"JS_STRING: %@", javaScriptString);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.webView stringByEvaluatingJavaScriptFromString:javaScriptString];
-        });
+        [self invokeJavascriptString:javaScriptString];
     }
     else {
         UADSLogError(@"FATAL_ERROR: Tried to invoke javascript with data that could not be parsed to JSON: %@", [params description]);
     }
+}
+
+- (void)invokeJavascriptString:(NSString *)javaScriptString {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [(UIWebView *)self.webView stringByEvaluatingJavaScriptFromString:javaScriptString];
+    });
 }
 
 - (BOOL)sendEvent:(NSString *)eventId category:(NSString *)category param1:(id)param1, ... {
@@ -195,6 +205,22 @@ static UADSWebViewApp *currentApp = NULL;
     }
 
     return NULL;
+}
+
+- (void)placeWebViewToBackgroundView {
+    if (self.webView && self.backgroundView) {
+        if ([self.webView superview]) {
+            [self.webView removeFromSuperview];
+        }
+
+        [self.webView setHidden:YES];
+        [self.backgroundView addSubview:self.webView];
+    }
+}
+
+- (void)createBackgroundView {
+    self.backgroundView = [[UADSWebViewBackgroundView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
+    [self.backgroundView setBackgroundColor:[UIColor clearColor]];
 }
 
 @end

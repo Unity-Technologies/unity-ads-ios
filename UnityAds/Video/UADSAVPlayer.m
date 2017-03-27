@@ -154,10 +154,11 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)videoProgressTimer:(NSTimer *)timer {
+    __weak UADSAVPlayer *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventProgress)
                                          category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
-                                           param1:[NSNumber numberWithInt:[self getMsFromCMTime:self.currentTime]], nil];
+                                           param1:[NSNumber numberWithLong:[weakSelf getMsFromCMTime:weakSelf.currentTime]], nil];
     });
 }
 
@@ -206,7 +207,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     });
 }
 
-- (void)seekTo:(int)msec {
+- (void)seekTo:(long)msec {
     Float64 t_ms = msec / 1000;
     CMTime time = CMTimeMakeWithSeconds(t_ms, 30);
     [self seekToTime:time completionHandler:^(BOOL finished) {
@@ -214,13 +215,13 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     }];
 }
 
-- (int)getMsFromCMTime:(CMTime)time {
+- (long)getMsFromCMTime:(CMTime)time {
     Float64 current = CMTimeGetSeconds(time);
     Float64 ms = current * 1000;
-    return (int)ms;
+    return (long)ms;
 }
 
-- (int)getCurrentPosition {
+- (long)getCurrentPosition {
     return [self getMsFromCMTime:self.currentTime];
 }
 
@@ -232,14 +233,21 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
         if (playerItemStatus == AVPlayerItemStatusReadyToPlay) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSArray *tracks = [self.currentItem.asset tracksWithMediaType:AVMediaTypeVideo];
-                AVAssetTrack *track = [tracks objectAtIndex:0];
-                CGSize mediaSize = track.naturalSize;
+
+                float width = -1;
+                float height = -1;
+                if ([tracks count] > 0) {
+                    AVAssetTrack *track = [tracks objectAtIndex:0];
+                    CGSize mediaSize = track.naturalSize;
+                    width = mediaSize.width;
+                    height = mediaSize.height;
+                }
 
                 [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPrepared) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
-                    param1:[NSNumber numberWithInt:[self getMsFromCMTime:self.currentItem.duration]],
-                    [NSNumber numberWithFloat:mediaSize.width],
-                    [NSNumber numberWithFloat:mediaSize.height],
-                    self.url,
+                    param1:self.url,
+                    [NSNumber numberWithLong:[self getMsFromCMTime:self.currentItem.duration]],
+                    [NSNumber numberWithFloat:width],
+                    [NSNumber numberWithFloat:height],
                  nil];
             });
 

@@ -3,7 +3,7 @@
 #import "UADSDevice.h"
 #import "UADSConnectivityUtils.h"
 #import "UADSClientProperties.h"
-
+#import "UADSDeviceError.h"
 
 @implementation UADSApiDeviceInfo
 
@@ -130,6 +130,16 @@
     [callback invoke:[NSNumber numberWithInt:[UADSClientProperties getSupportedOrientations]], nil];
 }
 
++ (void)WebViewExposed_getSensorList:(UADSWebViewCallback *)callback {
+    NSArray<NSString *> *sensorList = [UADSDevice getSensorList];
+    if (sensorList) {
+        [callback invoke:sensorList, nil];
+    }
+    else {
+        [callback error:NSStringFromDeviceError(kUnityAdsCouldntGetSensorInfo) arg1:nil];
+    }
+}
+
 + (void)WebViewExposed_getStatusBarWidth:(UADSWebViewCallback *)callback {
     NSNumber *width = [NSNumber numberWithFloat:[UIApplication sharedApplication].statusBarFrame.size.width];
     [callback invoke:width, nil];
@@ -143,6 +153,10 @@
 + (void)WebViewExposed_isStatusBarHidden:(UADSWebViewCallback *)callback {
     NSNumber *isHidden = [NSNumber numberWithBool:[UIApplication sharedApplication].statusBarHidden];
     [callback invoke:isHidden, nil];
+}
+
++ (void)WebViewExposed_getGLVersion:(UADSWebViewCallback *)callback {
+    [callback invoke:[UADSDevice getGLVersion], nil];
 }
 
 @end

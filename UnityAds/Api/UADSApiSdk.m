@@ -22,8 +22,10 @@
         [NSNumber numberWithBool:[UADSClientProperties isAppDebuggable]],
         [[[UADSWebViewApp getCurrentApp] configuration] configUrl],
         [[[UADSWebViewApp getCurrentApp] configuration] webViewUrl],
-        [[[UADSWebViewApp getCurrentApp] configuration] webViewHash],
-        [[[UADSWebViewApp getCurrentApp] configuration] webViewVersion],
+        [[[UADSWebViewApp getCurrentApp] configuration] webViewHash] ? [[[UADSWebViewApp getCurrentApp] configuration] webViewHash] : [NSNull null],
+        [[[UADSWebViewApp getCurrentApp] configuration] webViewVersion] ? [[[UADSWebViewApp getCurrentApp] configuration] webViewVersion] : [NSNull null],
+        [NSNumber numberWithLongLong:[UADSSdkProperties getInitializationTime]],
+        [NSNumber numberWithBool:[UADSSdkProperties isReinitialized]],
      nil];
 }
 
@@ -69,6 +71,7 @@
 }
 
 + (void)WebViewExposed_reinitialize:(UADSWebViewCallback *)callback {
+    [UADSSdkProperties setReinitialized:true];
     [UADSInitialize initialize:[[UADSWebViewApp getCurrentApp] configuration]];
 }
 

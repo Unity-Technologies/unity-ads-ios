@@ -48,7 +48,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -60,7 +60,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -69,7 +69,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:[[UADSApiAdUnit getAdUnit] currentViews], nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -79,7 +79,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -88,7 +88,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:[NSNumber numberWithInt:[[UADSApiAdUnit getAdUnit] supportedOrientations]], nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -104,7 +104,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:statusBarHidden, nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -113,7 +113,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:[NSNumber numberWithInt:[[UADSApiAdUnit getAdUnit] statusBarHidden]], nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -123,7 +123,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:shouldAutorotate, nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -132,7 +132,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:[NSNumber numberWithInt:[[UADSApiAdUnit getAdUnit] autorotate]], nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -144,7 +144,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:transform, nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -156,7 +156,7 @@ static UADSViewController *adUnitViewController = NULL;
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -166,11 +166,11 @@ static UADSViewController *adUnitViewController = NULL;
             [callback invoke:[(NSNumber *)[UADSApiAdUnit getAdUnit].view valueForKeyPath:@"layer.transform.rotation.z"], nil];
         }
         else {
-            [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNoRotationZ) arg1:nil];
+            [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNoRotationZ) arg1:nil];
         }
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 
@@ -187,10 +187,6 @@ static UADSViewController *adUnitViewController = NULL;
         else if ([view isEqualToString:@"webview"]) {
             targetView = [[UADSWebViewApp getCurrentApp] webView];
         }
-        else {
-            [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerUnknownView) arg1:nil];
-            return;
-        }
         
         if (targetView) {
             CGRect targetFrame = targetView.frame;
@@ -201,12 +197,12 @@ static UADSViewController *adUnitViewController = NULL;
              nil];
         }
         else {
-            [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerTargetViewNull) arg1:nil];
+            [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitUnknownView) arg1:nil];
             return;
         }
     }
     else {
-        [callback error:NSStringFromAdUnitError(kUnityAdsViewControllerNull) arg1:nil];
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
     }
 }
 

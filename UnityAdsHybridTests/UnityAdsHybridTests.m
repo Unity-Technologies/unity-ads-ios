@@ -42,6 +42,7 @@
     [UADSClientProperties setGameId:@"14850"];
     //[UADSClientProperties setDelegate:delegate];
     [UADSSdkProperties setTestMode:YES];
+    [UnityAds setDebugMode:YES];
     UADSConfiguration *configuration = [[UADSConfiguration alloc] init];
     
     NSArray *classList = @[

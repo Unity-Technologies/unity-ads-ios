@@ -1,5 +1,4 @@
 #import "UnityAds.h"
-#import "UADSURLProtocol.h"
 #import "UADSEnvironmentProperties.h"
 #import "UADSClientProperties.h"
 #import "UADSSdkProperties.h"
@@ -37,11 +36,15 @@ static BOOL _initializing = NO;
     
     // Already initialized or currently initializing, error and bail
     if ([UADSSdkProperties isInitialized] || _initializing) {
+        if ([UADSClientProperties getGameId] && ![[UADSClientProperties getGameId] isEqualToString:gameId]) {
+            UADSLogWarning(@"You are trying to re-initialize with different gameId!");
+        }
+
         didError = YES;
         unityAdsError = kUnityAdsErrorInitSanityCheckFail;
     }
     // Bad game id or nil delegate
-    if (!gameId || [gameId length] == 0 || delegate == nil) {
+    if (!gameId || [gameId length] == 0) {
         UADSLogError(@"Unity ads init: invalid argument, halting init");
         didError = YES;
         unityAdsError = kUnityAdsErrorInvalidArgument;
@@ -54,6 +57,8 @@ static BOOL _initializing = NO;
         
         return;
     }
+    
+    [UADSSdkProperties setInitializationTime:[[NSDate date] timeIntervalSince1970] * 1000];
     
     _initializing = YES;
     @synchronized (self) {
