@@ -123,6 +123,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 
 - (void)onPrepareTimeoutListener:(NSNotification *)notification {
     UADSLogError(@"Video prepare timeout");
+    self.prepareTimeoutTimer = NULL;
     dispatch_async(dispatch_get_main_queue(), ^{
         [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerPrepareTimeout)
                                          category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryVideoPlayer)
