@@ -2,7 +2,7 @@
 
 #import <UnityAds/UADSMediationMetaData.h>
 #import <UnityAds/UADSPlayerMetaData.h>
-
+#import <UnityAds/UADSInAppPurchaseMetaData.h>
 /**
  *  An enumerate that describes the state of `UnityAds` placements. 
  *  @note All placement states, other than `kUnityAdsPlacementStateReady`, indicate that the placement is not currently ready to show ads.
