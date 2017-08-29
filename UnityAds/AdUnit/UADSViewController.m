@@ -11,10 +11,11 @@
 
 @implementation UADSViewController
 
-- (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate {
+- (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate isTransparent:(BOOL)isTransparent {
     self = [super init];
 
     if (self) {
+        [self setTransparent:isTransparent];
         [self setCurrentViews:views];
         [self setStatusBarHidden:statusBarHidden];
         [self setSupportedOrientations:[supportedOrientations intValue]];
@@ -27,7 +28,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self.view setBackgroundColor:[self isTransparent] ? [UIColor clearColor] : [UIColor blackColor]];
     
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidLoad) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAdunit) param1:nil];
 }
@@ -98,12 +99,20 @@
     [self setNeedsStatusBarAppearanceUpdate];
 }
 
+- (void)setTransparent:(BOOL)isTransparent {
+    _transparent = isTransparent;
+}
+
 - (void)setTransform:(float)transform {
     self.view.transform = CGAffineTransformMakeRotation(transform);
 }
 
 - (BOOL)prefersStatusBarHidden {
     return self.statusBarHidden;
+}
+
+- (BOOL)isTransparent {
+    return _transparent;
 }
 
 - (void)setViews:(NSArray<NSString*>*)views {

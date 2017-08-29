@@ -10,7 +10,8 @@ typedef NS_ENUM(NSInteger, UnityAdsWebViewEventCategory) {
     kUnityAdsWebViewEventCategoryVideoPlayer,
     kUnityAdsWebViewEventCategoryWebViewApp,
     kUnityAdsWebViewEventCategoryNotification,
-    kUnityAdsWebViewEventCategoryAppSheet
+    kUnityAdsWebViewEventCategoryAppSheet,
+    kUnityAdsWebViewEventCategoryDeviceInfo
 };
 
 NSString *NSStringFromWebViewEventCategory(UnityAdsWebViewEventCategory);

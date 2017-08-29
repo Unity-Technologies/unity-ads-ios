@@ -7,6 +7,7 @@
 @interface UADSAVPlayer ()
     @property (nonatomic, assign) id progressTimer;
     @property (nonatomic, assign) id prepareTimeoutTimer;
+    @property (nonatomic, assign) BOOL isObservingCompletion;
 @end
 
 @implementation UADSAVPlayer
@@ -98,8 +99,9 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
         }
 
     }
-    
+
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    self.isObservingCompletion = false;
 }
 
 - (void)setProgressEventInterval:(int)progressEventInterval {
@@ -115,7 +117,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)stopPrepareTimeoutTimer {
-    if (self.prepareTimeoutTimer) {
+    if (self && [self isKindOfClass:[UADSAVPlayer class]] && self.prepareTimeoutTimer && [self.prepareTimeoutTimer isKindOfClass:[NSTimer class]] && [self.prepareTimeoutTimer isValid]) {
         [self.prepareTimeoutTimer invalidate];
         self.prepareTimeoutTimer = NULL;
     }
@@ -147,7 +149,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)stopVideoProgressTimer {
-    if (self.progressTimer) {
+    if (self && [self isKindOfClass:[UADSAVPlayer class]] && self.progressTimer && [self.progressTimer isKindOfClass:[NSTimer class]] && [self.progressTimer isValid]) {
         [self.progressTimer invalidate];
         self.progressTimer = NULL;
     }
@@ -165,7 +167,10 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 - (void)play {
     UADSLogDebug(@"Starting video playback");
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCompletionListener:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.currentItem];
+    if (!self.isObservingCompletion) {
+        self.isObservingCompletion = true;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onCompletionListener:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.currentItem];
+    }
 
     [super play];
     self.isPlaying = true;

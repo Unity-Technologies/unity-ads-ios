@@ -10,6 +10,7 @@ static NSString * eventCategoryVideoPlayer = @"VIDEOPLAYER";
 static NSString * eventCategoryWebViewApp = @"WEBVIEWAPP";
 static NSString * eventCategoryNotification = @"NOTIFICATION";
 static NSString * eventCategoryAppSheet = @"APPSHEET";
+static NSString * eventCategoryDeviceInfo = @"DEVICEINFO";
 
 NSString *NSStringFromWebViewEventCategory(UnityAdsWebViewEventCategory category) {
     switch (category) {
@@ -33,5 +34,8 @@ NSString *NSStringFromWebViewEventCategory(UnityAdsWebViewEventCategory category
             return eventCategoryNotification;
         case kUnityAdsWebViewEventCategoryAppSheet:
             return eventCategoryAppSheet;
+        case kUnityAdsWebViewEventCategoryDeviceInfo:
+            return eventCategoryDeviceInfo;
+            
     }
 }

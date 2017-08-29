@@ -4,6 +4,21 @@
 #import "UADSConnectivityUtils.h"
 #import "UADSClientProperties.h"
 #import "UADSDeviceError.h"
+#import "UADSVolumeChange.h"
+#import "UADSWebViewApp.h"
+#import "UADSWebViewEventCategory.h"
+
+static UADSVolumeChangeListener *volumeChangeListener = NULL;
+
+@implementation UADSVolumeChangeListener
+- (void)onVolumeChanged:(float)volume {
+    if ([UADSWebViewApp getCurrentApp]) {
+        [[UADSWebViewApp getCurrentApp] sendEvent:@"VOLUME_CHANGED"
+            category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryDeviceInfo)
+            param1:[NSNumber numberWithFloat:volume], [NSNumber numberWithFloat:[UADSDevice getDeviceMaxVolume]], nil];
+    }
+}
+@end
 
 @implementation UADSApiDeviceInfo
 
@@ -157,6 +172,28 @@
 
 + (void)WebViewExposed_getGLVersion:(UADSWebViewCallback *)callback {
     [callback invoke:[UADSDevice getGLVersion], nil];
+}
+
++ (void)WebViewExposed_getDeviceMaxVolume:(UADSWebViewCallback *)callback {
+    [callback invoke:[NSNumber numberWithFloat:[UADSDevice getDeviceMaxVolume]], nil];
+}
+
++ (void)WebViewExposed_registerVolumeChangeListener:(UADSWebViewCallback *)callback {
+    if (!volumeChangeListener) {
+        volumeChangeListener = [[UADSVolumeChangeListener alloc] init];
+        [UADSVolumeChange registerDelegate:volumeChangeListener];
+    }
+
+    [callback invoke:nil];
+}
+
++ (void)WebViewExposed_unregisterVolumeChangeListener:(UADSWebViewCallback *)callback {
+    if (volumeChangeListener) {
+        [UADSVolumeChange unregisterDelegate:volumeChangeListener];
+        volumeChangeListener = NULL;
+    }
+
+    [callback invoke:nil];
 }
 
 @end

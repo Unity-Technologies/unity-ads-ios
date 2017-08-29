@@ -71,6 +71,13 @@
 }
 
 + (void)WebViewExposed_reinitialize:(UADSWebViewCallback *)callback {
+    UADSWebViewApp *currentWebViewApp = [UADSWebViewApp getCurrentApp];
+    
+    if (currentWebViewApp != nil) {
+        [currentWebViewApp setWebAppLoaded:false];
+        [currentWebViewApp setWebAppInitialized:false];
+    }
+
     [UADSSdkProperties setReinitialized:true];
     [UADSInitialize initialize:[[UADSWebViewApp getCurrentApp] configuration]];
 }

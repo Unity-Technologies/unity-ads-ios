@@ -17,8 +17,11 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 @implementation UADSDevice
 
 + (void)initCarrierUpdates {
-    uadsTelephonyInfo = [CTTelephonyNetworkInfo new];
-    uadsTelephonyInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier *carrier) { };
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        uadsTelephonyInfo = [CTTelephonyNetworkInfo new];
+        uadsTelephonyInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier *carrier) { };
+    });
 }
 
 + (NSString *)getOsVersion {
@@ -336,6 +339,10 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     else {
         return [NSString stringWithFormat:@"3.0"];
     }
+}
+
++ (float)getDeviceMaxVolume {
+    return 1.0f;
 }
 
 @end

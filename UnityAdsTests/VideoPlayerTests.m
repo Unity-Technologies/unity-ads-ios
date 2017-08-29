@@ -319,7 +319,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     
     [self.videoPlayer pause];
     
-    int diff = abs(4080 - [self.videoPlayer getCurrentPosition]);
+    long diff = labs((long)4080 - [self.videoPlayer getCurrentPosition]);
     
     XCTAssertTrue(diff < 100, @"Seek threshold exceeded!");
     XCTAssertTrue(success, @"Seekto expectation was not opened properly or an error occurred!");

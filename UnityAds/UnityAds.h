@@ -2,6 +2,7 @@
 
 #import <UnityAds/UADSMediationMetaData.h>
 #import <UnityAds/UADSPlayerMetaData.h>
+#import <UnityAds/UADSInAppPurchaseMetaData.h>
 
 /**
  *  An enumerate that describes the state of `UnityAds` placements. 

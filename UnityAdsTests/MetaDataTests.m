@@ -70,13 +70,19 @@
     [metadata setVersion:@"1.1"];
     [metadata commit];
     
-    XCTAssertEqual([[[webApp.params objectAtIndex:1] allKeys] count], [[metadata.entries allKeys] count], "Metadata doesn't have correct amount of values");
-    
     NSDictionary *webAppMetaDataEntries = [[NSDictionary alloc] initWithDictionary:[webApp.params objectAtIndex:1]];
-    for (NSString *key in [webAppMetaDataEntries allKeys]) {
-        XCTAssertTrue([metadata.entries objectForKey:key], "Metadata doesn't contain key: %@", key);
-        XCTAssertEqual([webAppMetaDataEntries objectForKey:key], [metadata.entries objectForKey:key], "Metadata key %@ doesn't contain value: %@", key, [webAppMetaDataEntries objectForKey:key]);
-    }
+    NSDictionary *mediationObject = [webAppMetaDataEntries objectForKey:@"mediation"];
+    NSDictionary *nameObject = [mediationObject objectForKey:@"name"];
+    XCTAssertNotNil([nameObject objectForKey:@"ts"]);
+    XCTAssertEqual([nameObject objectForKey:@"value"], @"MediationNetwork", @"Name is not what was expected");
+    
+    NSDictionary *ordinalObject = [mediationObject objectForKey:@"ordinal"];
+    XCTAssertNotNil([ordinalObject objectForKey:@"ts"]);
+    XCTAssertEqual([ordinalObject objectForKey:@"value"], [NSNumber numberWithInt:1], @"Ordinal is not what was expected");
+    
+    NSDictionary *versionObject = [mediationObject objectForKey:@"version"];
+    XCTAssertNotNil([versionObject objectForKey:@"ts"]);
+    XCTAssertEqual([versionObject objectForKey:@"value"], @"1.1", @"Version not what was expected");
 }
 
 - (void)testPlayerMetaData {
@@ -86,32 +92,64 @@
     [metadata setServerId:@"bulbasaur"];
     [metadata commit];
     
-    XCTAssertEqual([[[webApp.params objectAtIndex:1] allKeys] count], [[metadata.entries allKeys] count], "Metadata doesn't have correct amount of values");
-    
     NSDictionary *webAppMetaDataEntries = [[NSDictionary alloc] initWithDictionary:[webApp.params objectAtIndex:1]];
-    for (NSString *key in [webAppMetaDataEntries allKeys]) {
-        XCTAssertTrue([metadata.entries objectForKey:key], "Metadata doesn't contain key: %@", key);
-        XCTAssertEqual([webAppMetaDataEntries objectForKey:key], [metadata.entries objectForKey:key], "Metadata key %@ doesn't contain value: %@", key, [webAppMetaDataEntries objectForKey:key]);
-    }
+    NSDictionary *playerObject = [webAppMetaDataEntries objectForKey:@"player"];
+    NSDictionary *serverIdObject = [playerObject objectForKey:@"server_id"];
+    XCTAssertNotNil([serverIdObject objectForKey:@"ts"]);
+    XCTAssertEqual([serverIdObject objectForKey:@"value"], @"bulbasaur", @"server_id not what was expected");
 }
 
 - (void)testMetadataBaseClassNoCategory {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
     [UADSWebViewApp setCurrentApp:webApp];
-    UADSMetaData *metadata = [[UADSMetaData alloc] init];
     
+    UADSMetaData *metadata = [[UADSMetaData alloc] init];
     [metadata set:@"test.one" value:[NSNumber numberWithInt:1]];
     [metadata set:@"test.two" value:@"2"];
-    [metadata set:@"test.tree" value:[NSNumber numberWithFloat:3.333]];
+    [metadata set:@"test.three" value:[NSNumber numberWithFloat:3.333]];
     [metadata commit];
     
-    XCTAssertEqual([[[webApp.params objectAtIndex:1] allKeys] count], [[metadata.entries allKeys] count], "Metadata doesn't have correct amount of values");
-    
     NSDictionary *webAppMetaDataEntries = [[NSDictionary alloc] initWithDictionary:[webApp.params objectAtIndex:1]];
-    for (NSString *key in [webAppMetaDataEntries allKeys]) {
-        XCTAssertTrue([metadata.entries objectForKey:key], "Metadata doesn't contain key: %@", key);
-        XCTAssertEqual([webAppMetaDataEntries objectForKey:key], [metadata.entries objectForKey:key], "Metadata key %@ doesn't contain value: %@", key, [webAppMetaDataEntries objectForKey:key]);
-    }
+    NSDictionary *testObject = [webAppMetaDataEntries objectForKey:@"test"];
+    NSDictionary *oneObject = [testObject objectForKey:@"one"];
+    
+    XCTAssertNotNil([oneObject objectForKey:@"ts"]);
+    XCTAssertEqualObjects([oneObject objectForKey:@"value"], [NSNumber numberWithInt:1], "'one' value not what was expected");
+    
+    NSDictionary *twoObject = [testObject objectForKey:@"two"];
+    XCTAssertNotNil([twoObject objectForKey:@"ts"]);
+    XCTAssertEqualObjects([twoObject objectForKey:@"value"], @"2", "'two' value not what was expected");
+    
+    NSDictionary *threeObject = [testObject objectForKey:@"three"];
+    XCTAssertNotNil([threeObject objectForKey:@"ts"]);
+    XCTAssertEqualObjects([threeObject objectForKey:@"value"], [NSNumber numberWithFloat:3.333], "'three' value not what was expected");
+}
+
+- (void)testMetadataBaseClassNoCategoryDiskWrite {
+    MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
+    [UADSWebViewApp setCurrentApp:webApp];
+
+    UADSMetaData *metadata = [[UADSMetaData alloc] init];
+    [metadata set:@"test.one" value:[NSNumber numberWithInt:1]];
+    [metadata set:@"test.two" value:@"2"];
+    [metadata set:@"test.three" value:[NSNumber numberWithDouble:123.123]];
+    [metadata commit];
+
+    UADSMetaData *metadata2 = [[UADSMetaData alloc] init];
+    [metadata2 set:@"test.four" value:[NSNumber numberWithInt:4]];
+    [metadata2 commit];
+
+    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    [storage clearData];
+    [storage readStorage];
+
+    NSDictionary *testDictionary = [storage getValueForKey:@"test"];
+    NSLog(@"%@", testDictionary);
+    
+    XCTAssertEqualObjects([NSNumber numberWithInt:1], [[testDictionary valueForKey:@"one"] valueForKey:@"value"], "Incorrect 'one' value");
+    XCTAssertEqualObjects(@"2", [[testDictionary valueForKey:@"two"] valueForKey:@"value"], "Incorrect 'two' value");
+    XCTAssertEqualObjects([NSNumber numberWithDouble:123.123], [[testDictionary valueForKey:@"three"] valueForKey:@"value"], "Incorrect 'three' value");
+    XCTAssertEqualObjects([NSNumber numberWithInt:4], [[testDictionary valueForKey:@"four"] valueForKey:@"value"], "Incorrect 'four' value");
 }
 
 - (void)testMetadataBaseClassWithCategory {
@@ -122,16 +160,60 @@
     [metadata setCategory:@"test"];
     [metadata set:@"one" value:[NSNumber numberWithInt:1]];
     [metadata set:@"two" value:@"2"];
-    [metadata set:@"tree" value:[NSNumber numberWithFloat:3.333]];
+    [metadata set:@"three" value:[NSNumber numberWithFloat:3.333]];
     [metadata commit];
     
-    XCTAssertEqual([[[webApp.params objectAtIndex:1] allKeys] count], [[metadata.entries allKeys] count], "Metadata doesn't have correct amount of values");
-    
     NSDictionary *webAppMetaDataEntries = [[NSDictionary alloc] initWithDictionary:[webApp.params objectAtIndex:1]];
-    for (NSString *key in [webAppMetaDataEntries allKeys]) {
-        XCTAssertTrue([metadata.entries objectForKey:key], "Metadata doesn't contain key: %@", key);
-        XCTAssertEqual([webAppMetaDataEntries objectForKey:key], [metadata.entries objectForKey:key], "Metadata key %@ doesn't contain value: %@", key, [webAppMetaDataEntries objectForKey:key]);
-    }
+    NSDictionary *testObject = [webAppMetaDataEntries objectForKey:@"test"];
+    NSDictionary *oneObject = [testObject objectForKey:@"one"];
+    XCTAssertNotNil([oneObject objectForKey:@"ts"]);
+    XCTAssertEqual([oneObject objectForKey:@"value"], [NSNumber numberWithInt:1], "'one' value not what was expected");
+    
+    NSDictionary *twoObject = [testObject objectForKey:@"two"];
+    XCTAssertNotNil([twoObject objectForKey:@"ts"]);
+    XCTAssertEqual([twoObject objectForKey:@"value"], @"2", "'two' value not what was expected");
+    
+    NSDictionary *threeObject = [testObject objectForKey:@"three"];
+    XCTAssertNotNil([threeObject objectForKey:@"ts"]);
+    XCTAssertEqualObjects([threeObject objectForKey:@"value"], [NSNumber numberWithFloat:3.333], "'three' value not what was expected");
+}
+
+- (void)testInAppPurchaseMetaData {
+    MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
+    [UADSWebViewApp setCurrentApp:webApp];
+
+    UADSInAppPurchaseMetaData *metadata = [[UADSInAppPurchaseMetaData alloc] init];
+    [metadata setCurrency:@"EUR"];
+    [metadata setPrice:[NSNumber numberWithDouble:1.25]];
+    [metadata setProductId:@"testProductId1"];
+    [metadata setReceiptPurchaseData:@"testReceiptPurchaseData1"];
+    [metadata setSignature:@"testSignature1"];
+    [metadata commit];
+
+    UADSInAppPurchaseMetaData *metadata2 = [[UADSInAppPurchaseMetaData alloc] init];
+    [metadata2 setCurrency:@"USD"];
+    [metadata2 setPrice:[NSNumber numberWithDouble:2.25]];
+    [metadata2 setProductId:@"testProductId2"];
+    [metadata2 setReceiptPurchaseData:@"testReceiptPurchaseData2"];
+    [metadata2 setSignature:@"testSignature2"];
+    [metadata2 commit];
+    
+    NSArray *webAppMetaDataEntries = [[NSArray alloc] initWithArray:[webApp.params objectAtIndex:1]];
+
+    NSDictionary *purchase1 = [webAppMetaDataEntries objectAtIndex:0];
+    XCTAssertEqual(@"EUR", [purchase1 objectForKey:@"currency"], "Purchase1 currency not what was expected");
+    XCTAssertEqualObjects([NSNumber numberWithDouble:1.25], [purchase1 objectForKey:@"price"], "Purchase1 price not what was expected");
+    XCTAssertEqual(@"testProductId1", [purchase1 objectForKey:@"productId"], "Purchase1 productId not what was expected");
+    XCTAssertEqual(@"testReceiptPurchaseData1", [purchase1 objectForKey:@"receiptPurchaseData"], "Purchase1 receiptPurchaseData not what was expected");
+    XCTAssertEqual(@"testSignature1", [purchase1 objectForKey:@"signature"], "Purchase1 signature not what was expected");
+    
+    NSDictionary *purchase2 = [webAppMetaDataEntries objectAtIndex:1];
+    XCTAssertEqual(@"USD", [purchase2 objectForKey:@"currency"], "Purchase2 currency not what was expected");
+    XCTAssertEqualObjects([NSNumber numberWithDouble:2.25], [purchase2 objectForKey:@"price"], "Purchase2 price not what was expected");
+    XCTAssertEqual(@"testProductId2", [purchase2 objectForKey:@"productId"], "Purchase2 productId not what was expected");
+    XCTAssertEqual(@"testReceiptPurchaseData2", [purchase2 objectForKey:@"receiptPurchaseData"], "Purchase2 receiptPurchaseData not what was expected");
+    XCTAssertEqual(@"testSignature2", [purchase2 objectForKey:@"signature"], "Purchase2 signature not what was expected");
+
 }
 
 - (void)testCommitWithoutMetaDataSet {
@@ -142,7 +224,7 @@
     [metadata setCategory:@"test"];
     [metadata commit];
     
-    XCTAssertNil([metadata entries], "Entries should still be NULL");
+    XCTAssertNil([metadata storageContents], "Entries should still be NULL");
 }
 
 @end

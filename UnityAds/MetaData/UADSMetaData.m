@@ -1,6 +1,7 @@
 #import "UnityAds.h"
 #import "UADSMetaData.h"
 #import "UADSStorageManager.h"
+#import "NSDictionary+Merge.h"
 
 @implementation UADSMetaData
 
@@ -14,39 +15,49 @@
     return self;
 }
 
-- (void)set:(NSString *)key value:(id)value {
-    if (!self.entries) {
-        self.entries = [[NSMutableDictionary alloc] init];
-    }
+- (BOOL)set:(NSString *)key value:(id)value {
+    [self initData];
     
+    BOOL success = false;
+    NSNumber *timestamp = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970] * 1000];
+    if ([super set:[NSString stringWithFormat:@"%@.value", [self getActualKeyForKey:key]] value:value] &&
+         [super set:[NSString stringWithFormat:@"%@.ts", [self getActualKeyForKey:key]] value:timestamp]) {
+        success = true;
+    };
+
+    return success;
+}
+
+- (BOOL)setRaw:(NSString *)key value:(id)value {
+    [self initData];
+    return [super set:[self getActualKeyForKey:key] value:value];
+}
+
+- (NSString *)getActualKeyForKey:(NSString *)key {
     NSString *finalKey = key;
     if (self.category) {
         finalKey = [NSString stringWithFormat:@"%@.%@", self.category, key];
     }
     
-    [self.entries setObject:value forKey:[NSString stringWithFormat:@"%@.value", finalKey]];
-    NSNumber *timestamp = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970] * 1000];
-    [self.entries setObject:timestamp forKey:[NSString stringWithFormat:@"%@.ts", finalKey]];
+    return finalKey;
 }
 
 - (void)commit {
     if ([UADSStorageManager init]) {
         UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
 
-        if (self.entries) {
-            for (NSString *key in [self.entries allKeys]) {
-                if (storage) {
-                    [storage setValue:[self.entries objectForKey:key] forKey:key];
+        if (self.storageContents && storage) {
+            for (NSString *key in self.storageContents) {
+                id value = [self getValueForKey:key];
+                if ([storage getValueForKey:key] && [[storage getValueForKey:key] isKindOfClass:[NSDictionary class]] && [value isKindOfClass:[NSDictionary class]]) {
+                    value = [NSDictionary dictionaryByMerging:value secondary:[storage getValueForKey:key]];
                 }
+
+                [storage set:key value:value];
             }
-            
-            if (storage) {
-                [storage writeStorage];
-                [storage sendEvent:@"SET" values:self.entries];
-            }
-            else {
-                UADSLogDebug(@"No storage found!");
-            }
+
+            [storage writeStorage];
+            [storage sendEvent:@"SET" values:self.storageContents];
         }
     }
     else {

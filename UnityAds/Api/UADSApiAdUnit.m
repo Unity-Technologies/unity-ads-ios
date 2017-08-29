@@ -21,18 +21,27 @@ static UADSViewController *adUnitViewController = NULL;
 }
 
 + (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden callback:(UADSWebViewCallback *)callback {
-    [UADSApiAdUnit WebViewExposed_open:views supportedOrientations:supportedOrientations statusBarHidden:[NSNumber numberWithInt:0] shouldAutorotate:[NSNumber numberWithBool:YES] callback:callback];
-    
-    [callback invoke:nil];
+    [UADSApiAdUnit WebViewExposed_open:views supportedOrientations:supportedOrientations statusBarHidden:statusBarHidden shouldAutorotate:[NSNumber numberWithBool:YES] callback:callback];
 }
 
 + (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate callback:(UADSWebViewCallback *)callback {
-    
+    [UADSApiAdUnit WebViewExposed_open:views supportedOrientations:supportedOrientations statusBarHidden:statusBarHidden shouldAutorotate:shouldAutorotate isTransparent:[NSNumber numberWithBool:NO] callback:callback];
+}
+
++ (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate isTransparent:(NSNumber *)isTransparent callback:(UADSWebViewCallback *)callback {
+    [UADSApiAdUnit WebViewExposed_open:views supportedOrientations:supportedOrientations statusBarHidden:statusBarHidden shouldAutorotate:shouldAutorotate isTransparent:isTransparent withAnimation:[NSNumber numberWithBool:YES] callback:callback];
+}
+
++ (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate isTransparent:(NSNumber *)isTransparent withAnimation:(NSNumber *)animated callback:(UADSWebViewCallback *)callback {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         UADSLogDebug(@"PRESENTING VIEWCONTROLLER");
-        UADSViewController *adUnit = [[UADSViewController alloc] initWithViews:views supportedOrientations:supportedOrientations statusBarHidden:[statusBarHidden boolValue] shouldAutorotate:[shouldAutorotate boolValue]];
+        UADSViewController *adUnit = [[UADSViewController alloc] initWithViews:views supportedOrientations:supportedOrientations statusBarHidden:[statusBarHidden boolValue] shouldAutorotate:[shouldAutorotate boolValue] isTransparent:[isTransparent boolValue]];
         [adUnit setModalPresentationCapturesStatusBarAppearance:true];
-        [[UADSClientProperties getCurrentViewController] presentViewController:adUnit animated:YES completion:NULL];
+        if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_0 && [isTransparent boolValue]) {
+            adUnit.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+            [UADSClientProperties getCurrentViewController].modalPresentationStyle = UIModalPresentationCurrentContext;
+        }
+        [[UADSClientProperties getCurrentViewController] presentViewController:adUnit animated:[animated boolValue] completion:NULL];
         adUnitViewController = adUnit;
     });
     

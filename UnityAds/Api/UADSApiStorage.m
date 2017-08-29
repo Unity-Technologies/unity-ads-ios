@@ -10,7 +10,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:storageType];
 
     if (storage && key && value) {
-        BOOL success = [storage setValue:value forKey:key];
+        BOOL success = [storage set:key value:value];
         if (success) {
             [callback invoke:
                 key,

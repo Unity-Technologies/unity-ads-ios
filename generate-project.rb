@@ -79,7 +79,7 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         file_to_add = g.new_file(Dir.pwd + '/' + f)
         added_file = target.headers_build_phase.add_file_reference(file_to_add, true)
         added_file.settings ||= {}
-        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/ or "#{f}" =~ /UnityAdsExtended\.h/
+        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/ or "#{f}" =~ /UnityAdsExtended\.h/ or "#{f}" =~ /UADSJsonStorage\.h/ or "#{f}" =~ /UnityAdsUnityDelegate\.h/
           added_file.settings['ATTRIBUTES'] = ['Public']
         else
           added_file.settings['ATTRIBUTES'] = ['Project']
@@ -191,6 +191,7 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = "NO"
     bc.build_settings['CLANG_ENABLE_MODULES'] = "YES"
 
+    bc.build_settings['ARCHS_0900'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0800'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0700'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0600'] = "$(ARCHS_STANDARD) armv7s"

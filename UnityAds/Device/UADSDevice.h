@@ -63,4 +63,6 @@
 
 + (NSString *)getGLVersion;
 
++ (float)getDeviceMaxVolume;
+
 @end

@@ -105,7 +105,7 @@ NSMutableArray<NSString *> *eventArray;
     MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
     NSArray *views = @[@"videoplayer", @"webview"];
 
-    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES];
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
         [presentExpectation fulfill];
     }];
@@ -147,7 +147,7 @@ NSMutableArray<NSString *> *eventArray;
     MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
     NSArray *views = @[@"videoplayer", @"webview"];
     
-    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES];
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
         [presentExpectation fulfill];
     }];
@@ -186,7 +186,7 @@ NSMutableArray<NSString *> *eventArray;
     [[UADSWebViewApp getCurrentApp] setWebView:webView];
     NSArray *views = @[@"videoplayer", @"webview"];
     
-    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES];
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
         [presentExpectation fulfill];
     }];

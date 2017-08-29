@@ -9,7 +9,10 @@ static CTTelephonyNetworkInfo *netinfo;
 @implementation UADSConnectivityUtils
 
 + (void)initCarrierInfo {
-    netinfo = [CTTelephonyNetworkInfo new];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        netinfo = [CTTelephonyNetworkInfo new];
+    });
 }
 
 + (NSInteger)getNetworkType {

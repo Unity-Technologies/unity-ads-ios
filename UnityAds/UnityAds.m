@@ -122,7 +122,8 @@ static BOOL _initializing = NO;
         NSDictionary *parametersDictionary = @{@"shouldAutorotate" : [NSNumber numberWithBool:viewController.shouldAutorotate],
                                                @"supportedOrientations" : [NSNumber numberWithInt:[UADSClientProperties getSupportedOrientations]],
                                                @"supportedOrientationsPlist" : [UADSClientProperties getSupportedOrientationsPlist],
-                                               @"statusBarOrientation" : [NSNumber numberWithInteger:statusBarOrientation] };
+                                               @"statusBarOrientation" : [NSNumber numberWithInteger:statusBarOrientation],
+                                               @"statusBarHidden" : [NSNumber numberWithBool: [UIApplication sharedApplication].isStatusBarHidden]};
 
         
         UADSWebViewShowOperation *operation = [[UADSWebViewShowOperation alloc] initWithPlacementId:placementId

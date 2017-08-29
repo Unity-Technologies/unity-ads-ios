@@ -22,14 +22,17 @@
 #import "UADSViewController.h"
 #import "UADSClientProperties.h"
 #import "NSString+Hash.h"
+#import "NSDictionary+Merge.h"
 #import "UADSURLProtocol.h"
 #import "UADSInitialize.h"
 #import "UADSWebViewMethodInvokeHandler.h"
+#import "UADSVolumeChange.h"
 
 // METADATA
 #import "UADSMetaData.h"
 #import "UADSPlayerMetaData.h"
 #import "UADSMediationMetaData.h"
+#import "UADSInAppPurchaseMetaData.h"
 
 // TESTING SPECIFIC
 #import "UnityAds+Testability.h"

@@ -5,7 +5,7 @@
 @implementation UADSInAppPurchaseMetaData
 
 - (instancetype)init {
-    self = [super initWithCategory:@"iap"];
+    self = [super init];
     return self;
 }
 
@@ -33,8 +33,8 @@
     if ([UADSStorageManager init]) {
         UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
 
-        if (self.entries && storage) {
-            id purchaseObject = [storage getValueForKey:[NSString stringWithFormat:@"%@.purchases", self.category]];
+        if (self.storageContents && storage) {
+            id purchaseObject = [storage getValueForKey:@"iap.purchases"];
             NSMutableArray *purchases = NULL;
 
             if (purchaseObject) {
@@ -50,13 +50,9 @@
                 purchases = [[NSMutableArray alloc] init];
             }
 
-            NSMutableDictionary *purchase = [[NSMutableDictionary alloc] init];
+            NSMutableDictionary *purchase = self.storageContents;
 
             @try {
-                for (NSString *key in [self.entries allKeys]) {
-                    [purchase setObject:[self.entries objectForKey:key] forKey:key];
-                }
-
                 NSNumber *ts = [NSNumber numberWithLongLong:[[NSDate date] timeIntervalSince1970] * 1000];
                 [purchase setObject:ts forKey:@"ts"];
             }
@@ -66,9 +62,9 @@
             }
 
             [purchases addObject:purchase];
-            [storage setValue:purchases forKey:[NSString stringWithFormat:@"%@.purchases", self.category]];
+            [storage set:@"iap.purchases" value:purchases];
             [storage writeStorage];
-            [storage sendEvent:@"SET" values:self.entries];
+            [storage sendEvent:@"SET" values:[storage getValueForKey:@"iap.purchases"]];
         }
         else {
             UADSLogError(@"Unity Ads could not commit metadata due to storage error or the data is null");
@@ -76,12 +72,8 @@
     }
 }
 
-- (void)set:(NSString *)key value:(id)value {
-    if (!self.entries) {
-        self.entries = [[NSMutableDictionary alloc] init];
-    }
-
-    [self.entries setObject:value forKey:key];
+- (BOOL)set:(NSString *)key value:(id)value {
+    return [self setRaw:key value:value];
 }
 
 @end

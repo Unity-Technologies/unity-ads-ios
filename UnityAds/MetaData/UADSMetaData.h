@@ -1,12 +1,11 @@
+#import "UADSJsonStorage.h"
 
-
-@interface UADSMetaData : NSObject
+@interface UADSMetaData : UADSJsonStorage
 
 @property (nonatomic, strong) NSString *category;
-@property (nonatomic, strong) NSMutableDictionary *entries;
 
 - (instancetype)initWithCategory:(NSString *)category;
-- (void)set:(NSString *)key value:(id)value;
+- (BOOL)setRaw:(NSString *)key value:(id)value;
 - (void)commit;
 
 @end

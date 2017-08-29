@@ -31,7 +31,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSNumber *value = [NSNumber numberWithInt:12345];
 
-    [storage setValue:value forKey:@"tests.integer"];
+    [storage set:@"tests.integer" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -47,7 +47,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSNumber *value = [NSNumber numberWithBool:true];
     
-    [storage setValue:value forKey:@"tests.boolean"];
+    [storage set:@"tests.boolean" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -63,7 +63,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSNumber *value = [NSNumber numberWithLongLong:123451234512345];
     
-    [storage setValue:value forKey:@"tests.long"];
+    [storage set:@"tests.long" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -79,7 +79,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSNumber *value = [NSNumber numberWithDouble:12345.12345];
     
-    [storage setValue:value forKey:@"tests.double"];
+    [storage set:@"tests.double" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -95,7 +95,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSString *value = @"Hello World";
     
-    [storage setValue:value forKey:@"tests.string"];
+    [storage set:@"tests.string" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -111,7 +111,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSDictionary *value = @{@"testkey": @"testvalue"};
     
-    [storage setValue:value forKey:@"tests.dictionary"];
+    [storage set:@"tests.dictionary" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -127,7 +127,7 @@
     UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
     NSArray *value = @[@"testvalue1", @"testvalue2"];
     
-    [storage setValue:value forKey:@"tests.array"];
+    [storage set:@"tests.array" value:value];
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
@@ -146,9 +146,9 @@
     NSNumber *value3 = [NSNumber numberWithDouble:12345.12345];
 
     XCTAssertEqual(false, [storage hasData], "Storage should hold no data in the beginning of the test");
-    XCTAssertEqual(true, [storage setValue:value1 forKey:@"tests.value1"], "Should have been able to set key \"tests.value1\" with value: 12345");
-    XCTAssertEqual(true, [storage setValue:value2 forKey:@"tests.value2"], "Should have been able to set key \"tests.value2\" with value: Testing");
-    XCTAssertEqual(true, [storage setValue:value3 forKey:@"tests.value3"], "Should have been able to set key \"tests.value3\" with value: 12345.12345");
+    XCTAssertEqual(true, [storage set:@"tests.value1" value:value1], "Should have been able to set key \"tests.value1\" with value: 12345");
+    XCTAssertEqual(true, [storage set:@"tests.value2" value:value2], "Should have been able to set key \"tests.value2\" with value: Testing");
+    XCTAssertEqual(true, [storage set:@"tests.value3" value:value3], "Should have been able to set key \"tests.value3\" with value: 12345.12345");
     XCTAssertEqual(true, [storage writeStorage], "Write storage should have succeeded");
     
     [storage clearData];
@@ -170,7 +170,7 @@
     NSNumber *value1 = [NSNumber numberWithInt:12345];
     
     XCTAssertEqual(false, [storage hasData], "Storage should hold no data in the beginning of the test");
-    XCTAssertEqual(true, [storage setValue:value1 forKey:@"level1.level2.level3.level4.level5"], "Should have been able to set key \"level1.level2.level3.level4.level5\" with value: 12345");
+    XCTAssertEqual(true, [storage set:@"level1.level2.level3.level4.level5" value:value1], "Should have been able to set key \"level1.level2.level3.level4.level5\" with value: 12345");
     XCTAssertEqual(true, [storage writeStorage], "Write storage should have succeeded");
     
     [storage clearData];
@@ -186,7 +186,7 @@
     NSNumber *value1 = [NSNumber numberWithInt:12345];
     
     XCTAssertEqual(false, [storage hasData], "Storage should hold no data in the beginning of the test");
-    XCTAssertEqual(true, [storage setValue:value1 forKey:@"level1"], "Should have been able to set key \"level1.level2.level3.level4.level5\" with value: 12345");
+    XCTAssertEqual(true, [storage set:@"level1" value:value1], "Should have been able to set key \"level1.level2.level3.level4.level5\" with value: 12345");
     XCTAssertEqual(true, [storage writeStorage], "Write storage should have succeeded");
     
     [storage clearData];
@@ -202,22 +202,22 @@
     NSNumber *value = [NSNumber numberWithInt:12345];
     NSArray *expected = @[@"DB62D2FF-F4F3-4050-BC22-EE7242638F71", @"EC71F5DB-D8B8-466B-B878-FEF018298493", @"7D2526C4-8123-4068-B481-0EB9680BE974"];
     
-    [storage setValue:value forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts"];
-    [storage setValue:value forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data"];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts" value:value];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
     
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
     
-    [storage setValue:value forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts"];
-    [storage setValue:value forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data"];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts" value:value];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
     
     [storage writeStorage];
     [storage clearData];
     [storage readStorage];
     
-    [storage setValue:value forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.ts"];
-    [storage setValue:value forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data"];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.ts" value:value];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
     
     NSArray *keys = [storage getKeys:@"session" recursive:false];
     
@@ -233,9 +233,9 @@
     NSNumber *value = [NSNumber numberWithInt:12345];
     NSArray *expected = @[@"DB62D2FF-F4F3-4050-BC22-EE7242638F71", @"EC71F5DB-D8B8-466B-B878-FEF018298493", @"7D2526C4-8123-4068-B481-0EB9680BE974"];
     
-    [storage setValue:value forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts"];
-    [storage setValue:@"heips" forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data"];
-    [storage setValue:@"http://moi.com" forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.url"];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts" value:value];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data" value:@"heips"];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.url" value:@"http://moi.com"];
     
     [storage writeStorage];
     [storage deleteKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605"];
@@ -244,9 +244,9 @@
     
     [storage readStorage];
     
-    [storage setValue:value forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts"];
-    [storage setValue:value forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.data"];
-    [storage setValue:@"http://moi.com" forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.url"];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts" value:value];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.url" value:@"http://moi.com"];
     
     [storage writeStorage];
     [storage deleteKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605"];
@@ -255,9 +255,9 @@
     
     [storage readStorage];
     
-    [storage setValue:value forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.ts"];
-    [storage setValue:value forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.data"];
-    [storage setValue:@"http://moi.com" forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url"];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.ts" value:value];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url" value:@"http://moi.com"];
     
     [storage writeStorage];
     [storage deleteKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605"];
@@ -291,9 +291,9 @@
                           @"7D2526C4-8123-4068-B481-0EB9680BE974.operative"
                         ];
     
-    [storage setValue:value forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts"];
-    [storage setValue:@"heips" forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data"];
-    [storage setValue:@"http://moi.com" forKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.url"];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts" value:value];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.data" value:@"heips"];
+    [storage set:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605.url" value:@"http://moi.com"];
     
     [storage writeStorage];
     [storage deleteKey:@"session.DB62D2FF-F4F3-4050-BC22-EE7242638F71.operative.179BBFDA-D3C1-4137-8485-F8ECADE5E605"];
@@ -302,9 +302,9 @@
     
     [storage readStorage];
     
-    [storage setValue:value forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts"];
-    [storage setValue:value forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.data"];
-    [storage setValue:@"http://moi.com" forKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.url"];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.ts" value:value];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
+    [storage set:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605.url" value:@"http://moi.com"];
     
     [storage writeStorage];
     [storage deleteKey:@"session.EC71F5DB-D8B8-466B-B878-FEF018298493.operative.179B2FDA-D3C1-4137-8485-F8ECADE5E605"];
@@ -313,9 +313,9 @@
     
     [storage readStorage];
     
-    [storage setValue:value forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.ts"];
-    [storage setValue:value forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.data"];
-    [storage setValue:@"http://moi.com" forKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url"];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.ts" value:value];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.data" value:value];
+    [storage set:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605.url" value:@"http://moi.com"];
     
     [storage writeStorage];
     [storage deleteKey:@"session.7D2526C4-8123-4068-B481-0EB9680BE974.operative.179B4FDA-D3C1-4137-8485-F8ECADE5E605"];

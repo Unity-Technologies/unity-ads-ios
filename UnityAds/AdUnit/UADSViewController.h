@@ -10,8 +10,9 @@
 @property (nonatomic, assign) int supportedOrientations;
 @property (nonatomic, assign) BOOL statusBarHidden;
 @property (nonatomic, assign) BOOL autorotate;
+@property (nonatomic, assign) BOOL transparent;
 
-- (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate;
+- (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate isTransparent:(BOOL)isTransparent;
 - (void)setViews:(NSArray<NSString*>*)views;
 - (void)setTransform:(float)transform;
 - (void)setViewFrame:(NSString *)view x:(int)x y:(int)y width:(int)width height:(int)height;

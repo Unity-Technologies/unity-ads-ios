@@ -11,6 +11,7 @@
 #import "UADSDevice.h"
 #import "UADSConnectivityUtils.h"
 #import "UADSWKWebViewApp.h"
+#import "UADSVolumeChange.h"
 
 @implementation UADSInitialize
 
@@ -112,6 +113,7 @@ static dispatch_once_t onceToken;
     });
     [UADSStorageManager init];
     [UADSNotificationObserver unregisterNotificationObserver];
+    [UADSVolumeChange clearAllDelegates];
     
     id nextState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0 retryDelay:5];
     return nextState;

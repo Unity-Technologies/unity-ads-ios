@@ -3,6 +3,7 @@
 #import "UADSClientProperties.h"
 #import "NSString+UnityAdsError.h"
 #import "UnityAdsExtended.h"
+#import "UnityAdsUnityDelegate.h"
 #import "UADSPlacement.h"
 
 UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
@@ -81,6 +82,18 @@ UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
                 UnityAdsPlacementState oldStateInteger = [UADSPlacement formatStringToPlacementState:oldState];
                 UnityAdsPlacementState newStateInteger = [UADSPlacement formatStringToPlacementState:newState];
                 [(id<UnityAdsExtendedDelegate>)[UADSClientProperties getDelegate] unityAdsPlacementStateChanged:placementId oldState:oldStateInteger newState:newStateInteger];
+            }
+        }
+    });
+    
+    [callback invoke:nil];
+}
+
++ (void)WebViewExposed_sendInitiatePurchaseEvent:(NSString *)eventString callback:(UADSWebViewCallback *)callback {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSClientProperties getDelegate] && [[UADSClientProperties getDelegate] conformsToProtocol:@protocol(UnityAdsUnityDelegate)]) {
+            if ([(id<UnityAdsUnityDelegate>)[UADSClientProperties getDelegate] respondsToSelector:@selector(unityAdsDidInitiatePurchase:)]) {
+                [(id<UnityAdsUnityDelegate>)[UADSClientProperties getDelegate] unityAdsDidInitiatePurchase:eventString];
             }
         }
     });
