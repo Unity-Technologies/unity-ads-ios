@@ -4,7 +4,7 @@
 @implementation UADSClientProperties
 
 static NSString *_gameId = @"-1";
-__unsafe_unretained static UIViewController *_currentViewController = nil;
+__weak static UIViewController *_currentViewController = nil;
 static id<UnityAdsDelegate> _delegate = nil;
 
 + (void)setGameId:(NSString *)gid {
