@@ -186,25 +186,35 @@
 }
 
 - (void)createVideoPlayer {
-    AVURLAsset *asset = nil;
-    AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:asset];
-    [self setVideoPlayer:[[UADSAVPlayer alloc] initWithPlayerItem:item]];
-    [self.videoView setPlayer:self.videoPlayer];
+    if (![self videoPlayer]) {
+        AVURLAsset *asset = nil;
+        AVPlayerItem *item = [AVPlayerItem playerItemWithAsset:asset];
+        [self setVideoPlayer:[[UADSAVPlayer alloc] initWithPlayerItem:item]];
+        [self.videoView setPlayer:self.videoPlayer];
+    }
 }
 
 - (void)createVideoView {
-    [self setVideoView:[[UADSVideoView alloc] initWithFrame:[self getRect]]];
-    [self.videoView setVideoFillMode:AVLayerVideoGravityResizeAspect];
+    if (![self videoView]) {
+        [self setVideoView:[[UADSVideoView alloc] initWithFrame:[self getRect]]];
+        [self.videoView setVideoFillMode:AVLayerVideoGravityResizeAspect];
+    }
 }
 
 - (void)destroyVideoView {
-    [self.videoView removeFromSuperview];
+    if ([self videoView]) {
+        [self.videoView removeFromSuperview];
+    }
+
     self.videoView = NULL;
 }
 
 - (void)destroyVideoPlayer {
-    [self.videoPlayer stop];
-    [self.videoPlayer stopObserving];
+    if ([self videoPlayer]) {
+        [self.videoPlayer stop];
+        [self.videoPlayer stopObserving];
+    }
+
     self.videoPlayer = NULL;
 }
 

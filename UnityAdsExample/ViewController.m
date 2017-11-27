@@ -55,7 +55,7 @@ static int kMediationOrdinal = 1;
 }
 
 - (IBAction)incentivizedButtonTapped:(id)sender {
-    if ([UnityAds isReady]) {
+    if ([UnityAds isReady:self.incentivizedPlacementId]) {
         self.incentivizedButton.enabled = NO;
         UADSPlayerMetaData *playerMetaData = [[UADSPlayerMetaData alloc] init];
         [playerMetaData setServerId:@"rikshot"];
@@ -70,7 +70,7 @@ static int kMediationOrdinal = 1;
 }
 
 - (IBAction)interstitialButtonTapped:(id)sender {
-    if ([UnityAds isReady]) {
+    if ([UnityAds isReady:self.interstitialPlacementId]) {
         self.interstitialButton.enabled = NO;
         UADSPlayerMetaData *playerMetaData = [[UADSPlayerMetaData alloc] init];
         [playerMetaData setServerId:@"rikshot"];

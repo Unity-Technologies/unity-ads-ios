@@ -171,9 +171,8 @@ static dispatch_once_t onceToken;
     NSString *localWebViewFile = [UADSSdkProperties getLocalWebViewFile];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:localWebViewFile]) {
-        NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:localWebViewFile];
-        NSData *fileData = [fileHandle readDataToEndOfFile];
-        NSString *fileString = [[NSString alloc] initWithData:fileData encoding:NSUTF8StringEncoding];
+        NSData *fileData = [NSData dataWithContentsOfFile:localWebViewFile options:NSDataReadingUncached error:nil];
+        NSString *fileString = [[NSString alloc] initWithBytesNoCopy:(void *)[fileData bytes] length:[fileData length] encoding:NSUTF8StringEncoding freeWhenDone:NO];
         NSString *localWebViewHash = [fileString sha256];
         
         if (!localWebViewHash || (localWebViewHash && [localWebViewHash isEqualToString:self.configuration.webViewHash])) {

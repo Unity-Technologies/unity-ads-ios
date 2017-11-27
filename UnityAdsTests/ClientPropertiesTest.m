@@ -43,7 +43,7 @@
 }
 
 - (void)testIsAppDebuggable {
-    XCTAssertTrue([UADSClientProperties isAppDebuggable], "App should be debuggable");
+    XCTAssertFalse([UADSClientProperties isAppDebuggable], "App should not be debuggable");
 }
 
 - (void)testSetGameId {

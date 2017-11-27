@@ -16,7 +16,11 @@ static id<UnityAdsDelegate> _delegate = nil;
 }
 
 + (NSArray<NSString*>*)getSupportedOrientationsPlist {
-    return [NSBundle.mainBundle.infoDictionary objectForKey:@"UISupportedInterfaceOrientations"];
+    NSArray<NSString*> *supportedOrientations = @[];
+    if ([NSBundle.mainBundle.infoDictionary objectForKey:@"UISupportedInterfaceOrientations"] != nil) {
+        supportedOrientations = [supportedOrientations arrayByAddingObjectsFromArray:[NSBundle.mainBundle.infoDictionary objectForKey:@"UISupportedInterfaceOrientations"]];
+    }
+    return supportedOrientations;
 }
 
 + (int)getSupportedOrientations {
@@ -32,16 +36,7 @@ static id<UnityAdsDelegate> _delegate = nil;
 }
 
 + (BOOL)isAppDebuggable {
-    static BOOL output = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        // Check simulator, TestFlight builds and not AppStore apps which should have mobileprovision file
-        if (UADSDevice.isSimulator ||
-            [NSBundle.mainBundle.appStoreReceiptURL.lastPathComponent isEqualToString:@"sandboxReceipt"] ||
-            [NSData dataWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"embedded" ofType:@"mobileprovision"]])
-            output = YES;
-    });
-    return output;
+    return NO;
 }
 
 + (void)setCurrentViewController:(UIViewController *)viewController {

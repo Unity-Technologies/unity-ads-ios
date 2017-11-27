@@ -19,4 +19,8 @@
     [self set:@"ordinal" value:[NSNumber numberWithInt:mediationOrdinal]];
 }
 
+- (void)setMissedImpressionOrdinal:(int)missedImpressionOrdinal {
+    [self set:@"missedImpressionOrdinal" value:[NSNumber numberWithInt:missedImpressionOrdinal]];
+}
+
 @end

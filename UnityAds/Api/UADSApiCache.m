@@ -104,7 +104,43 @@ NSString *NSStringFromCacheError(UnityAdsCacheError error) {
     }
 }
 
-    + (void)WebViewExposed_isCaching:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_setFileContent:(NSString *)fileId encoding:(NSString *)encoding content:(NSString *)content callback:(UADSWebViewCallback *)callback {
+    NSString *tagetFilePath = [UADSApiCache fileIdToFilename:fileId];
+    NSData *fileContents = nil;
+
+    fileContents = [content dataUsingEncoding:NSUTF8StringEncoding];
+
+    if (encoding) {
+        if ([encoding isEqualToString:@"UTF-8"]) {
+            // UTF-8 handled by default
+        }
+        else if ([encoding isEqualToString:@"Base64"]) {
+            fileContents = [[NSData alloc] initWithBase64EncodedString:content options:0];
+        }
+        else {
+            [callback error:NSStringFromCacheError(kUnityAdsUnsupportedEncoding) arg1:fileId, tagetFilePath, encoding, nil];
+            return;
+        }
+    }
+
+    @try {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:tagetFilePath]) {
+            [[NSFileManager defaultManager] createFileAtPath:tagetFilePath contents:nil attributes:nil];
+        }
+        if (![[NSFileManager defaultManager] isWritableFileAtPath:tagetFilePath]) {
+            [callback error:NSStringFromCacheError(kUnityAdsFileIOError) arg1:fileId, tagetFilePath, encoding, nil];
+            return;
+        }
+        [fileContents writeToFile:tagetFilePath atomically:YES];
+    }
+    @catch (NSException *exception) {
+        [callback error:NSStringFromCacheError(kUnityAdsFileIOError) arg1:fileId, tagetFilePath, exception.reason, nil];
+        return;
+    }
+    [callback invoke:nil];
+}
+
++ (void)WebViewExposed_isCaching:(UADSWebViewCallback *)callback {
     [callback invoke:[NSNumber numberWithBool:[UADSCacheQueue hasOperations]], nil];
 }
 
