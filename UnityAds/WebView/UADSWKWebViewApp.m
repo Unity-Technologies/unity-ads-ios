@@ -264,7 +264,9 @@
 
 - (void)invokeJavascriptString:(NSString *)javaScriptString {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.evaluateJavaScriptFunc && self.evaluateJavaScriptSelector) {
+        if (self.evaluateJavaScriptFunc &&
+            self.webView &&
+            self.evaluateJavaScriptSelector) {
             self.evaluateJavaScriptFunc(self.webView, self.evaluateJavaScriptSelector, javaScriptString, nil);
         }
     });
