@@ -97,7 +97,11 @@ static BOOL _initializing = NO;
                                @"UADSApiAppSheet",
                                @"UADSApiUrlScheme",
                                @"UADSApiNotification",
-                               @"UADSApiConnectivity"
+                               @"UADSApiConnectivity",
+                               @"UADSApiWebPlayer",
+                               @"UADSApiPreferences",
+                               @"UADSApiSensorInfo",
+                               @"UADSApiPurchasing"
                                ];
         
         [configuration setWebAppApiClassList:classList];

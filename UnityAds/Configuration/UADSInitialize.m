@@ -175,7 +175,7 @@ static dispatch_once_t onceToken;
         NSString *fileString = [[NSString alloc] initWithBytesNoCopy:(void *)[fileData bytes] length:[fileData length] encoding:NSUTF8StringEncoding freeWhenDone:NO];
         NSString *localWebViewHash = [fileString sha256];
         
-        if (!localWebViewHash || (localWebViewHash && [localWebViewHash isEqualToString:self.configuration.webViewHash])) {
+        if (localWebViewHash && [localWebViewHash isEqualToString:self.configuration.webViewHash]) {
             UADSLogInfo(@"Unity Ads init: webapp loaded from local cache");
             id nextState = [[UADSInitializeStateCreate alloc] initWithConfiguration:self.configuration webViewData:fileString];
             return nextState;

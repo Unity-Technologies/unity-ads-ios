@@ -1,5 +1,6 @@
 typedef NS_ENUM(NSInteger, UnityAdsDeviceError) {
-    kUnityAdsCouldntGetSensorInfo
+    kUnityAdsCouldntGetSensorInfo,
+    kUnityAdsCouldntGetProcessInfo
 };
 
 NSString *NSStringFromDeviceError(UnityAdsDeviceError);

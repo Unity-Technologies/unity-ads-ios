@@ -11,6 +11,7 @@
 @property (nonatomic, assign) long long expectedContentSize;
 @property (nonatomic, strong) UADSWebRequest *request;
 @property (nonatomic, strong) NSDictionary<NSString*, NSArray*> *headers;
+@property (nonatomic, assign) BOOL append;
 
-- (instancetype)initWithSource:(NSString *)source target:(NSString *)target connectTimeout:(int)connectTimeout headers:(NSDictionary<NSString*, NSArray*> *)headers;
+- (instancetype)initWithSource:(NSString *)source target:(NSString *)target connectTimeout:(int)connectTimeout headers:(NSDictionary<NSString*, NSArray*> *)headers append:(BOOL)append;
 @end

@@ -9,7 +9,7 @@
 
 @implementation UADSCacheOperation
 
-- (instancetype)initWithSource:(NSString *)source target:(NSString *)target connectTimeout:(int)connectTimeout headers:(NSDictionary<NSString*, NSArray*> *)headers {
+- (instancetype)initWithSource:(NSString *)source target:(NSString *)target connectTimeout:(int)connectTimeout headers:(NSDictionary<NSString*, NSArray*> *)headers append:(BOOL)append {
     self = [super init];
 
     if (self) {
@@ -20,6 +20,7 @@
         [self setLastProgressEvent:0];
         [self setExpectedContentSize:0];
         [self setHeaders:headers];
+        [self setAppend:append];
     }
 
     return self;
@@ -28,6 +29,21 @@
 - (void)main {
     UADSLogDebug(@"Unity Ads cache: Cache operation started for file %@", self.target);
     __weak UADSCacheOperation *weakSelf = self;
+
+    if ((self.append && ![[NSFileManager defaultManager] fileExistsAtPath:self.target]) ||
+        (!self.append && [[NSFileManager defaultManager] fileExistsAtPath:self.target])) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityAdsDownloadError)
+                category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryCache)
+                param1:NSStringFromCacheError(kUnityAdsFileStateWrong),
+                weakSelf.source,
+                weakSelf.target,
+                weakSelf.append,
+                [[NSFileManager defaultManager] fileExistsAtPath:weakSelf.target],
+             nil];
+        });
+        return;
+    }
 
     NSURL *candidateUrl = [NSURL URLWithString:self.source];
     if (!candidateUrl) {
@@ -57,12 +73,11 @@
     long long startTime = [[NSDate date] timeIntervalSince1970] * 1000;
     self.request = [[UADSWebRequest alloc] initWithUrl:self.source requestType:@"GET" headers:NULL connectTimeout:self.connectTimeout];
 
-    if ([[NSFileManager defaultManager] fileExistsAtPath:self.target]) {
+    if (self.append) {
         @try {
             fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:self.target];
             fileSize = [fileHandle seekToEndOfFile];
             UADSLogDebug(@"Unity Ads cache: resuming download from %@ to %@ at %llu bytes", self.source, self.target, fileSize);
-            [headers setValue:[NSArray arrayWithObject:[NSString stringWithFormat:@"bytes=%llu-", fileSize]] forKey:@"Range"];
         } @catch (NSException *exception) {
             [fileHandle closeFile];
             dispatch_async(dispatch_get_main_queue(), ^{

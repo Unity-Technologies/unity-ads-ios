@@ -105,7 +105,7 @@ NSMutableArray<NSString *> *eventArray;
     MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
     NSArray *views = @[@"videoplayer", @"webview"];
 
-    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO];
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
         [presentExpectation fulfill];
     }];
@@ -147,7 +147,7 @@ NSMutableArray<NSString *> *eventArray;
     MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
     NSArray *views = @[@"videoplayer", @"webview"];
     
-    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO];
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
         [presentExpectation fulfill];
     }];
@@ -186,7 +186,7 @@ NSMutableArray<NSString *> *eventArray;
     [[UADSWebViewApp getCurrentApp] setWebView:webView];
     NSArray *views = @[@"videoplayer", @"webview"];
     
-    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO];
+    UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
         [presentExpectation fulfill];
     }];
@@ -220,6 +220,44 @@ NSMutableArray<NSString *> *eventArray;
     XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.origin.y, 220, "WebView view origin y not what was expected");
     XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.size.width, 230, "WebView view width not what was expected");
     XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.size.height, 240, "WebView view height not what was expected");
+    
+    XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
+    mockApp.expectation = dismissExpectation;
+    
+    [adUnitViewController dismissViewControllerAnimated:true completion:nil];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
+}
+
+- (void)testSetHomeIndicatorAutoHidden {
+    XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initWithViewsExpectation"];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    
+    UADSViewController *viewController = [[UADSViewController alloc] init];
+    
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:^{
+        [presentExpectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
+    
+    XCTAssertFalse([viewController prefersHomeIndicatorAutoHidden], @"prefersHomeIndicaroAutoHidden should be false");
+    
+    [viewController setHomeIndicatorAutoHidden:YES];
+    
+    XCTAssertTrue([viewController prefersHomeIndicatorAutoHidden], @"prefersHomeIndicaroAutoHidden should be true");
+    
+    [viewController dismissViewControllerAnimated:true completion:nil];
+    
+    XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
+    mockApp.expectation = dismissExpectation;
+    
+    [viewController dismissViewControllerAnimated:true completion:nil];
+    
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
 }
 
 @end

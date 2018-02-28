@@ -2,6 +2,7 @@
 #import "UADSWebViewApp.h"
 #import "UADSAdUnitEvent.h"
 #import "UADSWebViewEventCategory.h"
+#import "UADSApiWebPlayer.h"
 #import "UnityAds.h"
 #import <sys/utsname.h>
 
@@ -11,7 +12,7 @@
 
 @implementation UADSViewController
 
-- (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate isTransparent:(BOOL)isTransparent {
+- (instancetype)initWithViews:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(BOOL)statusBarHidden shouldAutorotate:(BOOL)shouldAutorotate isTransparent:(BOOL)isTransparent homeIndicatorAutoHidden:(BOOL)homeIndicatorAutoHidden {
     self = [super init];
 
     if (self) {
@@ -20,6 +21,7 @@
         [self setStatusBarHidden:statusBarHidden];
         [self setSupportedOrientations:[supportedOrientations intValue]];
         [self setAutorotate:shouldAutorotate];
+        [self setHomeIndicatorAutoHidden:homeIndicatorAutoHidden];
     }
 
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerInit) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAdunit) param1:nil];
@@ -58,6 +60,7 @@
     
     [self destroyVideoPlayer];
     [self destroyVideoView];
+    [self destroyWebPlayerView];
     [[[UADSWebViewApp getCurrentApp] webView] removeFromSuperview];
     [[UADSWebViewApp getCurrentApp] placeWebViewToBackgroundView];
     [[UADSWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidDisappear) category:NSStringFromWebViewEventCategory(kUnityAdsWebViewEventCategoryAdunit) param1:nil];
@@ -74,6 +77,8 @@
     }
     else if ([view isEqualToString:@"webview"]) {
         targetView = [[UADSWebViewApp getCurrentApp] webView];
+    } else if ([view isEqualToString:@"webplayer"]) {
+        targetView = self.webPlayerView;
     }
 
     if (targetView) {
@@ -107,8 +112,25 @@
     self.view.transform = CGAffineTransformMakeRotation(transform);
 }
 
+- (void)setHomeIndicatorAutoHidden:(BOOL)homeIndicatorAutoHidden {
+    _homeIndicatorAutoHidden = homeIndicatorAutoHidden;
+    
+    SEL setNeedsUpdateOfHomeIndicatorAutoHiddenSelector = NSSelectorFromString(@"setNeedsUpdateOfHomeIndicatorAutoHidden");
+    if([self respondsToSelector:setNeedsUpdateOfHomeIndicatorAutoHiddenSelector]) {
+        IMP setNeedsUpdateOfHomeIndicatorAutoHiddenSelectorImp = [self methodForSelector:setNeedsUpdateOfHomeIndicatorAutoHiddenSelector];
+        if (setNeedsUpdateOfHomeIndicatorAutoHiddenSelectorImp) {
+            void (*setNeedsUpdateOfHomeIndicatorAutoHiddenSelectorFunc)(id, SEL) = (void *)setNeedsUpdateOfHomeIndicatorAutoHiddenSelectorImp;
+            setNeedsUpdateOfHomeIndicatorAutoHiddenSelectorFunc(self, setNeedsUpdateOfHomeIndicatorAutoHiddenSelector);
+        }
+    }
+}
+
 - (BOOL)prefersStatusBarHidden {
     return self.statusBarHidden;
+}
+
+- (BOOL)prefersHomeIndicatorAutoHidden {
+    return self.homeIndicatorAutoHidden;
 }
 
 - (BOOL)isTransparent {
@@ -141,6 +163,9 @@
             [self destroyVideoPlayer];
             [self destroyVideoView];
         }
+        else if ([view isEqualToString:@"webplayer"]) {
+            [self destroyWebPlayerView];
+        }
         else if ([view isEqualToString:@"webview"]) {
             [[[UADSWebViewApp getCurrentApp] webView] removeFromSuperview];
         }
@@ -154,6 +179,10 @@
             [self createVideoView];
             [self createVideoPlayer];
             [self handleViewPlacement:self.videoView];
+        }
+        else if ([view isEqualToString:@"webplayer"]) {
+            [self createWebPlayerView];
+            [self handleViewPlacement:self.webPlayerView];
         }
         else if ([view isEqualToString:@"webview"]) {
             if ([UADSWebViewApp getCurrentApp]) {
@@ -207,6 +236,20 @@
     }
 
     self.videoView = NULL;
+}
+
+- (void)createWebPlayerView {
+    if (![self webPlayerView]) {
+        [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:[self getRect] webPlayerSettings:[UADSApiWebPlayer getWebPlayerSettings]]];
+        [[self webPlayerView] setEventSettings:[UADSApiWebPlayer getWebPlayerEventSettings]];
+    }
+}
+
+- (void)destroyWebPlayerView {
+    if ([self webPlayerView]) {
+        [self.webPlayerView removeFromSuperview];
+    }
+    self.webPlayerView = nil;
 }
 
 - (void)destroyVideoPlayer {

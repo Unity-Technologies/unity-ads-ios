@@ -2,6 +2,7 @@
 #import "UADSDevice.h"
 #import "UADSSdkProperties.h"
 #import "UADSWebViewMethodInvokeHandler.h"
+#import "UADSWKWebViewUtilities.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
@@ -20,7 +21,7 @@
     
     UADSWKWebViewApp *webViewApp = [[UADSWKWebViewApp alloc] initWithConfiguration:configuration];
 
-    if (![UADSWKWebViewApp isFrameworkPresent]) {
+    if (![UADSWKWebViewUtilities isFrameworkPresent]) {
         UADSLogDebug(@"WebKit framework not present, trying to load it");
         if ([UADSDevice isSimulator]) {
             NSString *frameworkPath = [[NSProcessInfo processInfo] environment][@"DYLD_FALLBACK_FRAMEWORK_PATH"];
@@ -34,12 +35,12 @@
 
         dlopen([frameworkLocation cStringUsingEncoding:NSUTF8StringEncoding], RTLD_LAZY);
 
-        if (![UADSWKWebViewApp isFrameworkPresent]) {
+        if (![UADSWKWebViewUtilities isFrameworkPresent]) {
             UADSLogError(@"WKWebKit still not present!");
             return;
         }
         else {
-            UADSLogError(@"Succesfully loaded WKWebKit framework");
+            UADSLogDebug(@"Succesfully loaded WKWebKit framework");
         }
     }
     else {
@@ -47,9 +48,9 @@
     }
 
     dispatch_sync(dispatch_get_main_queue(), ^(void) {
-        id wkConfiguration = [UADSWKWebViewApp getObjectFromClass:"WKWebViewConfiguration"];
+        id wkConfiguration = [UADSWKWebViewUtilities getObjectFromClass:"WKWebViewConfiguration"];
         if (wkConfiguration) {
-            wkConfiguration = [UADSWKWebViewApp addUserContentControllerMessageHandlers:wkConfiguration delegate:webViewApp handledMessages:@[@"handleInvocation", @"handleCallback"]];
+            wkConfiguration = [UADSWKWebViewUtilities addUserContentControllerMessageHandlers:wkConfiguration delegate:webViewApp handledMessages:@[@"handleInvocation", @"handleCallback"]];
         
             if (!wkConfiguration) {
                 return;
@@ -102,7 +103,7 @@
             return;
         }
 
-        id webView = [UADSWKWebViewApp initWebView:"WKWebView" frame:CGRectMake(0, 0, 1024, 768) configuration:wkConfiguration];
+        id webView = [UADSWKWebViewUtilities initWebView:"WKWebView" frame:CGRectMake(0, 0, 1024, 768) configuration:wkConfiguration];
 
         if (webView == NULL) {
             return;
@@ -147,7 +148,7 @@
             return;
         }
 
-        if ([UADSWKWebViewApp loadFileUrl:webView url:url allowReadAccess:[NSURL fileURLWithPath:[UADSSdkProperties getCacheDirectory]]]) {
+        if ([UADSWKWebViewUtilities loadFileUrl:webView url:url allowReadAccess:[NSURL fileURLWithPath:[UADSSdkProperties getCacheDirectory]]]) {
             [webViewApp createBackgroundView];
             [webViewApp.backgroundView placeViewToBackground];
             [webViewApp placeWebViewToBackgroundView];
@@ -156,115 +157,10 @@
     });
 }
 
-+ (id)addUserContentControllerMessageHandlers:(id)wkConfiguration delegate:(id)delegate handledMessages:(NSArray *)handledMessages {
-    id userContentController = [wkConfiguration valueForKey:@"userContentController"];
-    if (userContentController) {
-        UADSLogDebug(@"Got userContentController");
-
-        SEL addScriptMessageHandlerSelector = NSSelectorFromString(@"addScriptMessageHandler:name:");
-        if ([userContentController respondsToSelector:addScriptMessageHandlerSelector]) {
-            UADSLogDebug(@"Responds to selector");
-            IMP addScriptMessageHandlerImp = [userContentController methodForSelector:addScriptMessageHandlerSelector];
-            if (addScriptMessageHandlerImp) {
-                UADSLogDebug(@"Got addScriptHandler implementation");
-                void (*addScriptMessageHandlerFunc)(id, SEL, id, NSString *) = (void *)addScriptMessageHandlerImp;
-
-                for (NSString *message in handledMessages) {
-                    UADSLogDebug(@"Setting handler for: %@", message);
-                    addScriptMessageHandlerFunc(userContentController, addScriptMessageHandlerSelector, delegate, message);
-                }
-
-                [wkConfiguration setValue:userContentController forKey:@"userContentController"];
-
-                return wkConfiguration;
-            }
-        }
-    }
-
-    return NULL;
-}
-
-+ (id)initWebView:(const char *)className frame:(CGRect)frame configuration:(id)configuration {
-    id webViewClass = objc_getClass(className);
-    if (webViewClass) {
-        id webViewAlloc = [webViewClass alloc];
-        SEL initSelector = NSSelectorFromString(@"initWithFrame:configuration:");
-        if ([webViewAlloc respondsToSelector:initSelector]) {
-            UADSLogDebug(@"WebView responds to init selector");
-            IMP initImp = [webViewAlloc methodForSelector:initSelector];
-            if (initImp) {
-                UADSLogDebug(@"Got init implementation");
-                id (*initFunc)(id, SEL, CGRect, id) = (void *)initImp;
-                return initFunc(webViewAlloc, initSelector, frame, configuration);
-            }
-        }
-    }
-
-    return NULL;
-}
-
-+ (void)loadUrl:(id)webView url:(NSURLRequest *)url {
-    SEL loadFileUrlSelector = NSSelectorFromString(@"loadRequest:");
-    if ([webView respondsToSelector:loadFileUrlSelector]) {
-        UADSLogDebug(@"WebView responds to loadFileURL selector");
-        IMP loadFileUrlImp = [webView methodForSelector:loadFileUrlSelector];
-        if (loadFileUrlImp) {
-            UADSLogDebug(@"Got loadFileURL implementation: %@", url);
-            void (*loadFileUrlFunc)(id, SEL, NSURLRequest *) = (void *)loadFileUrlImp;
-            loadFileUrlFunc(webView, loadFileUrlSelector, url);
-        }
-    }
-}
-
-+ (BOOL)loadFileUrl:(id)webView url:(NSURL *)url allowReadAccess:(NSURL *)allowReadAccess {
-    SEL loadFileUrlSelector = NSSelectorFromString(@"loadFileURL:allowingReadAccessToURL:");
-    if ([webView respondsToSelector:loadFileUrlSelector]) {
-        UADSLogDebug(@"WebView responds to loadFileURL selector");
-        IMP loadFileUrlImp = [webView methodForSelector:loadFileUrlSelector];
-        if (loadFileUrlImp) {
-            UADSLogDebug(@"Got loadFileURL implementation");
-            void (*loadFileUrlFunc)(id, SEL, NSURL *, NSURL *) = (void *)loadFileUrlImp;
-            UADSLogDebug(@"Trying to load fileURL: %@ and allowing readAccess to: %@", url, allowReadAccess);
-            loadFileUrlFunc(webView, loadFileUrlSelector, url, allowReadAccess);
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-+ (id)getObjectFromClass:(const char *)className {
-    id class = objc_getClass(className);
-    NSString *classNameNSString = [NSString stringWithCString:className encoding:NSUTF8StringEncoding];
-
-    if (class) {
-        id object = [[class alloc] init];
-
-        if (object) {
-            UADSLogDebug(@"Succesfully created object for %@", classNameNSString);
-            return object;
-        }
-    }
-
-    UADSLogDebug(@"Couldn't create object for %@", classNameNSString);
-
-    return NULL;
-}
-
-+ (BOOL)isFrameworkPresent {
-    id wkWebKitClass = objc_getClass("WKWebView");
-
-    if (wkWebKitClass) {
-        return true;
-    }
-
-    return false;
-}
 
 - (void)invokeJavascriptString:(NSString *)javaScriptString {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.evaluateJavaScriptFunc && self.evaluateJavaScriptSelector) {
+        if (self.webView && self.evaluateJavaScriptFunc && self.evaluateJavaScriptSelector) {
             self.evaluateJavaScriptFunc(self.webView, self.evaluateJavaScriptSelector, javaScriptString, nil);
         }
     });

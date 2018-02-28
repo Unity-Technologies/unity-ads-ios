@@ -81,7 +81,7 @@ static long kMinFileSize = 5000;
     NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"test.mp4"];
     [[NSFileManager defaultManager]removeItemAtPath:fileName error:nil];
     
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
     
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
@@ -103,7 +103,7 @@ static long kMinFileSize = 5000;
     [[NSFileManager defaultManager] removeItemAtPath:fileName error:nil];
     
     [UADSCacheQueue setProgressInterval:50];
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil];
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         [mockApp setProgressExpectation:nil];
@@ -128,7 +128,9 @@ static long kMinFileSize = 5000;
     XCTestExpectation *endExpectation  = [self expectationWithDescription:@"downloadEndExpectation"];
     [mockApp setResumeEndExpectation:endExpectation];
 
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil];
+    NSDictionary *headers = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSString stringWithFormat:@"bytes=%llu-", fileSize]] forKey:@"Range"];
+    
+    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:headers append:true];
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
@@ -136,7 +138,7 @@ static long kMinFileSize = 5000;
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
     NSFileHandle *fileHandle2 = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
     unsigned long long fileSize2 = [fileHandle2 seekToEndOfFile];
-    XCTAssertEqual(fileSize2, [TestUtilities getTestVideoExpectedSize], "File size should be less than kVideoSize (%d)", [TestUtilities getTestVideoExpectedSize]);
+    XCTAssertEqual(fileSize2, [TestUtilities getTestVideoExpectedSize], "File size should be kVideoSize (%d)", [TestUtilities getTestVideoExpectedSize]);
 }
 
 

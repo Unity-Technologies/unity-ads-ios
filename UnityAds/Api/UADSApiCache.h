@@ -7,7 +7,8 @@ typedef NS_ENUM(NSInteger, UnityAdsCacheError) {
     kUnityAdsMalformedUrl,
     kUnityAdsNetworkError,
     kUnityAdsInvalidArgument,
-    kUnityAdsUnsupportedEncoding
+    kUnityAdsUnsupportedEncoding,
+    kUnityAdsFileStateWrong
 };
 
 NSString *NSStringFromCacheError(UnityAdsCacheError error);

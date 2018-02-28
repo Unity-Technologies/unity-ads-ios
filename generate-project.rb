@@ -79,7 +79,7 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         file_to_add = g.new_file(Dir.pwd + '/' + f)
         added_file = target.headers_build_phase.add_file_reference(file_to_add, true)
         added_file.settings ||= {}
-        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/ or "#{f}" =~ /UnityAdsExtended\.h/ or "#{f}" =~ /UADSJsonStorage\.h/ or "#{f}" =~ /UnityAdsUnityDelegate\.h/
+        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/ or "#{f}" =~ /UnityAdsExtended\.h/ or "#{f}" =~ /UADSJsonStorage\.h/ or "#{f}" =~ /UADSPurchasing\.h/
           added_file.settings['ATTRIBUTES'] = ['Public']
         else
           added_file.settings['ATTRIBUTES'] = ['Project']

@@ -7,6 +7,7 @@
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 #import <objc/runtime.h>
+#import <assert.h>
 
 #import "UnityAds.h"
 #import "UADSDevice.h"
@@ -152,6 +153,10 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     return [dateFormatter stringFromDate:currentDate];
 }
 
++ (NSInteger)getTimeZoneOffset {
+    return [[NSTimeZone localTimeZone] secondsFromGMT];
+}
+
 + (NSString *)getPreferredLocalization {
     NSString* preferredLocalization = [[NSLocale preferredLanguages] objectAtIndex:0];
     
@@ -179,11 +184,18 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 }
 
 + (float)getBatteryLevel {
-    return [UIDevice currentDevice].batteryLevel;
+    bool monitoringPreviouslyEnabled = [[UIDevice currentDevice] isBatteryMonitoringEnabled];
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+    float batteryLevel = [UIDevice currentDevice].batteryLevel;
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:monitoringPreviouslyEnabled];
+    return batteryLevel;
 }
 
 + (NSInteger)getBatteryStatus {
+    bool monitoringPreviouslyEnabled = [[UIDevice currentDevice] isBatteryMonitoringEnabled];
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
     UIDeviceBatteryState currentState = [UIDevice currentDevice].batteryState;
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:monitoringPreviouslyEnabled];
     return currentState;
 }
 
@@ -235,6 +247,56 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     UADSLogDebug(@"used: %llu free: %llu", mem_used, mem_free);
     
     return [NSNumber numberWithLongLong:(unsigned long long)mem_free/1024];
+}
+
++ (NSDictionary *)getProcessInfo {
+    kern_return_t kr;
+    task_info_data_t tinfo;
+    mach_msg_type_number_t task_info_count;
+    
+    task_info_count = TASK_INFO_MAX;
+    kr = task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)tinfo, &task_info_count);
+    if (kr != KERN_SUCCESS) {
+        return nil;
+    }
+    
+    thread_array_t         thread_list;
+    mach_msg_type_number_t thread_count;
+    
+    thread_info_data_t     thinfo;
+    mach_msg_type_number_t thread_info_count;
+    
+    thread_basic_info_t basic_info_th;
+    
+    // get threads in the task
+    kr = task_threads(mach_task_self(), &thread_list, &thread_count);
+    if (kr != KERN_SUCCESS) {
+        return nil;
+    }
+
+    float tot_cpu = 0;
+    int j;
+    
+    for (j = 0; j < (int)thread_count; j++)
+    {
+        thread_info_count = THREAD_INFO_MAX;
+        kr = thread_info(thread_list[j], THREAD_BASIC_INFO,
+                         (thread_info_t)thinfo, &thread_info_count);
+        if (kr != KERN_SUCCESS) {
+            return nil;
+        }
+        
+        basic_info_th = (thread_basic_info_t)thinfo;
+        
+        if (!(basic_info_th->flags & TH_FLAGS_IDLE)) {
+            tot_cpu = tot_cpu + basic_info_th->cpu_usage / (float)TH_USAGE_SCALE * 100.0;
+        }
+        
+    } // for each thread
+    
+    kr = vm_deallocate(mach_task_self(), (vm_offset_t)thread_list, thread_count * sizeof(thread_t));
+    assert(kr == KERN_SUCCESS);
+    return @{@"stat": [NSNumber numberWithFloat:tot_cpu]};
 }
 
 + (BOOL)isRooted {
@@ -345,5 +407,8 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     return 1.0f;
 }
 
-@end
++ (NSUInteger)getCPUCount {
+    return [[NSProcessInfo processInfo] processorCount];
+}
 
+@end

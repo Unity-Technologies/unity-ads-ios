@@ -37,6 +37,8 @@
 
 + (NSString *)getTimeZone:(BOOL) daylightSavingTime;
 
++ (NSInteger)getTimeZoneOffset;
+
 + (NSString *)getPreferredLocalization;
 
 + (float)getOutputVolume;
@@ -55,6 +57,8 @@
 
 + (NSNumber *)getFreeMemoryInKilobytes;
 
++ (NSDictionary *)getProcessInfo;
+
 + (BOOL)isRooted;
 
 + (NSInteger)getUserInterfaceIdiom;
@@ -64,5 +68,7 @@
 + (NSString *)getGLVersion;
 
 + (float)getDeviceMaxVolume;
+
++ (NSUInteger)getCPUCount;
 
 @end

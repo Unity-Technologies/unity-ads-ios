@@ -128,6 +128,10 @@
     XCTAssertTrue([freeMemory longLongValue] > 0, "Free memory should be more than 0");
 }
 
+- (void)testGetProcessInfo {
+    XCTAssertTrue([[[UADSDevice getProcessInfo] objectForKey:@"stat"] floatValue] >= 0, "stat should not be negative");
+}
+
 - (void)testIsRooted {
     bool isRooted = [UADSDevice isRooted];
     XCTAssertFalse(isRooted, "Device shouldn't be rooted");
@@ -156,6 +160,10 @@
     }
     
     XCTAssertEqual(simulator, [UADSDevice isSimulator], @"Two simulator detection results do not match! (LOCAL: %i SDK: %i)", simulator, [UADSDevice isSimulator]);
+}
+
+- (void)testGetCPUCount {
+    XCTAssertTrue([UADSDevice getCPUCount] > 0, @"Device CPU count should be greater than 0");
 }
 
 @end

@@ -59,6 +59,9 @@
                            @"UADSApiAppSheet",
                            @"UADSApiUrlScheme",
                            @"UADSApiNotification",
+                           @"UADSApiConnectivity",
+                           @"UADSApiPreferences",
+                           @"UADSApiSensorInfo",
                            @"UADSHybridTest"
                            ];
     [UADSSdkProperties setConfigUrl:[UADSSdkProperties getDefaultConfigUrl:@"test"]];

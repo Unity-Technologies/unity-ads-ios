@@ -1,0 +1,5 @@
+
+@interface UADSApiSensorInfo : NSObject
+
+@end
+

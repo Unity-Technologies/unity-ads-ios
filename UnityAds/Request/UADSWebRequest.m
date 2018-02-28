@@ -93,9 +93,11 @@
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     [self.receivedData setLength:0];
     self.expectedContentLength = [response expectedContentLength];
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-    self.responseCode = [httpResponse statusCode];
-    self.responseHeaders = [httpResponse allHeaderFields];
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        self.responseCode = [httpResponse statusCode];
+        self.responseHeaders = [httpResponse allHeaderFields];
+    }
 
     if (!self.responseHeaders) {
         self.responseHeaders = [[NSDictionary alloc] init];

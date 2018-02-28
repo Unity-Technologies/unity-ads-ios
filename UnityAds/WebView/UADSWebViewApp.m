@@ -81,7 +81,9 @@ static UADSWebViewApp *currentApp = NULL;
 
 - (void)invokeJavascriptString:(NSString *)javaScriptString {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [(UIWebView *)self.webView stringByEvaluatingJavaScriptFromString:javaScriptString];
+        if (self.webView) {
+            [(UIWebView *)self.webView stringByEvaluatingJavaScriptFromString:javaScriptString];
+        }
     });
 }
 

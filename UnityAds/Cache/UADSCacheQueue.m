@@ -19,13 +19,13 @@ static dispatch_once_t onceToken;
     });
 }
 
-+ (BOOL)download:(NSString *)source target:(NSString *)target headers:(NSDictionary<NSString*, NSArray*> *)headers {
-    return [UADSCacheQueue downloadFile:source target:target headers:headers];
++ (BOOL)download:(NSString *)source target:(NSString *)target headers:(NSDictionary<NSString*, NSArray*> *)headers append:(BOOL)append {
+    return [UADSCacheQueue downloadFile:source target:target headers:headers append:append];
 }
 
-+ (BOOL)downloadFile:(NSString *)source target:(NSString *)target headers:(NSDictionary<NSString*, NSArray*> *)headers {
++ (BOOL)downloadFile:(NSString *)source target:(NSString *)target headers:(NSDictionary<NSString*, NSArray*> *)headers append:(BOOL)append {
     if (source && target) {
-        UADSCacheOperation *cacheOperation = [[UADSCacheOperation alloc] initWithSource:source target:target connectTimeout:connectTimeout headers:headers];
+        UADSCacheOperation *cacheOperation = [[UADSCacheOperation alloc] initWithSource:source target:target connectTimeout:connectTimeout headers:headers append:append];
         if (progressInterval > 0) {
             [cacheOperation setProgressEventInterval:progressInterval];
         }

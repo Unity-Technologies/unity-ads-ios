@@ -79,6 +79,10 @@
 static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/invalid_video_url.mp4";
 
 - (BOOL)waitForViewControllerStart {
+    if ([UADSDevice isSimulator]) {
+        NSLog(@"Device is simulator, Skipping videoview controller start");
+        return YES;
+    }
     self.viewController = [[UADSViewController alloc] init];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:self.viewController animated:true completion:nil];
     
@@ -99,6 +103,10 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (BOOL)waitForViewControllerExit {
+    if ([UADSDevice isSimulator]) {
+        NSLog(@"Device is simulator, Skipping videoview controller exit");
+        return YES;
+    }
     [self.viewController dismissViewControllerAnimated:true completion:nil];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];

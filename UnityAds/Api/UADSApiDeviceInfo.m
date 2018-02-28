@@ -85,6 +85,10 @@ static UADSVolumeChangeListener *volumeChangeListener = NULL;
     [callback invoke:[UADSDevice getTimeZone:[dst boolValue]], nil];
 }
 
++ (void)WebViewExposed_getTimeZoneOffset:(UADSWebViewCallback *)callback {
+    [callback invoke:[NSNumber numberWithInteger:[UADSDevice getTimeZoneOffset]], nil];
+}
+
 + (void)WebViewExposed_getSystemLanguage:(UADSWebViewCallback *)callback {
     [callback invoke:[UADSDevice getPreferredLocalization], nil];
 }
@@ -155,6 +159,16 @@ static UADSVolumeChangeListener *volumeChangeListener = NULL;
     }
 }
 
++ (void)WebViewExposed_getProcessInfo:(UADSWebViewCallback *)callback {
+    NSDictionary* processInfo = [UADSDevice getProcessInfo];
+    if (processInfo) {
+        [callback invoke:[UADSDevice getProcessInfo], nil];
+    } else {
+        [callback error:NSStringFromDeviceError(kUnityAdsCouldntGetProcessInfo) arg1:nil];
+    }
+    
+}
+
 + (void)WebViewExposed_getStatusBarWidth:(UADSWebViewCallback *)callback {
     NSNumber *width = [NSNumber numberWithFloat:[UIApplication sharedApplication].statusBarFrame.size.width];
     [callback invoke:width, nil];
@@ -194,6 +208,10 @@ static UADSVolumeChangeListener *volumeChangeListener = NULL;
     }
 
     [callback invoke:nil];
+}
+
++ (void)WebViewExposed_getCPUCount:(UADSWebViewCallback *)callback {
+    [callback invoke:[NSNumber numberWithUnsignedInteger:[UADSDevice getCPUCount]], nil];
 }
 
 @end

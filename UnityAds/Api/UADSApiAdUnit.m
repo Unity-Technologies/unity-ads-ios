@@ -33,25 +33,49 @@ static UADSViewController *adUnitViewController = NULL;
 }
 
 + (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate isTransparent:(NSNumber *)isTransparent withAnimation:(NSNumber *)animated callback:(UADSWebViewCallback *)callback {
+    [UADSApiAdUnit WebViewExposed_open:views supportedOrientations:supportedOrientations statusBarHidden:statusBarHidden shouldAutorotate:shouldAutorotate isTransparent:isTransparent withAnimation:animated homeIndicatorAutoHidden:[NSNumber numberWithBool:YES] callback:callback];
+}
+
++ (void)WebViewExposed_open:(NSArray *)views supportedOrientations:(NSNumber *)supportedOrientations statusBarHidden:(NSNumber *)statusBarHidden shouldAutorotate:(NSNumber *)shouldAutorotate isTransparent:(NSNumber *)isTransparent withAnimation:(NSNumber *)animated homeIndicatorAutoHidden:(NSNumber *)homeIndicatorAutoHidden callback:(UADSWebViewCallback *)callback {
     dispatch_async(dispatch_get_main_queue(), ^(void) {
         UADSLogDebug(@"PRESENTING VIEWCONTROLLER");
-        UADSViewController *adUnit = [[UADSViewController alloc] initWithViews:views supportedOrientations:supportedOrientations statusBarHidden:[statusBarHidden boolValue] shouldAutorotate:[shouldAutorotate boolValue] isTransparent:[isTransparent boolValue]];
+        UADSViewController *adUnit = [[UADSViewController alloc] initWithViews:views supportedOrientations:supportedOrientations statusBarHidden:[statusBarHidden boolValue] shouldAutorotate:[shouldAutorotate boolValue] isTransparent:[isTransparent boolValue] homeIndicatorAutoHidden: [homeIndicatorAutoHidden boolValue]];
         [adUnit setModalPresentationCapturesStatusBarAppearance:true];
         if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_0 && [isTransparent boolValue]) {
             adUnit.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-            [UADSClientProperties getCurrentViewController].modalPresentationStyle = UIModalPresentationCurrentContext;
+            if ([UADSClientProperties getCurrentViewController]) {
+                [UADSClientProperties getCurrentViewController].modalPresentationStyle = UIModalPresentationCurrentContext;
+            }
+            else {
+                [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitHostViewControllerNull) arg1:nil];
+                return;
+            }
         }
-        [[UADSClientProperties getCurrentViewController] presentViewController:adUnit animated:[animated boolValue] completion:NULL];
+
+        if ([UADSClientProperties getCurrentViewController]) {
+            [[UADSClientProperties getCurrentViewController] presentViewController:adUnit animated:[animated boolValue] completion:NULL];
+        }
+        else {
+            [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitHostViewControllerNull) arg1:nil];
+            return;
+        }
         adUnitViewController = adUnit;
     });
-    
+
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_close:(UADSWebViewCallback *)callback {
     if ([UADSApiAdUnit getAdUnit]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[UADSClientProperties getCurrentViewController] dismissViewControllerAnimated:true completion:NULL];
+            if ([UADSClientProperties getCurrentViewController]) {
+                [[UADSClientProperties getCurrentViewController] dismissViewControllerAnimated:true completion:NULL];
+            }
+            else {
+                [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitHostViewControllerNull) arg1:nil];
+                return;
+            }
+
             adUnitViewController = NULL;
         });
         [callback invoke:nil];
@@ -209,6 +233,25 @@ static UADSViewController *adUnitViewController = NULL;
             [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitUnknownView) arg1:nil];
             return;
         }
+    }
+    else {
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_setHomeIndicatorAutoHidden:(NSNumber *)homeIndicatorAutoHidden callback:(UADSWebViewCallback *)callback {
+    if ([UADSApiAdUnit getAdUnit]) {
+        [[UADSApiAdUnit getAdUnit] setHomeIndicatorAutoHidden:[homeIndicatorAutoHidden boolValue]];
+        [callback invoke:nil];
+    }
+    else {
+        [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];
+    }
+}
+
++ (void)WebViewExposed_getHomeIndicatorAutoHidden:(UADSWebViewCallback *)callback {
+    if ([UADSApiAdUnit getAdUnit]) {
+        [callback invoke:[NSNumber numberWithBool:[[UADSApiAdUnit getAdUnit] homeIndicatorAutoHidden]], nil];
     }
     else {
         [callback error:NSStringFromAdUnitError(kUnityAdsAdUnitNull) arg1:nil];

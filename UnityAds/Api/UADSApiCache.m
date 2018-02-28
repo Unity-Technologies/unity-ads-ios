@@ -28,19 +28,21 @@ NSString *NSStringFromCacheError(UnityAdsCacheError error) {
             return @"INVALID_ARGUMENT";
         case kUnityAdsUnsupportedEncoding:
             return @"UNSUPPORTED_ENCODING";
+        case kUnityAdsFileStateWrong:
+            return @"FILE_STATE_WRONG";
             break;
     }
 }
 
 @implementation UADSApiCache
 
-+ (void)WebViewExposed_download:(NSString *)url fileId:(NSString *)fileId headers:(NSArray *)headers callback:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_download:(NSString *)url fileId:(NSString *)fileId headers:(NSArray *)headers append:(NSNumber *)append callback:(UADSWebViewCallback *)callback {
     if ([UADSConnectivityUtils getNetworkStatus] == NotReachable) {
         [callback error:NSStringFromCacheError(kUnityAdsNoInternet) arg1:nil];
         return;
     }
 
-    BOOL success = [UADSCacheQueue download:url target:[UADSApiCache fileIdToFilename:fileId] headers:[UADSApiRequest getHeadersMap:headers]];
+    BOOL success = [UADSCacheQueue download:url target:[UADSApiCache fileIdToFilename:fileId] headers:[UADSApiRequest getHeadersMap:headers] append:[append boolValue]];
     if (!success) {
         [callback error:NSStringFromCacheError(kUnityAdsFileAlreadyCaching) arg1:nil];
     }
