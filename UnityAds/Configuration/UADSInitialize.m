@@ -34,6 +34,13 @@ static dispatch_once_t onceToken;
     }
 }
 
++ (void) reset {
+    if (initializeQueue) {
+        id state = [[UADSInitializeStateForceReset alloc] initWithConfiguration:currentConfiguration];
+        [initializeQueue addOperation:state];
+    }
+}
+
 @end
 
 /* STATE CLASSES */
@@ -117,6 +124,17 @@ static dispatch_once_t onceToken;
     
     id nextState = [[UADSInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0 retryDelay:5];
     return nextState;
+}
+
+@end
+
+// FORCE RESET
+
+@implementation UADSInitializeStateForceReset : UADSInitializeStateReset
+
+- (instancetype)execute {
+    [super execute];
+    return nil;
 }
 
 @end

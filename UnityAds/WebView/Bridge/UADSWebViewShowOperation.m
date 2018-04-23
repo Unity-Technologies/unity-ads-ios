@@ -4,6 +4,7 @@
 #import "UADSCacheQueue.h"
 #import "UADSConnectivityMonitor.h"
 #import "UADSSdkProperties.h"
+#import "UADSInitialize.h"
 
 @implementation UADSWebViewShowOperation
 
@@ -29,9 +30,7 @@
             }
         }
         
-        [UADSPlacement reset];
-        [UADSCacheQueue cancelAllDownloads];
-        [UADSConnectivityMonitor stopAll];
+        [UADSInitialize reset];
     }
     else {
         UADSLogDebug(@"SHOW SUCCESS");

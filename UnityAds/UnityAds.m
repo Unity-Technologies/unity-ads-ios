@@ -135,7 +135,10 @@ static BOOL _initializing = NO;
         
         [UADSWebViewMethodInvokeQueue addOperation:operation];
     } else {
-        if (![self isSupported]) {
+        if (!placementId) {
+            NSException *exception = [NSException exceptionWithName:@"IllegalArgumentException" reason:@"PlacementID is nil" userInfo:nil];
+            @throw exception;
+        } else if (![self isSupported]) {
             [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not supported for this device"];
         } else if (![self isInitialized]) {
             [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not initialized"];

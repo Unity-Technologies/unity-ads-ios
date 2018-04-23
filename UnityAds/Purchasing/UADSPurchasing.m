@@ -6,7 +6,7 @@ static NSString *unityAdsPurchasingVersionEvent = @"VERSION";
 static NSString *unityAdsPurchasingProductCatalogEvent = @"CATALOG";
 static NSString *unityAdsPurchasingCommandCallback = @"COMMAND";
 static NSString *unityAdsPurchasingInitializationResult = @"INITIALIZATION";
-
+static NSString *unityAdsPurchasingEvent = @"EVENT";
 
 NSString *NSStringFromPurchasingEvent(UnityAdsPurchasingEvent event) {
     switch (event) {
@@ -18,6 +18,8 @@ NSString *NSStringFromPurchasingEvent(UnityAdsPurchasingEvent event) {
             return unityAdsPurchasingCommandCallback;
         case kUnityAdsPurchasingEventInitializationResult:
             return unityAdsPurchasingInitializationResult;
+        case kUnityAdsPurchasingEventPurchasingEvent:
+            return unityAdsPurchasingEvent;
     }
 }
 

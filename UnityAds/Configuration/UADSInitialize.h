@@ -4,6 +4,7 @@
 @interface UADSInitialize : NSObject
 
 + (void)initialize:(UADSConfiguration *)configuration;
++ (void)reset;
 
 @end
 
@@ -23,6 +24,12 @@
 // RESET
 
 @interface UADSInitializeStateReset : UADSInitializeState
+
+@end
+
+// FORCE RESET
+
+@interface UADSInitializeStateForceReset : UADSInitializeStateReset
 
 @end
 

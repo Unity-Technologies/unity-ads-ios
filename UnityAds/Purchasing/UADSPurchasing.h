@@ -17,7 +17,11 @@ typedef NS_ENUM(NSInteger, UnityAdsPurchasingEvent) {
     /**
      *  An event that indicates the success or failure of initializing Purchasing.
      */
-    kUnityAdsPurchasingEventInitializationResult
+    kUnityAdsPurchasingEventInitializationResult,
+    /**
+     *  An event that indicates a message directly from Purchasing.
+     */
+    kUnityAdsPurchasingEventPurchasingEvent
 };
 /**
  *  The `UADSPurchasingDelegate` protocol defines the required methods for receiving IAP promo-related messages from UnityAds.
