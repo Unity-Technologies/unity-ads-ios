@@ -22,6 +22,10 @@ static dispatch_once_t onceToken;
     });
 }
 
++ (void)setConcurrentRequestCount: (int) count {
+    requestQueue.maxConcurrentOperationCount = count;
+}
+
 + (void)requestUrl:(NSString *)url type:(NSString *)type headers:(NSDictionary<NSString*, NSArray*> *)headers completeBlock:(UnityAdsWebRequestCompletion)completeBlock connectTimeout:(int)connectTimeout {
     [UADSWebRequestQueue requestUrl:url type:type headers:headers body:NULL completeBlock:completeBlock connectTimeout:connectTimeout];
 }

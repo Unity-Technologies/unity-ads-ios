@@ -112,7 +112,11 @@ static BOOL _initializing = NO;
 }
 
 + (void)show:(UIViewController *)viewController {
-    [UnityAds show:viewController placementId:[UADSPlacement getDefaultPlacement]];
+    if([UADSPlacement getDefaultPlacement]) {
+        [UnityAds show:viewController placementId:[UADSPlacement getDefaultPlacement]];
+    } else {
+        [self handleShowError:@"" unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads default placement is not initialized"];
+    }
 }
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId {
@@ -135,10 +139,7 @@ static BOOL _initializing = NO;
         
         [UADSWebViewMethodInvokeQueue addOperation:operation];
     } else {
-        if (!placementId) {
-            NSException *exception = [NSException exceptionWithName:@"IllegalArgumentException" reason:@"PlacementID is nil" userInfo:nil];
-            @throw exception;
-        } else if (![self isSupported]) {
+        if (![self isSupported]) {
             [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not supported for this device"];
         } else if (![self isInitialized]) {
             [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not initialized"];
@@ -203,14 +204,21 @@ static BOOL _initializing = NO;
 }
 
 + (void)handleShowError:(NSString *)placementId unityAdsError:(UnityAdsError)unityAdsError message:(NSString *)message {
-    NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
-    UADSLogError(@"%@", errorMessage);
-    if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
-        [[self getDelegate] unityAdsDidError:unityAdsError withMessage:errorMessage];
-    }
-    if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
-        [[self getDelegate] unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
+        UADSLogError(@"%@", errorMessage);
+        if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+            [[self getDelegate] unityAdsDidError:unityAdsError withMessage:errorMessage];
+        }
+
+        if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
+            if (placementId) {
+                [[self getDelegate] unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
+            } else {
+                [[self getDelegate] unityAdsDidFinish:@"" withFinishState:kUnityAdsFinishStateError];
+            }
+        }
+    });
 }
 
 @end

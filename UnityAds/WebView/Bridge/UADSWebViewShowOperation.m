@@ -19,16 +19,18 @@
 
     if (!self.success) {
         UADSLogError(@"Unity Ads webapp timeout, shutting down Unity Ads");
-        id delegate = [UADSClientProperties getDelegate];
-        if (delegate) {
-            if ([delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
-                [delegate unityAdsDidError:kUnityAdsErrorShowError withMessage:@"Webapp timeout, shutting down Unity Ads"];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            id delegate = [UADSClientProperties getDelegate];
+            if (delegate) {
+                if ([delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+                    [delegate unityAdsDidError:kUnityAdsErrorShowError withMessage:@"Webapp timeout, shutting down Unity Ads"];
+                }
+                if ([delegate respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
+                    NSString *placementId = [self.parameters objectAtIndex:0];
+                    [delegate unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
+                }
             }
-            if ([delegate respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
-                NSString *placementId = [self.parameters objectAtIndex:0];
-                [delegate unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
-            }
-        }
+        });
         
         [UADSInitialize reset];
     }

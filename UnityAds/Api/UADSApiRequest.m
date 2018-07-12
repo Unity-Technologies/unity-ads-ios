@@ -85,6 +85,11 @@ static NSString *webRequestEventCategory = @"REQUEST";
     [callback invoke:requestId, nil];
 }
 
++ (void)WebViewExposed_setConcurrentRequestCount: (int) count callback:(UADSWebViewCallback *)callback {
+    [UADSWebRequestQueue setConcurrentRequestCount: count];
+    [callback invoke:nil];
+}
+
 + (NSDictionary<NSString*,NSArray*> *)getHeadersMap:(NSArray *)headers {
     NSMutableDictionary *mappedHeaders = [[NSMutableDictionary alloc] init];
     
