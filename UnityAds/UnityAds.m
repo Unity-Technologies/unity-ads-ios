@@ -168,7 +168,7 @@ static BOOL _initializing = NO;
     if(_debugMode) {
         [UADSDeviceLog setLogLevel:kUnityAdsLogLevelDebug];
     } else {
-        [UADSDeviceLog setLogLevel:kUnityAdsLogLevelInfo];
+        [UADSDeviceLog setLogLevel:kUnityAdsLogLevelWarning];
     }
 }
 
