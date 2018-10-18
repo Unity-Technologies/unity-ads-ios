@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface MockWebViewAppForViewNotificationTests : UADSWebViewApp
+@interface MockWebViewAppForViewNotificationTests : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *testReceiveNotificationException;
 @property (nonatomic, strong) XCTestExpectation *testReceiveNotificationWithParameters;
 @property (nonatomic, strong) XCTestExpectation *testReceiveTwoNotificationsException1;
@@ -50,7 +50,7 @@
     return true;
 }
 
-- (BOOL)invokeCallback:(UADSInvocation *)invocation {
+- (BOOL)invokeCallback:(USRVInvocation *)invocation {
     return true;
 }
 @end
@@ -63,7 +63,7 @@
 
 - (void)setUp {
     MockWebViewAppForViewNotificationTests *webApp = [[MockWebViewAppForViewNotificationTests alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
 }
 
 - (void)tearDown {
@@ -72,30 +72,30 @@
 
 - (void)testReceiveNotification {
     XCTestExpectation *expectation = [self expectationWithDescription:@"notificationException"];
-    MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[USRVWebViewApp getCurrentApp];
     [mockApp setTestReceiveNotificationException:expectation];
     
-    [UADSNotificationObserver addObserver:@"TestReceiveNotification" userInfoKeys:nil targetObject:nil];
+    [USRVNotificationObserver addObserver:@"TestReceiveNotification" userInfoKeys:nil targetObject:nil];
 
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestReceiveNotification" object:nil];
     
     [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
     }];
     
-    [UADSNotificationObserver removeObserver:@"TestReceiveNotification" targetObject:nil];
+    [USRVNotificationObserver removeObserver:@"TestReceiveNotification" targetObject:nil];
 
 }
 
 - (void)testReceiveNotificationWithParameters {
     XCTestExpectation *expectation = [self expectationWithDescription:@"notificationException"];
-    MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[USRVWebViewApp getCurrentApp];
     [mockApp setTestReceiveNotificationWithParameters:expectation];
 
     NSDictionary *userInfo = @{@"cat" : @"Siamese", @"dog" : @"German Shepherd",};
     
     NSArray *keyArray = @[@"cat", @"dog", @"squirrel"];
     
-    [UADSNotificationObserver addObserver:@"TestReceiveNotificationWithParameters" userInfoKeys:keyArray targetObject:nil];
+    [USRVNotificationObserver addObserver:@"TestReceiveNotificationWithParameters" userInfoKeys:keyArray targetObject:nil];
     
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestReceiveNotificationWithParameters" object:nil userInfo:userInfo];
     
@@ -108,20 +108,20 @@
     XCTAssertTrue([@"Siamese" isEqualToString:[dictionary valueForKey:@"cat"]], @"Value should be equal to Siamese");
     XCTAssertTrue([@"German Shepherd" isEqualToString:[dictionary valueForKey:@"dog"]], @"Value should be equal to German Shepherd");
     
-    [UADSNotificationObserver removeObserver:@"TestReceiveNotificationWithParameters" targetObject:nil];
+    [USRVNotificationObserver removeObserver:@"TestReceiveNotificationWithParameters" targetObject:nil];
     
 }
 
 - (void)testReceiveTwoNotifications {
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"testReceiveTwoNotificationsException1"];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"testReceiveTwoNotificationsException2"];
-    MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewNotificationTests *mockApp = (MockWebViewAppForViewNotificationTests *)[USRVWebViewApp getCurrentApp];
     [mockApp setTestReceiveTwoNotificationsException1:expectation1];
     [mockApp setTestReceiveTwoNotificationsException2:expectation2];
     
     NSArray *keyArray = @[@"cat", @"dog"];
-    [UADSNotificationObserver addObserver:@"TestTwoNotifications1" userInfoKeys:nil targetObject:nil];
-    [UADSNotificationObserver addObserver:@"TestTwoNotifications2" userInfoKeys:keyArray targetObject:nil];
+    [USRVNotificationObserver addObserver:@"TestTwoNotifications1" userInfoKeys:nil targetObject:nil];
+    [USRVNotificationObserver addObserver:@"TestTwoNotifications2" userInfoKeys:keyArray targetObject:nil];
     
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestTwoNotifications1" object:nil];
     [[NSNotificationCenter defaultCenter]postNotificationName:@"TestTwoNotifications2" object:nil];
@@ -129,7 +129,7 @@
     [self waitForExpectationsWithTimeout:5 handler:^(NSError * _Nullable error) {
     }];
     
-    [UADSNotificationObserver unregisterNotificationObserver];
+    [USRVNotificationObserver unregisterNotificationObserver];
     
 }
 

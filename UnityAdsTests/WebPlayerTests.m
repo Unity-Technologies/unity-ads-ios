@@ -1,10 +1,8 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
-#import "UADSWebViewApp.h"
-#import "UADSViewController.h"
 #import "UADSApiWebPlayer.h"
 
-@interface WebPlayerTestsWebApp : UADSWebViewApp
+@interface WebPlayerTestsWebApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSString *fulfillingEvent;
 @property (nonatomic, strong) NSString *collectEvents;
@@ -25,7 +23,7 @@
     return self;
 }
 
-- (BOOL)invokeCallback:(UADSInvocation *)invocation {
+- (BOOL)invokeCallback:(USRVInvocation *)invocation {
     return true;
 }
 
@@ -74,9 +72,21 @@
 @synthesize viewController = _viewController;
 
 - (BOOL)waitForViewControllerStart {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     self.viewController = [[UADSViewController alloc] init];
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:self.viewController animated:true completion:nil];
-    return true;
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:self.viewController animated:true completion:^{
+        [expectation fulfill];
+    }];
+    __block BOOL success = true;
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_sync(queue, ^{
+        [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+            if (error) {
+                success = false;
+            }
+        }];
+    });
+    return success;
 }
 
 - (BOOL)waitForViewControllerExit {
@@ -100,23 +110,23 @@
 - (void)setUp {
     [super setUp];
     
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping setUp");
         return;
     }
     
     WebPlayerTestsWebApp *webViewApp = [[WebPlayerTestsWebApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webViewApp];
-    [[UADSWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[UADSWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [USRVWebViewApp setCurrentApp:webViewApp];
+    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
     
-    [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) webPlayerSettings:[UADSApiWebPlayer getWebPlayerSettings]]];
+    [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) viewId:@"webplayer" webPlayerSettings:[UADSApiWebPlayer getWebPlayerSettings]]];
 }
 
 - (void)tearDown {
     [super tearDown];
     
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping tearDown");
         return;
     }
@@ -126,7 +136,7 @@
 }
 
 -(void) testCorrectUrl {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a web player test");
         return;
     }
@@ -141,8 +151,8 @@
         [self.webPlayerView loadUrl:[TestUtilities getTestServerAddress]];
     });
     
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:pageStartExpectation];
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PAGE_STARTED"];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:pageStartExpectation];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PAGE_STARTED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -155,8 +165,8 @@
     
     XCTestExpectation *pageFinishedExpectation = [self expectationWithDescription:@"pageFinishedExpectation"];
     
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:pageFinishedExpectation];
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PAGE_FINISHED"];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:pageFinishedExpectation];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PAGE_FINISHED"];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -170,7 +180,7 @@
 }
 
 -(void) testIncorrectUrl {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a web player test");
         return;
     }
@@ -186,8 +196,8 @@
         [self.webPlayerView loadUrl:@"http://testing.wrong.url"];
     });
     
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:pageStartExpectation];
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PAGE_STARTED"];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:pageStartExpectation];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PAGE_STARTED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -200,8 +210,8 @@
     
     XCTestExpectation *errorExpectation = [self expectationWithDescription:@"errorExpectation"];
     
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:errorExpectation];
-    [(WebPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"ERROR"];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:errorExpectation];
+    [(WebPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"ERROR"];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {

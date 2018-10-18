@@ -5,7 +5,7 @@ require 'fileutils'
 Bundler.require(:default)
 
 # Handle command line arguments
-opts = Trollop::options do
+opts = Optimist::options do
   opt :configuration_type, "Type of configuration to use options: ['dev', 'library']",
       :type => :string, :default => 'dev'
   opt :test_target_name, "Name of the test target to build",
@@ -75,11 +75,55 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         target.source_build_phase.add_file_reference(file_to_add, true)
       end
 
+      public_patterns = [
+        # Core
+        /UADS(.*)MetaData\.h/,
+        /UnityServices\.h/,
+        /USRVJsonStorage\.h/,
+
+        # Ads
+        /UnityAdsFinishState\.h/,
+        /UnityAdsExtended\.h/,
+
+        # Banners
+        /UADSBanner\.h/,
+
+        # Analytics
+        /UANAApiAnalytics.h/,
+        /UnityAnalytics(.*).h/,
+
+        # Purchasing
+        /UADSPurchasing\.h/,
+        /USRVUnityPurchasing.h/,
+
+        # BYOP
+        /USRVUnityPurchasingDelegate.h/,
+        /UPURProduct.h/,
+        /UPURTransactionDetails.h/,
+        /UPURTransactionError.h/,
+        /UPURStore.h/,
+        /UPURTransactionErrorDetails.h/,
+
+        # Monetization
+        /UnityMonetization.h/,
+        /UnityMonetizationDelegate.h/,
+        /UnityMonetizationPlacementContentState.h/,
+        /UMONPlacementContent.h/,
+        /UMONCustomEvent.h/,
+        /UMONRewardablePlacementContent.h/,
+        /UMONShowAdPlacementContent.h/,
+        /UMONPromoAdPlacementContent.h/,
+        /UMONPromoMetaData.h/,
+        /UMONPromoProduct.h/,
+        /UMONItem.h/,
+        /UMONNativePromoAdapter.h/
+      ]
+
       Dir.glob("*.h") do |f|
         file_to_add = g.new_file(Dir.pwd + '/' + f)
         added_file = target.headers_build_phase.add_file_reference(file_to_add, true)
         added_file.settings ||= {}
-        if "#{f}" == "#{target}.h" or "#{f}" =~ /UADS(.*)MetaData\.h/ or "#{f}" =~ /UnityAdsExtended\.h/ or "#{f}" =~ /UADSJsonStorage\.h/ or "#{f}" =~ /UADSPurchasing\.h/
+        if "#{f}" == "#{target}.h" or public_patterns.select{ |p| "#{f}" =~ p }.length != 0
           added_file.settings['ATTRIBUTES'] = ['Public']
         else
           added_file.settings['ATTRIBUTES'] = ['Project']
@@ -101,17 +145,21 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   framework_target = project.new_target(:framework, project_name, :ios)
   framework_test_target = project.new_target(:unit_test_bundle, project_name + "Tests", :ios)
   @framework_example_target = project.new_target(:application, project_name + "Example", :ios)
+  @framework_monetization_example_target = project.new_target(:application, "UnityMonetizationExample", :ios) # monetization
 
   # Use our function to add resources to targets from subdirectories
   create_groups_from_dir("#{project_name}", project, framework_target)
+  # Just a hack now to add UnityServices to project generation
+  create_groups_from_dir("UnityServices", project, framework_target)
   create_groups_from_dir("#{test_target_name}", project, framework_test_target)
   create_groups_from_dir("#{example_target_name}", project, @framework_example_target)
+  create_groups_from_dir("UnityMonetizationExample", project, @framework_monetization_example_target) # monetization
 
   # Configure the framework target
   framework_target.build_configurations.each do |bc|
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAds"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
-    bc.build_settings['HEADER_SEARCH_PATHS'] = "UnityAds/"
+    bc.build_settings['HEADER_SEARCH_PATHS'] = ["UnityAds/", "UnityServices/"]
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
   end
 
@@ -124,11 +172,20 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
+    # Configure the monetization example target
+  @framework_monetization_example_target.build_configurations.each do |bc|
+    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.monetization.example"
+    bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
+    bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
+    bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
+  end
+
   # Configure the test target
   framework_test_target.build_configurations.each do |bc|
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsTests"
-    bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(inherited)"]
-    bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds"]
+    bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
+    bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
     bc.build_settings['TEST_HOST'] = "$(BUILT_PRODUCTS_DIR)/UnityAdsExample.app/UnityAdsExample"
     bc.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "iPhone Developer"
@@ -139,6 +196,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   framework_test_target.add_dependency(framework_target)
   framework_test_target.add_dependency(@framework_example_target)
   @framework_example_target.add_dependency(framework_target)
+  @framework_monetization_example_target.add_dependency(framework_target)
 
   # Add copy files build phase to example target build configuration
   copy_framework_to_example_phase = project.new(Xcodeproj::Project::PBXCopyFilesBuildPhase)
@@ -148,6 +206,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   copied_framework_file_reference.settings ||= {}
   copied_framework_file_reference.settings['ATTRIBUTES'] = ['CodeSignOnCopy']
   @framework_example_target.build_phases << copy_framework_to_example_phase
+  @framework_monetization_example_target.build_phases << copy_framework_to_example_phase
 
   # Configure the example target as the test host for the test target
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
@@ -172,12 +231,14 @@ def generate_static_library_project(xcode_project_name, project_name)
 
   # Use our function to add resources to targets from subdirectories
   create_groups_from_dir("#{project_name}", project, framework_target)
+  # Just a hack now to add UnityServices to project generation
+  create_groups_from_dir("UnityServices", project, framework_target)
 
   # Configure the example target
   framework_target.build_configurations.each do |bc|
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAds"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
-    bc.build_settings['HEADER_SEARCH_PATHS'] = "UnityAds/"
+    bc.build_settings['HEADER_SEARCH_PATHS'] = ["UnityAds/", "UnityServices/"]
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "$(TARGET_$(CURRENT_ARCH))"
     bc.build_settings['SDKROOT'] = "iphoneos"
 
@@ -191,6 +252,7 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = "NO"
     bc.build_settings['CLANG_ENABLE_MODULES'] = "YES"
 
+    bc.build_settings['ARCHS_1000'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0900'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0800'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0700'] = "$(ARCHS_STANDARD) armv7s"

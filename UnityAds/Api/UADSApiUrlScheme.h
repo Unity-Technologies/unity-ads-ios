@@ -1,5 +1,0 @@
-
-
-@interface UADSApiUrlScheme : NSObject
-
-@end

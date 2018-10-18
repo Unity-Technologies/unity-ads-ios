@@ -16,39 +16,39 @@
 }
 
 - (void)testGetSupportedOrientations {
-    NSNumber *numberOfSupportedOrientations = [NSNumber numberWithUnsignedLong:[[UADSClientProperties getSupportedOrientationsPlist] count]];
+    NSNumber *numberOfSupportedOrientations = [NSNumber numberWithUnsignedLong:[[USRVClientProperties getSupportedOrientationsPlist] count]];
     XCTAssertTrue([numberOfSupportedOrientations isEqualToNumber:[NSNumber numberWithInt:4]], "App should support all orientations");
 }
 
 - (void)testGetAppName {
-    XCTAssertEqualObjects([UADSClientProperties getAppName], @"com.unity3d.ads.example", "App name should be eqaul to 'com.unity3d.ads.example");
+    XCTAssertEqualObjects([USRVClientProperties getAppName], @"com.unity3d.ads.example", "App name should be eqaul to 'com.unity3d.ads.example");
 }
 
 - (void)testGetAppVersion {
-    XCTAssertEqualObjects([UADSClientProperties getAppVersion], @"1.0", "App version not what was expected (1.0)");
+    XCTAssertEqualObjects([USRVClientProperties getAppVersion], @"1.0", "App version not what was expected (1.0)");
 }
 
 - (void)testSetCurrentViewController {
     UIViewController *controller = [[UIViewController alloc] init];
-    [UADSClientProperties setCurrentViewController:controller];
+    [USRVClientProperties setCurrentViewController:controller];
     
-    XCTAssertEqualObjects(controller, [UADSClientProperties getCurrentViewController]);
+    XCTAssertEqualObjects(controller, [USRVClientProperties getCurrentViewController]);
     
 }
 
 - (void)testSetDelegate {
-    [UADSClientProperties setDelegate:self];
-    XCTAssertEqualObjects(self, [UADSClientProperties getDelegate]);
+    [UADSProperties setDelegate:self];
+    XCTAssertEqualObjects(self, [UADSProperties getDelegate]);
     
 }
 
 - (void)testIsAppDebuggable {
-    XCTAssertFalse([UADSClientProperties isAppDebuggable], "App should not be debuggable");
+    XCTAssertFalse([USRVClientProperties isAppDebuggable], "App should not be debuggable");
 }
 
 - (void)testSetGameId {
-    [UADSClientProperties setGameId:@"54321"];
-    XCTAssertEqualObjects([UADSClientProperties getGameId], @"54321");
+    [USRVClientProperties setGameId:@"54321"];
+    XCTAssertEqualObjects([USRVClientProperties getGameId], @"54321");
 }
 
 /* TEST DELEGATE */

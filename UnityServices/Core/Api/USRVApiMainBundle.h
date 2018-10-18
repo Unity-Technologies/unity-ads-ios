@@ -1,0 +1,2 @@
+@interface USRVApiMainBundle : NSObject
+@end

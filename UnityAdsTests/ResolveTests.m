@@ -8,7 +8,7 @@
 
 - (void)setUp {
     [super setUp];
-    [UADSWebRequestQueue start];
+    [USRVWebRequestQueue start];
 }
 
 - (void)tearDown {
@@ -22,7 +22,7 @@
     __block NSString *returnAddress;
     __block NSString *returnHost;
     
-    UnityAdsResolveRequestCompletion completeBlock = ^(NSString *host, NSString *address, NSString *error, NSString *errorMessage) {
+    UnityServicesResolveRequestCompletion completeBlock = ^(NSString *host, NSString *address, NSString *error, NSString *errorMessage) {
         returnHost = host;
         returnAddress = address;
         returnError = error;
@@ -31,7 +31,7 @@
         [expectation fulfill];
     };
     
-    BOOL success = [UADSWebRequestQueue resolve:@"google-public-dns-a.google.com" completeBlock:completeBlock];
+    BOOL success = [USRVWebRequestQueue resolve:@"google-public-dns-a.google.com" completeBlock:completeBlock];
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
     

@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface MetaDataMockWebViewApp : UADSWebViewApp
+@interface MetaDataMockWebViewApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSMutableArray *params;
 @end
@@ -40,7 +40,7 @@
     return true;
 }
 
-- (BOOL)invokeCallback:(UADSInvocation *)invocation {
+- (BOOL)invokeCallback:(USRVInvocation *)invocation {
     return true;
 }
 @end
@@ -55,14 +55,14 @@
 }
 
 - (void)tearDown {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     [storage clearStorage];
     [storage initStorage];
 }
 
 - (void)testMediationMetaData {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
     UADSMediationMetaData *metadata = [[UADSMediationMetaData alloc] init];
     
     [metadata setName:@"MediationNetwork"];
@@ -87,7 +87,7 @@
 
 - (void)testPlayerMetaData {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
     UADSPlayerMetaData *metadata = [[UADSPlayerMetaData alloc] init];
     [metadata setServerId:@"bulbasaur"];
     [metadata commit];
@@ -101,7 +101,7 @@
 
 - (void)testMetadataBaseClassNoCategory {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
     
     UADSMetaData *metadata = [[UADSMetaData alloc] init];
     [metadata set:@"test.one" value:[NSNumber numberWithInt:1]];
@@ -127,7 +127,7 @@
 
 - (void)testMetadataBaseClassNoCategoryDiskWrite {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
 
     UADSMetaData *metadata = [[UADSMetaData alloc] init];
     [metadata set:@"test.one" value:[NSNumber numberWithInt:1]];
@@ -139,7 +139,7 @@
     [metadata2 set:@"test.four" value:[NSNumber numberWithInt:4]];
     [metadata2 commit];
 
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     [storage clearData];
     [storage readStorage];
 
@@ -154,7 +154,7 @@
 
 - (void)testMetadataBaseClassWithCategory {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
     UADSMetaData *metadata = [[UADSMetaData alloc] init];
     
     [metadata setCategory:@"test"];
@@ -180,7 +180,7 @@
 
 - (void)testInAppPurchaseMetaData {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
 
     UADSInAppPurchaseMetaData *metadata = [[UADSInAppPurchaseMetaData alloc] init];
     [metadata setCurrency:@"EUR"];
@@ -218,7 +218,7 @@
 
 - (void)testCommitWithoutMetaDataSet {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
     UADSMetaData *metadata = [[UADSMetaData alloc] init];
     
     [metadata setCategory:@"test"];

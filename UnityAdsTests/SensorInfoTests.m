@@ -1,8 +1,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "UADSSensorInfo.h"
-#import "UADSDevice.h"
+#import "USRVSensorInfo.h"
+#import "USRVDevice.h"
 
 @interface SensorInfoTests : XCTestCase
 
@@ -16,21 +16,21 @@
 
 - (void)tearDown {
     [super tearDown];
-    [UADSSensorInfo stopAccelerometerUpdates];
+    [USRVSensorInfo stopAccelerometerUpdates];
 }
 
 - (void)testStartAccelerometerUpdates {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"--- IGNORED IN SIMULATOR ---");
         return;
     }
     
-    BOOL started = [UADSSensorInfo startAccelerometerUpdates:0.01];
+    BOOL started = [USRVSensorInfo startAccelerometerUpdates:0.01];
     XCTAssertTrue(started, @"Accelerometer should be started");
     
     XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        XCTAssertTrue([UADSSensorInfo isAccelerometerActive], @"Accelerometer should be active");
+        XCTAssertTrue([USRVSensorInfo isAccelerometerActive], @"Accelerometer should be active");
         [delayExpectation fulfill];
     });
     
@@ -39,40 +39,40 @@
 }
 
 - (void)testStopAccelerometerUpdates {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"--- IGNORED IN SIMULATOR ---");
         return;
     }
     
-    XCTAssertFalse([UADSSensorInfo isAccelerometerActive], @"Accelerometer shouldn't be active");
+    XCTAssertFalse([USRVSensorInfo isAccelerometerActive], @"Accelerometer shouldn't be active");
     
-    [UADSSensorInfo startAccelerometerUpdates:0.01];
+    [USRVSensorInfo startAccelerometerUpdates:0.01];
     
     XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        XCTAssertTrue([UADSSensorInfo isAccelerometerActive], @"Accelerometer should be active");
-        [UADSSensorInfo stopAccelerometerUpdates];
+        XCTAssertTrue([USRVSensorInfo isAccelerometerActive], @"Accelerometer should be active");
+        [USRVSensorInfo stopAccelerometerUpdates];
         [delayExpectation fulfill];
     });
     
     [self waitForExpectationsWithTimeout:1 handler:^(NSError * _Nullable error) {
     }];
     
-    XCTAssertFalse([UADSSensorInfo isAccelerometerActive], @"Accelerometer shouldn't be active");
+    XCTAssertFalse([USRVSensorInfo isAccelerometerActive], @"Accelerometer shouldn't be active");
 }
 
 - (void)testAccelerometerData {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"--- IGNORED IN SIMULATOR ---");
         return;
     }
-    [UADSSensorInfo startAccelerometerUpdates:0.01];
+    [USRVSensorInfo startAccelerometerUpdates:0.01];
 
     XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-        XCTAssertTrue([UADSSensorInfo isAccelerometerActive], @"Accelerometer should be active");
+        XCTAssertTrue([USRVSensorInfo isAccelerometerActive], @"Accelerometer should be active");
         
-        NSDictionary *data = [UADSSensorInfo getAccelerometerData];
+        NSDictionary *data = [USRVSensorInfo getAccelerometerData];
         XCTAssertNotNil(data, @"Accelerometer data shouldn't be nil");
         XCTAssertNotNil([data objectForKey:@"x"], @"X value shouldn't be nil");
         XCTAssertNotNil([data objectForKey:@"y"], @"Y value shouldn't be nil");

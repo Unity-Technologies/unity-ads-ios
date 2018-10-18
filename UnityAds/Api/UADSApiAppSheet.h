@@ -1,4 +1,0 @@
-
-
-@interface UADSApiAppSheet : NSObject
-@end

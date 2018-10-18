@@ -3,7 +3,7 @@
 
 static long kMinFileSize = 5000;
 
-@interface MockWebViewApp : UADSWebViewApp
+@interface MockWebViewApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) XCTestExpectation *progressExpectation;
 @property (nonatomic, strong) XCTestExpectation *resumeEndExpectation;
@@ -57,7 +57,7 @@ static long kMinFileSize = 5000;
     return true;
 }
 
-- (BOOL)invokeCallback:(UADSInvocation *)invocation {
+- (BOOL)invokeCallback:(USRVInvocation *)invocation {
     return true;
 }
 @end
@@ -70,18 +70,18 @@ static long kMinFileSize = 5000;
 - (void)setUp {
     [super setUp];
     MockWebViewApp *webApp = [[MockWebViewApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
-    [UADSCacheQueue start];
+    [USRVWebViewApp setCurrentApp:webApp];
+    [USRVCacheQueue start];
 }
 
 - (void)testDownloadFile {
     XCTestExpectation *expectation = [self expectationWithDescription:@"downloadFinishExpectation"];
-    MockWebViewApp *mockApp = (MockWebViewApp *)[UADSWebViewApp getCurrentApp];
+    MockWebViewApp *mockApp = (MockWebViewApp *)[USRVWebViewApp getCurrentApp];
     [mockApp setExpectation:expectation];
-    NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"test.mp4"];
+    NSString *fileName = [NSString stringWithFormat:@"%@/%@", [USRVSdkProperties getCacheDirectory], @"test.mp4"];
     [[NSFileManager defaultManager]removeItemAtPath:fileName error:nil];
     
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
+    [USRVCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
     
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
@@ -91,25 +91,25 @@ static long kMinFileSize = 5000;
 }
 
 - (void)testSetConnectTimeout {
-    [UADSCacheQueue setConnectTimeout:15000];
-    XCTAssertEqual([UADSCacheQueue getConnectTimeout], 15000, "Connect timeout was not the same as expected");
+    [USRVCacheQueue setConnectTimeout:15000];
+    XCTAssertEqual([USRVCacheQueue getConnectTimeout], 15000, "Connect timeout was not the same as expected");
 }
 
 - (void)testResumeDownload {
     XCTestExpectation *expectation = [self expectationWithDescription:@"downloadProgressExpectation"];
-    MockWebViewApp *mockApp = (MockWebViewApp *)[UADSWebViewApp getCurrentApp];
+    MockWebViewApp *mockApp = (MockWebViewApp *)[USRVWebViewApp getCurrentApp];
     [mockApp setProgressExpectation:expectation];
-    NSString *fileName = [NSString stringWithFormat:@"%@/%@", [UADSSdkProperties getCacheDirectory], @"resume_test.mp4"];
+    NSString *fileName = [NSString stringWithFormat:@"%@/%@", [USRVSdkProperties getCacheDirectory], @"resume_test.mp4"];
     [[NSFileManager defaultManager] removeItemAtPath:fileName error:nil];
     
-    [UADSCacheQueue setProgressInterval:50];
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
+    [USRVCacheQueue setProgressInterval:50];
+    [USRVCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         [mockApp setProgressExpectation:nil];
     }];
     
-    [UADSCacheQueue cancelAllDownloads];
+    [USRVCacheQueue cancelAllDownloads];
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
 
     XCTestExpectation *delayExpectation  = [self expectationWithDescription:@"delayEndExpectation"];
@@ -130,7 +130,7 @@ static long kMinFileSize = 5000;
 
     NSDictionary *headers = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSString stringWithFormat:@"bytes=%llu-", fileSize]] forKey:@"Range"];
     
-    [UADSCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:headers append:true];
+    [USRVCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:headers append:true];
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
     }];
@@ -143,7 +143,7 @@ static long kMinFileSize = 5000;
 
 
 - (void)testSetProgressInterval {
-    [UADSCacheQueue setProgressInterval:500];
-    XCTAssertEqual(500, [UADSCacheQueue getProgressInterval], @"Progress interval should be equal to 500");
+    [USRVCacheQueue setProgressInterval:500];
+    XCTAssertEqual(500, [USRVCacheQueue getProgressInterval], @"Progress interval should be equal to 500");
 }
 @end

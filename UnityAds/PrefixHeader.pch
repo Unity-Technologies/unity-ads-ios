@@ -2,6 +2,6 @@
 #define PrefixHeader_pch
 
 #import <Foundation/Foundation.h>
-#import "UADSDeviceLog.h"
+#import "USRVDeviceLog.h"
 
 #endif /* PrefixHeader_pch */

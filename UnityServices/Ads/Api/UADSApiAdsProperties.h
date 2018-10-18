@@ -1,0 +1,3 @@
+@interface UADSApiAdsProperties : NSObject
+
+@end

@@ -17,7 +17,7 @@
 
 - (void)testBasicGetRequest {
     NSString *url = [TestUtilities getTestServerAddress];
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -43,7 +43,7 @@
 
 - (void)testBasicPostRequest {
     NSString *url =  [TestUtilities getTestServerAddress];
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     [request setBody:@"hello=world"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
@@ -69,7 +69,7 @@
 
 - (void)testEmptyGetUrl {
     NSString *url = @"";
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -95,7 +95,7 @@
 
 - (void)testEmptyPostUrl {
     NSString *url = @"";
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -121,7 +121,7 @@
 
 - (void)testNullGetUrl {
     NSString *url = NULL;
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -147,7 +147,7 @@
 
 - (void)testNullPostUrl {
     NSString *url = NULL;
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -173,7 +173,7 @@
 
 - (void)testInvalidGetUrl {
     NSString *url = @"https://www.gougle.fi/";
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -199,7 +199,7 @@
 
 - (void)testInvalidPostUrl {
     NSString *url = @"https://www.gougle.fi/";
-    UADSWebRequest *request = [[UADSWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -225,7 +225,7 @@
 }
 
 - (void)testResolveHost {
-    UADSResolve *resolve = [[UADSResolve alloc] initWithHostName:@"google-public-dns-a.google.com"];
+    USRVResolve *resolve = [[USRVResolve alloc] initWithHostName:@"google-public-dns-a.google.com"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     

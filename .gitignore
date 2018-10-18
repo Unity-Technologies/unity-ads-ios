@@ -78,3 +78,9 @@ UnityAds.framework
 
 # Bundler for Ruby gems
 Gemfile.lock
+
+# intellij products
+.idea/
+
+# Zipped builds
+builds.zip

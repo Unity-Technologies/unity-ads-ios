@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "UADSWebViewCallback.h"
+#import "USRVWebViewCallback.h"
 #import "UADSHybridTest.h"
 
 static BOOL finished = NO;
@@ -7,7 +7,7 @@ static int fails = 0;
 
 @implementation UADSHybridTest : NSObject 
 
-+ (void)WebViewExposed_onTestResult:(NSNumber *)failures callback:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_onTestResult:(NSNumber *)failures callback:(USRVWebViewCallback *)callback {
     fails = [failures intValue];
     finished = YES;
 }

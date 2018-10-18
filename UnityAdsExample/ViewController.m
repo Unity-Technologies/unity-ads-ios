@@ -75,7 +75,6 @@ static int kMediationOrdinal = 1;
         UADSPlayerMetaData *playerMetaData = [[UADSPlayerMetaData alloc] init];
         [playerMetaData setServerId:@"rikshot"];
         [playerMetaData commit];
-        
         UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
         [mediationMetaData setOrdinal:kMediationOrdinal++];
         [mediationMetaData commit];
@@ -99,8 +98,7 @@ static int kMediationOrdinal = 1;
     UADSMetaData *debugMetaData = [[UADSMetaData alloc] init];
     [debugMetaData set:@"test.debugOverlayEnabled" value:@YES];
     [debugMetaData commit];
-    
-    
+
     self.initializeButton.enabled = NO;
     self.initializeButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.gameIdTextField.enabled = NO;
@@ -159,6 +157,5 @@ static int kMediationOrdinal = 1;
     }
     NSLog(@"UnityAds FINISH: %@ - %@", stateString, placementId);
 }
-
 
 @end

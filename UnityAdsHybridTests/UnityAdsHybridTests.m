@@ -7,15 +7,26 @@
 //
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "UADSConfiguration.h"
-#import "UADSClientProperties.h"
-#import "UADSSdkProperties.h"
-#import "UADSInitialize.h"
+#import "USRVConfiguration.h"
+#import "USRVClientProperties.h"
+#import "USRVSdkProperties.h"
+#import "USRVInitialize.h"
 #import "UADSHybridTest.h"
-#import "UADSWebViewApp.h"
+#import "USRVWebViewApp.h"
+#import "UnityAds.h"
+
+@interface MockHybridTestAppConfiguration : USRVConfiguration
+@end
+
+@implementation MockHybridTestAppConfiguration
+- (NSArray<NSString*>*)getWebAppApiClassList {
+    NSMutableArray *apiList = [[NSMutableArray alloc] initWithArray:[super getWebAppApiClassList]];
+    [apiList addObject:@"UADSHybridTest"];
+    return apiList;
+}
+@end
 
 @interface UnityAdsExampleUITests : XCTestCase
-
 @end
 
 @implementation UnityAdsExampleUITests
@@ -39,43 +50,20 @@
 }
 
 - (void)testWebViewHybridSuite {
-    [UADSClientProperties setGameId:@"14850"];
-    //[UADSClientProperties setDelegate:delegate];
-    [UADSSdkProperties setTestMode:YES];
+    [USRVClientProperties setGameId:@"14850"];
+    [USRVSdkProperties setTestMode:YES];
     [UnityAds setDebugMode:YES];
-    UADSConfiguration *configuration = [[UADSConfiguration alloc] init];
-    
-    NSArray *classList = @[
-                           @"UADSApiSdk",
-                           @"UADSApiStorage",
-                           @"UADSApiDeviceInfo",
-                           @"UADSApiPlacement",
-                           @"UADSApiCache",
-                           @"UADSApiUrl",
-                           @"UADSApiListener",
-                           @"UADSApiAdUnit",
-                           @"UADSApiVideoPlayer",
-                           @"UADSApiRequest",
-                           @"UADSApiAppSheet",
-                           @"UADSApiUrlScheme",
-                           @"UADSApiNotification",
-                           @"UADSApiConnectivity",
-                           @"UADSApiPreferences",
-                           @"UADSApiSensorInfo",
-                           @"UADSHybridTest"
-                           ];
-    [UADSSdkProperties setConfigUrl:[UADSSdkProperties getDefaultConfigUrl:@"test"]];
-    
-    [configuration setWebAppApiClassList:classList];
-    [UADSInitialize initialize:configuration];
+    MockHybridTestAppConfiguration *configuration = [[MockHybridTestAppConfiguration alloc] init];
+    [USRVSdkProperties setConfigUrl:[USRVSdkProperties getDefaultConfigUrl:@"test"]];
+    [USRVInitialize initialize:configuration];
     
     // Get a reference to the webview to put it on the screen - fixes an issue where offscreen webviews are throttled to 1 request per second
     NSPredicate *webViewCreatedPredicate = [NSPredicate predicateWithFormat:@"getCurrentApp != nil"];
     
-    XCTestExpectation *expectation = [self expectationForPredicate:webViewCreatedPredicate evaluatedWithObject:[UADSWebViewApp class] handler:nil];
+    XCTestExpectation *expectation = [self expectationForPredicate:webViewCreatedPredicate evaluatedWithObject:[USRVWebViewApp class] handler:nil];
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
         NSLog(@"web view exists");
-        [[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:[UADSWebViewApp getCurrentApp].webView];
+        [[UIApplication sharedApplication].keyWindow.rootViewController.view addSubview:[USRVWebViewApp getCurrentApp].webView];
     }];
     
     NSPredicate *finishedPredicate = [NSPredicate predicateWithFormat: @"didFinish == YES"];

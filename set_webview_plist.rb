@@ -45,7 +45,7 @@ class InfoPlist
 end
 
 # Handle command line arguments
-opts = Trollop::options do
+opts = Optimist::options do
   opt :webview, "Webview that ads sdk will use in the build",
       :type => :string
 end
@@ -53,7 +53,7 @@ end
 webview = opts[:webview]
 
 if !opts[:webview]
-  Trollop::die "Webview not given, exiting"
+  Optimist::die "Webview not given, exiting"
   exit
 end
 

@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface MockWebViewAppForViewControllerTests : UADSWebViewApp
+@interface MockWebViewAppForViewControllerTests : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @end
 
@@ -30,7 +30,7 @@ NSMutableArray<NSString *> *eventArray;
     return true;
 }
 
-- (BOOL)invokeCallback:(UADSInvocation *)invocation {
+- (BOOL)invokeCallback:(USRVInvocation *)invocation {
     return true;
 }
 @end
@@ -43,7 +43,8 @@ NSMutableArray<NSString *> *eventArray;
 
 - (void)setUp {
     MockWebViewAppForViewControllerTests *webApp = [[MockWebViewAppForViewControllerTests alloc] init];
-    [UADSWebViewApp setCurrentApp:webApp];
+    [USRVWebViewApp setCurrentApp:webApp];
+    [webApp setConfiguration:[[USRVConfiguration alloc] init]];
     
     eventArray = nil;
 }
@@ -54,7 +55,7 @@ NSMutableArray<NSString *> *eventArray;
 
 - (void)testLifecycleEvents{
     XCTestExpectation *expectation = [self expectationWithDescription:@"downloadFinishExpectation"];
-    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];
 
     UADSViewController *viewController = [[UADSViewController alloc] init];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:nil];
@@ -75,17 +76,23 @@ NSMutableArray<NSString *> *eventArray;
 
 - (void)testSetViews {
     UADSViewController *viewController = [[UADSViewController alloc] init];
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:nil];
+    XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initWithViewsExpectation"];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:^{
+        [presentExpectation fulfill];
+    }];
     
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
+
     NSArray *views = @[@"videoplayer"];
     
     [viewController setViews:views];
     
     XCTAssertTrue([[[viewController currentViews] objectAtIndex:0] isEqualToString:@"videoplayer"], @"First view should be 'videoplayer'");
     
-    XCTAssertNotNil(viewController.videoView, @"Video view should not be nil");
+    XCTAssertNotNil([(UADSVideoPlayerHandler *)[viewController getViewHandler:@"videoplayer"] videoView], @"Video view should not be nil");
     
-    XCTAssertNotNil(viewController.videoPlayer, @"Video player should not be nil");
+    XCTAssertNotNil([(UADSVideoPlayerHandler *)[viewController getViewHandler:@"videoplayer"] videoPlayer], @"Video player should not be nil");
     
     views = @[@"webview"];
     
@@ -93,16 +100,22 @@ NSMutableArray<NSString *> *eventArray;
     
     XCTAssertTrue([[[viewController currentViews] objectAtIndex:0] isEqualToString:@"webview"], @"First view should be 'webview'");
     
-    XCTAssertNil(viewController.videoView, @"Video view should be nil");
+    XCTAssertNil([(UADSVideoPlayerHandler *)[viewController getViewHandler:@"videoplayer"] videoView], @"Video view should be nil");
     
-    XCTAssertNil(viewController.videoPlayer, @"Video player should be nil");
+    XCTAssertNil([(UADSVideoPlayerHandler *)[viewController getViewHandler:@"videoplayer"] videoPlayer], @"Video player should be nil");
     
-    [viewController dismissViewControllerAnimated:true completion:nil];
+    XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
+    [viewController dismissViewControllerAnimated:true completion:^{
+        [dismissExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    }];
 }
 
 - (void)testInitWithViews {
     XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initWithViewsExpectation"];
-    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];
     NSArray *views = @[@"videoplayer", @"webview"];
 
     UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
@@ -111,7 +124,6 @@ NSMutableArray<NSString *> *eventArray;
     }];
     
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
-        
     }];
     
     XCTAssertTrue([adUnitViewController shouldAutorotate], @"Autorotation should be set to true");
@@ -144,7 +156,7 @@ NSMutableArray<NSString *> *eventArray;
 
 - (void)testSetTransform {
     XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initExpectation"];
-    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];
     NSArray *views = @[@"videoplayer", @"webview"];
     
     UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
@@ -182,8 +194,8 @@ NSMutableArray<NSString *> *eventArray;
     webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
     
     XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initExpectation"];
-    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
-    [[UADSWebViewApp getCurrentApp] setWebView:webView];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];
+    [[USRVWebViewApp getCurrentApp] setWebView:webView];
     NSArray *views = @[@"videoplayer", @"webview"];
     
     UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
@@ -211,15 +223,15 @@ NSMutableArray<NSString *> *eventArray;
     XCTAssertEqual([adUnitViewController view].frame.size.width, 510, "ViewController view width not what was expected");
     XCTAssertEqual([adUnitViewController view].frame.size.height, 520, "ViewController view height not what was expected");
 
-    XCTAssertEqual([adUnitViewController videoView].frame.origin.x, 110, "VideoView view origin x not what was expected");
-    XCTAssertEqual([adUnitViewController videoView].frame.origin.y, 120, "VideoView view origin y not what was expected");
-    XCTAssertEqual([adUnitViewController videoView].frame.size.width, 130, "VideoView view width not what was expected");
-    XCTAssertEqual([adUnitViewController videoView].frame.size.height, 140, "VideoView view height not what was expected");
+    XCTAssertEqual([(UADSVideoPlayerHandler *)[adUnitViewController getViewHandler:@"videoplayer"] videoView].frame.origin.x, 110, "VideoView view origin x not what was expected");
+    XCTAssertEqual([(UADSVideoPlayerHandler *)[adUnitViewController getViewHandler:@"videoplayer"] videoView].frame.origin.y, 120, "VideoView view origin y not what was expected");
+    XCTAssertEqual([(UADSVideoPlayerHandler *)[adUnitViewController getViewHandler:@"videoplayer"] videoView].frame.size.width, 130, "VideoView view width not what was expected");
+    XCTAssertEqual([(UADSVideoPlayerHandler *)[adUnitViewController getViewHandler:@"videoplayer"] videoView].frame.size.height, 140, "VideoView view height not what was expected");
 
-    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.origin.x, 210, "WebView view origin x not what was expected");
-    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.origin.y, 220, "WebView view origin y not what was expected");
-    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.size.width, 230, "WebView view width not what was expected");
-    XCTAssertEqual([[UADSWebViewApp getCurrentApp] webView].frame.size.height, 240, "WebView view height not what was expected");
+    XCTAssertEqual([[USRVWebViewApp getCurrentApp] webView].frame.origin.x, 210, "WebView view origin x not what was expected");
+    XCTAssertEqual([[USRVWebViewApp getCurrentApp] webView].frame.origin.y, 220, "WebView view origin y not what was expected");
+    XCTAssertEqual([[USRVWebViewApp getCurrentApp] webView].frame.size.width, 230, "WebView view width not what was expected");
+    XCTAssertEqual([[USRVWebViewApp getCurrentApp] webView].frame.size.height, 240, "WebView view height not what was expected");
     
     XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
     mockApp.expectation = dismissExpectation;
@@ -232,7 +244,7 @@ NSMutableArray<NSString *> *eventArray;
 
 - (void)testSetHomeIndicatorAutoHidden {
     XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initWithViewsExpectation"];
-    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[UADSWebViewApp getCurrentApp];
+    MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];
     
     UADSViewController *viewController = [[UADSViewController alloc] init];
     

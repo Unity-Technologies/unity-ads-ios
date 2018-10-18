@@ -8,11 +8,11 @@
 
 - (void)setUp {
     [super setUp];
-    NSString *cacheDir = [UADSSdkProperties getCacheDirectory];
-    [UADSStorageManager addStorageLocation:[NSString stringWithFormat:@"%@/test.data", cacheDir] forStorageType:kUnityAdsStorageTypePublic];
-    [UADSStorageManager initStorage:kUnityAdsStorageTypePublic];
+    NSString *cacheDir = [USRVSdkProperties getCacheDirectory];
+    [USRVStorageManager addStorageLocation:[NSString stringWithFormat:@"%@/test.data", cacheDir] forStorageType:kUnityServicesStorageTypePublic];
+    [USRVStorageManager initStorage:kUnityServicesStorageTypePublic];
     
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     if (storage) {
         NSLog(@"Clearing storage");
         [storage clearStorage];
@@ -28,7 +28,7 @@
 }
 
 - (void)testSetAndGetInteger {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithInt:12345];
 
     [storage set:@"tests.integer" value:value];
@@ -44,7 +44,7 @@
 }
 
 - (void)testSetAndGetBoolean {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithBool:true];
     
     [storage set:@"tests.boolean" value:value];
@@ -60,7 +60,7 @@
 }
 
 - (void)testSetAndGetLong {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithLongLong:123451234512345];
     
     [storage set:@"tests.long" value:value];
@@ -76,7 +76,7 @@
 }
 
 - (void)testSetAndGetDouble {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithDouble:12345.12345];
     
     [storage set:@"tests.double" value:value];
@@ -92,7 +92,7 @@
 }
 
 - (void)testSetAndGetString {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSString *value = @"Hello World";
     
     [storage set:@"tests.string" value:value];
@@ -108,7 +108,7 @@
 }
 
 - (void)testSetAndGetDictionary {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSDictionary *value = @{@"testkey": @"testvalue"};
     
     [storage set:@"tests.dictionary" value:value];
@@ -124,7 +124,7 @@
 }
 
 - (void)testSetAndGetArray {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSArray *value = @[@"testvalue1", @"testvalue2"];
     
     [storage set:@"tests.array" value:value];
@@ -140,7 +140,7 @@
 }
 
 - (void)testWriteAndRead {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value1 = [NSNumber numberWithInt:12345];
     NSString *value2 = [NSString stringWithFormat:@"Testing"];
     NSNumber *value3 = [NSNumber numberWithDouble:12345.12345];
@@ -166,7 +166,7 @@
 }
 
 - (void)testMultiLevelValue {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value1 = [NSNumber numberWithInt:12345];
     
     XCTAssertEqual(false, [storage hasData], "Storage should hold no data in the beginning of the test");
@@ -182,7 +182,7 @@
 }
 
 - (void)testSingleLevelValue {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value1 = [NSNumber numberWithInt:12345];
     
     XCTAssertEqual(false, [storage hasData], "Storage should hold no data in the beginning of the test");
@@ -198,7 +198,7 @@
 }
 
 - (void)testGetKeys {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithInt:12345];
     NSArray *expected = @[@"DB62D2FF-F4F3-4050-BC22-EE7242638F71", @"EC71F5DB-D8B8-466B-B878-FEF018298493", @"7D2526C4-8123-4068-B481-0EB9680BE974"];
     
@@ -229,7 +229,7 @@
 }
 
 - (void)testGetKeysNonRecursive {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithInt:12345];
     NSArray *expected = @[@"DB62D2FF-F4F3-4050-BC22-EE7242638F71", @"EC71F5DB-D8B8-466B-B878-FEF018298493", @"7D2526C4-8123-4068-B481-0EB9680BE974"];
     
@@ -276,7 +276,7 @@
 }
 
 - (void)testGetKeysRecursive {
-    UADSStorage *storage = [UADSStorageManager getStorage:kUnityAdsStorageTypePublic];
+    USRVStorage *storage = [USRVStorageManager getStorage:kUnityServicesStorageTypePublic];
     NSNumber *value = [NSNumber numberWithInt:12345];
     NSArray *expected = @[@"DB62D2FF-F4F3-4050-BC22-EE7242638F71",
                           @"DB62D2FF-F4F3-4050-BC22-EE7242638F71.ts",

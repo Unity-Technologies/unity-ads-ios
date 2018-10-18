@@ -47,7 +47,7 @@ class InfoPlist
 end
 
 # Handle command line arguments
-opts = Trollop::options do
+opts = Optimist::options do
   opt :server, "Set test-server address (for example: terminal.applifier.info (no leading 'http://'))", :type => :string
   opt :port, "Set test-server port", :type => :int
   opt :clear, "Clear testing entries from plist"
@@ -65,5 +65,5 @@ if opts[:server]
   ip.set_server(opts[:server], opts[:port])
   ip.to_file
 else
-  Trollop::die "Please set server-address"
+  Optimist::die "Please set server-address"
 end

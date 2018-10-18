@@ -8,10 +8,10 @@
 
 static BOOL apiInvoked = false;
 static NSString *apiValue = NULL;
-static UADSWebViewCallback *apiCallback = NULL;
+static USRVWebViewCallback *apiCallback = NULL;
 static int apiCallbackCount = 0;
 
-+ (void)WebViewExposed_apiTestMethod:(NSString *)value callback:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_apiTestMethod:(NSString *)value callback:(USRVWebViewCallback *)callback {
     apiInvoked = true;
     apiValue = value;
     apiCallback = callback;
@@ -20,7 +20,7 @@ static int apiCallbackCount = 0;
     [callback invoke:value, nil];
 }
 
-+ (void)WebViewExposed_apiTestMethodNoParams:(UADSWebViewCallback *)callback {
++ (void)WebViewExposed_apiTestMethodNoParams:(USRVWebViewCallback *)callback {
     apiInvoked = true;
     apiValue = NULL;
     apiCallback = callback;
@@ -81,20 +81,32 @@ static NSString *nativeCallbackValue = NULL;
 @interface UrlProtocolTests : XCTestCase
 @end
 
+@interface MethodInvokeMockConfiguration : USRVConfiguration
+@end
+
+@implementation MethodInvokeMockConfiguration
+
+- (NSArray<NSString*>*)getWebAppApiClassList {
+    NSMutableArray<NSString*>* apiClassList = [[NSMutableArray alloc] initWithArray:[super getWebAppApiClassList]];
+    [apiClassList addObject:@"WebViewBridgeTestApi"];
+    return apiClassList;
+}
+
+@end
+
 @implementation UrlProtocolTests
 
 - (void)setUp {
     [super setUp];
-    UADSConfiguration *config = [[UADSConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
-    [config setWebAppApiClassList:@[@"WebViewBridgeTestApi"]];
+    MethodInvokeMockConfiguration *config = [[MethodInvokeMockConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
     UrlProtocolMockWebView *mockWebView = [[UrlProtocolMockWebView alloc] init];
     __block __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [UADSWebViewApp create:config];
-        [[UADSWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[UADSWebViewApp getCurrentApp] setWebAppInitialized:true];
-        [[UADSWebViewApp getCurrentApp] setWebView:mockWebView];
+        [USRVWebViewApp create:config];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [[USRVWebViewApp getCurrentApp] setWebView:mockWebView];
         [expectation fulfill];
     });
     
@@ -114,11 +126,11 @@ static NSString *nativeCallbackValue = NULL;
     apiCallback = NULL;
     apiCallbackCount = 0;
     
-    [UADSWebViewApp setCurrentApp:NULL];
+    [USRVWebViewApp setCurrentApp:NULL];
 }
 
 - (void)testHandleInvocationShouldFailParametersNull {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"[[\"WebViewBridgeTestApi\", \"apiTestMethodNoParams\", null, \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -134,7 +146,7 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleInvocationShouldFailParametersEmpty {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"[[\"WebViewBridgeTestApi\", \"apiTestMethodNoParams\", \"\", \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -150,7 +162,7 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleInvocationShouldFailInvalidSelector {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"[[\"WebViewBridgeTestApi\", \"apiTestMethodNoParamz\", [], \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -163,7 +175,7 @@ static NSString *nativeCallbackValue = NULL;
     }
     
     __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    [(UrlProtocolMockWebView *)[[UADSWebViewApp getCurrentApp] webView] setExpectation:expectation];
+    [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -171,13 +183,13 @@ static NSString *nativeCallbackValue = NULL;
         }
     }];
     
-    NSString *jsString = [(UrlProtocolMockWebView *)[[UADSWebViewApp getCurrentApp] webView] lastJSString];
+    NSString *jsString = [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] lastJSString];
     XCTAssertTrue([jsString rangeOfString:@"ERROR"].location != NSNotFound, @"Last JSString should contain 'ERROR'");
     XCTAssertTrue([jsString rangeOfString:@"InvalidInvocationException"].location != NSNotFound, @"Last JSString should contain 'InvalidInvocationException'");
 }
 
 - (void)testHandleInvocationShouldFailInvalidClass {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"[[\"WebViewBridgeTestApiz\", \"apiTestMethodNoParams\", [], \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -190,7 +202,7 @@ static NSString *nativeCallbackValue = NULL;
     }
     
     __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    [(UrlProtocolMockWebView *)[[UADSWebViewApp getCurrentApp] webView] setExpectation:expectation];
+    [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -198,13 +210,13 @@ static NSString *nativeCallbackValue = NULL;
         }
     }];
     
-    NSString *jsString = [(UrlProtocolMockWebView *)[[UADSWebViewApp getCurrentApp] webView] lastJSString];
+    NSString *jsString = [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] lastJSString];
     XCTAssertTrue([jsString rangeOfString:@"ERROR"].location != NSNotFound, @"Last JSString should contain 'ERROR'");
     XCTAssertTrue([jsString rangeOfString:@"InvalidInvocationException"].location != NSNotFound, @"Last JSString should contain 'InvalidInvocationException'");
 }
 
 - (void)testHandleInvocationShouldSucceed {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"[[\"WebViewBridgeTestApi\", \"apiTestMethodNoParams\", [], \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -222,7 +234,7 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleInvocationWithParamsShouldSucceed {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"[[\"WebViewBridgeTestApi\", \"apiTestMethod\", [\"test\"], \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -241,7 +253,7 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleCallbackShouldFailParametersNull {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"{\"id\":1,\"status\":\"OK\",\"parameters\":null}";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -257,7 +269,7 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleCallbackShouldFailParametersEmpty {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
     NSString *jsonString = @"{\"id\":1,\"status\":\"OK\",\"parameters\":\"\"}";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
@@ -273,8 +285,8 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleCallbackShouldFailCallbackNotAdded {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
-    UADSNativeCallback *nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[]}", [nativeCallback callbackId]];
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -291,9 +303,9 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleCallbackShouldFailMethodNotStatic {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
-    UADSNativeCallback *nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"instanceTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
-    [[UADSWebViewApp getCurrentApp] addCallback:nativeCallback];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"instanceTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    [[USRVWebViewApp getCurrentApp] addCallback:nativeCallback];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[]}", [nativeCallback callbackId]];
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -310,9 +322,9 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleCallbackShouldSucceed {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
-    UADSNativeCallback *nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
-    [[UADSWebViewApp getCurrentApp] addCallback:nativeCallback];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    [[USRVWebViewApp getCurrentApp] addCallback:nativeCallback];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[]}", [nativeCallback callbackId]];
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -331,9 +343,9 @@ static NSString *nativeCallbackValue = NULL;
 }
 
 - (void)testHandleCallbackWithParamsShouldSucceed {
-    UADSWebViewMethodInvokeHandler *handler = [[UADSWebViewMethodInvokeHandler alloc] init];
-    UADSNativeCallback *nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"staticTestHandleCallbackStringParam:" receiverClass:@"UrlProtocolTestsCallbacks"];
-    [[UADSWebViewApp getCurrentApp] addCallback:nativeCallback];
+    USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"staticTestHandleCallbackStringParam:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    [[USRVWebViewApp getCurrentApp] addCallback:nativeCallback];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[\"test\", 1]}", [nativeCallback callbackId]];
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];

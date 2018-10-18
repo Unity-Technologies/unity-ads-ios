@@ -1,0 +1,2 @@
+@interface USRVApiPermissions : NSObject
+@end

@@ -29,14 +29,13 @@ static NSArray *nativeCallbackParams = NULL;
 - (void)setUp {
     [super setUp];
     
-    UADSConfiguration *config = [[UADSConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
-    [config setWebAppApiClassList:@[@"NativeCallbackTestsCallbacks"]];
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [UADSWebViewApp create:config];
-        [[UADSWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[UADSWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [USRVWebViewApp create:config];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [expectation fulfill];
     });
     
@@ -46,15 +45,15 @@ static NSArray *nativeCallbackParams = NULL;
 
 - (void)tearDown {
     [super tearDown];
-    [UADSWebViewApp setCurrentApp:NULL];
+    [USRVWebViewApp setCurrentApp:NULL];
 }
 
 - (void)testNullCallback {
-    UADSNativeCallback *nativeCallback = NULL;
+    USRVNativeCallback *nativeCallback = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[UADSNativeCallback alloc] initWithCallback:NULL receiverClass:@"test"];
+        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:NULL receiverClass:@"test"];
     }
     @catch (NSException *exception) {
         receivedException = exception;
@@ -64,11 +63,11 @@ static NSArray *nativeCallbackParams = NULL;
 }
 
 - (void)testNullReceiverClass {
-    UADSNativeCallback *nativeCallback = NULL;
+    USRVNativeCallback *nativeCallback = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"test" receiverClass:NULL];
+        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"test" receiverClass:NULL];
     }
     @catch (NSException *exception) {
         receivedException = exception;
@@ -78,11 +77,11 @@ static NSArray *nativeCallbackParams = NULL;
 }
 
 - (void)testInvalidMethodParamsSignatureOK {
-    UADSNativeCallback *nativeCallback = NULL;
+    USRVNativeCallback *nativeCallback = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"invalidResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
+        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"invalidResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
         [nativeCallback invokeWithStatus:@"OK" params:@[]];
     }
     @catch (NSException *exception) {
@@ -96,11 +95,11 @@ static NSArray *nativeCallbackParams = NULL;
 }
 
 - (void)testInvalidMethodOK {
-    UADSNativeCallback *nativeCallback = NULL;
+    USRVNativeCallback *nativeCallback = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"invalidResponseMethod" receiverClass:@"NativeCallbackTestsCallbacks"];
+        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"invalidResponseMethod" receiverClass:@"NativeCallbackTestsCallbacks"];
         [nativeCallback invokeWithStatus:@"OK" params:@[]];
     }
     @catch (NSException *exception) {
@@ -114,8 +113,8 @@ static NSArray *nativeCallbackParams = NULL;
 }
 
 - (void)testValidMethodOK {
-    UADSNativeCallback *nativeCallback = NULL;
-    nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"validResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
+    USRVNativeCallback *nativeCallback = NULL;
+    nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"validResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
     [nativeCallback invokeWithStatus:@"OK" params:@[@"We are okay"]];
     
     XCTAssertTrue(nativeCallbackInvoked, @"Native callback should have been invoked");
@@ -124,8 +123,8 @@ static NSArray *nativeCallbackParams = NULL;
 }
 
 - (void)testValidMethodERROR {
-    UADSNativeCallback *nativeCallback = NULL;
-    nativeCallback = [[UADSNativeCallback alloc] initWithCallback:@"validResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
+    USRVNativeCallback *nativeCallback = NULL;
+    nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"validResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
     [nativeCallback invokeWithStatus:@"ERROR" params:@[@"We are broken"]];
     
     XCTAssertTrue(nativeCallbackInvoked, @"Native callback should have been invoked");

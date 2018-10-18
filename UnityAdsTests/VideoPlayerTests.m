@@ -1,11 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
-#import "UADSWebViewApp.h"
-#import "UADSAVPlayer.h"
-#import "UADSVideoView.h"
-#import "UADSViewController.h"
 
-@interface VideoPlayerTestsWebApp : UADSWebViewApp
+@interface VideoPlayerTestsWebApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSString *fulfillingEvent;
 @property (nonatomic, strong) NSString *collectEvents;
@@ -26,7 +22,7 @@
     return self;
 }
 
-- (BOOL)invokeCallback:(UADSInvocation *)invocation {
+- (BOOL)invokeCallback:(USRVInvocation *)invocation {
     return true;
 }
 
@@ -79,7 +75,7 @@
 static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/invalid_video_url.mp4";
 
 - (BOOL)waitForViewControllerStart {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping videoview controller start");
         return YES;
     }
@@ -90,8 +86,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     __block BOOL success = true;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
-        [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"VIEW_CONTROLLER_DID_APPEAR"];
-        [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:expectation];
+        [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"VIEW_CONTROLLER_DID_APPEAR"];
+        [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
             if (error) {
                 success = false;
@@ -103,7 +99,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (BOOL)waitForViewControllerExit {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping videoview controller exit");
         return YES;
     }
@@ -113,8 +109,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     __block BOOL success = true;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
-        [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"VIEW_CONTROLLER_DID_DISAPPEAR"];
-        [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:expectation];
+        [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"VIEW_CONTROLLER_DID_DISAPPEAR"];
+        [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
             if (error) {
                 success = false;
@@ -128,15 +124,15 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 - (void)setUp {
     [super setUp];
     
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping setUp");
         return;
     }
     
     VideoPlayerTestsWebApp *webViewApp = [[VideoPlayerTestsWebApp alloc] init];
-    [UADSWebViewApp setCurrentApp:webViewApp];
-    [[UADSWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[UADSWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [USRVWebViewApp setCurrentApp:webViewApp];
+    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
     
     [self setVideoView:[[UADSVideoView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]];
     [self.videoView setVideoFillMode:AVLayerVideoGravityResizeAspect];
@@ -150,7 +146,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 - (void)tearDown {
     [super tearDown];
     
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping tearDown");
         return;
     }
@@ -163,7 +159,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testConstruct {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -178,7 +174,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testPrepare {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -192,8 +188,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:expectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:expectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -209,7 +205,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testPrepareAndPlay {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -223,8 +219,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -238,8 +234,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *playExpectation = [self expectationWithDescription:@"playExpectation"];
     [self.videoPlayer play];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:playExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"COMPLETED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:playExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"COMPLETED"];
 
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -254,7 +250,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testPrepareAndPlayNonExistingUrl {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -268,8 +264,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:invalidVideoUrl initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"GENERIC_ERROR"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"GENERIC_ERROR"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -285,7 +281,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testPreparePlaySeekToPause {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -299,8 +295,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -316,8 +312,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     XCTestExpectation *seekExpectation = [self expectationWithDescription:@"seekExpectation"];
     [self performSelector:@selector(seekVideoPlayerTo4080) withObject:self afterDelay:1];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:seekExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"SEEKTO"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:seekExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"SEEKTO"];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -341,7 +337,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testPreparePlayStop {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -355,8 +351,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -365,14 +361,14 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         }
     }];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:NULL];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:NULL];
     XCTAssertTrue(success, @"Prepare expectation was not opened properly or an error occurred!");
     
     [self.videoPlayer play];
     
     XCTestExpectation *stopExpectation = [self expectationWithDescription:@"stopExpectation"];
     [self performSelector:@selector(stopVideoPlayer) withObject:self afterDelay:2];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:stopExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:stopExpectation];
 
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -388,11 +384,11 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 
 - (void)stopVideoPlayer {
     [self.videoPlayer stop];
-    [[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] expectation] fulfill];
+    [[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] expectation] fulfill];
 }
 
 - (void)testPreparePlaySetVolumePause {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -406,8 +402,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -416,14 +412,14 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         }
     }];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:NULL];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:NULL];
     XCTAssertTrue(success, @"Prepare expectation was not opened properly or an error occurred!");
     
     [self.videoPlayer play];
     
     XCTestExpectation *volumeExpectation = [self expectationWithDescription:@"volumeExpectation"];
     [self performSelector:@selector(setVideoPlayerVolumeTo0666) withObject:self afterDelay:2];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:volumeExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:volumeExpectation];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -441,11 +437,11 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 - (void)setVideoPlayerVolumeTo0666 {
     [self.videoPlayer setVolume:0.666f];
     [self.videoPlayer pause];
-    [[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] expectation] fulfill];
+    [[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] expectation] fulfill];
 }
 
 - (void)testSetProgressInterval {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -460,8 +456,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -470,15 +466,15 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         }
     }];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:NULL];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:NULL];
     XCTAssertTrue(success, @"Prepare expectation was not opened properly or an error occurred!");
     
     XCTestExpectation *playExpectation = [self expectationWithDescription:@"playExpectation"];
     [self.videoPlayer play];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:playExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setCollectEvents:@"PROGRESS"];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"COMPLETED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:playExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setCollectEvents:@"PROGRESS"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"COMPLETED"];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -487,13 +483,13 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     }];
     
     double totalDiff = 0;
-    double totalValueCount = [[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] collectedEvents] count];
-    double baseValue = [[[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] collectedEvents] objectAtIndex:0] longLongValue];
-    for (int idx = 1; idx < [[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] collectedEvents] count]; idx++) {
-        double current = [[[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] collectedEvents] objectAtIndex:idx] longLongValue];
+    double totalValueCount = [[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] count];
+    double baseValue = [[[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] objectAtIndex:0] longLongValue];
+    for (int idx = 1; idx < [[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] count]; idx++) {
+        double current = [[[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] objectAtIndex:idx] longLongValue];
         double currentDiff = baseValue - current;
         totalDiff += currentDiff;
-        baseValue = [[[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] collectedEvents] objectAtIndex:idx] longLongValue];
+        baseValue = [[[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] objectAtIndex:idx] longLongValue];
     }
     
     XCTAssertTrue(success, @"Play expectation was not opened properly or an error occurred!");
@@ -503,7 +499,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 }
 
 - (void)testPreparePlayPause {
-    if ([UADSDevice isSimulator]) {
+    if ([USRVDevice isSimulator]) {
         NSLog(@"Device is simulator, Skipping a videoview test");
         return;
     }
@@ -517,8 +513,8 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:prepareExpectation];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
     
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -527,14 +523,14 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         }
     }];
     
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setFulfillingEvent:NULL];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:NULL];
     XCTAssertTrue(success, @"Prepare expectation was not opened properly or an error occurred!");
     
     [self.videoPlayer play];
     
     XCTestExpectation *pauseExpectation = [self expectationWithDescription:@"pauseExpectation"];
     [self performSelector:@selector(pauseVideoPlayer) withObject:self afterDelay:2];
-    [(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] setExpectation:pauseExpectation];
+    [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:pauseExpectation];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
@@ -551,7 +547,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 
 - (void)pauseVideoPlayer {
     [self.videoPlayer pause];
-    [[(VideoPlayerTestsWebApp *)[UADSWebViewApp getCurrentApp] expectation] fulfill];
+    [[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] expectation] fulfill];
 }
 
 @end

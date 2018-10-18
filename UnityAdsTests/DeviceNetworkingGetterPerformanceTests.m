@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "UADSDevice.h"
+#import "USRVDevice.h"
 
 @interface DeviceNetworkingGetterPerformanceTests : XCTestCase
 
@@ -9,31 +9,31 @@
 
 - (void)testPerformanceGetNetworkOperator {
     [self measureBlock:^{
-        [UADSDevice getNetworkOperator];
+        [USRVDevice getNetworkOperator];
     }];
 }
 
 - (void)testPerformanceIsUsingWifi {
     [self measureBlock:^{
-        [UADSDevice isUsingWifi];
+        [USRVDevice isUsingWifi];
     }];
 }
 
 - (void)testPerformanceGetNetworkType {
     [self measureBlock:^{
-        [UADSDevice getNetworkType];
+        [USRVDevice getNetworkType];
     }];
 }
 
 - (void)testPerformanceGetNetworkOperatorName {
     [self measureBlock:^{
-        [UADSDevice getNetworkOperatorName];
+        [USRVDevice getNetworkOperatorName];
     }];
 }
 
 - (void)testPerformanceIsActiveNetworkConnected {
     [self measureBlock:^{
-        [UADSDevice isActiveNetworkConnected];
+        [USRVDevice isActiveNetworkConnected];
     }];
 }
 

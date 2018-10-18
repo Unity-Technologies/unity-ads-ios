@@ -1,0 +1,2 @@
+@interface UADSApiBannerListener : NSObject
+@end

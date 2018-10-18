@@ -3,7 +3,7 @@
 @implementation TestUtilities
 
 + (NSString *)getTestServerAddress {
-    NSString *testServerAddress = [NSString stringWithFormat:@"%@", @"http://terminal.applifier.info:18080"];
+    NSString *testServerAddress = [NSString stringWithFormat:@"%@", @"http://unity-ads-test-server.unityads.unity3d.com"];
     
     if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:@"UADSTestServerAddress"] isKindOfClass:[NSString class]]) {
         testServerAddress = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UADSTestServerAddress"];

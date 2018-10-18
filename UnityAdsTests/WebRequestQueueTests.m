@@ -8,7 +8,7 @@
 
 - (void)setUp {
     [super setUp];
-    [UADSWebRequestQueue start];
+    [USRVWebRequestQueue start];
 }
 
 - (void)tearDown {
@@ -19,7 +19,7 @@
     __block NSString *targetUrl = [TestUtilities getTestServerAddress];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     
-    [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
+    [USRVWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
         XCTAssertEqual(targetUrl, url, "Returned url and requested url should be the same");
         [expectation fulfill];
     } connectTimeout:30000];
@@ -40,27 +40,27 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     NSMutableArray *completions = [[NSMutableArray alloc] init];
 
-    [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
+    [USRVWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
         [completions addObject:[NSNumber numberWithInt:1]];
         XCTAssertEqual(targetUrl, url, "Returned url and requested url should be the same");
     } connectTimeout:30000];
     
-    [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
+    [USRVWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
         [completions addObject:[NSNumber numberWithInt:2]];
         XCTAssertEqual(targetUrl, url, "Returned url and requested url should be the same");
     } connectTimeout:30000];
 
-    [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
+    [USRVWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
         [completions addObject:[NSNumber numberWithInt:3]];
         XCTAssertEqual(targetUrl, url, "Returned url and requested url should be the same");
     } connectTimeout:30000];
 
-    [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
+    [USRVWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
         [completions addObject:[NSNumber numberWithInt:4]];
         XCTAssertEqual(targetUrl, url, "Returned url and requested url should be the same");
     } connectTimeout:30000];
 
-    [UADSWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
+    [USRVWebRequestQueue requestUrl:targetUrl type:@"GET" headers:NULL body:NULL completeBlock:^(NSString *url, NSError *error, NSString *response, long responseCode, NSDictionary<NSString *,NSString *> *headers) {
         [completions addObject:[NSNumber numberWithInt:5]];
         XCTAssertEqual(targetUrl, url, "Returned url and requested url should be the same");
         [expectation fulfill];

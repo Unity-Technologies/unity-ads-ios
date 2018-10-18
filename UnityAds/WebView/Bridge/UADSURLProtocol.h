@@ -1,5 +1,0 @@
-
-
-@interface UADSURLProtocol : NSURLProtocol
-
-@end
