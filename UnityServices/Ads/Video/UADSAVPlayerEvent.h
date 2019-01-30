@@ -13,7 +13,7 @@ typedef NS_ENUM(NSInteger, UnityAdsAVPlayerEvent) {
     kUnityAdsAVPlayerEventStop
 };
 
-NSString *NSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent);
+NSString *UADSNSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent);
 
 typedef NS_ENUM(NSInteger, UnityAdsAVPlayerError) {
     kUnityAdsAVPlayerPrepareError,
@@ -21,4 +21,4 @@ typedef NS_ENUM(NSInteger, UnityAdsAVPlayerError) {
     kUnityAdsAVPlayerGenericError
 };
 
-NSString *NSStringFromAVPlayerError(UnityAdsAVPlayerError);
+NSString *UADSNSStringFromAVPlayerError(UnityAdsAVPlayerError);

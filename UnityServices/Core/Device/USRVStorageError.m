@@ -7,7 +7,7 @@ static NSString *couldntClearStorage = @"COULDNT_CLEAR_STORAGE";
 static NSString *couldntGetStorage = @"COULDNT_GET_STORAGE";
 static NSString *couldntDeleteValue = @"COULDNT_DELETE_VALUE";
 
-NSString *NSStringFromStorageError(UnityServicesStorageError error) {
+NSString *USRVNSStringFromStorageError(UnityServicesStorageError error) {
     switch (error) {
         case kUnityServicesCouldntSetValue:
             return couldntSetValue;

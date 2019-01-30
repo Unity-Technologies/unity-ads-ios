@@ -5,7 +5,7 @@ static NSString *opened = @"OPENED";
 static NSString *closed = @"CLOSED";
 static NSString *failed = @"FAILED";
 
-NSString *NSStringFromAppSheetEvent(UnityServicesAppSheetEvent event) {
+NSString *USRVNSStringFromAppSheetEvent(UnityServicesAppSheetEvent event) {
     switch (event) {
         case kAppSheetPrepared:
             return prepared;

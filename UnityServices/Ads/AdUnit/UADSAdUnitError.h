@@ -8,5 +8,5 @@ typedef NS_ENUM(NSInteger, UnityAdsAdUnitError) {
     kUnityAdsAdUnitApiLevelError
 };
 
-NSString *NSStringFromAdUnitError(UnityAdsAdUnitError);
+NSString *UADSNSStringFromAdUnitError(UnityAdsAdUnitError);
 

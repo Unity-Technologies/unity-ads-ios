@@ -9,4 +9,4 @@ typedef NS_ENUM(NSInteger, UnityAdsWebPlayerEvent) {
     kUnityAdsWebPlayerCreateWebView
 };
 
-NSString *NSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent);
+NSString *UADSNSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent);

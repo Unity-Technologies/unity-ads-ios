@@ -3,4 +3,4 @@ typedef NS_ENUM(NSInteger, UnityServicesDeviceError) {
     kUnityServicesCouldntGetProcessInfo
 };
 
-NSString *NSStringFromDeviceError(UnityServicesDeviceError);
+NSString *USRVNSStringFromDeviceError(UnityServicesDeviceError);

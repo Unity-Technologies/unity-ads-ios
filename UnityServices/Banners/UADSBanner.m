@@ -4,6 +4,9 @@
 #import "UADSWebViewBannerHideOperation.h"
 #import "USRVWebViewMethodInvokeQueue.h"
 #import "UADSPlacement.h"
+#import "UADSBannerView.h"
+#import "USRVClientProperties.h"
+#import "UADSBannerPosition.h"
 
 @implementation UnityAdsBanner
 
@@ -28,6 +31,10 @@
             [self handleShowError:placementId message:message];
         }
     }
+}
+
++(void)setBannerPosition:(UnityAdsBannerPosition)bannerPosition {
+    [USRVClientProperties setBannerDefaultPosition:bannerPosition];
 }
 
 +(void)destroy {

@@ -11,7 +11,7 @@ typedef NS_ENUM(NSInteger, UnityServicesCacheError) {
     kUnityServicesFileStateWrong
 };
 
-NSString *NSStringFromCacheError(UnityServicesCacheError error);
+NSString *USRVNSStringFromCacheError(UnityServicesCacheError error);
 
 @interface USRVApiCache : NSObject
 @end

@@ -7,7 +7,7 @@ NSString *bannerDestroyed = @"BANNER_DESTROYED";
 NSString *bannerAttached = @"BANNER_ATTACHED";
 NSString *bannerDetached = @"BANNER_DETACHED";
 
-NSString *NSStringFromBannerEvent(UnityAdsBannerEvent event) {
+NSString *UADSNSStringFromBannerEvent(UnityAdsBannerEvent event) {
     switch (event) {
         case kUnityAdsBannerEventResized:
             return bannerResized;

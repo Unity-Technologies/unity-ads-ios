@@ -14,7 +14,7 @@
     if (preferenceValue != nil) {
         [callback invoke:preferenceValue, nil];
     } else {
-        [callback error:NSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
+        [callback error:USRVNSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
     }
 }
 
@@ -23,7 +23,7 @@
     if (preferenceValue != nil) {
         [callback invoke:preferenceValue, nil];
     } else {
-        [callback error:NSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
+        [callback error:USRVNSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
     }
 }
 
@@ -32,7 +32,7 @@
     if (preferenceValue != nil) {
         [callback invoke:preferenceValue, nil];
     } else {
-        [callback error:NSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
+        [callback error:USRVNSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
     }
 }
 
@@ -41,7 +41,7 @@
     if (preferenceValue != nil) {
         [callback invoke:preferenceValue, nil];
     } else {
-        [callback error:NSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
+        [callback error:USRVNSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
     }
 }
 
@@ -50,7 +50,7 @@
     if (preferenceValue != nil) {
         [callback invoke:preferenceValue, nil];
     } else {
-        [callback error:NSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
+        [callback error:USRVNSStringFromPreferencesError(kUnityServicesPreferencesCouldntGetValue) arg1:nil];
     }
 }
 

@@ -24,7 +24,7 @@
     if(accelerometerData != nil) {
         [callback invoke:accelerometerData, nil];
     } else {
-        [callback error:NSStringFromSensorInfoError(kUnityServicesAccelerometerDataNotAvailable) arg1:nil];
+        [callback error:USRVNSStringFromSensorInfoError(kUnityServicesAccelerometerDataNotAvailable) arg1:nil];
     }
 }
 

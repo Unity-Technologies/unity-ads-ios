@@ -52,8 +52,23 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /**
+ * An enumeration for the various ways to position the Unity Ads banner placement.
+ */
+typedef NS_ENUM(NSInteger, UnityAdsBannerPosition) {
+    kUnityAdsBannerPositionTopLeft,
+    kUnityAdsBannerPositionTopCenter,
+    kUnityAdsBannerPositionTopRight,
+    kUnityAdsBannerPositionBottomLeft,
+    kUnityAdsBannerPositionBottomCenter,
+    kUnityAdsBannerPositionBottomRight,
+    kUnityAdsBannerPositionCenter,
+    kUnityAdsBannerPositionNone
+};
+
+/**
  * UnityAdsBanner is a static class for handling showing and hiding the Unity Ads banner.
  */
+
 @interface UnityAdsBanner : NSObject
 
 /**
@@ -66,6 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param placementId The placement ID, as defined in the Unity Ads admin tools.
  */
 +(void)loadBanner:(NSString *)placementId;
+
++(void)setBannerPosition:(UnityAdsBannerPosition)bannerPosition;
 
 /**
  * Destroys the banner.

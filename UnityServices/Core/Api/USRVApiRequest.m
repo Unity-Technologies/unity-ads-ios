@@ -26,7 +26,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
     NSDictionary *mappedHeaders = [USRVApiRequest getHeadersMap:headers];
 
     if (!mappedHeaders) {
-        [callback error:NSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed) arg1:nil];
+        [callback error:USRVNSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed) arg1:nil];
         return;
     }
 
@@ -51,7 +51,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
     NSDictionary *mappedHeaders = [USRVApiRequest getHeadersMap:headers];
 
     if (!mappedHeaders) {
-        [callback error:NSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed) arg1:nil];
+        [callback error:USRVNSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed) arg1:nil];
         return;
     }
 
@@ -77,7 +77,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
     NSDictionary *mappedHeaders = [USRVApiRequest getHeadersMap:headers];
 
     if (!mappedHeaders) {
-        [callback error:NSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed) arg1:nil];
+        [callback error:USRVNSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed) arg1:nil];
         return;
     }
 
@@ -146,7 +146,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
         return;
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityServicesWebRequestEventComplete)
+    [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromWebRequestEvent(kUnityServicesWebRequestEventComplete)
                                          category:webRequestEventCategory
                                            param1:requestId,
             url,
@@ -169,7 +169,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
         }
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebRequestEvent(kUnityServicesWebRequestEventFailed)
+    [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromWebRequestEvent(kUnityServicesWebRequestEventFailed)
                                      category:webRequestEventCategory
                                        param1:requestId,
         url,

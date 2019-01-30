@@ -7,7 +7,7 @@ static NSString *unityAdsViewWillDisappear = @"VIEW_CONTROLLER_WILL_DISAPPEAR";
 static NSString *unityAdsViewDidDisappear = @"VIEW_CONTROLLER_DID_DISAPPEAR";
 static NSString *unityAdsViewDidReceiveMemoryWarning = @"VIEW_CONTROLLER_DID_RECEIVE_MEMORY_WARNING";
 
-NSString *NSStringFromAdUnitEvent(UnityAdsAdUnitEvent event) {
+NSString *UADSNSStringFromAdUnitEvent(UnityAdsAdUnitEvent event) {
     switch (event) {
         case kUnityAdsViewControllerInit:
             return unityAdsViewInit;

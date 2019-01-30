@@ -17,7 +17,7 @@ static NSString *prepareTimeout = @"PREPARE_TIMEOUT";
 static NSString *genericError = @"GENERIC_ERROR";
 
 
-NSString *NSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent event) {
+NSString *UADSNSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent event) {
     switch (event) {
         case kUnityAdsAVPlayerEventPrepared:
             return eventPrepared;
@@ -42,7 +42,7 @@ NSString *NSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent event) {
     }
 }
 
-NSString *NSStringFromAVPlayerError(UnityAdsAVPlayerError error) {
+NSString *UADSNSStringFromAVPlayerError(UnityAdsAVPlayerError error) {
     switch (error) {
         case kUnityAdsAVPlayerPrepareError:
             return prepareError;

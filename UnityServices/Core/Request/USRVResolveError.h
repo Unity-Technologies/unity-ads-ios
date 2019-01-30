@@ -6,4 +6,4 @@ typedef NS_ENUM(NSInteger, UnityServicesResolveError) {
     kUnityServicesResolveErrorInvalidHost
 };
 
-NSString *NSStringFromResolveError(UnityServicesResolveError);
+NSString *USRVNSStringFromResolveError(UnityServicesResolveError);

@@ -4,6 +4,7 @@
 @implementation USRVClientProperties
 
 static NSString *_gameId = @"-1";
+static UnityAdsBannerPosition _bannerDefaultPosition = kUnityAdsBannerPositionNone;
 __weak static UIViewController *_currentViewController = nil;
 
 + (void)setGameId:(NSString *)gid {
@@ -46,4 +47,11 @@ __weak static UIViewController *_currentViewController = nil;
     return _currentViewController;
 }
 
++ (void)setBannerDefaultPosition:(UnityAdsBannerPosition)position {
+    _bannerDefaultPosition = position;
+}
+
++ (UnityAdsBannerPosition)getbannerDefaultPosition {
+    return _bannerDefaultPosition;
+}
 @end

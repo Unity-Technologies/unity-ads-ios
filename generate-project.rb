@@ -144,6 +144,8 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   # Construct targets
   framework_target = project.new_target(:framework, project_name, :ios)
   framework_test_target = project.new_target(:unit_test_bundle, project_name + "Tests", :ios)
+  integration_test_target_name = 'UnityAdsIntegrationTests'
+  framework_integration_test_target = project.new_target(:unit_test_bundle, project_name + "IntegrationTests", :ios)
   @framework_example_target = project.new_target(:application, project_name + "Example", :ios)
   @framework_monetization_example_target = project.new_target(:application, "UnityMonetizationExample", :ios) # monetization
 
@@ -152,6 +154,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   # Just a hack now to add UnityServices to project generation
   create_groups_from_dir("UnityServices", project, framework_target)
   create_groups_from_dir("#{test_target_name}", project, framework_test_target)
+  create_groups_from_dir("#{integration_test_target_name}", project, framework_integration_test_target)
   create_groups_from_dir("#{example_target_name}", project, @framework_example_target)
   create_groups_from_dir("UnityMonetizationExample", project, @framework_monetization_example_target) # monetization
 
@@ -192,9 +195,22 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
+  # Configure the integration test target
+  framework_integration_test_target.build_configurations.each do |bc|
+    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsIntegrationTests"
+    bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
+    bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
+    bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
+    bc.build_settings['TEST_HOST'] = "$(BUILT_PRODUCTS_DIR)/UnityAdsExample.app/UnityAdsExample"
+    bc.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "iPhone Developer"
+    bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
+  end
+
   # Add target dependencies
   framework_test_target.add_dependency(framework_target)
   framework_test_target.add_dependency(@framework_example_target)
+  framework_integration_test_target.add_dependency(framework_target)
+  framework_integration_test_target.add_dependency(@framework_example_target)
   @framework_example_target.add_dependency(framework_target)
   @framework_monetization_example_target.add_dependency(framework_target)
 
@@ -210,16 +226,19 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
 
   # Configure the example target as the test host for the test target
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
+  project.root_object.attributes["TargetAttributes"] = Hash["#{framework_integration_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
 
   # Load Saved Scheme
   scheme_dir = 'xcschemes/'
   scheme_name = 'UnityAds.xcscheme'
   temp_file = File.join(scheme_dir, scheme_name)
   scheme = Xcodeproj::XCScheme.new(temp_file)
+  integration_test_scheme = Xcodeproj::XCScheme.new('xcschemes/UnityAdsIntegrationTests.xcscheme')
 
   # Serialize and save project + scheme
   project.save(xcode_project_name)
   scheme.save_as(xcode_project_name, project_name, true)
+  integration_test_scheme.save_as(xcode_project_name, integration_test_target_name, true)
 end
 
 def generate_static_library_project(xcode_project_name, project_name)
@@ -321,5 +340,4 @@ end
 
 if project_configuration_type_name == "library"
   generate_static_library_project("UnityAdsStaticLibrary.xcodeproj", "UnityAds")
-
 end

@@ -9,4 +9,4 @@ typedef NS_ENUM(NSInteger, UnityServicesStorageError) {
     kUnityServicesCouldntDeleteValue
 };
 
-NSString *NSStringFromStorageError(UnityServicesStorageError);
+NSString *USRVNSStringFromStorageError(UnityServicesStorageError);

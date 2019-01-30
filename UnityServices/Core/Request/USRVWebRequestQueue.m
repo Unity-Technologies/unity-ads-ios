@@ -40,7 +40,7 @@ static dispatch_once_t onceToken;
 
 + (BOOL)resolve:(NSString *)host completeBlock:(UnityServicesResolveRequestCompletion)completeBlock {
     if (!host || host.length < 3 || [host isEqual:[NSNull null]]) {
-        completeBlock(host, NULL, NSStringFromResolveError(kUnityServicesResolveErrorInvalidHost), @"Invalid host");
+        completeBlock(host, NULL, USRVNSStringFromResolveError(kUnityServicesResolveErrorInvalidHost), @"Invalid host");
         return false;
     }
 

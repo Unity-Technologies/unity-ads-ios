@@ -16,7 +16,7 @@ static NSString * eventCategoryBanner = @"BANNER";
 static NSString * eventCategoryPermissions = @"PERMISSIONS";
 static NSString * eventCategoryAR = @"AR";
 
-NSString *NSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory category) {
+NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory category) {
     switch (category) {
         case kUnityServicesWebViewEventCategoryAdunit:
             return eventCategoryAdunit;

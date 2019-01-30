@@ -1,15 +1,3 @@
-/**
- * An enumeration for the various ways to position the Unity Ads banner placement.
- */
-typedef NS_ENUM(NSInteger, UADSBannerPosition) {
-    kUnityAdsBannerPositionTopLeft,
-    kUnityAdsBannerPositionTopCenter,
-    kUnityAdsBannerPositionTopRight,
-    kUnityAdsBannerPositionBottomLeft,
-    kUnityAdsBannerPositionBottomCenter,
-    kUnityAdsBannerPositionBottomRight,
-    kUnityAdsBannerPositionCenter,
-    kUnityAdsBannerPositionNone
-};
+#import "UADSBanner.h"
 
-UADSBannerPosition UADSBannerPositionFromNSString(NSString *);
+UnityAdsBannerPosition UADSBannerPositionFromNSString(NSString *);

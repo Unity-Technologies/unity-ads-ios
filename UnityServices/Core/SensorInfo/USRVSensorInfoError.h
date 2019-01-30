@@ -5,4 +5,4 @@ typedef NS_ENUM(NSInteger, UnityServicesSensorInfoError) {
     
 };
 
-NSString *NSStringFromSensorInfoError(UnityServicesSensorInfoError);
+NSString *USRVNSStringFromSensorInfoError(UnityServicesSensorInfoError);

@@ -14,7 +14,7 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
 - (void)onVolumeChanged:(float)volume {
     if ([USRVWebViewApp getCurrentApp]) {
         [[USRVWebViewApp getCurrentApp] sendEvent:@"VOLUME_CHANGED"
-            category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryDeviceInfo)
+            category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryDeviceInfo)
             param1:[NSNumber numberWithFloat:volume], [NSNumber numberWithFloat:[USRVDevice getDeviceMaxVolume]], nil];
     }
 }
@@ -155,7 +155,7 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
         [callback invoke:sensorList, nil];
     }
     else {
-        [callback error:NSStringFromDeviceError(kUnityServicesCouldntGetSensorInfo) arg1:nil];
+        [callback error:USRVNSStringFromDeviceError(kUnityServicesCouldntGetSensorInfo) arg1:nil];
     }
 }
 
@@ -164,7 +164,7 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     if (processInfo) {
         [callback invoke:[USRVDevice getProcessInfo], nil];
     } else {
-        [callback error:NSStringFromDeviceError(kUnityServicesCouldntGetProcessInfo) arg1:nil];
+        [callback error:USRVNSStringFromDeviceError(kUnityServicesCouldntGetProcessInfo) arg1:nil];
     }
     
 }

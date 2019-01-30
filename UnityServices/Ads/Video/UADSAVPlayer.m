@@ -126,8 +126,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 - (void)onPrepareTimeoutListener:(NSNotification *)notification {
     USRVLogError(@"Video prepare timeout");
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerPrepareTimeout)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerError(kUnityAdsAVPlayerPrepareTimeout)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                            param1:self.url, nil];
     });
 }
@@ -138,8 +138,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     [self stopVideoProgressTimer];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventCompleted)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer) param1:self.url, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventCompleted)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer) param1:self.url, nil];
     });
 }
 
@@ -158,8 +158,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 - (void)videoProgressTimer:(NSTimer *)timer {
     __weak UADSAVPlayer *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventProgress)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventProgress)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                            param1:[NSNumber numberWithLong:[weakSelf getMsFromCMTime:weakSelf.currentTime]], nil];
     });
 }
@@ -178,8 +178,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     [self startVideoProgressTimer];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPlay)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPlay)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                            param1:self.url, nil];
     });
 }
@@ -192,8 +192,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     [self stopVideoProgressTimer];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPause)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPause)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                            param1:self.url, nil];
     });
 }
@@ -206,8 +206,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     [self stopVideoProgressTimer];
 
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventStop)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventStop)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                            param1:self.url, nil];
     });
 }
@@ -216,7 +216,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     Float64 t_ms = msec / 1000;
     CMTime time = CMTimeMakeWithSeconds(t_ms, 30);
     [self seekToTime:time completionHandler:^(BOOL finished) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventSeekTo) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer) param1:self.url, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventSeekTo) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer) param1:self.url, nil];
     }];
 }
 
@@ -248,7 +248,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
                     height = mediaSize.height;
                 }
 
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPrepared) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventPrepared) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                     param1:self.url,
                     [NSNumber numberWithLong:[self getMsFromCMTime:self.currentItem.duration]],
                     [NSNumber numberWithFloat:width],
@@ -261,8 +261,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
         else if (playerItemStatus == AVPlayerItemStatusFailed) {
             USRVLogError(@"VIDEOPLAYER_ERROR: %@", self.currentItem.error.description);
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerError(kUnityAdsAVPlayerGenericError)
-                                                 category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerError(kUnityAdsAVPlayerGenericError)
+                                                 category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                                    param1:self.url,
                     self.currentItem.error.description,
                  nil];
@@ -273,8 +273,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     }
     else if (context == playbackLikelyToKeepUpKVOToken) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventLikelyToKeepUp)
-                                             category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+            [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventLikelyToKeepUp)
+                                             category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                                param1:self.url,
                 [NSNumber numberWithBool:self.currentItem.isPlaybackLikelyToKeepUp],
              nil];
@@ -282,8 +282,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     }
     else if (context == playbackBufferEmpty) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventBufferEmpty)
-                                             category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+            [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventBufferEmpty)
+                                             category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                                param1:self.url,
                 [NSNumber numberWithBool:self.currentItem.isPlaybackBufferEmpty],
              nil];
@@ -291,8 +291,8 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     }
     else if (context == playbackBufferFull) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventBufferFull)
-                                             category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
+            [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAVPlayerEvent(kUnityAdsAVPlayerEventBufferFull)
+                                             category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryVideoPlayer)
                                                param1:self.url,
                 [NSNumber numberWithBool:self.currentItem.isPlaybackBufferFull],
              nil];

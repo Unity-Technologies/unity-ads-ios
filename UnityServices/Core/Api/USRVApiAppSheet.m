@@ -22,11 +22,11 @@
         id webViewApp = [USRVWebViewApp getCurrentApp];
         if(result) {
             if(webViewApp) {
-                [webViewApp sendEvent:NSStringFromAppSheetEvent(kAppSheetPrepared) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:parameters, nil];
+                [webViewApp sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetPrepared) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:parameters, nil];
             }
         } else {
             if(webViewApp) {
-                [webViewApp sendEvent:NSStringFromAppSheetEvent(kAppSheetFailed) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:error, parameters, nil];
+                [webViewApp sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetFailed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:error, parameters, nil];
             }
         }
     }];
@@ -52,7 +52,7 @@
     if([[USRVAppSheet instance] destroyAppSheet:parameters]) {
         [callback invoke:nil];
     } else {
-        [callback error:NSStringFromAppSheetError(kUnityServicesAppSheetErrorNoAppSheetFound) arg1:parameters, nil];
+        [callback error:USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorNoAppSheetFound) arg1:parameters, nil];
     }
 }
 

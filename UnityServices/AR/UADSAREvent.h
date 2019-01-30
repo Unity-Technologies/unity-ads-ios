@@ -12,4 +12,4 @@ typedef NS_ENUM(NSInteger, UnityAdsAREvent) {
     kUnityAdsARSessionInterruptionEnded,
 };
 
-NSString *NSStringFromAREvent(UnityAdsAREvent);
+NSString *UADSNSStringFromAREvent(UnityAdsAREvent);

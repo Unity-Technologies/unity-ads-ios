@@ -5,6 +5,6 @@ typedef NS_ENUM(NSInteger, UnityServicesNotificationEvent) {
     
 };
 
-NSString *NSStringFromNotificationEvent(UnityServicesNotificationEvent);
+NSString *USRVNSStringFromNotificationEvent(UnityServicesNotificationEvent);
 
 

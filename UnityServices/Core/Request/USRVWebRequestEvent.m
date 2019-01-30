@@ -3,7 +3,7 @@
 static NSString *complete = @"COMPLETE";
 static NSString *failed = @"FAILED";
 
-NSString *NSStringFromWebRequestEvent(UnityServicesWebRequestEvent event) {
+NSString *USRVNSStringFromWebRequestEvent(UnityServicesWebRequestEvent event) {
     switch (event) {
         case kUnityServicesWebRequestEventComplete:
             return complete;

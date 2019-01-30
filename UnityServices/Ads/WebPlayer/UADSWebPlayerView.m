@@ -150,19 +150,19 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
     if ([self shouldSendEvent:@"onPageStarted"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString, self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString, self.viewId, nil];
     }
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     if ([self shouldSendEvent:@"onPageFinished"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString, self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString, self.viewId, nil];
     }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     if ([self shouldSendEvent:@"onReceivedError"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString,error.localizedDescription, self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString,error.localizedDescription, self.viewId, nil];
     }
 }
 
@@ -172,7 +172,7 @@
 
     if ([urlString hasPrefix:@"umsg:"]) {
         NSString *jsonString = [[[urlString componentsSeparatedByString:@"umsg:"] lastObject] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: jsonString, self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: jsonString, self.viewId, nil];
         return NO;
     } else {
         BOOL allowNavigation = YES;
@@ -181,12 +181,12 @@
         }
         if (navigationType == UIWebViewNavigationTypeLinkClicked) {
             if ([self shouldSendEvent:@"onCreateWindow"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerShouldOverrideURLLoading) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:urlString, self.viewId, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerShouldOverrideURLLoading) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:urlString, self.viewId, nil];
             }
             return NO;
         } else {
             if ([self shouldSendEvent:@"shouldOverrideUrlLoading"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerShouldOverrideURLLoading) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: urlString, self.viewId, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerShouldOverrideURLLoading) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: urlString, self.viewId, nil];
             }
         }
         return allowNavigation;
@@ -348,10 +348,10 @@
         return;
     }
     if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsJavaScriptEnabled]) {
-        [wkPreferences setValue:[NSNumber numberWithBool:[self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsJavaScriptEnabled]] forKey:NSStringFromWebPlayerWebSetting(kUnityAdsWebPlayerWebSettingsJavaScriptEnabled)];
+        [wkPreferences setValue:[NSNumber numberWithBool:[self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsJavaScriptEnabled]] forKey:UADSNSStringFromWebPlayerWebSetting(kUnityAdsWebPlayerWebSettingsJavaScriptEnabled)];
     }
     if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsJavaScriptCanOpenWindowsAutomatically]) {
-        [wkPreferences setValue:[NSNumber numberWithBool:[self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsJavaScriptCanOpenWindowsAutomatically]] forKey:NSStringFromWebPlayerWebSetting(kUnityAdsWebPlayerWebSettingsJavaScriptCanOpenWindowsAutomatically)];
+        [wkPreferences setValue:[NSNumber numberWithBool:[self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsJavaScriptCanOpenWindowsAutomatically]] forKey:UADSNSStringFromWebPlayerWebSetting(kUnityAdsWebPlayerWebSettingsJavaScriptCanOpenWindowsAutomatically)];
     }
     [wkConfiguration setValue:wkPreferences forKey:@"preferences"];
 
@@ -380,19 +380,19 @@
 
 - (void)webView:(id)webView didFinishNavigation:(id)navigation {
     if ([self shouldSendEvent:@"onPageFinished"]) {
-       [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
+       [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
     }
 }
 
 - (void)webView:(id)webView didStartProvisionalNavigation:(id)navigation {
     if ([self shouldSendEvent:@"onPageStarted"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
     }
 }
 
 - (void)webView:(id)webView didFailProvisionalNavigation:(id)navigation withError:(NSError *)error {
     if ([self shouldSendEvent:@"onReceivedError"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString],error.localizedDescription, self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString],error.localizedDescription, self.viewId, nil];
     }
 }
 
@@ -413,7 +413,7 @@
     }
 
     if (data) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], self.viewId, nil];
         NSLog(@"datadesc: %@",[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     }
 }
@@ -456,7 +456,7 @@ typedef NS_ENUM(NSInteger, UADSWKWebViewDecisionPolicy) {
         NSURL* url = [request valueForKey:@"URL"];
         if (url != nil) {
             if ([self shouldSendEvent:@"onCreateWindow"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [url absoluteString], self.viewId, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [url absoluteString], self.viewId, nil];
             }
         }
     }
@@ -471,7 +471,7 @@ typedef NS_ENUM(NSInteger, UADSWKWebViewDecisionPolicy) {
                 [USRVWKWebViewUtilities loadUrl:_internalWebView url:[NSURLRequest requestWithURL:url]];
             }
             if ([self shouldSendEvent:@"onCreateWindow"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [url absoluteString], self.viewId, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [url absoluteString], self.viewId, nil];
             }
         }
     }
@@ -491,15 +491,15 @@ typedef NS_ENUM(NSInteger, UADSWKWebViewDecisionPolicy) {
 }
 
 - (BOOL)shouldSetWebPlayerSetting:(UnityAdsWebPlayerWebSettings)setting {
-    return [_webPlayerSettings objectForKey:NSStringFromWebPlayerWebSetting(setting)] != nil;
+    return [_webPlayerSettings objectForKey:UADSNSStringFromWebPlayerWebSetting(setting)] != nil;
 }
 
 - (BOOL)boolValueForWebPlayerSetting:(UnityAdsWebPlayerWebSettings)setting {
-    return [[_webPlayerSettings objectForKey:NSStringFromWebPlayerWebSetting(setting)] boolValue];
+    return [[_webPlayerSettings objectForKey:UADSNSStringFromWebPlayerWebSetting(setting)] boolValue];
 }
 
 - (int)intValueForWebPlayerSetting:(UnityAdsWebPlayerWebSettings)setting {
-    return [[_webPlayerSettings objectForKey:NSStringFromWebPlayerWebSetting(setting)] intValue];
+    return [[_webPlayerSettings objectForKey:UADSNSStringFromWebPlayerWebSetting(setting)] intValue];
 }
 
 @end

@@ -3,9 +3,19 @@
 
 @interface USRVWebRequest () <NSURLConnectionDelegate>
 
+@property (nonatomic, assign) BOOL stubbed;
+
 @end
 
 @implementation USRVWebRequest
+
+- (void)setStubbed:(BOOL)stubbed {
+    _stubbed = stubbed;
+}
+
+- (BOOL)getStubbed {
+    return _stubbed;
+}
 
 - (instancetype)initWithUrl:(NSString *)url requestType:(NSString *)requestType headers:(NSDictionary<NSString*,NSArray<NSString*>*> *)headers connectTimeout:(int)connectTimeout {
     self = [super init];
@@ -19,6 +29,10 @@
     }
     
     return self;
+}
+
+- (nullable NSURLConnection *)createConnection:(NSURLRequest *)request delegate:(nullable id)delegate startImmediately:(BOOL)startImmediately {
+    return [[NSURLConnection alloc] initWithRequest:request delegate:delegate startImmediately:startImmediately];
 }
 
 - (NSData *)makeRequest {
@@ -53,7 +67,7 @@
     }
     
     self.receivedData = [[NSMutableData alloc] init];
-    NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self startImmediately:false];
+    NSURLConnection *connection = [self createConnection:request delegate:self startImmediately:false];
     [self setConnection:connection];
     [connection scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     self.blockCondition = [[NSCondition alloc] init];

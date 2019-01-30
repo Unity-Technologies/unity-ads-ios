@@ -2,7 +2,7 @@
 
 static NSString *notificationEventAction = @"ACTION";
 
-NSString *NSStringFromNotificationEvent(UnityServicesNotificationEvent event) {
+NSString *USRVNSStringFromNotificationEvent(UnityServicesNotificationEvent event) {
     switch (event) {
         case kUnityServicesNotificatoinEventAction:
             return notificationEventAction;

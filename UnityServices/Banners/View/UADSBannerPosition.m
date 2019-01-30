@@ -9,7 +9,7 @@ static NSString *bannerPositionBottomRight = @"bottomright";
 static NSString *bannerPositionCenter = @"center";
 static NSString *bannerPositionNone = @"none";
 
-UADSBannerPosition UADSBannerPositionFromNSString(NSString *value) {
+UnityAdsBannerPosition UADSBannerPositionFromNSString(NSString *value) {
     if (value == nil) {
         return kUnityAdsBannerPositionNone;
     } else if ([value isEqualToString:bannerPositionTopLeft]) {

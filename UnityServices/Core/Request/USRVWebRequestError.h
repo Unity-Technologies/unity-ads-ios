@@ -6,4 +6,4 @@ typedef NS_ENUM(NSInteger, UnityServicesWebRequestError) {
     kUnityServicesWebRequestErrorMappingHeadersFailed
 };
 
-NSString *NSStringFromWebRequestError(UnityServicesWebRequestError);
+NSString *USRVNSStringFromWebRequestError(UnityServicesWebRequestError);

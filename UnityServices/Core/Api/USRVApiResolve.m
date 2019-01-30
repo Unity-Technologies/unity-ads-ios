@@ -14,14 +14,14 @@ static NSString *resolveCategory = @"RESOLVE";
         USRVWebViewApp *webApp = [USRVWebViewApp getCurrentApp];
 
         if (!error && webApp) {
-            [webApp sendEvent:NSStringFromResolveEvent(kUnityServicesResolveEventComplete) category:resolveCategory
+            [webApp sendEvent:USRVNSStringFromResolveEvent(kUnityServicesResolveEventComplete) category:resolveCategory
                 param1:resolveId,
                 host,
                 address,
              nil];
         }
         else if (webApp) {
-            [webApp sendEvent:NSStringFromResolveEvent(kUnityServicesResolveEventFailed) category:resolveCategory
+            [webApp sendEvent:USRVNSStringFromResolveEvent(kUnityServicesResolveEventFailed) category:resolveCategory
                 param1:resolveId,
                 host ? host : [NSNull null],
                 error,
@@ -34,7 +34,7 @@ static NSString *resolveCategory = @"RESOLVE";
         [callback invoke:resolveId, nil];
     }
     else {
-        [callback error:NSStringFromResolveError(kUnityServicesResolveErrorInvalidHost) arg1:resolveId, nil];
+        [callback error:USRVNSStringFromResolveError(kUnityServicesResolveErrorInvalidHost) arg1:resolveId, nil];
     }
 }
 

@@ -5,6 +5,7 @@
 #import "USRVWebViewApp.h"
 #import "USRVWebViewEventCategory.h"
 #import "UADSBannerEvent.h"
+#import "USRVClientProperties.h"
 
 @implementation UADSApiBanner
 
@@ -13,13 +14,18 @@
     float widthAsFloat = [width floatValue];
     float heightAsFloat = [height floatValue];
     [banner setAdSize:CGSizeMake(widthAsFloat, heightAsFloat)];
-    [banner setPosition:UADSBannerPositionFromNSString(bannerStyle)];
+
+    UnityAdsBannerPosition position = [USRVClientProperties getbannerDefaultPosition];
+    if(position == kUnityAdsBannerPositionNone ){
+        position = UADSBannerPositionFromNSString(bannerStyle);
+    }
+    [banner setPosition:position];
     [banner setFrame:CGRectMake(0, 0, widthAsFloat, heightAsFloat)];
     [banner setViews:views];
 
     USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];
     if (app) {
-        [app sendEvent:NSStringFromBannerEvent(kUnityAdsBannerEventLoaded) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
+        [app sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventLoaded) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
     }
 
     [callback invoke:nil];
@@ -32,7 +38,7 @@
         USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];
         [UADSBannerView destroyInstance];
         if (app) {
-            [app sendEvent:NSStringFromBannerEvent(kUnityAdsBannerEventDestroyed) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
+            [app sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventDestroyed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
         }
     }
     [callback invoke:nil];
@@ -52,7 +58,13 @@
         float widthAsFloat = [width floatValue];
         float heightAsFloat = [height floatValue];
         [banner setAdSize:CGSizeMake(widthAsFloat, heightAsFloat)];
-        [banner setPosition:UADSBannerPositionFromNSString(bannerStyle)];
+        
+        UnityAdsBannerPosition position = [USRVClientProperties getbannerDefaultPosition];
+        if(position == kUnityAdsBannerPositionNone ){
+            position = UADSBannerPositionFromNSString(bannerStyle);
+        }
+        [banner setPosition:position];
+        
         [banner setFrame:CGRectMake(0, 0, widthAsFloat, heightAsFloat)];
     }
     [callback invoke:nil];

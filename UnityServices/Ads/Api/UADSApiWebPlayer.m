@@ -21,7 +21,7 @@ static NSDictionary *_webPlayerEventSettings = nil;
 + (void)WebViewExposed_setUrl:(NSString *)url viewId:(NSString *)viewId callback:(USRVWebViewCallback *)callback {
     UADSWebPlayerView *view = [self getWebPlayer:viewId];
     if (view == nil) {
-        [callback error:NSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
+        [callback error:UADSNSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
         return;
     }
     [view loadUrl:url];
@@ -31,7 +31,7 @@ static NSDictionary *_webPlayerEventSettings = nil;
 + (void)WebViewExposed_setData:(NSString *)data mimeType:(NSString *)mimeType encoding:(NSString *)encoding viewId:(NSString *)viewId callback:(USRVWebViewCallback *)callback {
     UADSWebPlayerView *view = [self getWebPlayer:viewId];
     if (view == nil) {
-        [callback error:NSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
+        [callback error:UADSNSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
         return;
     }
     [view loadData:data mimeType:mimeType encoding:encoding];
@@ -41,7 +41,7 @@ static NSDictionary *_webPlayerEventSettings = nil;
 + (void)WebViewExposed_setDataWithUrl:(NSString *)baseUrl data:(NSString *)data mimeType:(NSString *)mimeType encoding:(NSString *)encoding viewId:(NSString *)viewId callback:(USRVWebViewCallback *)callback {
     UADSWebPlayerView *view = [self getWebPlayer:viewId];
     if (view == nil) {
-        [callback error:NSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
+        [callback error:UADSNSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
         return;
     }
     [view loadData:data mimeType:mimeType encoding:encoding baseUrl:baseUrl];
@@ -87,7 +87,7 @@ static NSDictionary *_webPlayerEventSettings = nil;
 + (void)WebViewExposed_sendEvent:(NSString *)params viewId:(NSString *)viewId callback:(USRVWebViewCallback *)callback {
     UADSWebPlayerView *view = [self getWebPlayer:viewId];
     if (view == nil) {
-        [callback error:NSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
+        [callback error:UADSNSStringFromWebPlayerError(kUnityAdsWebPlayerNull) arg1:nil];
         return;
     }
     [view receiveEvent:params];

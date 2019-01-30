@@ -8,7 +8,7 @@ typedef NS_ENUM(NSInteger, UnityAdsVideoPlayerError) {
     kUnityAdsVideoViewReflectionError
 };
 
-NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
+NSString *UADSNSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
     switch (error) {
         case kUnityAdsVideoViewNull:
             return @"VIDEOVIEW_NULL";
@@ -25,7 +25,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -34,7 +34,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:[NSNumber numberWithInt:[[UADSApiVideoPlayer getVideoPlayer] progressInterval]], nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -47,7 +47,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -60,7 +60,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -73,7 +73,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -90,7 +90,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -103,7 +103,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -113,7 +113,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -122,7 +122,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:[NSNumber numberWithFloat:[[UADSApiVideoPlayer getVideoPlayer] volume]], nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -131,7 +131,7 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         [callback invoke:[NSNumber numberWithLong:[[UADSApiVideoPlayer getVideoPlayer] getCurrentPosition]], nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
@@ -148,10 +148,10 @@ NSString *NSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
             }
         }
 
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewReflectionError) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewReflectionError) arg1:nil];
     }
     else {
-        [callback error:NSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 

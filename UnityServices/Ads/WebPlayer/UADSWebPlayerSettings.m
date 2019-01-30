@@ -13,7 +13,7 @@ static NSString *unityAdsWebPlayerWebSettingsIgnoresViewportScaleLimits = @"igno
 static NSString *unityAdsWebPlayerWebSettingsDataDetectorTypes = @"dataDetectorTypes";
 static NSString *unityAdsWebPlayerWebSettingsScrollEnabled = @"scrollEnabled";
 
-NSString *NSStringFromWebPlayerWebSetting(UnityAdsWebPlayerWebSettings setting) {
+NSString *UADSNSStringFromWebPlayerWebSetting(UnityAdsWebPlayerWebSettings setting) {
     switch (setting) {
         case kUnityAdsWebPlayerWebSettingsAllowsInlineMediaPlayback:
             return unityAdsWebPlayerWebSettingsAllowsInlineMediaPlayback;

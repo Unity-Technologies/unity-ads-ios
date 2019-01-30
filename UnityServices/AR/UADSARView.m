@@ -254,30 +254,30 @@ static UADSARView *current = nil;
 #pragma mark - ARSessionDelegate
 - (void)session:(id)session didFailWithError:(NSError *)error {
     USRVLogDebug(@"didFailWithError %@", error);
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARError)
-                                     category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARError)
+                                     category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                        param1:[NSNumber numberWithInteger:error.code], nil];
 }
 
 - (void)sessionWasInterrupted:(id)session {
     USRVLogDebug(@"sessionWasInterrupted %@", session);
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARSessionInterrupted)
-                                     category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARSessionInterrupted)
+                                     category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                        param1:nil];
 }
 
 - (void)sessionInterruptionEnded:(id)session {
     USRVLogDebug(@"sessionInterruptionEnded %@", session);
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARSessionInterruptionEnded)
-                                     category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARSessionInterruptionEnded)
+                                     category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                        param1:nil];
 }
 
 - (void)session:(id)session didAddAnchors:(nonnull NSArray<id> *)anchors {
     NSString *planesString = [self getPlanesString:anchors];
     if (planesString) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARPlanesAdded)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARPlanesAdded)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                            param1:planesString, nil];
     }
 }
@@ -285,8 +285,8 @@ static UADSARView *current = nil;
 - (void)session:(id)session didUpdateAnchors:(nonnull NSArray<id> *)anchors {
     NSString *planesString = [self getPlanesString:anchors];
     if (planesString) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARPlanesUpdated)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARPlanesUpdated)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                            param1:planesString, nil];
     }
 }
@@ -294,14 +294,14 @@ static UADSARView *current = nil;
 - (void)session:(id)session didRemoveAnchors:(nonnull NSArray<id> *)anchors {
     NSString *planesString = [self getPlanesString:anchors];
     if (planesString) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARPlanesRemoved)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARPlanesRemoved)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                            param1:planesString, nil];
     }
     NSString *anchorsString = [self getAnchorsString:anchors];
     if (anchorsString) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARAnchorsUpdated)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARAnchorsUpdated)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                            param1:anchorsString, nil];
     }
 }
@@ -385,8 +385,8 @@ static UADSARView *current = nil;
     NSString* jsonString = [[NSString alloc] initWithData:jsonData
                                                  encoding:NSUTF8StringEncoding];
     
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARFrameUpdated)
-                                     category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARFrameUpdated)
+                                     category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                        param1:jsonString, nil];
 
     // This needs to be called after because the window size will affect the
@@ -394,8 +394,8 @@ static UADSARView *current = nil;
     if (updateWindowSize) {
         int width = self.frame.size.width;
         int height = self.frame.size.height;
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAREvent(kUnityAdsARWindowResized)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAREvent(kUnityAdsARWindowResized)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAR)
                                            param1:FBOX(width), FBOX(height), nil];
         updateWindowSize = NO;
     }

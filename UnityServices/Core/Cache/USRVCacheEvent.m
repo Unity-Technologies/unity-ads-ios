@@ -6,7 +6,7 @@ static NSString *downloadEnd = @"DOWNLOAD_END";
 static NSString *downloadError = @"DOWNLOAD_ERROR";
 static NSString *progress = @"DOWNLOAD_PROGRESS";
 
-NSString *NSStringFromCacheEvent(UnityServicesCacheEvent event) {
+NSString *USRVNSStringFromCacheEvent(UnityServicesCacheEvent event) {
     switch (event) {
         case kUnityServicesDownloadStarted:
             return downloadStarted;

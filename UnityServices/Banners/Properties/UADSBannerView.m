@@ -58,7 +58,7 @@ static UADSBannerView *instance;
     UnityAdsBannerEvent event = newWindow == nil ? kUnityAdsBannerEventDetached : kUnityAdsBannerEventAttached;
     USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];
     if (app) {
-        [app sendEvent:NSStringFromBannerEvent(event) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
+        [app sendEvent:UADSNSStringFromBannerEvent(event) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
     }
 }
 
@@ -145,7 +145,7 @@ static UADSBannerView *instance;
     if (object == self) {
         if ([keyPath isEqualToString:@"alpha"] || [keyPath isEqualToString:@"frame"]) {
             CGRect frame = self.frame;
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromBannerEvent(kUnityAdsBannerEventResized) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:
+            [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventResized) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:
                     [NSNumber numberWithFloat:frame.origin.x],
                     [NSNumber numberWithFloat:frame.origin.y],
                     [NSNumber numberWithFloat:frame.size.width],
@@ -154,9 +154,9 @@ static UADSBannerView *instance;
                             nil];
         } else if ([keyPath isEqualToString:@"hidden"]) {
             if (self.hidden) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromBannerEvent(kUnityAdsBannerEventVisibilityChanged) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:[NSNumber numberWithInteger:kUnityAdsBannerVisibilityGone], nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventVisibilityChanged) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:[NSNumber numberWithInteger:kUnityAdsBannerVisibilityGone], nil];
             } else {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromBannerEvent(kUnityAdsBannerEventVisibilityChanged) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:[NSNumber numberWithInteger:kUnityAdsBannerVisibilityVisible], nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventVisibilityChanged) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:[NSNumber numberWithInteger:kUnityAdsBannerVisibilityVisible], nil];
             }
         }
     }

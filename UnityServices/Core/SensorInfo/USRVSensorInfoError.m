@@ -3,7 +3,7 @@
 static NSString *accelerometerDataNotAvailable = @"ACCELEROMETER_DATA_NOT_AVAILABLE";
 
 
-NSString *NSStringFromSensorInfoError(UnityServicesSensorInfoError error) {
+NSString *USRVNSStringFromSensorInfoError(UnityServicesSensorInfoError error) {
     switch (error) {
         case kUnityServicesAccelerometerDataNotAvailable:
             return accelerometerDataNotAvailable;

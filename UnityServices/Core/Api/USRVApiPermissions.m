@@ -42,7 +42,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ([USRVWebViewApp getCurrentApp]) {
                     [[USRVWebViewApp getCurrentApp] sendEvent:@"PERMISSIONS_RESULT"
-                        category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryPermissions)
+                        category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryPermissions)
                         param1:permission, [NSNumber numberWithBool:granted],
                      nil];
                 }

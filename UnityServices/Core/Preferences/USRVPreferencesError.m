@@ -2,7 +2,7 @@
 
 static NSString *unityServicesPreferencesCouldntGetValue = @"COULDNT_GET_VALUE";
 
-NSString *NSStringFromPreferencesError(UnityServicesPreferencesError error) {
+NSString *USRVNSStringFromPreferencesError(UnityServicesPreferencesError error) {
     switch (error) {
         case kUnityServicesPreferencesCouldntGetValue:
             return unityServicesPreferencesCouldntGetValue;

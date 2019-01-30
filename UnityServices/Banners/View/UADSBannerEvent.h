@@ -21,6 +21,6 @@ typedef NS_ENUM(NSInteger, UnityAdsBannerVisibility) {
     kUnityAdsBannerVisibilityGone = 0x00000008
 };
 
-NSString *NSStringFromBannerEvent(UnityAdsBannerEvent event);
+NSString *UADSNSStringFromBannerEvent(UnityAdsBannerEvent event);
 
 #endif

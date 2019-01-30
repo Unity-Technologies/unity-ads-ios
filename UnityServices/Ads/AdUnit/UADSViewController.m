@@ -26,7 +26,7 @@
         [self setHomeIndicatorAutoHidden:homeIndicatorAutoHidden];
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerInit) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerInit) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
     return self;
 }
 
@@ -43,7 +43,7 @@
         }
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidLoad) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerDidLoad) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -60,7 +60,7 @@
         }
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidAppear) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerDidAppear) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -90,7 +90,7 @@
         }
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerWillDisappear) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerWillDisappear) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -105,7 +105,7 @@
         }
     }
 
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidDisappear) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerDidDisappear) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
 }
 
 - (void)setViewFrame:(NSString *)view x:(int)x y:(int)y width:(int)width height:(int)height {
@@ -292,6 +292,6 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
-    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAdUnitEvent(kUnityAdsViewControllerDidReceiveMemoryWarning) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
+    [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerDidReceiveMemoryWarning) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];
 }
 @end

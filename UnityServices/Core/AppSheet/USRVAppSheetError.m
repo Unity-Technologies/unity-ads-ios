@@ -6,7 +6,7 @@ static NSString *appSheetNotFound = @"APPSHEET_NOT_FOUND";
 static NSString *noAppSheetFound = @"NO_APPSHEET_FOUND";
 static NSString *timeoutError = @"ERROR_TIMEOUT";
 
-NSString *NSStringFromAppSheetError(UnityServicesAppSheetError error) {
+NSString *USRVNSStringFromAppSheetError(UnityServicesAppSheetError error) {
     switch (error) {
         case kUnityServicesAppSheetErrorAlreadyPreparing:
             return alreadyPreparing;

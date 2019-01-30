@@ -1,11 +1,11 @@
 #import <UIKit/UIKit.h>
 #import "UADSWebPlayerView.h"
-#import "UADSBannerPosition.h"
+#import "UADSBanner.h"
 
 @interface UADSBannerView : UIView
 @property(nonatomic) CGSize adSize;
 @property(nonatomic, retain) UADSWebPlayerView *webPlayer;
-@property(nonatomic) UADSBannerPosition position;
+@property(nonatomic) UnityAdsBannerPosition position;
 @property(nonatomic) NSArray *views;
 
 -(void)setViewFrame:(NSString *)viewName x:(float)x y:(float)y width:(float)width height:(float)height;

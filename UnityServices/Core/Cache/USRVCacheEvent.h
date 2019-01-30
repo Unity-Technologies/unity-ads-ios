@@ -8,4 +8,4 @@ typedef NS_ENUM(NSInteger, UnityServicesCacheEvent) {
     kUnityServicesDownloadError
 };
 
-NSString *NSStringFromCacheEvent(UnityServicesCacheEvent);
+NSString *USRVNSStringFromCacheEvent(UnityServicesCacheEvent);

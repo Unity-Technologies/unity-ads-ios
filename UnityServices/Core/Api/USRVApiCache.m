@@ -8,7 +8,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "USRVApiRequest.h"
 
-NSString *NSStringFromCacheError(UnityServicesCacheError error) {
+NSString *USRVNSStringFromCacheError(UnityServicesCacheError error) {
     switch (error) {
         case kUnityServicesFileIOError:
             return @"FILE_IO_ERROR";
@@ -38,13 +38,13 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
 
 + (void)WebViewExposed_download:(NSString *)url fileId:(NSString *)fileId headers:(NSArray *)headers append:(NSNumber *)append callback:(USRVWebViewCallback *)callback {
     if ([USRVConnectivityUtils getNetworkStatus] == NotReachable) {
-        [callback error:NSStringFromCacheError(kUnityServicesNoInternet) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesNoInternet) arg1:nil];
         return;
     }
 
     BOOL success = [USRVCacheQueue download:url target:[USRVApiCache fileIdToFilename:fileId] headers:[USRVApiRequest getHeadersMap:headers] append:[append boolValue]];
     if (!success) {
-        [callback error:NSStringFromCacheError(kUnityServicesFileAlreadyCaching) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileAlreadyCaching) arg1:nil];
     }
     else {
         [callback invoke:nil];
@@ -53,7 +53,7 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
 
 + (void)WebViewExposed_stop:(USRVWebViewCallback *)callback {
     if (![USRVCacheQueue hasOperations]) {
-        [callback error:NSStringFromCacheError(kUnityServicesNotCaching) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesNotCaching) arg1:nil];
     }
     else {
         [USRVCacheQueue cancelAllDownloads];
@@ -78,12 +78,12 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
                     fileContents = [contents base64EncodedStringWithOptions:0];
                 }
                 else {
-                    [callback error:NSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, fileName, encoding, nil];
+                    [callback error:USRVNSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, fileName, encoding, nil];
                     return;
                 }
 
                 if (!fileContents) {
-                    [callback error:NSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, fileName, encoding, nil];
+                    [callback error:USRVNSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, fileName, encoding, nil];
                     return;
                 }
                 else {
@@ -91,18 +91,18 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
                 }
             }
             else {
-                [callback error:NSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, fileName, [NSNull null], nil];
+                [callback error:USRVNSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, fileName, [NSNull null], nil];
             }
         }
         else if (error) {
-            [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, fileName, error.description, nil];
+            [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, fileName, error.description, nil];
         }
         else if (!contents) {
-            [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, fileName, "no file content", nil];
+            [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, fileName, "no file content", nil];
         }
     }
     else {
-        [callback error:NSStringFromCacheError(kUnityServicesFileNotFound) arg1:fileId, fileName, nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileNotFound) arg1:fileId, fileName, nil];
     }
 }
 
@@ -120,7 +120,7 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
             fileContents = [[NSData alloc] initWithBase64EncodedString:content options:0];
         }
         else {
-            [callback error:NSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, tagetFilePath, encoding, nil];
+            [callback error:USRVNSStringFromCacheError(kUnityServicesUnsupportedEncoding) arg1:fileId, tagetFilePath, encoding, nil];
             return;
         }
     }
@@ -130,13 +130,13 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
             [[NSFileManager defaultManager] createFileAtPath:tagetFilePath contents:nil attributes:nil];
         }
         if (![[NSFileManager defaultManager] isWritableFileAtPath:tagetFilePath]) {
-            [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, tagetFilePath, encoding, nil];
+            [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, tagetFilePath, encoding, nil];
             return;
         }
         [fileContents writeToFile:tagetFilePath atomically:YES];
     }
     @catch (NSException *exception) {
-        [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, tagetFilePath, exception.reason, nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:fileId, tagetFilePath, exception.reason, nil];
         return;
     }
     [callback invoke:nil];
@@ -165,7 +165,7 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
         [callback invoke:result, nil];
     }
     else {
-        [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:nil];
     }
 }
 
@@ -189,11 +189,11 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
              nil];
         }
         @catch (NSException *exception) {
-            [callback error:NSStringFromCacheError(kUnityServicesInvalidArgument) arg1:nil];
+            [callback error:USRVNSStringFromCacheError(kUnityServicesInvalidArgument) arg1:nil];
         }
     }
     else {
-        [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:nil];
     }
 }
 
@@ -208,7 +208,7 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
         [callback invoke:[USRVApiCache fileIdToFilename:fileId], nil];
     }
     else {
-        [callback error:NSStringFromCacheError(kUnityServicesFileNotFound) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileNotFound) arg1:nil];
     }
 }
 
@@ -221,7 +221,7 @@ NSString *NSStringFromCacheError(UnityServicesCacheError error) {
         [callback invoke:nil];
     }
     else {
-        [callback error:NSStringFromCacheError(kUnityServicesFileIOError) arg1:nil];
+        [callback error:USRVNSStringFromCacheError(kUnityServicesFileIOError) arg1:nil];
     }
 }
 

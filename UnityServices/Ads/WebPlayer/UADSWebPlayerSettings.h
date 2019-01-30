@@ -15,4 +15,4 @@ typedef NS_ENUM(NSInteger, UnityAdsWebPlayerWebSettings) {
     kUnityAdsWebPlayerWebSettingsScrollEnabled
 };
 
-NSString *NSStringFromWebPlayerWebSetting(UnityAdsWebPlayerWebSettings);
+NSString *UADSNSStringFromWebPlayerWebSetting(UnityAdsWebPlayerWebSettings);

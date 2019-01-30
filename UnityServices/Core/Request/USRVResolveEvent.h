@@ -5,4 +5,4 @@ typedef NS_ENUM(NSInteger, UnityServicesResolveEvent) {
     kUnityServicesResolveEventFailed
 };
 
-NSString *NSStringFromResolveEvent(UnityServicesResolveEvent);
+NSString *USRVNSStringFromResolveEvent(UnityServicesResolveEvent);

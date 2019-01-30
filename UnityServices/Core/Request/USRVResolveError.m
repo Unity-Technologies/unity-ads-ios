@@ -4,7 +4,7 @@ static NSString *timedOut = @"TIMEOUT";
 static NSString *unknownHost = @"UNKNOWN_HOST";
 static NSString *invalidHost = @"INVALID_HOST";
 
-NSString *NSStringFromResolveError(UnityServicesResolveError error) {
+NSString *USRVNSStringFromResolveError(UnityServicesResolveError error) {
     switch (error) {
         case kUnityServicesResolveErrorTimedOut:
             return timedOut;

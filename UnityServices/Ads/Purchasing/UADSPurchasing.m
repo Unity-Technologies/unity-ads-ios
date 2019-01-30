@@ -8,7 +8,7 @@ static NSString *unityAdsPurchasingCommandCallback = @"COMMAND";
 static NSString *unityAdsPurchasingInitializationResult = @"INITIALIZATION";
 static NSString *unityAdsPurchasingEvent = @"EVENT";
 
-NSString *NSStringFromPurchasingEvent(UnityAdsPurchasingEvent event) {
+NSString *UADSNSStringFromPurchasingEvent(UnityAdsPurchasingEvent event) {
     switch (event) {
         case kUnityAdsPurchasingEventPurchasingVersion:
             return unityAdsPurchasingVersionEvent;
@@ -35,7 +35,7 @@ static NSString *kUnityAdsPurchasingEventCategory = @"PURCHASING";
 
 + (void)dispatchReturnEvent:(UnityAdsPurchasingEvent)event withPayload:(NSString *)payload {
     if ([USRVWebViewApp getCurrentApp] != nil) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromPurchasingEvent(event) category:kUnityAdsPurchasingEventCategory param1:payload, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromPurchasingEvent(event) category:kUnityAdsPurchasingEventCategory param1:payload, nil];
     }
     
 }

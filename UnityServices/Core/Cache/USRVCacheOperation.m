@@ -32,9 +32,9 @@
     if ((self.append && ![[NSFileManager defaultManager] fileExistsAtPath:self.target]) ||
         (!self.append && [[NSFileManager defaultManager] fileExistsAtPath:self.target])) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                param1:NSStringFromCacheError(kUnityServicesFileStateWrong),
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                param1:USRVNSStringFromCacheError(kUnityServicesFileStateWrong),
                 weakSelf.source,
                 weakSelf.target,
                 weakSelf.append,
@@ -47,9 +47,9 @@
     NSURL *candidateUrl = [NSURL URLWithString:self.source];
     if (!candidateUrl) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                param1:NSStringFromCacheError(kUnityServicesMalformedUrl),
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                param1:USRVNSStringFromCacheError(kUnityServicesMalformedUrl),
                 self.source,
              nil];
         });
@@ -80,9 +80,9 @@
         } @catch (NSException *exception) {
             [fileHandle closeFile];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                    category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                    param1:NSStringFromCacheError(kUnityServicesFileIOError),
+                [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                    category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                    param1:USRVNSStringFromCacheError(kUnityServicesFileIOError),
                     weakSelf.source,
                     [NSNumber numberWithLongLong:fileSize],
                     [NSNumber numberWithLongLong:weakSelf.expectedContentSize],
@@ -101,9 +101,9 @@
         } @catch (NSException *exception) {
             [fileHandle closeFile];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                    category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                    param1:NSStringFromCacheError(kUnityServicesFileIOError),
+                [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                    category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                    param1:USRVNSStringFromCacheError(kUnityServicesFileIOError),
                     weakSelf.source,
                     [NSNumber numberWithLongLong:fileSize],
                     [NSNumber numberWithLongLong:weakSelf.expectedContentSize],
@@ -119,8 +119,8 @@
     [self.request setProgressBlock:^(NSString *url, long long bytes, long long totalBytes) {
         long long currentTime = ([[NSDate date] timeIntervalSince1970] * 1000);
         if (![weakSelf isCancelled] && weakSelf.progressEventInterval > 0 && weakSelf.lastProgressEvent + weakSelf.progressEventInterval <= currentTime) {
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadProgress)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadProgress)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
                 param1:weakSelf.source,
                 [NSNumber numberWithLongLong:bytes],
                 [NSNumber numberWithLongLong:weakSelf.expectedContentSize],
@@ -135,8 +135,8 @@
         responseCode = [weakSelf.request responseCode];
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadStarted)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadStarted)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
                 param1:weakSelf.source,
                 [NSNumber numberWithLongLong:fileSize],
                 [NSNumber numberWithLongLong:weakSelf.expectedContentSize],
@@ -148,9 +148,9 @@
 
     if ([USRVConnectivityUtils getNetworkStatus] == NotReachable) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                param1:NSStringFromCacheError(kUnityServicesNoInternet),
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                param1:USRVNSStringFromCacheError(kUnityServicesNoInternet),
                 weakSelf.source,
              nil];
         });
@@ -162,9 +162,9 @@
     NSData *fileData = [self.request makeRequest];
     if (self.request.error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                param1:NSStringFromCacheError(kUnityServicesNetworkError),
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                param1:USRVNSStringFromCacheError(kUnityServicesNetworkError),
                 self.source,
                 [NSNumber numberWithLongLong:fileSize],
                 [NSNumber numberWithLongLong:self.expectedContentSize],
@@ -176,9 +176,9 @@
             [fileHandle synchronizeFile];
         } @catch (NSException *exception) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                    category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                    param1:NSStringFromCacheError(kUnityServicesFileIOError),
+                [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                    category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                    param1:USRVNSStringFromCacheError(kUnityServicesFileIOError),
                     self.source,
                     [NSNumber numberWithLongLong:fileSize],
                  nil];
@@ -200,9 +200,9 @@
         [fileHandle closeFile];
 
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadError)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
-                param1:NSStringFromCacheError(kUnityServicesFileIOError),
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadError)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+                param1:USRVNSStringFromCacheError(kUnityServicesFileIOError),
                 self.source,
                 [NSNumber numberWithLongLong:fileSize],
              nil];
@@ -221,8 +221,8 @@
     if (![self isCancelled]) {
         USRVLogDebug(@"Unity Ads cache: file %@ of %llu bytes downloaded in %lldms", self.target, dataLength, duration);
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadEnd)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadEnd)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
                 param1:self.source,
                 [NSNumber numberWithLongLong:dataLength],
                 [NSNumber numberWithLongLong:self.expectedContentSize],
@@ -234,8 +234,8 @@
     }
     else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromCacheEvent(kUnityServicesDownloadStopped)
-                category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
+            [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromCacheEvent(kUnityServicesDownloadStopped)
+                category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryCache)
                 param1:self.source,
                 [NSNumber numberWithLongLong:dataLength],
                 [NSNumber numberWithLongLong:self.expectedContentSize],

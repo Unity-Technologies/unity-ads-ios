@@ -7,7 +7,7 @@ static NSString *unityAdsWebPlayerEvent = @"WEBPLAYER_EVENT";
 static NSString *unityAdsWebPlayerShouldOverrideURLLoading = @"SHOULD_OVERRIDE_URL_LOADING";
 static NSString *unityAdsWebPlayerCreateWebView = @"CREATE_WEBVIEW";
 
-NSString *NSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent event) {
+NSString *UADSNSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent event) {
     switch (event) {
         case kUnityAdsWebPlayerPageStarted:
             return unityAdsWebPlayerPageStarted;

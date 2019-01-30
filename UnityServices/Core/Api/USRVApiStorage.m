@@ -14,15 +14,14 @@
         if (success) {
             [callback invoke:
                 key,
-                value,
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityServicesCouldntSetValue) arg1:key, value, nil];
+            [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntSetValue) arg1:key, value, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, key, value, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, key, value, nil];
     }
 }
 
@@ -39,11 +38,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityServicesCouldntGetValue) arg1:key, nil];
+            [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetValue) arg1:key, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, key, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, key, nil];
     }
 }
 
@@ -58,7 +57,7 @@
          nil];
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -75,11 +74,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityServicesCouldntWriteStorageToCache) arg1:type, nil];
+            [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntWriteStorageToCache) arg1:type, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -96,11 +95,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityServicesCouldntClearStorage) arg1:type, nil];
+            [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntClearStorage) arg1:type, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -117,11 +116,11 @@
              nil];
         }
         else {
-            [callback error:NSStringFromStorageError(kUnityServicesCouldntDeleteValue) arg1:type, nil];
+            [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntDeleteValue) arg1:type, nil];
         }
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, nil];
     }
 }
 
@@ -135,7 +134,7 @@
          nil];
     }
     else {
-        [callback error:NSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, key, nil];
+        [callback error:USRVNSStringFromStorageError(kUnityServicesCouldntGetStorage) arg1:type, key, nil];
     }
 }
 

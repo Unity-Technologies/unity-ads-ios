@@ -7,7 +7,7 @@ typedef NS_ENUM(NSInteger, UnityAdsPurchasingError) {
     kUnityAdsPurchasingErrorNullInterface
 };
 
-NSString *NSStringFromPurchasingError(UnityAdsPurchasingError error) {
+NSString *UADSNSStringFromPurchasingError(UnityAdsPurchasingError error) {
     switch (error) {
         case kUnityAdsPurchasingErrorNullInterface:
             return unityAdsPurchasingErrorNullInterface;
@@ -37,7 +37,7 @@ static id<UADSPurchasingDelegate> internalPurchasingDelegate = nil;
     if ([UADSApiPurchasing getPurchasingDelegate]) {
         [callback invoke:nil];
     } else {
-        [callback error:NSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
+        [callback error:UADSNSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
     }
 }
 
@@ -52,7 +52,7 @@ static id<UADSPurchasingDelegate> internalPurchasingDelegate = nil;
     if ([UADSApiPurchasing getPurchasingDelegate]) {
         [callback invoke:nil];
     } else {
-        [callback error:NSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
+        [callback error:UADSNSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
     }
 }
 
@@ -67,7 +67,7 @@ static id<UADSPurchasingDelegate> internalPurchasingDelegate = nil;
     if ([UADSApiPurchasing getPurchasingDelegate]) {
         [callback invoke:nil];
     } else {
-        [callback error:NSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
+        [callback error:UADSNSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
     }
 }
 
@@ -82,7 +82,7 @@ static id<UADSPurchasingDelegate> internalPurchasingDelegate = nil;
     if ([UADSApiPurchasing getPurchasingDelegate]) {
         [callback invoke:nil];
     } else {
-        [callback error:NSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
+        [callback error:UADSNSStringFromPurchasingError(kUnityAdsPurchasingErrorNullInterface) arg1:nil];
     }
 }
 @end

@@ -59,7 +59,7 @@
                 if (!finished) {
                     cancelled = YES;
                     USRVLogDebug(@"Timeout. Preloading product information failed for id: %@", iTunesId);
-                    block(false, NSStringFromAppSheetError(kUnityServicesAppSheetErrorTimeout));
+                    block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorTimeout));
                 }
             });
             
@@ -80,7 +80,7 @@
             }];
         });
     } else {
-        block(false, NSStringFromAppSheetError(kUnityServicesAppSheetErrorAlreadyPreparing));
+        block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorAlreadyPreparing));
     }
 }
 
@@ -89,7 +89,7 @@
     SKStoreProductViewController* cachedController = [self getCachedController:iTunesId];
     if(cachedController) {
         if(self.presentingParameters != nil) {
-            block(false, NSStringFromAppSheetError(kUnityServicesAppSheetErrorAlreadyPresenting));
+            block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorAlreadyPresenting));
             return;
         }
         self.presentingParameters = parameters;
@@ -97,14 +97,14 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSApiAdUnit getAdUnit] presentViewController:cachedController animated:animated completion:^{
                 if ([USRVWebViewApp getCurrentApp]) {
-                    [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAppSheetEvent(kAppSheetOpened) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:parameters, nil];
+                    [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetOpened) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:parameters, nil];
                 }
             }];
         });
         
         block(true, nil);
     } else {
-        block(false, NSStringFromAppSheetError(kUnityServicesAppSheetErrorNotFound));
+        block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorNotFound));
     }
 }
 
@@ -137,7 +137,7 @@
     if (viewController.presentingViewController != nil) {
         [viewController.presentingViewController dismissViewControllerAnimated:self.presentingAnimated completion:^{
             if ([USRVWebViewApp getCurrentApp]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromAppSheetEvent(kAppSheetClosed) category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:self.presentingParameters, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetClosed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:self.presentingParameters, nil];
             }
             self.presentingParameters = nil;
         }];

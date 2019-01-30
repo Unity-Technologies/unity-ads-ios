@@ -48,7 +48,7 @@ static BOOL bannerShown = NO;
 
     self.interstitialPlacementIds = @[@"video", @"defaultZone", @"defaultVideoAndPictureZone"];
     self.incentivizedPlacementIds = @[@"rewardedVideo", @"rewardedVideoZone", @"incentivizedZone"];
-    self.bannerPlacementId = @"banner";
+    self.bannerPlacementId = @"bannerads";
 }
 
 -(void)didReceiveMemoryWarning {
@@ -88,6 +88,8 @@ static BOOL bannerShown = NO;
 }
 
 -(void)showHideBanner:(NSString *)placementId {
+    [UnityAdsBanner setBannerPosition:kUnityAdsBannerPositionCenter];
+   
     if (bannerShown) {
         [UnityAdsBanner destroy];
     } else {
@@ -106,7 +108,7 @@ static BOOL bannerShown = NO;
     [mediationMetaData setName:@"mediationPartner"];
     [mediationMetaData setVersion:@"v12345"];
     [mediationMetaData commit];
-
+    
     self.initializeButton.enabled = NO;
     self.initializeButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.gameIdTextField.enabled = NO;

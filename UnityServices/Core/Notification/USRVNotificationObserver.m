@@ -39,8 +39,8 @@ static NSMutableDictionary *notificationKeyDictionary;
     }
 
     if ([USRVWebViewApp getCurrentApp]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:NSStringFromNotificationEvent(kUnityServicesNotificatoinEventAction)
-                                         category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryNotification)
+        [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromNotificationEvent(kUnityServicesNotificatoinEventAction)
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryNotification)
                                            param1:notification.name, notificationInfo, nil];
     }
 }

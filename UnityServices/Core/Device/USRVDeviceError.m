@@ -4,7 +4,7 @@ static NSString *couldntGetSensorInfo = @"COULDNT_GET_SENSOR_INFO";
 static NSString *couldntGetProcessInfo = @"COULDNT_GET_PROCESS_INFO";
 
 
-NSString *NSStringFromDeviceError(UnityServicesDeviceError error) {
+NSString *USRVNSStringFromDeviceError(UnityServicesDeviceError error) {
     switch (error) {
         case kUnityServicesCouldntGetSensorInfo:
             return couldntGetSensorInfo;

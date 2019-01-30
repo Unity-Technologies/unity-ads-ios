@@ -9,4 +9,4 @@ typedef NS_ENUM(NSInteger, UnityAdsAdUnitEvent) {
     kUnityAdsViewControllerDidReceiveMemoryWarning
 };
 
-NSString *NSStringFromAdUnitEvent(UnityAdsAdUnitEvent);
+NSString *UADSNSStringFromAdUnitEvent(UnityAdsAdUnitEvent);

@@ -119,13 +119,13 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     
     switch ([USRVConnectivityUtils networkStatusForFlags:flags]) {
         case NotReachable:
-            [webViewApp sendEvent:Disconnected category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryConnectivity) param1:nil];
+            [webViewApp sendEvent:Disconnected category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryConnectivity) param1:nil];
             break;
         case ReachableViaWiFi:
-            [webViewApp sendEvent:Connected category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:TRUE], [NSNumber numberWithInt:0], nil];
+            [webViewApp sendEvent:Connected category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:TRUE], [NSNumber numberWithInt:0], nil];
             break;
         case ReachableViaWWAN:
-            [webViewApp sendEvent:Connected category:NSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:FALSE], [NSNumber numberWithInteger:[USRVConnectivityUtils getNetworkType]], nil];
+            [webViewApp sendEvent:Connected category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryConnectivity) param1:[NSNumber numberWithBool:FALSE], [NSNumber numberWithInteger:[USRVConnectivityUtils getNetworkType]], nil];
             break;
         default:
             break;

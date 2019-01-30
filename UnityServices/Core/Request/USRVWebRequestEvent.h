@@ -5,4 +5,4 @@ typedef NS_ENUM(NSInteger, UnityServicesWebRequestEvent) {
     kUnityServicesWebRequestEventFailed
 };
 
-NSString *NSStringFromWebRequestEvent(UnityServicesWebRequestEvent);
+NSString *USRVNSStringFromWebRequestEvent(UnityServicesWebRequestEvent);

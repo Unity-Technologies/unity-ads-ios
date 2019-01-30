@@ -10,7 +10,7 @@ static NSString *unityAdsARError = @"AR_ERROR";
 static NSString *unityAdsARSessionInterrupted = @"AR_SESSION_INTERRUPTED";
 static NSString *unityAdsARSessionInterruptionEnded = @"AR_SESSION_INTERRUPTION_ENDED";
 
-NSString *NSStringFromAREvent(UnityAdsAREvent event) {
+NSString *UADSNSStringFromAREvent(UnityAdsAREvent event) {
     switch (event) {
         case kUnityAdsARPlanesAdded:
             return unityAdsARPlanesAdded;

@@ -31,7 +31,7 @@
         }
         else {
             self.address = NULL;
-            self.error = NSStringFromResolveError(kUnityServicesResolveErrorUnknownHost);
+            self.error = USRVNSStringFromResolveError(kUnityServicesResolveErrorUnknownHost);
             self.errorMessage = @"The host was invalid or unknown";
         }
         
@@ -42,7 +42,7 @@
     [self.blockCondition unlock];
     
     if (!success) {
-        self.error = NSStringFromResolveError(kUnityServicesResolveErrorTimedOut);
+        self.error = USRVNSStringFromResolveError(kUnityServicesResolveErrorTimedOut);
         self.errorMessage = @"Resolving host timed out";
     }
 }

@@ -18,4 +18,4 @@ typedef NS_ENUM(NSInteger, UnityServicesWebViewEventCategory) {
     kUnityServicesWebViewEventCategoryPermissions
 };
 
-NSString *NSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory);
+NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory);

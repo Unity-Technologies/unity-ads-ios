@@ -7,4 +7,4 @@ typedef NS_ENUM(NSInteger, UnityServicesAppSheetEvent) {
     kAppSheetFailed,    
 };
 
-NSString *NSStringFromAppSheetEvent(UnityServicesAppSheetEvent);
+NSString *USRVNSStringFromAppSheetEvent(UnityServicesAppSheetEvent);

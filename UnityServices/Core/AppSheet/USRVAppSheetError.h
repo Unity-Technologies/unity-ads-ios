@@ -9,4 +9,4 @@ typedef NS_ENUM(NSInteger, UnityServicesAppSheetError) {
     
 };
 
-NSString *NSStringFromAppSheetError(UnityServicesAppSheetError);
+NSString *USRVNSStringFromAppSheetError(UnityServicesAppSheetError);

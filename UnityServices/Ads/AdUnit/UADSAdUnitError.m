@@ -6,7 +6,7 @@ static NSString *unityAdsAdUnitUnknownView = @"UNKNOWN_VIEW";
 static NSString *unityAdsAdUnitHostViewControllerNull = @"HOST_VIEWCONTROLLER_NULL";
 static NSString *unityAdsAdUnitApiLevelError = @"API_LEVEL_ERROR";
 
-NSString *NSStringFromAdUnitError(UnityAdsAdUnitError error) {
+NSString *UADSNSStringFromAdUnitError(UnityAdsAdUnitError error) {
     switch (error) {
         case kUnityAdsAdUnitNull:
             return unityAdsAdUnitNull;
