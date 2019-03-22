@@ -277,27 +277,4 @@
 
 }
 
-- (void)testResolveHost {
-    USRVResolve *resolve = [[USRVResolve alloc] initWithHostName:@"google-public-dns-a.google.com"];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    
-    dispatch_async(queue, ^{
-        [resolve resolve];
-        [expectation fulfill];
-    });
-    
-    __block BOOL success = true;
-    [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
-        if (error) {
-            success = false;
-            XCTAssertTrue(success, "Did not complete");
-        }
-    }];
-
-    XCTAssertNil(resolve.error, "Error should be null");
-    XCTAssertEqualObjects(@"google-public-dns-a.google.com", resolve.hostName, @"Hosname should still be the same");
-    XCTAssertEqualObjects(@"8.8.8.8", resolve.address, @"Address should've resolved to 8.8.8.8");
-}
-
 @end

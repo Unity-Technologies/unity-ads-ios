@@ -1,4 +1,0 @@
-
-
-@interface USRVApiAppSheet : NSObject
-@end

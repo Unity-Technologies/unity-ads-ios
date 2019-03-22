@@ -24,7 +24,6 @@
              @"USRVApiConnectivity",
              @"USRVApiPreferences",
              @"USRVApiSensorInfo",
-             @"USRVApiAppSheet",
              @"USRVApiPermissions",
              @"USRVApiMainBundle"
              ];

@@ -1,9 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <StoreKit/SKStoreProductViewController.h>
 
-@interface USRVAppSheet : NSObject <SKStoreProductViewControllerDelegate>
-
-+ (id _Nonnull)instance;
+@interface USTRAppSheet : NSObject <SKStoreProductViewControllerDelegate>
 
 - (BOOL)canOpenAppSheet;
 - (void)prepareAppSheet:(NSDictionary* _Nonnull)parameters prepareTimeoutInSeconds:(int)timeout completionBlock:(nullable void(^)(BOOL result, NSString * __nullable error))block;

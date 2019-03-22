@@ -17,7 +17,7 @@
 #import "USRVDevice.h"
 #import "UADSViewController.h"
 #import "USRVNotificationObserver.h"
-#import "USRVAppSheet.h"
+#import "USTRAppSheet.h"
 #import "UADSApiAdUnit.h"
 #import "UADSViewController.h"
 #import "USRVClientProperties.h"

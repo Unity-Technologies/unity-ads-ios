@@ -31,13 +31,13 @@
 
 @implementation AppSheetTests
 
-USRVAppSheet *appSheet = nil;
+USTRAppSheet *appSheet = nil;
 
 - (void)setUp {
     MockWebViewAppForAppSheetTests *webApp = [[MockWebViewAppForAppSheetTests alloc] init];
     [USRVWebViewApp setCurrentApp:webApp];
     
-    appSheet = [USRVAppSheet instance];
+    appSheet = [[USTRAppSheet alloc] init];
     [super setUp];
 }
 

@@ -140,11 +140,13 @@
         unityAdsError = kUnityAdsErrorInitSanityCheckFail;
     }
     
-    id<UnityAdsDelegate> delegate = [UADSProperties getDelegate];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id<UnityAdsDelegate> delegate = [UADSProperties getDelegate];
 
-    if (delegate != nil && [delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
-        [delegate unityAdsDidError:unityAdsError withMessage:message];
-    }
+        if (delegate != nil && [delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+            [delegate unityAdsDidError:unityAdsError withMessage:message];
+        }
+    });
 }
 @end
 

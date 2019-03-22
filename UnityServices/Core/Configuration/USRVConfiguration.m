@@ -133,7 +133,8 @@ NSArray<NSString*>* webAppApiClassList;
         @"UMONMonetizationModuleConfiguration",
         @"UPURPurchasingModuleConfiguration",
         @"UADSBannerModuleConfiguration",
-        @"UADSARModuleConfiguration"
+        @"UADSARModuleConfiguration",
+        @"USTRStoreModuleConfiguration"
     ];
 }
 

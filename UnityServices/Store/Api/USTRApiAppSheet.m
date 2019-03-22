@@ -1,24 +1,23 @@
-#import "USRVApiAppSheet.h"
+#import "USTRApiAppSheet.h"
+#import "USTRStore.h"
 #import "USRVWebViewCallback.h"
-#import "USRVAppSheetViewController.h"
 #import "UADSApiAdUnit.h"
 #import "USRVWebViewApp.h"
-#import "USRVAppSheet.h"
-#import "USRVAppSheetEvent.h"
+#import "USTRAppSheetEvent.h"
 #import "USRVWebViewEventCategory.h"
-#import "USRVAppSheetError.h"
+#import "USTRAppSheetError.h"
 
 
-@implementation USRVApiAppSheet
+@implementation USTRApiAppSheet
 
 + (void)WebViewExposed_canOpen:(USRVWebViewCallback *)callback {
-    USRVAppSheet* appSheet = [USRVAppSheet instance];
+    USTRAppSheet* appSheet = [USTRStore appSheet];
     NSNumber* canOpenAppSheet = [NSNumber numberWithBool:appSheet.canOpenAppSheet];
     [callback invoke:canOpenAppSheet, nil];
 }
 
 + (void)WebViewExposed_prepare:(NSDictionary *)parameters prepareTimeout:(NSNumber *)timeout callback:(USRVWebViewCallback *)callback {
-    [[USRVAppSheet instance] prepareAppSheet:parameters prepareTimeoutInSeconds:timeout.intValue / 1000 completionBlock:^(BOOL result, NSString * _Nullable error) {
+    [[USTRStore appSheet] prepareAppSheet:parameters prepareTimeoutInSeconds:timeout.intValue / 1000 completionBlock:^(BOOL result, NSString * _Nullable error) {
         id webViewApp = [USRVWebViewApp getCurrentApp];
         if(result) {
             if(webViewApp) {
@@ -34,7 +33,7 @@
 }
 
 + (void)WebViewExposed_present:(NSDictionary *)parameters animated:(NSNumber *)animated callback:(USRVWebViewCallback *)callback {
-    [[USRVAppSheet instance] presentAppSheet:parameters animated:[animated boolValue] completionBlock:^(BOOL result, NSString * _Nullable error) {
+    [[USTRStore appSheet] presentAppSheet:parameters animated:[animated boolValue] completionBlock:^(BOOL result, NSString * _Nullable error) {
         if(result) {
             [callback invoke:parameters, nil];
         } else {
@@ -44,12 +43,12 @@
 }
 
 + (void)WebViewExposed_destroy:(USRVWebViewCallback *)callback {
-    [[USRVAppSheet instance] destroyAppSheet];
+    [[USTRStore appSheet] destroyAppSheet];
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_destroy:(NSDictionary*)parameters callback:(USRVWebViewCallback *)callback {
-    if([[USRVAppSheet instance] destroyAppSheet:parameters]) {
+    if([[USTRStore appSheet] destroyAppSheet:parameters]) {
         [callback invoke:nil];
     } else {
         [callback error:USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorNoAppSheetFound) arg1:parameters, nil];
@@ -57,12 +56,12 @@
 }
 
 + (void)WebViewExposed_setPrepareTimeout:(NSNumber *)timeout callback:(USRVWebViewCallback *)callback {
-    [[USRVAppSheet instance] setPrepareTimeoutInSeconds:timeout.intValue / 1000];
+    [[USTRStore appSheet] setPrepareTimeoutInSeconds:timeout.intValue / 1000];
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_getPrepareTimeout:(USRVWebViewCallback *)callback {
-    NSNumber *timeoutInMs = [NSNumber numberWithInt:[[USRVAppSheet instance] prepareTimeoutInSeconds] * 1000];
+    NSNumber *timeoutInMs = [NSNumber numberWithInt:[[USTRStore appSheet] prepareTimeoutInSeconds] * 1000];
     [callback invoke:timeoutInMs, nil];
 }
 

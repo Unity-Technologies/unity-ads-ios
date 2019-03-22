@@ -1,0 +1,2 @@
+@interface USTRApiAppSheet : NSObject
+@end

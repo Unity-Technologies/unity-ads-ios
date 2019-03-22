@@ -1,13 +1,12 @@
 #import "UnityAds.h"
-#import "USRVAppSheet.h"
-#import "USRVAppSheetViewController.h"
+#import "USTRAppSheet.h"
 #import "UADSApiAdUnit.h"
 #import "USRVWebViewApp.h"
-#import "USRVAppSheetError.h"
-#import "USRVAppSheetEvent.h"
+#import "USTRAppSheetError.h"
+#import "USTRAppSheetEvent.h"
 #import "USRVWebViewEventCategory.h"
 
-@interface USRVAppSheet ()
+@interface USTRAppSheet ()
 
 @property NSMutableDictionary<NSString*, SKStoreProductViewController*>* appSheetCache;
 @property NSMutableSet<NSString*>* appSheetLoading;
@@ -16,17 +15,7 @@
 
 @end
 
-@implementation USRVAppSheet
-
-+ (instancetype)instance {
-    static USRVAppSheet *sharedInstance;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[USRVAppSheet alloc] init];
-    });
-    
-    return sharedInstance;
-}
+@implementation USTRAppSheet
 
 - (id)init {
     self = [super init];
@@ -49,7 +38,7 @@
         [self.appSheetLoading addObject:iTunesId];
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            SKStoreProductViewController *viewController = [[USRVAppSheetViewController alloc] init];
+            SKStoreProductViewController *viewController = [[SKStoreProductViewController alloc] init];
             [viewController setDelegate:self];
             [viewController setModalPresentationCapturesStatusBarAppearance:true];
             

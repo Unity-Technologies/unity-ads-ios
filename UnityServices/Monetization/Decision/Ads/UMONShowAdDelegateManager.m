@@ -27,11 +27,13 @@
 }
 
 -(void)sendAdFinished:(NSString *)placementId withFinishState:(UnityAdsFinishState)finishState {
-    id<UMONShowAdDelegate> delegate = self.delegateMap[placementId];
-    if (delegate != nil && [delegate respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
-        [delegate unityAdsDidFinish:placementId withFinishState:finishState];
-    }
-    [self.delegateMap removeObjectForKey:placementId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id<UMONShowAdDelegate> delegate = self.delegateMap[placementId];
+        if (delegate != nil && [delegate respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
+            [delegate unityAdsDidFinish:placementId withFinishState:finishState];
+        }
+        [self.delegateMap removeObjectForKey:placementId];
+    });
 }
 
 -(void)sendAdStarted:(NSString *)placementId {
