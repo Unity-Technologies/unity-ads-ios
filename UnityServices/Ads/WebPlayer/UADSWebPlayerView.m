@@ -5,6 +5,7 @@
 #import "UADSWebPlayerSettings.h"
 #import "USRVWebViewEventCategory.h"
 #import "USRVWKWebViewUtilities.h"
+#import "USRVJsonUtilities.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
@@ -82,13 +83,15 @@
 }
 
 -(void)receiveEvent:(NSString *)data {
-    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
-    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString *stringForEvaluation = [NSString stringWithFormat:@"javascript:window.nativebridge.receiveEvent(%@)", jsonString];
-    if ([_internalWebView isKindOfClass:[UIWebView class]]) {
-        [((UIWebView*)_internalWebView) stringByEvaluatingJavaScriptFromString:stringForEvaluation];
-    } else {
-        [USRVWKWebViewUtilities evaluateJavaScript:_internalWebView string:stringForEvaluation];
+    NSData *jsonData = [USRVJsonUtilities dataWithJSONObject:data options:0 error:nil];
+    if (jsonData) {
+        NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSString * stringForEvaluation = [NSString stringWithFormat:@"javascript:window.nativebridge.receiveEvent(%@)", jsonString];
+        if ([_internalWebView isKindOfClass:[UIWebView class]]) {
+            [((UIWebView *) _internalWebView) stringByEvaluatingJavaScriptFromString:stringForEvaluation];
+        } else {
+            [USRVWKWebViewUtilities evaluateJavaScript:_internalWebView string:stringForEvaluation];
+        }
     }
 }
 
@@ -404,12 +407,7 @@
         data = [body dataUsingEncoding:NSUTF8StringEncoding];
     }
     else if ([body isKindOfClass:[NSDictionary class]]) {
-        NSError *err;
-        data = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
-
-        if (err) {
-            data = NULL;
-        }
+        data = [USRVJsonUtilities dataWithJSONObject:body options:0 error:nil];
     }
 
     if (data) {

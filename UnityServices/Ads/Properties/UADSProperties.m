@@ -1,24 +1,48 @@
 #import "UADSProperties.h"
 
+int const UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT = 5000;
+
 @implementation UADSProperties
 
-static id<UnityAdsDelegate> _delegate = nil;
-static int showTimeout = 5000;
+static NSMutableOrderedSet<id<UnityAdsDelegate>> *_delegates = nil;
+static int _showTimeout = UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT;
 
-+ (void)setDelegate:(id<UnityAdsDelegate>)delegate; {
-    _delegate = delegate;
+// Public
+
++(void)addDelegate:(id <UnityAdsDelegate>)delegate {
+    [UADSProperties initializeDelegates];
+    if (delegate) {
+        [_delegates addObject:delegate];
+    }
 }
 
-+ (id<UnityAdsDelegate>)getDelegate {
-    return _delegate;
++(NSOrderedSet<id <UnityAdsDelegate>> *)getDelegates {
+    [UADSProperties initializeDelegates];
+    return [[NSOrderedSet alloc] initWithOrderedSet:_delegates];
 }
 
-+ (void)setShowTimeout:(int)timeout {
-    showTimeout = timeout;
++(void)removeDelegate:(id <UnityAdsDelegate>)delegate {
+    [UADSProperties initializeDelegates];
+    if (delegate) {
+        [_delegates removeObject:delegate];
+    }
 }
 
-+ (int)getShowTimeout {
-    return showTimeout;
++(void)setShowTimeout:(int)timeout {
+    _showTimeout = timeout;
+}
+
++(int)getShowTimeout {
+    return _showTimeout;
+}
+
+// Private
+
++(void)initializeDelegates {
+    if (!_delegates) {
+        // only create delegates if nil
+        _delegates = [[NSMutableOrderedSet alloc] init];
+    }
 }
 
 @end

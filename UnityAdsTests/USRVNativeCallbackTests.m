@@ -1,10 +1,10 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface NativeCallbackTestsCallbacks : NSObject
+@interface USRVNativeCallbackTestsCallbacks : NSObject
 @end
 
-@implementation NativeCallbackTestsCallbacks
+@implementation USRVNativeCallbackTestsCallbacks
 
 static BOOL nativeCallbackInvoked = false;
 static NSArray *nativeCallbackParams = NULL;
@@ -20,11 +20,11 @@ static NSArray *nativeCallbackParams = NULL;
 
 @end
 
-@interface NativeCallbackTests : XCTestCase
+@interface USRVNativeCallbackTests : XCTestCase
 @property (nonatomic, strong) NSCondition *blockCondition;
 @end
 
-@implementation NativeCallbackTests
+@implementation USRVNativeCallbackTests
 
 - (void)setUp {
     [super setUp];
@@ -53,26 +53,26 @@ static NSArray *nativeCallbackParams = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:NULL receiverClass:@"test"];
+        nativeCallback = [[USRVNativeCallback alloc] initWithMethod:NULL receiverClass:@"test"];
     }
     @catch (NSException *exception) {
         receivedException = exception;
     }
     
-    XCTAssertEqualObjects(@"NullPointerException", [receivedException name], "Should have receiver NullPointerException because callback name was NULL");
+    XCTAssertEqualObjects(@"NullPointerException", [receivedException name], "Should have receiver NullPointerException because method name was NULL");
 }
 
 - (void)testNullReceiverClass {
     USRVNativeCallback *nativeCallback = NULL;
     NSException *receivedException;
-    
+
     @try {
-        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"test" receiverClass:NULL];
+        nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"test" receiverClass:NULL];
     }
     @catch (NSException *exception) {
         receivedException = exception;
     }
-    
+
     XCTAssertEqualObjects(@"NullPointerException", [receivedException name], "Should have receiver NullPointerException because receiver class name was NULL");
 }
 
@@ -81,7 +81,7 @@ static NSArray *nativeCallbackParams = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"invalidResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
+        nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"invalidResponseMethod:" receiverClass:@"USRVNativeCallbackTestsCallbacks"];
         [nativeCallback invokeWithStatus:@"OK" params:@[]];
     }
     @catch (NSException *exception) {
@@ -99,7 +99,7 @@ static NSArray *nativeCallbackParams = NULL;
     NSException *receivedException;
     
     @try {
-        nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"invalidResponseMethod" receiverClass:@"NativeCallbackTestsCallbacks"];
+        nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"invalidResponseMethod" receiverClass:@"USRVNativeCallbackTestsCallbacks"];
         [nativeCallback invokeWithStatus:@"OK" params:@[]];
     }
     @catch (NSException *exception) {
@@ -114,7 +114,7 @@ static NSArray *nativeCallbackParams = NULL;
 
 - (void)testValidMethodOK {
     USRVNativeCallback *nativeCallback = NULL;
-    nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"validResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
+    nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"validResponseMethod:" receiverClass:@"USRVNativeCallbackTestsCallbacks"];
     [nativeCallback invokeWithStatus:@"OK" params:@[@"We are okay"]];
     
     XCTAssertTrue(nativeCallbackInvoked, @"Native callback should have been invoked");
@@ -124,7 +124,7 @@ static NSArray *nativeCallbackParams = NULL;
 
 - (void)testValidMethodERROR {
     USRVNativeCallback *nativeCallback = NULL;
-    nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"validResponseMethod:" receiverClass:@"NativeCallbackTestsCallbacks"];
+    nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"validResponseMethod:" receiverClass:@"USRVNativeCallbackTestsCallbacks"];
     [nativeCallback invokeWithStatus:@"ERROR" params:@[@"We are broken"]];
     
     XCTAssertTrue(nativeCallbackInvoked, @"Native callback should have been invoked");

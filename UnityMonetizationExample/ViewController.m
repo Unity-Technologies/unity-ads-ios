@@ -89,12 +89,14 @@ static BOOL bannerShown = NO;
 
 -(void)showHideBanner:(NSString *)placementId {
     [UnityAdsBanner setBannerPosition:kUnityAdsBannerPositionCenter];
-   
     if (bannerShown) {
         [UnityAdsBanner destroy];
+        bannerShown = NO;
     } else {
         [UnityAdsBanner loadBanner:placementId];
+        bannerShown = YES;
     }
+
 }
 
 -(IBAction)initializeButtonTapped:(id)sender {
@@ -163,7 +165,6 @@ static BOOL bannerShown = NO;
 }
 
 -(void)unityAdsBannerDidHide:(NSString *)placementId {
-    bannerShown = NO;
 }
 
 -(void)unityAdsBannerDidLoad:(NSString *)placementId view:(UIView *)view {
@@ -172,11 +173,9 @@ static BOOL bannerShown = NO;
 }
 
 -(void)unityAdsBannerDidShow:(NSString *)placementId {
-    bannerShown = YES;
 }
 
 -(void)unityAdsBannerDidUnload:(NSString *)placementId {
-    bannerShown = NO;
     self.bannerView = nil;
 }
 -(void)unityAdsDidStart:(NSString *)placementId {

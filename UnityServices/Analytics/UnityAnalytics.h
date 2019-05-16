@@ -40,14 +40,14 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param levelIndex    The index for the level that the player failed
  */
-+(void)onLevelFail:(int)levelIndex;
++(void)onLevelFail:(NSString *)levelIndex;
 
 /**
  * Sends a level up event to Unity Analytics
  *
  * @param theNewLevelIndex  The index for the new level that the player just unlocked
  */
-+(void)onLevelUp:(int)theNewLevelIndex;
++(void)onLevelUp:(NSString *)theNewLevelIndex;
 
 /**
  * Send an Ad Complete event to Unity Analytics

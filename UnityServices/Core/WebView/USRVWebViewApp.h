@@ -1,8 +1,8 @@
 #import <UIKit/UIKit.h>
 #import "USRVConfiguration.h"
 #import "USRVInvocation.h"
-#import "USRVNativeCallback.h"
 #import "USRVWebViewBackgroundView.h"
+#import "USRVNativeCallback.h"
 
 @interface USRVWebViewApp : NSObject
 
@@ -20,6 +20,7 @@
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration;
 - (BOOL)invokeCallback:(USRVInvocation *)invocation;
 - (BOOL)invokeMethod:(NSString *)methodName className:(NSString *)className receiverClass:(NSString *)receiverClass callback:(NSString *)callback params:(NSArray *)params;
+- (BOOL)invokeMethod:(NSString *)methodName className:(NSString *)className context:(NSString *)context callback:(USRVNativeCallbackBlock)callback params:(NSArray *)params;
 - (BOOL)sendEvent:(NSString *)eventId category:(NSString *)category param1:(id)param1, ... NS_REQUIRES_NIL_TERMINATION;
 - (BOOL)sendEvent:(NSString *)eventId category:(NSString *)category params:(NSArray *)params;
 - (void)addCallback:(USRVNativeCallback *)callback;

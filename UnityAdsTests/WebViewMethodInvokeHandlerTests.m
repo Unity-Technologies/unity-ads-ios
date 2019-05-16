@@ -286,7 +286,7 @@ static NSString *nativeCallbackValue = NULL;
 
 - (void)testHandleCallbackShouldFailCallbackNotAdded {
     USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
-    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[]}", [nativeCallback callbackId]];
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
@@ -304,7 +304,7 @@ static NSString *nativeCallbackValue = NULL;
 
 - (void)testHandleCallbackShouldFailMethodNotStatic {
     USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
-    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"instanceTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"instanceTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
     [[USRVWebViewApp getCurrentApp] addCallback:nativeCallback];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[]}", [nativeCallback callbackId]];
@@ -323,7 +323,7 @@ static NSString *nativeCallbackValue = NULL;
 
 - (void)testHandleCallbackShouldSucceed {
     USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
-    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"staticTestHandleCallback:" receiverClass:@"UrlProtocolTestsCallbacks"];
     [[USRVWebViewApp getCurrentApp] addCallback:nativeCallback];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[]}", [nativeCallback callbackId]];
@@ -344,7 +344,7 @@ static NSString *nativeCallbackValue = NULL;
 
 - (void)testHandleCallbackWithParamsShouldSucceed {
     USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
-    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"staticTestHandleCallbackStringParam:" receiverClass:@"UrlProtocolTestsCallbacks"];
+    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"staticTestHandleCallbackStringParam:" receiverClass:@"UrlProtocolTestsCallbacks"];
     [[USRVWebViewApp getCurrentApp] addCallback:nativeCallback];
     
     NSString *jsonString = [NSString stringWithFormat:@"{\"id\":\"%@\",\"status\":\"OK\",\"parameters\":[\"test\", 1]}", [nativeCallback callbackId]];

@@ -1,20 +1,22 @@
 #import "USRVWebViewEventCategory.h"
 
-static NSString * eventCategoryAdunit = @"ADUNIT";
-static NSString * eventCategoryCache = @"CACHE";
-static NSString * eventCategoryConnectivity = @"CONNECTIVITY";
-static NSString * eventCategoryResolve = @"RESOLVE";
-static NSString * eventCategoryStorage = @"STORAGE";
-static NSString * eventCategoryUrl = @"URL";
-static NSString * eventCategoryVideoPlayer = @"VIDEOPLAYER";
-static NSString * eventCategoryWebViewApp = @"WEBVIEWAPP";
-static NSString * eventCategoryNotification = @"NOTIFICATION";
-static NSString * eventCategoryAppSheet = @"APPSHEET";
-static NSString * eventCategoryDeviceInfo = @"DEVICEINFO";
-static NSString * eventCategoryWebPlayer = @"WEBPLAYER";
-static NSString * eventCategoryBanner = @"BANNER";
-static NSString * eventCategoryPermissions = @"PERMISSIONS";
-static NSString * eventCategoryAR = @"AR";
+static NSString * const eventCategoryAdunit = @"ADUNIT";
+static NSString * const eventCategoryCache = @"CACHE";
+static NSString * const eventCategoryConnectivity = @"CONNECTIVITY";
+static NSString * const eventCategoryResolve = @"RESOLVE";
+static NSString * const eventCategoryStorage = @"STORAGE";
+static NSString * const eventCategoryUrl = @"URL";
+static NSString * const eventCategoryVideoPlayer = @"VIDEOPLAYER";
+static NSString * const eventCategoryWebViewApp = @"WEBVIEWAPP";
+static NSString * const eventCategoryNotification = @"NOTIFICATION";
+static NSString * const eventCategoryAppSheet = @"APPSHEET";
+static NSString * const eventCategoryDeviceInfo = @"DEVICEINFO";
+static NSString * const eventCategoryWebPlayer = @"WEBPLAYER";
+static NSString * const eventCategoryBanner = @"BANNER";
+static NSString * const eventCategoryPermissions = @"PERMISSIONS";
+static NSString * const eventCategoryAR = @"AR";
+static NSString * const eventCategoryNativeError = @"NATIVE_ERROR";
+static NSString * const eventCategoryWebAuthSession = @"WEB_AUTH_SESSION";
 
 NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory category) {
     switch (category) {
@@ -48,5 +50,9 @@ NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory
             return eventCategoryPermissions;
         case kUnityServicesWebViewEventCategoryAR:
             return eventCategoryAR;
+        case kUnityServicesWebViewEventCategoryNativeError:
+            return eventCategoryNativeError;
+        case kUnityServicesWebViewEventCategoryWebAuthSession:
+            return eventCategoryWebAuthSession;
     }
 }

@@ -23,6 +23,8 @@
 
 + (NSString *)getNetworkOperatorName;
 
++ (NSString *)getNetworkCountryISO;
+
 + (float)getScreenScale;
 
 + (NSNumber *)getScreenWidth;

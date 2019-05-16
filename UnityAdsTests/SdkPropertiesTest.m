@@ -74,4 +74,14 @@
     XCTAssertTrue(4000 == [UADSProperties getShowTimeout], @"New show timeout should equal to 4000");
 }
 
+- (void)testIsChinaLocale {    
+    XCTAssertTrue([USRVSdkProperties isChinaLocale:@"cn"], @"Should return true with a china iso alpha 2 code");
+    XCTAssertTrue([USRVSdkProperties isChinaLocale:@"chn" ], @"Should return true with a china iso alpha 3 code");
+    XCTAssertTrue([USRVSdkProperties isChinaLocale:@"CN"], @"Should return true with an uppercase china iso alpha 2 code");
+    XCTAssertTrue([USRVSdkProperties isChinaLocale:@"CHN"], @"Should return true with an uppercase china iso alpha 3 code");
+    XCTAssertTrue([USRVSdkProperties isChinaLocale:@"ChN"], @"Should return true with a mixture of upper and lowercase china iso alpha 2 code characters");
+
+    XCTAssertFalse([USRVSdkProperties isChinaLocale:@"us"], @"Should return false with a US iso code");
+}
+
 @end

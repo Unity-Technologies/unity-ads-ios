@@ -2,6 +2,7 @@ framework module UnityAds {
   umbrella header "UnityAds.h"
   header "UnityAdsFinishState.h"
   header "UnityAdsExtended.h"
+  header "UnityAdsExtendedDelegate.h"
   header "UADSPurchasing.h"
   header "UnityServices.h"
   header "UnityAnalytics.h"

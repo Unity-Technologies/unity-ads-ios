@@ -145,14 +145,14 @@
 }
 
 -(void)testOnLevelFail {
-    [UnityAnalytics onLevelFail:8789];
+    [UnityAnalytics onLevelFail:@"8789"];
     NSDictionary *expected = @{
             @"type": @"analytics.custom.v1",
             @"msg": @{
                     @"ts": [NSNumber numberWithLong:((long) [[NSDate date] timeIntervalSince1970]) * 1000],
                     @"name": @"level_fail",
                     @"custom_params": @{
-                            @"level_index": [NSNumber numberWithInt:8789]
+                            @"level_index": @"8789"
                     }
             }
     };
@@ -162,14 +162,14 @@
 }
 
 -(void)testOnLevelUp {
-    [UnityAnalytics onLevelUp:334];
+    [UnityAnalytics onLevelUp:@"334"];
     NSDictionary *expected = @{
             @"type": @"analytics.custom.v1",
             @"msg": @{
                     @"ts": [NSNumber numberWithLong:((long) [[NSDate date] timeIntervalSince1970]) * 1000],
                     @"name": @"level_up",
                     @"custom_params": @{
-                            @"new_level_index": [NSNumber numberWithInt:334]
+                            @"new_level_index": @"334"
                     }
             }
     };

@@ -33,5 +33,6 @@ FOUNDATION_EXPORT NSString * const kUnityServicesFlavorRelease;
 + (BOOL)getDebugMode;
 + (id<UnityServicesDelegate>)getDelegate;
 + (void)setDelegate:(id<UnityServicesDelegate>)delegate;
++ (BOOL)isChinaLocale:(NSString *)networkISOCode;
 
 @end

@@ -108,8 +108,8 @@ static BOOL nativeCallbackMethodInvoked = false;
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
     [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
-    USRVNativeCallback *localNativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"nativeCallbackMethod:" receiverClass:@"WebAppTests"];
+
+    USRVNativeCallback *localNativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"nativeCallbackMethod:" receiverClass:@"WebAppTests"];
     
     [[USRVWebViewApp getCurrentApp] addCallback:localNativeCallback];
     USRVNativeCallback *remoteNativeCallback = [[USRVWebViewApp getCurrentApp] getCallbackWithId:[localNativeCallback callbackId]];
@@ -126,8 +126,8 @@ static BOOL nativeCallbackMethodInvoked = false;
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
     [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
-    USRVNativeCallback *localNativeCallback = [[USRVNativeCallback alloc] initWithCallback:@"nativeCallbackMethod:" receiverClass:@"WebAppTests"];
+
+    USRVNativeCallback *localNativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"nativeCallbackMethod:" receiverClass:@"WebAppTests"];
     
     [[USRVWebViewApp getCurrentApp] addCallback:localNativeCallback];
     USRVNativeCallback *remoteNativeCallback = [[USRVWebViewApp getCurrentApp] getCallbackWithId:[localNativeCallback callbackId]];

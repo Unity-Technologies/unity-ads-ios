@@ -97,6 +97,14 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     return carrierName;
 }
 
++ (NSString *)getNetworkCountryISO {
+    NSString *isoCode = uadsTelephonyInfo.subscriberCellularProvider.isoCountryCode;
+    if (isoCode == nil) {
+        return @"";
+    }
+    return isoCode;
+}
+
 + (float)getScreenScale {
     return [[UIScreen mainScreen] scale];
 }

@@ -1,73 +1,120 @@
 #import "USRVNativeCallback.h"
 #import "USRVWebViewApp.h"
 
+USRVNativeCallbackStatus USRVNativeCallbackStatusFromNSString(NSString *stringStatus) {
+    if ([stringStatus isEqualToString:@"OK"]) {
+        return USRVNativeCallbackStatusOk;
+    } else {
+        return USRVNativeCallbackStatusError;
+    }
+}
+
+NSString *NSStringFromUSRVNativeCallbackStatus(USRVNativeCallbackStatus status) {
+    switch(status) {
+        case USRVNativeCallbackStatusOk:
+            return @"OK";
+        case USRVNativeCallbackStatusError:
+            return @"ERROR";
+        default:
+            return @"ERROR";
+    }
+}
+
 @implementation USRVNativeCallback
 
 static NSNumber *callbackCount = 0;
 
-- (instancetype)initWithCallback:(NSString *)callback receiverClass:(id)receiverClass {
+- (instancetype)initWithCallback:(USRVNativeCallbackBlock)callback context:(NSString *)context {
     self = [super init];
-    
+
     if (self) {
 
-        if (!callback || !receiverClass) {
+        if (!callback) {
             NSException* exception = [NSException
-                                      exceptionWithName:@"NullPointerException"
-                                      reason:@"Callback or receiver class NULL"
-                                      userInfo:nil];
+                    exceptionWithName:@"NullPointerException"
+                               reason:@"Callback was NULL"
+                             userInfo:nil];
             @throw exception;
         }
+
 
         @synchronized (callbackCount) {
             callbackCount = [NSNumber numberWithLong:[callbackCount longValue] + 1];
         }
-        
+
         [self setCallback:callback];
-        [self setReceiverClass:receiverClass];
-        [self setCallbackId:[NSString stringWithFormat:@"%@_%lu", callback, [callbackCount longValue]]];
+        [self setCallbackId:[NSString stringWithFormat:@"%@_%lu", context, [callbackCount longValue]]];
     }
-    
+
+    return self;
+}
+
+- (instancetype)initWithMethod:(NSString *)method receiverClass:(NSString *)receiverClass {
+    if (!method) {
+        NSException* exception = [NSException
+                exceptionWithName:@"NullPointerException"
+                           reason:@"method was NULL"
+                         userInfo:nil];
+        @throw exception;
+    }
+    if (!receiverClass) {
+        NSException* exception = [NSException
+                exceptionWithName:@"NullPointerException"
+                           reason:@"receiverClass was NULL"
+                         userInfo:nil];
+        @throw exception;
+    }
+    self = [self initWithCallback:^(USRVNativeCallbackStatus status, NSArray *params){
+        if (params && receiverClass && method) {
+            Class class = NSClassFromString(receiverClass);
+            SEL selector = NSSelectorFromString(method);
+
+            NSMethodSignature *signature = [class methodSignatureForSelector:selector];
+            NSInvocation *invocation;
+
+            if (signature) {
+                invocation = [NSInvocation invocationWithMethodSignature:signature];
+                invocation.selector = selector;
+                invocation.target = class;
+            }
+            else {
+                USRVLogError(@"Could not find signature for selector %@", method);
+                NSException* exception = [NSException
+                        exceptionWithName:@"NoSignatureException"
+                                   reason:[NSString stringWithFormat:@"Could not find signature for selector: %@", method]
+                                 userInfo:nil];
+                @throw exception;
+            }
+
+            if (invocation) {
+                [invocation setArgument:&params atIndex:2];
+                [invocation retainArguments];
+                [invocation invoke];
+            }
+            else {
+                USRVLogError(@"Could not create invocation for %@.%@", receiverClass, method);
+                NSException* exception = [NSException
+                        exceptionWithName:@"NoInvocationException"
+                                   reason:[NSString stringWithFormat:@"Could not create invocation for: %@.%@", receiverClass, method]
+                                 userInfo:nil];
+                @throw exception;
+            }
+        }
+    } context:method];
     return self;
 }
 
 - (void)invokeWithStatus:(NSString *)status params:(NSArray *)params {
-    if (status && params && self.receiverClass && self.callback) {
-        Class class = NSClassFromString(self.receiverClass);
-        SEL selector = NSSelectorFromString(self.callback);
-        NSMutableArray *combinedParams = [[NSMutableArray alloc] initWithObjects:status, nil];
+    USRVNativeCallbackStatus callbackStatus = USRVNativeCallbackStatusFromNSString(status);
+
+    NSMutableArray *combinedParams = [[NSMutableArray alloc] initWithObjects:status, nil];
+    if (params) {
         [combinedParams addObjectsFromArray:params];
-
-        NSMethodSignature *signature = [class methodSignatureForSelector:selector];
-        NSInvocation *invocation;
-
-        if (signature) {
-            invocation = [NSInvocation invocationWithMethodSignature:signature];
-            invocation.selector = selector;
-            invocation.target = class;
-        }
-        else {
-            USRVLogError(@"Could not find signature for selector %@", self.callback);
-            NSException* exception = [NSException
-                                      exceptionWithName:@"NoSignatureException"
-                                      reason:[NSString stringWithFormat:@"Could not find signature for selector: %@", self.callback]
-                                      userInfo:nil];
-            @throw exception;
-        }
-
-        if (invocation) {
-            [invocation setArgument:&combinedParams atIndex:2];
-            [invocation retainArguments];
-            [invocation invoke];
-        }
-        else {
-            USRVLogError(@"Could not create invocation for %@.%@", self.receiverClass, self.callback);
-            NSException* exception = [NSException
-                                      exceptionWithName:@"NoInvocationException"
-                                      reason:[NSString stringWithFormat:@"Could not create invocation for: %@.%@", self.receiverClass, self.callback]
-                                      userInfo:nil];
-            @throw exception;
-        }
     }
+
+    self.callback(callbackStatus, combinedParams);
+    // remove reference
+    self.callback = nil;
 
     [[USRVWebViewApp getCurrentApp] removeCallback:self];
 }

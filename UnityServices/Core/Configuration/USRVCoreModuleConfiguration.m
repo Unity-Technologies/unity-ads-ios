@@ -25,7 +25,8 @@
              @"USRVApiPreferences",
              @"USRVApiSensorInfo",
              @"USRVApiPermissions",
-             @"USRVApiMainBundle"
+             @"USRVApiMainBundle",
+             @"USRVApiWebAuth"
              ];
 }
 
