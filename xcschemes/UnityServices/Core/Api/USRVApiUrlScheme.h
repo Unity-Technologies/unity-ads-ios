@@ -1,0 +1,5 @@
+
+
+@interface USRVApiUrlScheme : NSObject
+
+@end

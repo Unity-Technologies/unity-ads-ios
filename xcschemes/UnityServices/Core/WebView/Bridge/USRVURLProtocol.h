@@ -1,0 +1,5 @@
+
+
+@interface USRVURLProtocol : NSURLProtocol
+
+@end

@@ -1,0 +1,3 @@
+@interface USTRApiProducts : NSObject
+
+@end

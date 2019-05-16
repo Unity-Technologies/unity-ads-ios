@@ -1,0 +1,2 @@
+@interface UPURApiCustomPurchasing : NSObject
+@end

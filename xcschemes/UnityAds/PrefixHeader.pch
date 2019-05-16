@@ -1,0 +1,7 @@
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import <Foundation/Foundation.h>
+#import "USRVDeviceLog.h"
+
+#endif /* PrefixHeader_pch */
