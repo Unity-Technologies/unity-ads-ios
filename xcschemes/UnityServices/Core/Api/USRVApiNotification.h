@@ -1,5 +1,0 @@
-
-
-@interface USRVApiNotification : NSObject
-
-@end

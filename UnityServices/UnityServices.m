@@ -9,6 +9,11 @@ static BOOL _initializing = NO;
 @implementation UnityServices
 
 + (void)initialize:(NSString *)gameId
+          delegate:(nullable id<UnityServicesDelegate>)delegate {
+    
+}
+
++ (void)initialize:(NSString *)gameId
           delegate:(nullable id<UnityServicesDelegate>)delegate
           testMode:(BOOL)testMode {
     

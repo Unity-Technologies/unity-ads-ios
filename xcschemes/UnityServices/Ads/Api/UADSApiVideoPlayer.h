@@ -1,4 +1,0 @@
-
-
-@interface UADSApiVideoPlayer : NSObject
-@end

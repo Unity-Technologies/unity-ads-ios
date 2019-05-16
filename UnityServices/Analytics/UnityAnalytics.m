@@ -2,7 +2,6 @@
 #import "USRVWebViewApp.h"
 #import "UANAWebViewEventCategory.h"
 #import "UANAWebViewAnalyticsEvent.h"
-#import "USRVJsonUtilities.h"
 
 @interface UnityAnalytics ()
 @property(strong, nonatomic) NSMutableArray<NSDictionary *> *eventQueue;
@@ -61,28 +60,28 @@
     [[UnityAnalytics sharedInstance] postEvent:jsonObject];
 }
 
-+(void)onLevelFail:(NSString *)levelIndex {
++(void)onLevelFail:(int)levelIndex {
     NSDictionary *jsonObject = @{
             @"type": @"analytics.custom.v1",
             @"msg": @{
                     @"ts": [NSNumber numberWithLong:((long) [[NSDate date] timeIntervalSince1970]) * 1000], // needs to be in milliseconds
                     @"name": @"level_fail",
                     @"custom_params": @{
-                            @"level_index": levelIndex ? levelIndex : [NSNull null]
+                            @"level_index": [NSNumber numberWithInt:levelIndex]
                     }
             }
     };
     [[UnityAnalytics sharedInstance] postEvent:jsonObject];
 }
 
-+(void)onLevelUp:(NSString *)theNewLevelIndex {
++(void)onLevelUp:(int)theNewLevelIndex {
     NSDictionary *jsonObject = @{
             @"type": @"analytics.custom.v1",
             @"msg": @{
                     @"ts": [NSNumber numberWithLong:((long) [[NSDate date] timeIntervalSince1970]) * 1000], // needs to be in milliseconds
                     @"name": @"level_up",
                     @"custom_params": @{
-                            @"new_level_index": theNewLevelIndex ? theNewLevelIndex : [NSNull null]
+                            @"new_level_index": [NSNumber numberWithInt:theNewLevelIndex]
                     }
             }
     };
@@ -130,25 +129,45 @@
 
 -(void)postEvent:(NSDictionary *)eventData {
     if ([self.eventQueue count] < 200) {
-        NSData *jsonData = [USRVJsonUtilities dataWithJSONObject:eventData options:0 error:nil];
-        if (jsonData) {
-            [self.eventQueue addObject:eventData];
+        @try {
+            NSError *error;
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:eventData options:NSJSONWritingPrettyPrinted error:&error];
+            if (jsonData) {
+                [self.eventQueue addObject:eventData];
+            }
+        } @catch (NSException *exception) {
+            // Log exception
+            USRVLogError(@"UnityAnalytics postEvent json conversion : %@", [exception reason]);
         }
     }
     USRVWebViewApp *currentApp = [self getCurrentApp];
     // only try to send eventQueue if there is something in it
     if (currentApp && [self.eventQueue count] > 0) {
-        NSData *jsonData = [USRVJsonUtilities dataWithJSONObject:self.eventQueue options:0 error:nil];
-        if (!jsonData) {
-            USRVLogError(@"UnityAnalytics postEvent failed to convert queue for posting");
-            self.eventQueue = [[NSMutableArray alloc] init]; // clear the queue so that new events can be sent
-        } else {
-            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-            BOOL success = [currentApp sendEvent:NSStringFromUANAWebViewAnalyticsEvent(kWebViewAnalyticsEventPost) category:NSStringFromUANAWebViewEventCategory(kWebViewEventCategoryAnalytics) param1:jsonString, nil];
-            if (success) {
-                // clear the cache
-                self.eventQueue = [[NSMutableArray alloc] init];
+        @try {
+            NSError *error;
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.eventQueue options:NSJSONWritingPrettyPrinted error:&error];
+            if (!jsonData) {
+                // log error
+                if (error) {
+                    USRVLogError(@"UnityAnalytics postEvent failed to convert queue for posting : %@", [error localizedDescription]);
+                } else {
+                    USRVLogError(@"UnityAnalytics postEvent failed to convert queue for posting");
+                }
+                self.eventQueue = [[NSMutableArray alloc] init]; // clear the queue so that new events can be sent
+            } else {
+                NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                BOOL success = [currentApp sendEvent:NSStringFromUANAWebViewAnalyticsEvent(kWebViewAnalyticsEventPost) category:NSStringFromUANAWebViewEventCategory(kWebViewEventCategoryAnalytics) param1:jsonString, nil];
+                if (success) {
+                    // clear the cache
+                    self.eventQueue = [[NSMutableArray alloc] init];
+                }
             }
+        }
+        @catch (NSException *exception) {
+            // log exception
+            USRVLogError(@"UnityAnalytics postEvent : %@", [exception reason]);
+            // clear the cache
+            self.eventQueue = [[NSMutableArray alloc] init];
         }
     }
 

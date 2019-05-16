@@ -1,2 +1,0 @@
-@interface UARApiAR : NSObject
-@end

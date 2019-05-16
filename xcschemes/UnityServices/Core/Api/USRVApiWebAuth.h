@@ -1,3 +1,0 @@
-
-@interface USRVApiWebAuth : NSObject
-@end

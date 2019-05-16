@@ -1,6 +1,5 @@
 #import "USRVStorage.h"
 #import "USRVWebViewApp.h"
-#import "USRVJsonUtilities.h"
 
 @implementation USRVStorage
 
@@ -61,24 +60,18 @@
 
 - (BOOL)writeStorage {
     if (self.storageContents) {
-        NSData *jsonData = [USRVJsonUtilities dataWithJSONObject:self.storageContents options:0 error:nil];
-        if (jsonData) {
-            NSError *error;
-            [jsonData writeToFile:self.targetFileName options:NSDataWritingAtomic error:&error];
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.storageContents options:0 error:nil];
+        [jsonData writeToFile:self.targetFileName options:NSDataWritingAtomic error:&error];
 
-            if (error) {
-                USRVLogError(@"USRVStorage.writeStorage was not able to write data to file : %@", [error localizedDescription]);
-                return false;
-            } else {
-                // successfully wrote to file
-                return true;
-            }
-        } else {
+        if (error) {
             return false;
         }
-    } else {
-        return false;
+
+        return true;
     }
+
+    return false;
 }
 
 - (BOOL)clearStorage {

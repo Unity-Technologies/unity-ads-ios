@@ -1,7 +1,6 @@
 #import "USRVWebViewApp.h"
 #import "USRVSdkProperties.h"
 #import "USRVURLProtocol.h"
-#import "USRVJsonUtilities.h"
 
 @implementation USRVWebViewApp
 
@@ -65,13 +64,16 @@ static USRVWebViewApp *currentApp = NULL;
 }
 
 - (void)invokeJavascriptMethod:(NSString *)methodName className:(NSString *)className params:(NSArray *)params {
-    NSData *jsonData = [USRVJsonUtilities dataWithJSONObject:params options:0 error:nil];
-    if (jsonData) {
+    BOOL isValid = [NSJSONSerialization isValidJSONObject:params];
+    
+    if (isValid) {
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:params options:0 error:nil];
         NSString *paramStr = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
         NSString *javaScriptString = [[NSString alloc] initWithFormat:@"window.%@.%@(%@);", className, methodName, paramStr];
         USRVLogDebug(@"JS_STRING: %@", javaScriptString);
         [self invokeJavascriptString:javaScriptString];
-    } else {
+    }
+    else {
         USRVLogError(@"FATAL_ERROR: Tried to invoke javascript with data that could not be parsed to JSON: %@", [params description]);
     }
 }
@@ -123,31 +125,21 @@ static USRVWebViewApp *currentApp = NULL;
     return false;
 }
 
--(BOOL)invokeMethod:(NSString *)methodName className:(NSString *)className context:(NSString *)context callback:(USRVNativeCallbackBlock)callback params:(NSArray *)params {
-    USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:callback context:context];
-    return [self invokeMethod:methodName className:className params:params nativeCallback:nativeCallback];
-}
-
 - (BOOL)invokeMethod:(NSString *)methodName className:(NSString *)className receiverClass:(NSString *)receiverClass callback:(NSString *)callback params:(NSArray *)params {
-    USRVNativeCallback *nativeCallback = nil;
-    if (receiverClass && callback) {
-        nativeCallback = [[USRVNativeCallback alloc] initWithMethod:callback receiverClass:receiverClass];
-    }
-
-    return [self invokeMethod:methodName className:className params:params nativeCallback:nativeCallback];
-}
-
-- (BOOL)invokeMethod:(NSString *)methodName className:(NSString *)className params:(NSArray *)params nativeCallback:(USRVNativeCallback *)nativeCallback {
     if (self.webAppLoaded) {
         NSMutableArray *combinedParams = [[NSMutableArray alloc] init];
         [combinedParams addObject:className];
         [combinedParams addObject:methodName];
 
-        if ([nativeCallback callbackId]) {
-            [self addCallback:nativeCallback];
-            [combinedParams addObject:[nativeCallback callbackId]];
+        if (receiverClass && callback) {
+            USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithCallback:callback receiverClass:receiverClass];
+            if ([nativeCallback callbackId]) {
+                [self addCallback:nativeCallback];
+                [combinedParams addObject:[nativeCallback callbackId]];
+            }
         }
         [combinedParams addObjectsFromArray:params];
+
         [self invokeJavascriptMethod:@"handleInvocation" className:@"nativebridge" params:combinedParams];
         return true;
     }

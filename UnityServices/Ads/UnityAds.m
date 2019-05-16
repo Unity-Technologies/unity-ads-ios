@@ -1,12 +1,13 @@
 #import "UnityAds.h"
+#import "USRVEnvironmentProperties.h"
 #import "USRVClientProperties.h"
 #import "USRVSdkProperties.h"
 #import "USRVInitialize.h"
 #import "UADSPlacement.h"
 #import "UADSProperties.h"
+
 #import "USRVWebViewMethodInvokeQueue.h"
 #import "UADSWebViewShowOperation.h"
-#import "UnityAdsDelegateUtil.h"
 
 @implementation UnityAds
 
@@ -20,7 +21,8 @@
 + (void)initialize:(NSString *)gameId
           delegate:(id<UnityAdsDelegate>)delegate
           testMode:(BOOL)testMode {
-    [UnityAds addDelegate:delegate];
+    
+    [UADSProperties setDelegate:delegate];
     [UnityServices initialize:gameId delegate:[[UnityServicesListener alloc] init] testMode:testMode];
 }
 
@@ -64,20 +66,11 @@
 }
 
 + (id<UnityAdsDelegate>)getDelegate {
-    // returns the first listener
-    return [[UADSProperties getDelegates] firstObject];
+    return [UADSProperties getDelegate];
 }
 
 + (void)setDelegate:(id<UnityAdsDelegate>)delegate {
-    [UADSProperties addDelegate:delegate];
-}
-
-+ (void)addDelegate:(id<UnityAdsDelegate>)delegate {
-    [UADSProperties addDelegate:delegate];
-}
-
-+ (void)removeDelegate:(id<UnityAdsDelegate>)delegate {
-    [UADSProperties removeDelegate:delegate];
+    [UADSProperties setDelegate:delegate];
 }
 
 + (BOOL)getDebugMode {
@@ -117,14 +110,21 @@
 }
 
 + (void)handleShowError:(NSString *)placementId unityAdsError:(UnityAdsError)unityAdsError message:(NSString *)message {
-    NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
-    USRVLogError(@"%@", errorMessage, nil);
-    [UnityAdsDelegateUtil unityAdsDidError:unityAdsError withMessage:errorMessage];
-    if (placementId) {
-        [UnityAdsDelegateUtil unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
-    } else {
-        [UnityAdsDelegateUtil unityAdsDidFinish:@"" withFinishState:kUnityAdsFinishStateError];
-    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *errorMessage = [NSString stringWithFormat:@"Unity Ads show failed: %@", message];
+        USRVLogError(@"%@", errorMessage);
+        if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+            [[self getDelegate] unityAdsDidError:unityAdsError withMessage:errorMessage];
+        }
+
+        if ([self getDelegate] && [[self getDelegate]respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
+            if (placementId) {
+                [[self getDelegate] unityAdsDidFinish:placementId withFinishState:kUnityAdsFinishStateError];
+            } else {
+                [[self getDelegate] unityAdsDidFinish:@"" withFinishState:kUnityAdsFinishStateError];
+            }
+        }
+    });
 }
 
 @end
@@ -139,8 +139,14 @@
     else if (error == kUnityServicesErrorInitSanityCheckFail) {
         unityAdsError = kUnityAdsErrorInitSanityCheckFail;
     }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id<UnityAdsDelegate> delegate = [UADSProperties getDelegate];
 
-    [UnityAdsDelegateUtil unityAdsDidError:unityAdsError withMessage:message];
+        if (delegate != nil && [delegate respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+            [delegate unityAdsDidError:unityAdsError withMessage:message];
+        }
+    });
 }
 @end
 

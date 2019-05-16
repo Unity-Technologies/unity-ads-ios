@@ -1,12 +1,9 @@
-#import "UnityAdsDelegate.h"
-
-extern int const UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT;
+#import "UnityAds.h"
 
 @interface UADSProperties : NSObject
 
-+ (void)addDelegate:(id<UnityAdsDelegate>)delegate;
-+ (NSOrderedSet<id<UnityAdsDelegate>> *)getDelegates;
-+ (void)removeDelegate:(id<UnityAdsDelegate>)delegate;
++ (void)setDelegate:(id<UnityAdsDelegate>)delegate;
++ (id<UnityAdsDelegate>)getDelegate;
 + (void)setShowTimeout:(int)timeout;
 + (int)getShowTimeout;
 

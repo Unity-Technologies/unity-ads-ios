@@ -1,4 +1,0 @@
-
-@interface USRVApiConnectivity : NSObject
-
-@end

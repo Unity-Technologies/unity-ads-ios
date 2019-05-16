@@ -1,4 +1,0 @@
-
-
-@interface USRVApiResolve : NSObject
-@end

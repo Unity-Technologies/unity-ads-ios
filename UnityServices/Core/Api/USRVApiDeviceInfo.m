@@ -77,10 +77,6 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     [callback invoke:[USRVDevice getNetworkOperatorName], nil];
 }
 
-+ (void)WebViewExposed_getNetworkCountryISO:(USRVWebViewCallback *)callback {
-    [callback invoke:[USRVDevice getNetworkCountryISO], nil];
-}
-
 + (void)WebViewExposed_getHeadset:(USRVWebViewCallback *)callback {
     [callback invoke:[NSNumber numberWithBool:[USRVDevice isWiredHeadsetOn]], nil];
 }

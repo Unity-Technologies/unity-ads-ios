@@ -13,7 +13,6 @@ static USRVVolumeChange *observer = NULL;
     }
     
     observer = [[USRVVolumeChange alloc] init];
-    [[AVAudioSession sharedInstance] setActive:YES error:nil];
     [[AVAudioSession sharedInstance] addObserver:observer forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:volumeChangeContext];
 }
 

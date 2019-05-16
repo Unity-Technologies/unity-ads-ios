@@ -2,10 +2,9 @@
 #import "USRVWebViewCallback.h"
 #import "USRVClientProperties.h"
 #import "NSString+UnityAdsError.h"
-#import "UnityAdsExtendedDelegate.h"
+#import "UnityAdsExtended.h"
 #import "UADSPlacement.h"
 #import "UADSProperties.h"
-#import "UnityAdsDelegateUtil.h"
 
 UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
     if (state) {
@@ -26,39 +25,78 @@ UnityAdsFinishState UnityAdsFinishStateFromNSString (NSString* state) {
 @implementation UADSApiListener
 
 + (void)WebViewExposed_sendReadyEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    [UnityAdsDelegateUtil unityAdsReady:placementId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSProperties getDelegate]) {
+            if ([[UADSProperties getDelegate] respondsToSelector:@selector(unityAdsReady:)]) {
+                [[UADSProperties getDelegate] unityAdsReady:placementId];
+            }
+        }
+    });
+
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendStartEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    [UnityAdsDelegateUtil unityAdsDidStart:placementId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSProperties getDelegate]) {
+            if ([[UADSProperties getDelegate] respondsToSelector:@selector(unityAdsDidStart:)]) {
+                [[UADSProperties getDelegate] unityAdsDidStart:placementId];
+            }
+        }
+    });
 
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendFinishEvent:(NSString *)placementId result:(NSString *)result callback:(USRVWebViewCallback *)callback {
-    UnityAdsFinishState state = UnityAdsFinishStateFromNSString(result);
-    [UnityAdsDelegateUtil unityAdsDidFinish:placementId withFinishState:state];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSProperties getDelegate]) {
+            if ([[UADSProperties getDelegate] respondsToSelector:@selector(unityAdsDidFinish:withFinishState:)]) {
+                UnityAdsFinishState state = UnityAdsFinishStateFromNSString(result);
+                if ((int)state != -10000) {
+                    [[UADSProperties getDelegate] unityAdsDidFinish:placementId withFinishState:state];
+                }
+            }
+        }
+    });
 
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendClickEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    [UnityAdsDelegateUtil unityAdsDoClick:placementId];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSProperties getDelegate] && [[UADSProperties getDelegate] conformsToProtocol:@protocol(UnityAdsExtendedDelegate)]) {
+            if ([(id<UnityAdsExtendedDelegate>)[UADSProperties getDelegate] respondsToSelector:@selector(unityAdsDidClick:)]) {
+                [(id<UnityAdsExtendedDelegate>)[UADSProperties getDelegate] unityAdsDidClick:placementId];
+            }
+        }
+    });
 
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendPlacementStateChangedEvent:(NSString *)placementId oldState:(NSString *)oldState newState:(NSString *)newState callback:(USRVWebViewCallback *)callback {
-    UnityAdsPlacementState oldStateEnum = [UADSPlacement formatStringToPlacementState:oldState];
-    UnityAdsPlacementState newStateEnum = [UADSPlacement formatStringToPlacementState:newState];
-    [UnityAdsDelegateUtil unityAdsPlacementStateChange:placementId oldState:oldStateEnum newState:newStateEnum];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSProperties getDelegate] && [[UADSProperties getDelegate] conformsToProtocol:@protocol(UnityAdsExtendedDelegate)]) {
+            if ([(id<UnityAdsExtendedDelegate>)[UADSProperties getDelegate] respondsToSelector:@selector(unityAdsPlacementStateChanged:oldState:newState:)]) {
+                UnityAdsPlacementState oldStateInteger = [UADSPlacement formatStringToPlacementState:oldState];
+                UnityAdsPlacementState newStateInteger = [UADSPlacement formatStringToPlacementState:newState];
+                [(id<UnityAdsExtendedDelegate>)[UADSProperties getDelegate] unityAdsPlacementStateChanged:placementId oldState:oldStateInteger newState:newStateInteger];
+            }
+        }
+    });
     
     [callback invoke:nil];
 }
 
 + (void)WebViewExposed_sendErrorEvent:(NSString *)errorString message:(NSString *)message callback:(USRVWebViewCallback *)callback {
-    [UnityAdsDelegateUtil unityAdsDidError:[errorString unityAdsErrorFromString] withMessage:message];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([UADSProperties getDelegate]) {
+            if ([[UADSProperties getDelegate] respondsToSelector:@selector(unityAdsDidError:withMessage:)]) {
+                [[UADSProperties getDelegate] unityAdsDidError:[errorString unityAdsErrorFromString] withMessage:message];
+            }
+        }
+    });
 
     [callback invoke:nil];
 }

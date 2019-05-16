@@ -3,7 +3,6 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebViewMethodInvokeHandler.h"
 #import "USRVWKWebViewUtilities.h"
-#import "USRVJsonUtilities.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
@@ -176,7 +175,12 @@
         data = [body dataUsingEncoding:NSUTF8StringEncoding];
     }
     else if ([body isKindOfClass:[NSDictionary class]]) {
-        data = [USRVJsonUtilities dataWithJSONObject:body options:0 error:nil];
+        NSError *err;
+        data = [NSJSONSerialization dataWithJSONObject:body options:0 error:&err];
+
+        if (err) {
+            data = NULL;
+        }
     }
 
     if (data) {

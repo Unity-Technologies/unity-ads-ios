@@ -1,16 +1,13 @@
 #import "USRVSdkProperties.h"
-#import "USRVDevice.h"
 
 NSString * const kUnityServicesCacheDirName = @"UnityAdsCache";
 NSString * const kUnityServicesLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityServicesLocalStorageFilePrefix  = @"UnityAdsStorage-";
 NSString * const kUnityServicesWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
-NSString * const kUnityServicesVersionName = @"3.1.0";
+NSString * const kUnityServicesVersionName = @"3.0.3";
 NSString * const kUnityServicesFlavorDebug = @"debug";
 NSString * const kUnityServicesFlavorRelease = @"release";
-NSString * const kChinaIsoAlpha2Code = @"CN";
-NSString * const kChinaIsoAlpha3Code = @"CHN";
-int const kUnityServicesVersionCode = 3100;
+int const kUnityServicesVersionCode = 3003;
 
 @implementation USRVSdkProperties
 
@@ -77,7 +74,7 @@ static id<UnityServicesDelegate> unityServicesDelegate = NULL;
 }
 
 + (NSString *)getDefaultConfigUrl:(NSString *)flavor {
-    NSString *baseURI = @"https://config.unityads.unity3d.com/webview/";
+    NSString *defaultConfigUrl = @"https://config.unityads.unity3d.com/webview/";
     NSString *versionString = [USRVSdkProperties getVersionName];
     
     // If there is a string object for the key UADSWebviewBranch in the Info.plist of the hosting application,
@@ -85,12 +82,10 @@ static id<UnityServicesDelegate> unityServicesDelegate = NULL;
     if ([[[NSBundle mainBundle] objectForInfoDictionaryKey:kUnityServicesWebviewBranchInfoDictionaryKey] isKindOfClass:[NSString class]]) {
         versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:kUnityServicesWebviewBranchInfoDictionaryKey];
     }
-    
-    if ([USRVSdkProperties isChinaLocale:[USRVDevice getNetworkCountryISO]]) {
-        baseURI = @"https://config.unityads.unitychina.cn/webview/";
-    }
 
-    return [baseURI stringByAppendingFormat:@"%@/%@/config.json", versionString, flavor];
+    defaultConfigUrl = [defaultConfigUrl stringByAppendingFormat:@"%@/%@/config.json", versionString, flavor];
+    
+    return defaultConfigUrl;
 }
 
 + (NSString *)getLocalWebViewFile {
@@ -153,14 +148,6 @@ static id<UnityServicesDelegate> unityServicesDelegate = NULL;
 
 + (void)setDelegate:(id<UnityServicesDelegate>)delegate {
     unityServicesDelegate = delegate;
-}
-        
-+ (BOOL)isChinaLocale:(NSString *)networkISOCode {
-    if ([networkISOCode.uppercaseString isEqualToString:kChinaIsoAlpha2Code] || [networkISOCode.uppercaseString isEqualToString:kChinaIsoAlpha3Code]) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 @end

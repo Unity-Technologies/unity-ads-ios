@@ -13,7 +13,6 @@
 
 - (void)tearDown {
     [super tearDown];
-    [UADSProperties removeDelegate:self];
 }
 
 - (void)testGetSupportedOrientations {
@@ -37,9 +36,10 @@
     
 }
 
-- (void)testAddDelegate {
-    [UADSProperties addDelegate:self];
-    XCTAssertTrue([[UADSProperties getDelegates] containsObject:self]);
+- (void)testSetDelegate {
+    [UADSProperties setDelegate:self];
+    XCTAssertEqualObjects(self, [UADSProperties getDelegate]);
+    
 }
 
 - (void)testIsAppDebuggable {
