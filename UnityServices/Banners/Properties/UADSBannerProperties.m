@@ -1,13 +1,14 @@
 #import "UADSBannerProperties.h"
 
 @implementation UADSBannerProperties
-static id <UnityAdsBannerDelegate> s_bannerDelegate;
 
-+(void)setDelegate:(id <UnityAdsBannerDelegate>)delegate {
+static __weak id <UnityAdsBannerDelegate> _Nullable s_bannerDelegate;
+
++(void)setDelegate:(nullable id <UnityAdsBannerDelegate>)delegate {
     s_bannerDelegate = delegate;
 }
 
-+(id <UnityAdsBannerDelegate>)getDelegate {
++(nullable id <UnityAdsBannerDelegate>)getDelegate {
     return s_bannerDelegate;
 }
 

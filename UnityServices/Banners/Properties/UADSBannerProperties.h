@@ -1,7 +1,13 @@
 #import "UADSBanner.h"
 
-@interface UADSBannerProperties : NSObject
-+(id <UnityAdsBannerDelegate>)getDelegate;
+NS_ASSUME_NONNULL_BEGIN
 
-+(void)setDelegate:(id <UnityAdsBannerDelegate>)delegate;
+@interface UADSBannerProperties : NSObject
+
++(nullable id <UnityAdsBannerDelegate>)getDelegate;
+
++(void)setDelegate:(nullable id <UnityAdsBannerDelegate>)delegate;
+
 @end
+
+NS_ASSUME_NONNULL_END

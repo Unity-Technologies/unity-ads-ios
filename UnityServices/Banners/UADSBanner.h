@@ -101,7 +101,7 @@ typedef NS_ENUM(NSInteger, UnityAdsBannerPosition) {
  *
  *  @param delegate The new `UnityAdsBannerDelegate' for UnityAds to send banner callbacks to.
  */
-+(void)setDelegate:(id <UnityAdsBannerDelegate>)delegate;
++(void)setDelegate:(nullable id <UnityAdsBannerDelegate>)delegate;
 @end
 
 NS_ASSUME_NONNULL_END
