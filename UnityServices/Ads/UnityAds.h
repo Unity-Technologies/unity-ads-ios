@@ -53,13 +53,33 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  Initializes UnityAds. UnityAds should be initialized when app starts.
  *
- *  @param gameId   Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
- *  @param delegate delegate for UnityAdsDelegate callbacks
- *  @param testMode Set this flag to `YES` to indicate test mode and show only test ads.
+ *  @param gameId        Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
+ *  @param delegate      delegate for UnityAdsDelegate callbacks
+ *  @param testMode      Set this flag to `YES` to indicate test mode and show only test ads.
  */
 + (void)initialize:(NSString *)gameId
           delegate:(nullable id<UnityAdsDelegate>)delegate
           testMode:(BOOL)testMode;
+/**
+ *  Initializes UnityAds. UnityAds should be initialized when app starts.
+ *  Note: The `load` API is in closed beta and available upon invite only. If you would like to be considered for the beta, please contact Unity Ads Support.
+ *
+ *  @param gameId        Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
+ *  @param delegate      delegate for UnityAdsDelegate callbacks
+ *  @param testMode      Set this flag to `YES` to indicate test mode and show only test ads.
+ *  @param enablePerPlacementLoad Set this flag to `YES` to disable automatic placement caching. When this is enabled, developer must call `load` on placements before calling show
+ */
++ (void)initialize:(NSString *)gameId
+          delegate:(nullable id<UnityAdsDelegate>)delegate
+          testMode:(BOOL)testMode
+          enablePerPlacementLoad:(BOOL)enablePerPlacementLoad;
+/**
+ *  Load a placement to make it available to show. Ads generally take a few seconds to finish loading before they can be shown.
+ *  Note: The `load` API is in closed beta and available upon invite only. If you would like to be considered for the beta, please contact Unity Ads Support.
+ *
+ *  @param placementId The placement ID, as defined in Unity Ads admin tools.
+ */
++ (void)load:(NSString *)placementId;
 /**
  *  Show an ad using the defaul placement.
  *

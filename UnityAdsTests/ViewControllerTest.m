@@ -3,20 +3,23 @@
 
 @interface MockWebViewAppForViewControllerTests : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
+@property (nonatomic, strong) NSMutableArray<NSString *> *eventArray;
 @end
-
-NSMutableArray<NSString *> *eventArray;
 
 @implementation MockWebViewAppForViewControllerTests
 
 
-- (BOOL)sendEvent:(NSString *)eventId category:(NSString *)category param1:(id)param1, ... {
-    if (!eventArray) {
-        eventArray = [[NSMutableArray alloc] init];
+-(instancetype)init {
+    self = [super init];
+    if (self) {
+        _eventArray = [[NSMutableArray alloc] init];
     }
-    
+    return self;
+}
+
+- (BOOL)sendEvent:(NSString *)eventId category:(NSString *)category param1:(id)param1, ... {
     if ([category isEqualToString:@"ADUNIT"]) {
-        [eventArray addObject:eventId];
+        [self.eventArray addObject:eventId];
     }
     
     if (eventId && [eventId isEqualToString:@"VIEW_CONTROLLER_DID_DISAPPEAR"]) {
@@ -45,8 +48,6 @@ NSMutableArray<NSString *> *eventArray;
     MockWebViewAppForViewControllerTests *webApp = [[MockWebViewAppForViewControllerTests alloc] init];
     [USRVWebViewApp setCurrentApp:webApp];
     [webApp setConfiguration:[[USRVConfiguration alloc] init]];
-    
-    eventArray = nil;
 }
 
 - (void)tearDown {
@@ -54,24 +55,31 @@ NSMutableArray<NSString *> *eventArray;
 }
 
 - (void)testLifecycleEvents{
-    XCTestExpectation *expectation = [self expectationWithDescription:@"downloadFinishExpectation"];
     MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];
 
     UADSViewController *viewController = [[UADSViewController alloc] init];
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:true completion:nil];
-    [viewController dismissViewControllerAnimated:true completion:nil];
+    XCTestExpectation *presentExpectation = [self expectationWithDescription:@"present view controller"];
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:viewController animated:NO completion:^{
+        [presentExpectation fulfill];
+    }];
 
-    
-    [mockApp setExpectation:expectation];
-    [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+    }];
+
+    XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismiss view controller"];
+    [viewController dismissViewControllerAnimated:NO completion:^{
+        [dismissExpectation fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
     }];
     
-    XCTAssertEqual([eventArray count], 4, @"Counted events should be 4");
+    XCTAssertEqual([mockApp.eventArray count], 4, @"Counted events should be 4");
     
-    XCTAssertTrue([@"VIEW_CONTROLLER_DID_LOAD" isEqualToString:eventArray[0]], @"First event should be VIEW_CONTROLLER_DID_LOAD");
-    XCTAssertTrue([@"VIEW_CONTROLLER_DID_APPEAR" isEqualToString:eventArray[1]], @"Second event should be VIEW_CONTROLLER_DID_APPEAR");
-    XCTAssertTrue([@"VIEW_CONTROLLER_WILL_DISAPPEAR" isEqualToString:eventArray[2]], @"Third event should be VIEW_CONTROLLER_WILL_DISAPPEAR");
-    XCTAssertTrue([@"VIEW_CONTROLLER_DID_DISAPPEAR" isEqualToString:eventArray[3]], @"Fourth event should be VIEW_CONTROLLER_DID_DISAPPEAR");
+    XCTAssertTrue([@"VIEW_CONTROLLER_DID_LOAD" isEqualToString:mockApp.eventArray[0]], @"First event should be VIEW_CONTROLLER_DID_LOAD");
+    XCTAssertTrue([@"VIEW_CONTROLLER_DID_APPEAR" isEqualToString:mockApp.eventArray[1]], @"Second event should be VIEW_CONTROLLER_DID_APPEAR");
+    XCTAssertTrue([@"VIEW_CONTROLLER_WILL_DISAPPEAR" isEqualToString:mockApp.eventArray[2]], @"Third event should be VIEW_CONTROLLER_WILL_DISAPPEAR");
+    XCTAssertTrue([@"VIEW_CONTROLLER_DID_DISAPPEAR" isEqualToString:mockApp.eventArray[3]], @"Fourth event should be VIEW_CONTROLLER_DID_DISAPPEAR");
 }
 
 - (void)testSetViews {
@@ -119,7 +127,7 @@ NSMutableArray<NSString *> *eventArray;
     NSArray *views = @[@"videoplayer", @"webview"];
 
     UADSViewController *adUnitViewController = [[UADSViewController alloc] initWithViews:views supportedOrientations:@(24) statusBarHidden:YES shouldAutorotate:YES isTransparent:NO homeIndicatorAutoHidden:NO];
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:true completion:^{
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:adUnitViewController animated:NO completion:^{
         [presentExpectation fulfill];
     }];
     
@@ -135,22 +143,23 @@ NSMutableArray<NSString *> *eventArray;
     XCTAssertTrue([[[adUnitViewController currentViews] objectAtIndex:1] isEqualToString:@"webview"], @"Second view should be 'webview'");
     
     XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
-    mockApp.expectation = dismissExpectation;
     
-    [adUnitViewController dismissViewControllerAnimated:true completion:nil];
+    [adUnitViewController dismissViewControllerAnimated:NO completion:^() {
+        [dismissExpectation fulfill];
+    }];
     
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
     }];
     
     
-    XCTAssertEqual([eventArray count], 5, @"Counted events should be 5");
+    XCTAssertEqual([mockApp.eventArray count], 5, @"Counted events should be 5");
     
-    XCTAssertTrue([@"VIEW_CONTROLLER_DID_LOAD" isEqualToString:eventArray[0]], @"First event should be VIEW_CONTROLLER_DID_LOAD");
-    XCTAssertTrue([@"VIEW_CONTROLLER_INIT" isEqualToString:eventArray[1]], @"Second event should be VIEW_CONTROLLER_INIT");
+    XCTAssertTrue([@"VIEW_CONTROLLER_DID_LOAD" isEqualToString:mockApp.eventArray[0]], @"First event should be VIEW_CONTROLLER_DID_LOAD");
+    XCTAssertTrue([@"VIEW_CONTROLLER_INIT" isEqualToString:mockApp.eventArray[1]], @"Second event should be VIEW_CONTROLLER_INIT");
 
-    XCTAssertTrue([@"VIEW_CONTROLLER_DID_APPEAR" isEqualToString:eventArray[2]], @"Third event should be VIEW_CONTROLLER_DID_APPEAR");
-    XCTAssertTrue([@"VIEW_CONTROLLER_WILL_DISAPPEAR" isEqualToString:eventArray[3]], @"Fourth event should be VIEW_CONTROLLER_WILL_DISAPPEAR");
-    XCTAssertTrue([@"VIEW_CONTROLLER_DID_DISAPPEAR" isEqualToString:eventArray[4]], @"Fifth event should be VIEW_CONTROLLER_DID_DISAPPEAR");
+    XCTAssertTrue([@"VIEW_CONTROLLER_DID_APPEAR" isEqualToString:mockApp.eventArray[2]], @"Third event should be VIEW_CONTROLLER_DID_APPEAR");
+    XCTAssertTrue([@"VIEW_CONTROLLER_WILL_DISAPPEAR" isEqualToString:mockApp.eventArray[3]], @"Fourth event should be VIEW_CONTROLLER_WILL_DISAPPEAR");
+    XCTAssertTrue([@"VIEW_CONTROLLER_DID_DISAPPEAR" isEqualToString:mockApp.eventArray[4]], @"Fifth event should be VIEW_CONTROLLER_DID_DISAPPEAR");
 
 }
 
@@ -181,9 +190,10 @@ NSMutableArray<NSString *> *eventArray;
     XCTAssertEqual([transform doubleValue], 0.9f, @"Expected 0.9 as transform value");
     
     XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
-    mockApp.expectation = dismissExpectation;
     
-    [adUnitViewController dismissViewControllerAnimated:true completion:nil];
+    [adUnitViewController dismissViewControllerAnimated:true completion:^() {
+        [dismissExpectation fulfill];
+    }];
     
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
     }];
@@ -234,9 +244,10 @@ NSMutableArray<NSString *> *eventArray;
     XCTAssertEqual([[USRVWebViewApp getCurrentApp] webView].frame.size.height, 240, "WebView view height not what was expected");
     
     XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
-    mockApp.expectation = dismissExpectation;
     
-    [adUnitViewController dismissViewControllerAnimated:true completion:nil];
+    [adUnitViewController dismissViewControllerAnimated:true completion:^(){
+        [dismissExpectation fulfill];
+    }];
     
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
     }];
@@ -255,18 +266,16 @@ NSMutableArray<NSString *> *eventArray;
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
     }];
     
-    XCTAssertFalse([viewController prefersHomeIndicatorAutoHidden], @"prefersHomeIndicaroAutoHidden should be false");
+    XCTAssertFalse([viewController prefersHomeIndicatorAutoHidden], @"prefersHomeIndicatorAutoHidden should be false");
     
     [viewController setHomeIndicatorAutoHidden:YES];
     
-    XCTAssertTrue([viewController prefersHomeIndicatorAutoHidden], @"prefersHomeIndicaroAutoHidden should be true");
-    
-    [viewController dismissViewControllerAnimated:true completion:nil];
-    
+    XCTAssertTrue([viewController prefersHomeIndicatorAutoHidden], @"prefersHomeIndicatorAutoHidden should be true");
+
     XCTestExpectation *dismissExpectation = [self expectationWithDescription:@"dismissExpectation"];
-    mockApp.expectation = dismissExpectation;
-    
-    [viewController dismissViewControllerAnimated:true completion:nil];
+    [viewController dismissViewControllerAnimated:true completion:^() {
+        [dismissExpectation fulfill];
+    }];
     
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
     }];

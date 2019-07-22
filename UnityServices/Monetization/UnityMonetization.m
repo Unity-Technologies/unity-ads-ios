@@ -26,7 +26,7 @@
         [self setDelegate:delegate];
     }
     [UMONClientProperties setMonetizationEnabled:YES];
-    [UnityServices initialize:gameId delegate:delegate testMode:testMode];
+    [UnityServices initialize:gameId delegate:delegate testMode:testMode usePerPlacementLoad:NO];
 }
 
 @end

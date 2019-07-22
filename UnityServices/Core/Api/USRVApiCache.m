@@ -243,7 +243,7 @@ NSString *USRVNSStringFromCacheError(UnityServicesCacheError error) {
 }
 
 + (void)WebViewExposed_getProgressInterval:(USRVWebViewCallback *)callback {
-    [callback invoke:[NSNumber numberWithInt:[USRVCacheQueue getProgressInterval]]];
+    [callback invoke:[NSNumber numberWithInt:[USRVCacheQueue getProgressInterval]], nil];
 }
 
 + (void)WebViewExposed_getFreeSpace:(USRVWebViewCallback *)callback {

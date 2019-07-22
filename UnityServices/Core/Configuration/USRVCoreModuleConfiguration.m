@@ -33,7 +33,7 @@
 - (BOOL)resetState:(USRVConfiguration *)configuration {
     [USRVDevice initCarrierUpdates];
     [USRVConnectivityUtils initCarrierInfo];
-    [USRVSdkProperties setInitialized:false];
+    [USRVSdkProperties setInitialized:NO];
     [USRVCacheQueue cancelAllDownloads];
     [USRVWebRequestQueue cancelAllOperations];
     dispatch_async(dispatch_get_main_queue(), ^{

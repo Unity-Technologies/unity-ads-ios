@@ -59,7 +59,7 @@ static NSString *nativeCallbackValue = NULL;
 @end
 
 @interface UrlProtocolMockWebView : UIWebView
-@property (nonatomic, weak) XCTestExpectation *expectation;
+@property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSString *lastJSString;
 @end
 
@@ -100,7 +100,7 @@ static NSString *nativeCallbackValue = NULL;
     [super setUp];
     MethodInvokeMockConfiguration *config = [[MethodInvokeMockConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
     UrlProtocolMockWebView *mockWebView = [[UrlProtocolMockWebView alloc] init];
-    __block __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"setup"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config];
@@ -111,7 +111,6 @@ static NSString *nativeCallbackValue = NULL;
     });
     
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
-        expectation = NULL;
     }];
 }
 
@@ -174,7 +173,7 @@ static NSString *nativeCallbackValue = NULL;
         receivedException = exception;
     }
     
-    __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
@@ -201,7 +200,7 @@ static NSString *nativeCallbackValue = NULL;
         receivedException = exception;
     }
     
-    __weak XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {

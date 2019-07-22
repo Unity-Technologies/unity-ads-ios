@@ -15,6 +15,8 @@ FOUNDATION_EXPORT NSString * const kUnityServicesFlavorRelease;
 + (void)setInitialized:(BOOL)initialized;
 + (BOOL)isTestMode;
 + (void)setTestMode:(BOOL)testmode;
++ (void)setPerPlacementLoadEnabled:(BOOL)perPlacementLoadEnabled;
++ (BOOL)isPerPlacementLoadEnabled;
 + (int)getVersionCode;
 + (NSString *)getVersionName;
 + (NSString *)getCacheDirectoryName;

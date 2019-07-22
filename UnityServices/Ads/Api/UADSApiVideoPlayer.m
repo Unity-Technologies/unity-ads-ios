@@ -19,65 +19,60 @@ NSString *UADSNSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
 
 @implementation UADSApiVideoPlayer
 
-+ (void)WebViewExposed_setProgressEventInterval:(NSNumber *)milliseconds callback:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_setProgressEventInterval:(NSNumber *)milliseconds callback:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         [[UADSApiVideoPlayer getVideoPlayer] setProgressEventInterval:[milliseconds intValue]];
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_getProgressEventInterval:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_getProgressEventInterval:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         [callback invoke:[NSNumber numberWithInt:[[UADSApiVideoPlayer getVideoPlayer] progressInterval]], nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_prepare:(NSString *)url initialVolume:(NSNumber *)initialVolume timeout:(NSNumber *)timeout callback:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_prepare:(NSString *)url initialVolume:(NSNumber *)initialVolume timeout:(NSNumber *)timeout callback:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSApiVideoPlayer getVideoPlayer] prepare:url initialVolume:[initialVolume floatValue] timeout:[timeout integerValue]];
         });
-        
+
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_play:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_play:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSApiVideoPlayer getVideoPlayer] play];
         });
 
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_pause:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_pause:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSApiVideoPlayer getVideoPlayer] pause];
         });
 
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_stop:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_stop:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSApiVideoPlayer getVideoPlayer] pause];
@@ -88,60 +83,55 @@ NSString *UADSNSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         });
 
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_seekTo:(NSNumber *)time callback:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_seekTo:(NSNumber *)time callback:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[UADSApiVideoPlayer getVideoPlayer] seekTo:[time longValue]];
         });
 
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_setVolume:(NSNumber *)volume callback:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_setVolume:(NSNumber *)volume callback:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         [[UADSApiVideoPlayer getVideoPlayer] setVolume:[volume floatValue]];
         [callback invoke:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_getVolume:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_getVolume:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         [callback invoke:[NSNumber numberWithFloat:[[UADSApiVideoPlayer getVideoPlayer] volume]], nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_getCurrentPosition:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_getCurrentPosition:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         [callback invoke:[NSNumber numberWithLong:[[UADSApiVideoPlayer getVideoPlayer] getCurrentPosition]], nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (void)WebViewExposed_setAutomaticallyWaitsToMinimizeStalling:(NSNumber *)waits callback:(USRVWebViewCallback *)callback {
++(void)WebViewExposed_setAutomaticallyWaitsToMinimizeStalling:(NSNumber *)waits callback:(USRVWebViewCallback *)callback {
     if ([UADSApiVideoPlayer getVideoPlayer]) {
         SEL waitsSelector = NSSelectorFromString(@"setAutomaticallyWaitsToMinimizeStalling:");
         if ([[UADSApiVideoPlayer getVideoPlayer] respondsToSelector:waitsSelector]) {
             IMP waitsImp = [[UADSApiVideoPlayer getVideoPlayer] methodForSelector:waitsSelector];
             if (waitsImp) {
-                void (*waitsFunc)(id, SEL, BOOL) = (void *)waitsImp;
+                void (*waitsFunc)(id, SEL, BOOL) = (void *) waitsImp;
                 waitsFunc([UADSApiVideoPlayer getVideoPlayer], waitsSelector, [waits boolValue]);
                 [callback invoke:nil];
                 return;
@@ -149,17 +139,31 @@ NSString *UADSNSStringFromVideoPlayerError(UnityAdsVideoPlayerError error) {
         }
 
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewReflectionError) arg1:nil];
-    }
-    else {
+    } else {
         [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
 }
 
-+ (UADSAVPlayer *)getVideoPlayer {
-    if ([UADSApiAdUnit getAdUnit] && [[UADSApiAdUnit getAdUnit] getViewHandler:@"videoplayer"]) {
-        return [(UADSVideoPlayerHandler *)[[UADSApiAdUnit getAdUnit] getViewHandler:@"videoplayer"] videoPlayer];
++(void)WebViewExposed_getVideoViewRectangle:(USRVWebViewCallback *)callback {
+    UADSVideoPlayerHandler *videoPlayerHandler = (UADSVideoPlayerHandler *) [[UADSApiAdUnit getAdUnit] getViewHandler:@"videoplayer"];
+    if (videoPlayerHandler) {
+        UADSVideoView *videoView = (UADSVideoView *) [videoPlayerHandler getView];
+        if (videoView) {
+            CGRect videoPlayerRect = [videoView getPlayerRect];
+            [callback invoke:[NSNumber numberWithFloat:videoPlayerRect.origin.x], [NSNumber numberWithFloat:videoPlayerRect.origin.y], [NSNumber numberWithFloat:videoPlayerRect.size.width], [NSNumber numberWithFloat:videoPlayerRect.size.height], nil];
+        } else {
+            [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
+        }
+    } else {
+        [callback error:UADSNSStringFromVideoPlayerError(kUnityAdsVideoViewNull) arg1:nil];
     }
-    
+}
+
++(UADSAVPlayer *)getVideoPlayer {
+    if ([UADSApiAdUnit getAdUnit] && [[UADSApiAdUnit getAdUnit] getViewHandler:@"videoplayer"]) {
+        return [(UADSVideoPlayerHandler *) [[UADSApiAdUnit getAdUnit] getViewHandler:@"videoplayer"] videoPlayer];
+    }
+
     return NULL;
 }
 

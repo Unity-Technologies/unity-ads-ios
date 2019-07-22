@@ -23,7 +23,8 @@ typedef NS_ENUM(NSInteger, UnityServicesError) {
  */
 + (void)initialize:(NSString *)gameId
           delegate:(nullable id<UnityServicesDelegate>)delegate
-          testMode:(BOOL)testMode;
+          testMode:(BOOL)testMode
+          usePerPlacementLoad:(BOOL)usePerPlacementLoad;
 
 /**
  *  Get the current debug status of `UnityAds`.

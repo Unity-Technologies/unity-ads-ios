@@ -7,6 +7,7 @@
 #import "USRVWebViewMethodInvokeQueue.h"
 #import "UADSWebViewShowOperation.h"
 #import "UnityAdsDelegateUtil.h"
+#import "UADSLoadModule.h"
 
 @implementation UnityAds
 
@@ -20,8 +21,19 @@
 + (void)initialize:(NSString *)gameId
           delegate:(id<UnityAdsDelegate>)delegate
           testMode:(BOOL)testMode {
+    [self initialize:gameId delegate:delegate testMode:testMode enablePerPlacementLoad:false];
+}
+
++ (void)initialize:(NSString *)gameId
+          delegate:(nullable id<UnityAdsDelegate>)delegate
+          testMode:(BOOL)testMode
+          enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     [UnityAds addDelegate:delegate];
-    [UnityServices initialize:gameId delegate:[[UnityServicesListener alloc] init] testMode:testMode];
+    [UnityServices initialize:gameId delegate:[[UnityServicesListener alloc] init] testMode:testMode usePerPlacementLoad:enablePerPlacementLoad];
+}
+
++ (void)load:(NSString *)placementId {
+    [[UADSLoadModule sharedInstance] load:placementId];
 }
 
 + (void)show:(UIViewController *)viewController {

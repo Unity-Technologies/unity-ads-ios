@@ -5,12 +5,12 @@ NSString * const kUnityServicesCacheDirName = @"UnityAdsCache";
 NSString * const kUnityServicesLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityServicesLocalStorageFilePrefix  = @"UnityAdsStorage-";
 NSString * const kUnityServicesWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
-NSString * const kUnityServicesVersionName = @"3.1.0";
+NSString * const kUnityServicesVersionName = @"3.2.0";
 NSString * const kUnityServicesFlavorDebug = @"debug";
 NSString * const kUnityServicesFlavorRelease = @"release";
 NSString * const kChinaIsoAlpha2Code = @"CN";
 NSString * const kChinaIsoAlpha3Code = @"CHN";
-int const kUnityServicesVersionCode = 3100;
+int const kUnityServicesVersionCode = 3200;
 
 @implementation USRVSdkProperties
 
@@ -22,6 +22,7 @@ static NSString *configUrl = NULL;
 static NSString *cacheDirectory = NULL;
 static BOOL debug = true;
 static BOOL debugMode = NO;
+static BOOL usePerPlacementLoad = NO;
 static id<UnityServicesDelegate> unityServicesDelegate = NULL;
 
 + (BOOL)isInitialized {
@@ -161,6 +162,14 @@ static id<UnityServicesDelegate> unityServicesDelegate = NULL;
     } else {
         return false;
     }
+}
+
++ (void)setPerPlacementLoadEnabled:(BOOL)perPlacementLoadEnabled {
+    usePerPlacementLoad = perPlacementLoadEnabled;
+}
+
++ (BOOL)isPerPlacementLoadEnabled {
+    return usePerPlacementLoad;
 }
 
 @end

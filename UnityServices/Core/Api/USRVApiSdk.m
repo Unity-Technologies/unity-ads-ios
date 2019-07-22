@@ -4,6 +4,7 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebViewCallback.h"
 #import "USRVInitialize.h"
+#import "USRVInitializationNotificationCenter.h"
 
 @implementation USRVApiSdk
 
@@ -25,13 +26,21 @@
         [[[USRVWebViewApp getCurrentApp] configuration] webViewVersion] ? [[[USRVWebViewApp getCurrentApp] configuration] webViewVersion] : [NSNull null],
         [NSNumber numberWithLongLong:[USRVSdkProperties getInitializationTime]],
         [NSNumber numberWithBool:[USRVSdkProperties isReinitialized]],
+        [NSNumber numberWithBool:[USRVSdkProperties isPerPlacementLoadEnabled]],
      nil];
 }
 
 + (void)WebViewExposed_initComplete:(USRVWebViewCallback *)callback {
     USRVLogDebug(@"Web application initialized");
-    [USRVSdkProperties setInitialized:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [USRVSdkProperties setInitialized:YES];
+    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:YES];
+    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkDidInitialize];
+    [callback invoke:nil];
+}
+
++ (void)WebViewExposed_initError:(NSString *)message code:(int)code callback:(USRVWebViewCallback *)callback {
+    USRVLogError(@"Web application failed to load with error : %@", message);
+    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail:message code:code];
     [callback invoke:nil];
 }
 
@@ -41,7 +50,7 @@
 }
 
 + (void)WebViewExposed_getDebugMode:(USRVWebViewCallback *)callback {
-    [callback invoke:[NSNumber numberWithBool:[USRVSdkProperties getDebugMode]]];
+    [callback invoke:[NSNumber numberWithBool:[USRVSdkProperties getDebugMode]], nil];
 }
 
 + (void)WebViewExposed_logError:(NSString *)message callback:(USRVWebViewCallback *)callback {

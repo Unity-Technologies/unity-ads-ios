@@ -10,7 +10,8 @@ static BOOL _initializing = NO;
 
 + (void)initialize:(NSString *)gameId
           delegate:(nullable id<UnityServicesDelegate>)delegate
-          testMode:(BOOL)testMode {
+          testMode:(BOOL)testMode
+          usePerPlacementLoad:(BOOL)usePerPlacementLoad {
     
     BOOL didError = NO;
     UnityServicesError unityServicesError = 0;
@@ -60,6 +61,7 @@ static BOOL _initializing = NO;
         [UnityServices setDebugMode:[USRVSdkProperties getDebugMode]];
         [USRVSdkProperties setDelegate:delegate];
         [USRVClientProperties setGameId:gameId];
+        [USRVSdkProperties setPerPlacementLoadEnabled:usePerPlacementLoad];
         [USRVSdkProperties setTestMode:testMode];
         USRVConfiguration *configuration = [[USRVConfiguration alloc] init];
         [USRVInitialize initialize:configuration];

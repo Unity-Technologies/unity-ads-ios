@@ -9,5 +9,6 @@
 - (void)setPlayer:(AVPlayer *)player;
 - (void)setVideoFillMode:(NSString *)fillMode;
 - (AVPlayer*)player;
+- (CGRect)getPlayerRect;
 
 @end
