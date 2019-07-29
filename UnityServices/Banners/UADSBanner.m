@@ -44,11 +44,11 @@
     [USRVWebViewMethodInvokeQueue addOperation:operation];
 }
 
-+(id <UnityAdsBannerDelegate>)getDelegate {
++(nullable id <UnityAdsBannerDelegate>)getDelegate {
     return [UADSBannerProperties getDelegate];
 }
 
-+(void)setDelegate:(id <UnityAdsBannerDelegate>)delegate {
++(void)setDelegate:(nullable id <UnityAdsBannerDelegate>)delegate {
     [UADSBannerProperties setDelegate:delegate];
 }
 
