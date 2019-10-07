@@ -18,7 +18,7 @@ if [[ $CURRENT_COMMIT_ID && $RELEASE_VERSION && $GITHUB_PERSONAL_ACCESS_TOKEN ]]
     CREATE_RELEASE_RESPONSE=$(curl -X POST --fail \
         -H "Authorization: token $GITHUB_PERSONAL_ACCESS_TOKEN" \
         -d "{ \"tag_name\": \"${RELEASE_VERSION}\", \"target_commitish\": \"${CURRENT_COMMIT_ID}\", \"name\": \"Unity Ads ${RELEASE_VERSION}\", \"body\": \"Unity Ads ${RELEASE_VERSION}\", \"draft\": true }" \
-        "https://api.github.com/repos/Applifier/unity-ads-ios/releases");
+        "https://api.github.com/repos/Unity-Technologies/unity-ads-ios/releases");
     UPLOAD_URL=$(echo "$CREATE_RELEASE_RESPONSE" | jq -r '.upload_url' | cut -f1 -d"{")
     if [[ UPLOAD_URL && UPLOAD_URL != null ]]; then
         echo "UPLOAD_URL=$UPLOAD_URL";

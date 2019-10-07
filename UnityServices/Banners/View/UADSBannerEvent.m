@@ -6,21 +6,27 @@ NSString *bannerLoaded = @"BANNER_LOADED";
 NSString *bannerDestroyed = @"BANNER_DESTROYED";
 NSString *bannerAttached = @"BANNER_ATTACHED";
 NSString *bannerDetached = @"BANNER_DETACHED";
+NSString *bannerLoadPlacement = @"BANNER_LOAD_PLACEMENT";
+NSString *bannerDestroyBanner = @"BANNER_DESTROY_BANNER";
 
-NSString *UADSNSStringFromBannerEvent(UnityAdsBannerEvent event) {
+NSString *UADSNSStringFromBannerEvent(UADSBannerEvent event) {
     switch (event) {
-        case kUnityAdsBannerEventResized:
+        case UADSBannerEventResized:
             return bannerResized;
-        case kUnityAdsBannerEventVisibilityChanged:
+        case UADSBannerEventVisibilityChanged:
             return bannerVisibilityChanged;
-        case kUnityAdsBannerEventAttached:
+        case UADSBannerEventAttached:
             return bannerAttached;
-        case kUnityAdsBannerEventDetached:
+        case UADSBannerEventDetached:
             return bannerDetached;
-        case kUnityAdsBannerEventDestroyed:
+        case UADSBannerEventDestroyed:
             return bannerDestroyed;
-        case kUnityAdsBannerEventLoaded:
+        case UADSBannerEventLoaded:
             return bannerLoaded;
+        case UADSBannerEventLoadPlacement:
+            return bannerLoadPlacement;
+        case UADSBannerEventDestroyBanner:
+            return bannerDestroyBanner;
     }
     return nil;
 }

@@ -5,9 +5,7 @@
 
 #import <sys/utsname.h>
 #import <mach/mach.h>
-#import <mach/mach_host.h>
 #import <objc/runtime.h>
-#import <assert.h>
 
 #import "USRVDevice.h"
 #import "USRVConnectivityUtils.h"
@@ -20,7 +18,8 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         uadsTelephonyInfo = [CTTelephonyNetworkInfo new];
-        uadsTelephonyInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier *carrier) { };
+        uadsTelephonyInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier *carrier) {
+        };
     });
 }
 
@@ -32,7 +31,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 + (NSString *)getModel {
     struct utsname systemInfo;
     uname(&systemInfo);
-    
+
     NSString *model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
     if ([USRVDevice isSimulator]) {
         model = [[UIDevice currentDevice] model];
@@ -44,12 +43,12 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 + (BOOL)isSimulator {
     struct utsname systemInfo;
     uname(&systemInfo);
-    
+
     NSString *model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
     if ([model isEqualToString:@"x86_64"] || [model isEqualToString:@"i386"]) {
         return true;
     }
-    
+
     return false;
 }
 
@@ -83,7 +82,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 + (NSString *)getNetworkOperator {
     NSString *countryCode = uadsTelephonyInfo.subscriberCellularProvider.mobileCountryCode;
     NSString *networkCode = uadsTelephonyInfo.subscriberCellularProvider.mobileNetworkCode;
-    if(countryCode == nil || networkCode == nil) {
+    if (countryCode == nil || networkCode == nil) {
         return @"";
     }
     return [countryCode stringByAppendingString:networkCode];
@@ -91,7 +90,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 
 + (NSString *)getNetworkOperatorName {
     NSString *carrierName = uadsTelephonyInfo.subscriberCellularProvider.carrierName;
-    if(carrierName == nil) {
+    if (carrierName == nil) {
         return @"";
     }
     return carrierName;
@@ -110,12 +109,12 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 }
 
 + (NSNumber *)getScreenWidth {
-    CGRect rect = [UIScreen mainScreen].applicationFrame;
+    CGRect rect = [UIScreen mainScreen].bounds;
     return [NSNumber numberWithFloat:rect.size.width];
 }
 
 + (NSNumber *)getScreenHeight {
-    CGRect rect = [UIScreen mainScreen].applicationFrame;
+    CGRect rect = [UIScreen mainScreen].bounds;
     return [NSNumber numberWithFloat:rect.size.height];;
 }
 
@@ -131,18 +130,18 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 }
 
 + (BOOL)isWiredHeadsetOn {
-    AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
-    for (AVAudioSessionPortDescription* desc in [route outputs]) {
+    AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
+    for (AVAudioSessionPortDescription *desc in [route outputs]) {
         if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones])
             return YES;
     }
     return NO;
 }
 
-+ (NSString *)getTimeZone:(BOOL) daylightSavingTime {
++ (NSString *)getTimeZone:(BOOL)daylightSavingTime {
     NSDate *currentDate = [NSDate date];
     NSTimeZone *timeZone = [NSTimeZone localTimeZone];
-    
+
     if (!daylightSavingTime && [timeZone isDaylightSavingTimeForDate:currentDate]) {
         NSInteger secondsFromGMT = [timeZone secondsFromGMTForDate:currentDate];
 
@@ -165,8 +164,8 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 }
 
 + (NSString *)getPreferredLocalization {
-    NSString* preferredLocalization = [[NSLocale preferredLanguages] objectAtIndex:0];
-    
+    NSString *preferredLocalization = [[NSLocale preferredLanguages] objectAtIndex:0];
+
     preferredLocalization = [preferredLocalization stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
 
     return preferredLocalization;
@@ -187,7 +186,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 
 + (NSNumber *)getTotalSpaceInKilobytes {
     unsigned long long totalSpace = [[[[NSFileManager defaultManager] attributesOfFileSystemForPath:NSHomeDirectory() error:nil] objectForKey:NSFileSystemSize] unsignedLongLongValue];
-    return [NSNumber numberWithUnsignedLongLong:totalSpace/1024];
+    return [NSNumber numberWithUnsignedLongLong:totalSpace / 1024];
 }
 
 + (float)getBatteryLevel {
@@ -210,25 +209,25 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     mach_port_t host_port;
     mach_msg_type_number_t host_size;
     vm_size_t pagesize;
-    
+
     host_port = mach_host_self();
     host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
     host_page_size(host_port, &pagesize);
-    
+
     vm_statistics_data_t vm_stat;
-    
-    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
+
+    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t) &vm_stat, &host_size) != KERN_SUCCESS) {
         USRVLogDebug(@"Failed to fetch vm statistics");
     }
-    
+
     unsigned long long mem_used = (vm_stat.active_count +
-                          vm_stat.inactive_count +
-                          vm_stat.wire_count) * (unsigned int)pagesize;
-    unsigned long long mem_free = vm_stat.free_count * (unsigned long long)pagesize;
+            vm_stat.inactive_count +
+            vm_stat.wire_count) * (unsigned int) pagesize;
+    unsigned long long mem_free = vm_stat.free_count * (unsigned long long) pagesize;
     unsigned long long mem_total = mem_used + mem_free;
     USRVLogDebug(@"used: %llu free: %llu total: %llu", mem_used, mem_free, mem_total);
-    
-    return [NSNumber numberWithUnsignedLongLong:(unsigned long long)mem_total/1024];
+
+    return [NSNumber numberWithUnsignedLongLong:(unsigned long long) mem_total / 1024];
 }
 
 
@@ -236,45 +235,45 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     mach_port_t host_port;
     mach_msg_type_number_t host_size;
     vm_size_t pagesize;
-    
+
     host_port = mach_host_self();
     host_size = sizeof(vm_statistics_data_t) / sizeof(integer_t);
     host_page_size(host_port, &pagesize);
-    
+
     vm_statistics_data_t vm_stat;
-    
-    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t)&vm_stat, &host_size) != KERN_SUCCESS) {
+
+    if (host_statistics(host_port, HOST_VM_INFO, (host_info_t) &vm_stat, &host_size) != KERN_SUCCESS) {
         USRVLogDebug(@"Failed to fetch vm statistics");
     }
-    
+
     unsigned long long mem_used = (vm_stat.active_count +
-                          vm_stat.inactive_count +
-                          vm_stat.wire_count) * (unsigned int)pagesize;
-    unsigned long long mem_free = vm_stat.free_count * (unsigned long long)pagesize;
+            vm_stat.inactive_count +
+            vm_stat.wire_count) * (unsigned int) pagesize;
+    unsigned long long mem_free = vm_stat.free_count * (unsigned long long) pagesize;
     USRVLogDebug(@"used: %llu free: %llu", mem_used, mem_free);
-    
-    return [NSNumber numberWithLongLong:(unsigned long long)mem_free/1024];
+
+    return [NSNumber numberWithLongLong:(unsigned long long) mem_free / 1024];
 }
 
 + (NSDictionary *)getProcessInfo {
     kern_return_t kr;
     task_info_data_t tinfo;
     mach_msg_type_number_t task_info_count;
-    
+
     task_info_count = TASK_INFO_MAX;
-    kr = task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)tinfo, &task_info_count);
+    kr = task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t) tinfo, &task_info_count);
     if (kr != KERN_SUCCESS) {
         return nil;
     }
-    
-    thread_array_t         thread_list;
+
+    thread_array_t thread_list;
     mach_msg_type_number_t thread_count;
-    
-    thread_info_data_t     thinfo;
+
+    thread_info_data_t thinfo;
     mach_msg_type_number_t thread_info_count;
-    
+
     thread_basic_info_t basic_info_th;
-    
+
     // get threads in the task
     kr = task_threads(mach_task_self(), &thread_list, &thread_count);
     if (kr != KERN_SUCCESS) {
@@ -283,25 +282,24 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 
     float tot_cpu = 0;
     int j;
-    
-    for (j = 0; j < (int)thread_count; j++)
-    {
+
+    for (j = 0; j < (int) thread_count; j++) {
         thread_info_count = THREAD_INFO_MAX;
         kr = thread_info(thread_list[j], THREAD_BASIC_INFO,
-                         (thread_info_t)thinfo, &thread_info_count);
+                (thread_info_t) thinfo, &thread_info_count);
         if (kr != KERN_SUCCESS) {
             return nil;
         }
-        
-        basic_info_th = (thread_basic_info_t)thinfo;
-        
+
+        basic_info_th = (thread_basic_info_t) thinfo;
+
         if (!(basic_info_th->flags & TH_FLAGS_IDLE)) {
-            tot_cpu = tot_cpu + basic_info_th->cpu_usage / (float)TH_USAGE_SCALE * 100.0;
+            tot_cpu = tot_cpu + basic_info_th->cpu_usage / (float) TH_USAGE_SCALE * 100.0;
         }
-        
+
     } // for each thread
-    
-    kr = vm_deallocate(mach_task_self(), (vm_offset_t)thread_list, thread_count * sizeof(thread_t));
+
+    kr = vm_deallocate(mach_task_self(), (vm_offset_t) thread_list, thread_count * sizeof(thread_t));
     assert(kr == KERN_SUCCESS);
     return @{@"stat": [NSNumber numberWithFloat:tot_cpu]};
 }
@@ -337,7 +335,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     return [[UIDevice currentDevice] userInterfaceIdiom];
 }
 
-+ (NSArray<NSString *>*)getSensorList {
++ (NSArray<NSString *> *)getSensorList {
     id motionManagerClass = objc_getClass("CMMotionManager");
     BOOL gyroAvailable = false;
     BOOL accelerometerAvailable = false;
@@ -354,7 +352,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
             if ([motionManagerObject respondsToSelector:gyroSelector]) {
                 USRVLogDebug(@"Performing gyro selector");
                 IMP gyroImp = [motionManagerObject methodForSelector:gyroSelector];
-                BOOL (*gyroFunc)(id, SEL) = (void *)gyroImp;
+                BOOL (*gyroFunc)(id, SEL) = (void *) gyroImp;
                 gyroAvailable = gyroFunc(motionManagerObject, gyroSelector);
             }
 
@@ -362,7 +360,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
             if ([motionManagerObject respondsToSelector:accelerometerSelector]) {
                 USRVLogDebug(@"Performing accelerometer selector");
                 IMP accelerometerImp = [motionManagerObject methodForSelector:accelerometerSelector];
-                BOOL (*accelerometerFunc)(id, SEL) = (void *)accelerometerImp;
+                BOOL (*accelerometerFunc)(id, SEL) = (void *) accelerometerImp;
                 accelerometerAvailable = accelerometerFunc(motionManagerObject, accelerometerSelector);
             }
 
@@ -370,7 +368,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
             if ([motionManagerObject respondsToSelector:magnetometerSelector]) {
                 USRVLogDebug(@"Performing magnetometer selector");
                 IMP magnetometerImp = [motionManagerObject methodForSelector:magnetometerSelector];
-                BOOL (*magnetometerFunc)(id, SEL) = (void *)magnetometerImp;
+                BOOL (*magnetometerFunc)(id, SEL) = (void *) magnetometerImp;
                 magnetometerAvailable = magnetometerFunc(motionManagerObject, magnetometerSelector);
             }
 
@@ -404,8 +402,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
         }
 
         return [NSString stringWithFormat:@"2.0"];
-    }
-    else {
+    } else {
         return [NSString stringWithFormat:@"3.0"];
     }
 }
@@ -416,6 +413,11 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 
 + (NSUInteger)getCPUCount {
     return [[NSProcessInfo processInfo] processorCount];
+}
+
++ (void)checkIsMuted {
+    [[USRVMuteSwitch sharedInstance] detectMuteSwitch];
+    return;
 }
 
 @end

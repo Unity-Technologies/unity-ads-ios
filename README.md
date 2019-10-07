@@ -1,6 +1,6 @@
-# Unity Ads 3 iOS Release Repository
+# Unity Ads iOS Release Repository
 
-Welcome to the Unity Ads 3 iOS release repository.
+Welcome to the Unity Ads iOS release repository.
 
 ## Supported Integration Configurations
 

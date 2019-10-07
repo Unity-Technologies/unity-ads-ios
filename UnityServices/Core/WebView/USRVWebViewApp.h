@@ -15,7 +15,7 @@
 
 + (USRVWebViewApp *)getCurrentApp;
 + (void)setCurrentApp:(USRVWebViewApp *)webViewApp;
-+ (void)create:(USRVConfiguration *)configuration;
++ (void)create:(USRVConfiguration *)configuration view:(UIView*)view;
 
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration;
 - (BOOL)invokeCallback:(USRVInvocation *)invocation;

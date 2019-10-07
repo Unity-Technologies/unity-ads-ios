@@ -1,4 +1,5 @@
 #import <XCTest/XCTest.h>
+#import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
 @interface MockWebViewAppForViewControllerTests : USRVWebViewApp
@@ -200,8 +201,8 @@
 }
 
 - (void)testSetViewFrame {
-    UIWebView *webView = NULL;
-    webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
+    WKWebView *webView = NULL;
+    webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
     
     XCTestExpectation *presentExpectation = [self expectationWithDescription:@"initExpectation"];
     MockWebViewAppForViewControllerTests *mockApp = (MockWebViewAppForViewControllerTests *)[USRVWebViewApp getCurrentApp];

@@ -170,13 +170,13 @@ USTRAppSheet *appSheet = nil;
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
         XCTAssertTrue(true, "Didn't timeout");
     }];
-    
-    [appSheet presentAppSheet:parameters animated:true completionBlock:^(BOOL result, NSString * _Nullable error) {
-    }];
-    
+
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"presentAppSheetEventExpectation"];
     MockWebViewAppForAppSheetTests *mockApp = (MockWebViewAppForAppSheetTests *)[USRVWebViewApp getCurrentApp];
     [mockApp setPresentException:expectation2];
+
+    [appSheet presentAppSheet:parameters animated:true completionBlock:^(BOOL result, NSString * _Nullable error) {
+    }];
 
     [self waitForExpectationsWithTimeout:10 handler:^(NSError * _Nullable error) {
         XCTAssertTrue(true, "Didn't timeout");

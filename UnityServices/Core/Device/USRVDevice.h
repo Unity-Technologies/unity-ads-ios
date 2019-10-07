@@ -1,7 +1,7 @@
-
+#import "USRVMuteSwitch.h"
 
 @interface USRVDevice : NSObject
-+ (void) initCarrierUpdates;
++ (void)initCarrierUpdates;
 
 + (NSString *)getOsVersion;
 
@@ -37,7 +37,7 @@
 
 + (BOOL)isWiredHeadsetOn;
 
-+ (NSString *)getTimeZone:(BOOL) daylightSavingTime;
++ (NSString *)getTimeZone:(BOOL)daylightSavingTime;
 
 + (NSInteger)getTimeZoneOffset;
 
@@ -65,12 +65,14 @@
 
 + (NSInteger)getUserInterfaceIdiom;
 
-+ (NSArray<NSString *>*)getSensorList;
++ (NSArray<NSString *> *)getSensorList;
 
 + (NSString *)getGLVersion;
 
 + (float)getDeviceMaxVolume;
 
 + (NSUInteger)getCPUCount;
+
++ (void)checkIsMuted;
 
 @end

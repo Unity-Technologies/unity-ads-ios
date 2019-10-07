@@ -1,6 +1,10 @@
 #import "UADSWebPlayerHandler.h"
 #import "UADSApiWebPlayer.h"
 #import "UADSViewController.h"
+#import "UADSWebPlayerSettingsManager.h"
+#import "UADSWebPlayerViewManager.h"
+
+NSString *const UADSWebPlayerViewId = @"webplayer";
 
 @interface UADSWebPlayerHandler ()
 @end
@@ -9,10 +13,13 @@
 
 - (BOOL)create:(UADSViewController *)viewController {
     if (![self webPlayerView]) {
-        [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:[self getRect:viewController.view] viewId:@"webplayer" webPlayerSettings:[UADSApiWebPlayer getWebPlayerSettings]]];
-        [[self webPlayerView] setEventSettings:[UADSApiWebPlayer getWebPlayerEventSettings]];
+        NSDictionary *settings = [[UADSWebPlayerSettingsManager sharedInstance] getWebPlayerSettings:UADSWebPlayerViewId];
+        [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:[self getRect:viewController.view] viewId:UADSWebPlayerViewId webPlayerSettings:settings]];
+        [[UADSWebPlayerViewManager sharedInstance] addWebPlayerView:self.webPlayerView viewId:UADSWebPlayerViewId];
+        NSDictionary *eventSettings = [[UADSWebPlayerSettingsManager sharedInstance] getWebPlayerEventSettings:UADSWebPlayerViewId];
+        [[self webPlayerView] setEventSettings:eventSettings];
     }
-    
+
     return true;
 }
 
@@ -22,6 +29,7 @@
     }
     [self.webPlayerView destroy];
     self.webPlayerView = nil;
+    [[UADSWebPlayerViewManager sharedInstance] removeWebPlayerViewWithViewId:UADSWebPlayerViewId];
 
     return true;
 }

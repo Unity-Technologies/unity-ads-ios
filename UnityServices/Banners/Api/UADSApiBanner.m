@@ -1,79 +1,61 @@
 #import "UADSApiBanner.h"
 #import "USRVWebViewCallback.h"
-#import "UADSBannerView.h"
-#import "UADSBannerPosition.h"
-#import "USRVWebViewApp.h"
-#import "USRVWebViewEventCategory.h"
-#import "UADSBannerEvent.h"
-#import "USRVClientProperties.h"
+#import "UADSBannerWebPlayerContainer.h"
+#import "UADSWebPlayerSettingsManager.h"
+#import "UADSBannerViewManager.h"
+#import "UADSBannerView+UADSBannerWebPlayerContainerDelegate.h"
+#import "USRVBannerBridge.h"
+#import "UADSBannerRefreshInfo.h"
+#import "UADSBannerWebPlayerContainerType.h"
 
 @implementation UADSApiBanner
 
-+(void)WebViewExposed_load:(NSArray *)views bannerStyle:(NSString *)bannerStyle width:(NSNumber *)width height:(NSNumber *)height callback:(USRVWebViewCallback *)callback {
-    UADSBannerView *banner = [UADSBannerView getOrCreateInstance];
-    float widthAsFloat = [width floatValue];
-    float heightAsFloat = [height floatValue];
-    [banner setAdSize:CGSizeMake(widthAsFloat, heightAsFloat)];
++ (void)WebViewExposed_load:(NSString *)bannerWebPlayerContainerTypeString width:(NSNumber *)width height:(NSNumber *)height bannerAdId:(NSString *)bannerAdId callback:(USRVWebViewCallback *)callback {
+    UADSBannerWebPlayerContainerType bannerWebPlayerContainerType = UADSBannerWebPlayerContainerTypeFromNSString(bannerWebPlayerContainerTypeString);
+    switch (bannerWebPlayerContainerType) {
+        case UADSBannerWebPlayerContainerTypeWebPlayer: {
+            NSDictionary *webPlayerSettings = [[UADSWebPlayerSettingsManager sharedInstance] getWebPlayerSettings:bannerAdId];
+            NSDictionary *webPlayerEventSettings = [[UADSWebPlayerSettingsManager sharedInstance] getWebPlayerEventSettings:bannerAdId];
+            UADSBannerView *bannerView = [[UADSBannerViewManager sharedInstance] getBannerViewWithBannerAdId:bannerAdId];
+            if (bannerView) {
+                if ([bannerView getBannerWebPlayerContainer]) {
+                    // if there is already a web player re-use it
+                    UADSBannerWebPlayerContainer *bannerWebPlayerContainer = [bannerView getBannerWebPlayerContainer];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        // update banner view settings
+                        [bannerWebPlayerContainer.webPlayer setWebPlayerSettings:webPlayerSettings];
+                        [bannerWebPlayerContainer.webPlayer setEventSettings:webPlayerEventSettings];
 
-    UnityAdsBannerPosition position = [USRVClientProperties getbannerDefaultPosition];
-    if(position == kUnityAdsBannerPositionNone ){
-        position = UADSBannerPositionFromNSString(bannerStyle);
-    }
-    [banner setPosition:position];
-    [banner setFrame:CGRectMake(0, 0, widthAsFloat, heightAsFloat)];
-    [banner setViews:views];
+                        [USRVBannerBridge bannerDidLoadedWithBannerId:bannerAdId];
+                    });
+                } else {
+                    // if there is not a web player create one
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        // banner view needs to be init on main thread
+                        float widthAsFloat = [width floatValue];
+                        float heightAsFloat = [height floatValue];
+                        CGSize bannerSize = CGSizeMake(widthAsFloat, heightAsFloat);
+                        UADSBannerWebPlayerContainer *bannerWebPlayerContainer = [[UADSBannerWebPlayerContainer alloc] initWithBannerAdId:bannerAdId webPlayerSettings:webPlayerSettings webPlayerEventSettings:webPlayerEventSettings size:bannerSize];
 
-    USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];
-    if (app) {
-        [app sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventLoaded) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
-    }
+                        [bannerView setBannerWebPlayerContainer:bannerWebPlayerContainer];
 
-    [callback invoke:nil];
-}
-
-+(void)WebViewExposed_destroy:(USRVWebViewCallback *)callback {
-    UADSBannerView *banner = [UADSBannerView getInstance];
-    if (banner) {
-        [banner close];
-        USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];
-        [UADSBannerView destroyInstance];
-        if (app) {
-            [app sendEvent:UADSNSStringFromBannerEvent(kUnityAdsBannerEventDestroyed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner) param1:nil];
+                        [USRVBannerBridge bannerDidLoadedWithBannerId:bannerAdId];
+                    });
+                }
+            }
+            break;
         }
+        case UADSBannerWebPlayerContainerTypeUnknown:
+            // do nothing
+            break;
     }
+
     [callback invoke:nil];
 }
 
-+(void)WebViewExposed_setViewFrame:(NSString *)viewName x:(NSNumber *)x y:(NSNumber *)y width:(NSNumber *)width height:(NSNumber *)height callback:(USRVWebViewCallback *)callback {
-    UADSBannerView *banner = [UADSBannerView getInstance];
-    if (banner) {
-        [banner setViewFrame:viewName x:[x floatValue] y:[y floatValue] width:[width floatValue] height:[height floatValue]];
-    }
-    [callback invoke:nil];
-}
-
-+(void)WebViewExposed_setBannerFrame:(NSString *)bannerStyle width:(NSNumber *)width height:(NSNumber *)height callback:(USRVWebViewCallback *)callback {
-    UADSBannerView *banner = [UADSBannerView getInstance];
-    if (banner) {
-        float widthAsFloat = [width floatValue];
-        float heightAsFloat = [height floatValue];
-        [banner setAdSize:CGSizeMake(widthAsFloat, heightAsFloat)];
-        
-        UnityAdsBannerPosition position = [USRVClientProperties getbannerDefaultPosition];
-        if(position == kUnityAdsBannerPositionNone ){
-            position = UADSBannerPositionFromNSString(bannerStyle);
-        }
-        [banner setPosition:position];
-        
-        [banner setFrame:CGRectMake(0, 0, widthAsFloat, heightAsFloat)];
-    }
-    [callback invoke:nil];
-}
-
-+(void)WebViewExposed_setViews:(NSArray *)views callback:(USRVWebViewCallback *)callback {
-    UADSBannerView *banner = [UADSBannerView getInstance];
-    if (banner) {
-        [banner setViews:views];
++ (void)WebViewExposed_setRefreshRate:(NSString *)placementId refreshRate:(NSNumber *)refreshRate callback:(USRVWebViewCallback *)callback {
+    if (placementId && refreshRate) {
+        [[UADSBannerRefreshInfo sharedInstance] setRefreshRateForPlacementId:placementId refreshRate:refreshRate];
     }
     [callback invoke:nil];
 }

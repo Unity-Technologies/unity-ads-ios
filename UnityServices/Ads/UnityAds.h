@@ -28,6 +28,9 @@
 #import "UnityAdsPlacementState.h"
 #import "NSString+UnityAdsError.h"
 #import "UnityAdsExtendedDelegate.h"
+#import "UADSBannerView.h"
+#import "UADSBannerViewDelegate.h"
+#import "UADSBannerError.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -70,9 +73,9 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param enablePerPlacementLoad Set this flag to `YES` to disable automatic placement caching. When this is enabled, developer must call `load` on placements before calling show
  */
 + (void)initialize:(NSString *)gameId
-          delegate:(nullable id<UnityAdsDelegate>)delegate
-          testMode:(BOOL)testMode
-          enablePerPlacementLoad:(BOOL)enablePerPlacementLoad;
+                  delegate:(nullable id<UnityAdsDelegate>)delegate
+                  testMode:(BOOL)testMode
+    enablePerPlacementLoad:(BOOL)enablePerPlacementLoad;
 /**
  *  Load a placement to make it available to show. Ads generally take a few seconds to finish loading before they can be shown.
  *  Note: The `load` API is in closed beta and available upon invite only. If you would like to be considered for the beta, please contact Unity Ads Support.

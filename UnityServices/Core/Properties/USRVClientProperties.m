@@ -4,7 +4,6 @@
 @implementation USRVClientProperties
 
 static NSString *_gameId = @"-1";
-static UnityAdsBannerPosition _bannerDefaultPosition = kUnityAdsBannerPositionNone;
 __weak static UIViewController *_currentViewController = nil;
 
 + (void)setGameId:(NSString *)gid {
@@ -15,8 +14,8 @@ __weak static UIViewController *_currentViewController = nil;
     return _gameId;
 }
 
-+ (NSArray<NSString*>*)getSupportedOrientationsPlist {
-    NSArray<NSString*> *supportedOrientations = @[];
++ (NSArray<NSString *> *)getSupportedOrientationsPlist {
+    NSArray<NSString *> *supportedOrientations = @[];
     if ([NSBundle.mainBundle.infoDictionary objectForKey:@"UISupportedInterfaceOrientations"] != nil) {
         supportedOrientations = [supportedOrientations arrayByAddingObjectsFromArray:[NSBundle.mainBundle.infoDictionary objectForKey:@"UISupportedInterfaceOrientations"]];
     }
@@ -24,7 +23,7 @@ __weak static UIViewController *_currentViewController = nil;
 }
 
 + (int)getSupportedOrientations {
-    return [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication] keyWindow]];
+    return (int) [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication] keyWindow]];
 }
 
 + (NSString *)getAppName {
@@ -39,6 +38,14 @@ __weak static UIViewController *_currentViewController = nil;
     return NO;
 }
 
++ (BOOL)isMadeWithUnity {
+    Class unityAppController = NSClassFromString(@"UnityAppController");
+    if (unityAppController == nil) {
+        return NO;
+    }
+    return YES;
+}
+
 + (void)setCurrentViewController:(UIViewController *)viewController {
     _currentViewController = viewController;
 }
@@ -47,11 +54,4 @@ __weak static UIViewController *_currentViewController = nil;
     return _currentViewController;
 }
 
-+ (void)setBannerDefaultPosition:(UnityAdsBannerPosition)position {
-    _bannerDefaultPosition = position;
-}
-
-+ (UnityAdsBannerPosition)getbannerDefaultPosition {
-    return _bannerDefaultPosition;
-}
 @end

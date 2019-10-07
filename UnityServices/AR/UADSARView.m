@@ -6,6 +6,9 @@
 #import "USRVWebViewEventCategory.h"
 #import "UADSAREvent.h"
 
+// Omit from static analysis.
+#ifndef __clang_analyzer__
+
 #define FBOX(x) [NSNumber numberWithFloat:x]
 #define FRAME_UPDATE_TIMEOUT 0.5
 
@@ -544,3 +547,5 @@ static void matrix4x4ToQuaternion(const float *m, float q[4]) {
 #endif
 
 @end
+
+#endif // not __clang_analyzer__

@@ -1,14 +1,20 @@
 #import <Foundation/Foundation.h>
 #import "USRVASWebAuthenticationSession.h"
 
-typedef void (^GetSessionsCallback)(NSDictionary<NSString *, USRVASWebAuthenticationSession *> *sessions);
-typedef void (^StartSessionCallback)(BOOL didStart);
+NS_ASSUME_NONNULL_BEGIN
 
 @interface USRVASWebAuthenticationSessionManager : NSObject
 + (instancetype)sharedInstance;
+
 - (USRVASWebAuthenticationSession *)createSession:(NSURL *)authUrl callbackUrlScheme:(NSString *)callbackUrlSchemeString;
-- (void)getSessions:(GetSessionsCallback)callback;
+
+- (NSDictionary *_Nonnull)getSessions;
+
 - (void)removeSession:(NSString *)sessionId;
+
 - (void)cancelSession:(NSString *)sessionId;
-- (void)startSession:(NSString *)sessionId callback:(StartSessionCallback)callback;
+
+- (BOOL)startSession:(NSString *)sessionId;
 @end
+
+NS_ASSUME_NONNULL_END

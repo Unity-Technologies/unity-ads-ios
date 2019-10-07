@@ -1,56 +1,30 @@
 #import "UADSApiBannerListener.h"
 #import "UADSBanner.h"
 #import "USRVWebViewCallback.h"
-#import "UADSBannerView.h"
-#import "UADSBannerProperties.h"
+#import "UADSBannerViewManager.h"
 
 @implementation UADSApiBannerListener
 
-+(void)WebViewExposed_sendShowEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    id <UnityAdsBannerDelegate> delegate = [UADSBannerProperties getDelegate];
-    if (delegate && [delegate respondsToSelector:@selector(unityAdsBannerDidShow:)]) {
-        [delegate unityAdsBannerDidShow:placementId];
-    }
++ (void)WebViewExposed_sendLoadEvent:(NSString *)bannerAdId callback:(USRVWebViewCallback *)callback {
+    [[UADSBannerViewManager sharedInstance] triggerBannerDidLoad:bannerAdId];
     [callback invoke:nil];
 }
 
-+(void)WebViewExposed_sendHideEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    id <UnityAdsBannerDelegate> delegate = [UADSBannerProperties getDelegate];
-    if (delegate && [delegate respondsToSelector:@selector(unityAdsBannerDidHide:)]) {
-        [delegate unityAdsBannerDidHide:placementId];
-    }
++ (void)WebViewExposed_sendClickEvent:(NSString *)bannerAdId callback:(USRVWebViewCallback *)callback {
+    [[UADSBannerViewManager sharedInstance] triggerBannerDidClick:bannerAdId];
     [callback invoke:nil];
 }
 
-+(void)WebViewExposed_sendClickEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    id <UnityAdsBannerDelegate> delegate = [UADSBannerProperties getDelegate];
-    if (delegate && [delegate respondsToSelector:@selector(unityAdsBannerDidClick:)]) {
-        [delegate unityAdsBannerDidClick:placementId];
-    }
++ (void)WebViewExposed_sendLeaveApplicationEvent:(NSString *)bannerAdId callback:(USRVWebViewCallback *)callback {
+    [[UADSBannerViewManager sharedInstance] triggerBannerDidLeaveApplication:bannerAdId];
     [callback invoke:nil];
 }
 
-+(void)WebViewExposed_sendErrorEvent:(NSString *)message callback:(USRVWebViewCallback *)callback {
-    id <UnityAdsBannerDelegate> delegate = [UADSBannerProperties getDelegate];
-    if (delegate && [delegate respondsToSelector:@selector(unityAdsBannerDidError:)]) {
-        [delegate unityAdsBannerDidError:message];
-    }
-    [callback invoke:nil];
-}
-
-+(void)WebViewExposed_sendLoadEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    id <UnityAdsBannerDelegate> delegate = [UADSBannerProperties getDelegate];
-    if (delegate && [delegate respondsToSelector:@selector(unityAdsBannerDidLoad:view:)]) {
-        [delegate unityAdsBannerDidLoad:placementId view:[UADSBannerView getInstance]];
-    }
-    [callback invoke:nil];
-}
-
-+(void)WebViewExposed_sendUnloadEvent:(NSString *)placementId callback:(USRVWebViewCallback *)callback {
-    id <UnityAdsBannerDelegate> delegate = [UADSBannerProperties getDelegate];
-    if (delegate && [delegate respondsToSelector:@selector(unityAdsBannerDidUnload:)]) {
-        [delegate unityAdsBannerDidUnload:placementId];
-    }
++ (void)WebViewExposed_sendErrorEvent:(NSString *)bannerAdId code:(NSNumber *)code message:(NSString *)message callback:(USRVWebViewCallback *)callback {
+    UADSBannerError *error = [[UADSBannerError alloc] initWithCode:[code integerValue] userInfo:@{
+            NSLocalizedDescriptionKey: message
+    }];
+    [[UADSBannerViewManager sharedInstance] triggerBannerDidError:bannerAdId error:error];
     [callback invoke:nil];
 }
 

@@ -9,9 +9,8 @@
 + (NSString *)getAppName;
 + (NSString *)getAppVersion;
 + (BOOL)isAppDebuggable;
++ (BOOL)isMadeWithUnity;
 + (void)setCurrentViewController:(UIViewController *)viewController;
 + (UIViewController *)getCurrentViewController;
-+ (void)setBannerDefaultPosition:(UnityAdsBannerPosition)position;
-+ (UnityAdsBannerPosition)getbannerDefaultPosition;
 
 @end

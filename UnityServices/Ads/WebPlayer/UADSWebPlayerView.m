@@ -1,5 +1,5 @@
 #import "UADSWebPlayerView.h"
-#import "USRVWKWebViewApp.h"
+#import "USRVWebViewApp.h"
 #import "USRVDevice.h"
 #import "UADSWebPlayerEvent.h"
 #import "UADSWebPlayerSettings.h"
@@ -8,46 +8,72 @@
 #import "USRVJsonUtilities.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
+#import "UADSWebPlayerBridge.h"
 
-@interface UADSWebPlayerView () <UIWebViewDelegate>
-@property (nonatomic, assign) id internalWebView;
-@property (nonatomic, retain) id wkConfiguration;
-@property (nonatomic, retain) NSDictionary* webPlayerSettings;
-@property (nonatomic, retain) NSDictionary* webPlayerEventSettings;
-@property (nonatomic, retain) NSString* viewId;
+@interface UADSWebPlayerView ()
+@property(nonatomic, assign) id internalWebView;
+@property(nonatomic, retain) id wkConfiguration;
+@property(nonatomic, retain) NSDictionary *webPlayerSettings;
+@property(nonatomic, retain) NSDictionary *webPlayerEventSettings;
+@property(nonatomic, retain) NSString *viewId;
+
 - (void)createWKWebPlayer;
-- (void)createUIWebPlayer;
+
 @end
 
 @implementation UADSWebPlayerView
 
-- (instancetype)initWithFrame:(CGRect)frame viewId:(NSString*)viewId webPlayerSettings:(NSDictionary*)webPlayerSettings {
+- (instancetype)initWithFrame:(CGRect)frame viewId:(NSString *)viewId webPlayerSettings:(NSDictionary *)webPlayerSettings {
     self = [super initWithFrame:frame];
     if (self) {
+        _viewId = viewId;
         self.accessibilityElementsHidden = true;
         [self setWebPlayerSettings:webPlayerSettings];
-        self.viewId = viewId;
-        [self createInternalWebView];
+        [self createWKWebPlayer];
+        [self constructLayout];
     }
 
     return self;
 }
 
-- (void)destroy {
-    NSString *osVersion = [USRVDevice getOsVersion];
-    NSArray<NSString *> *splitString = [osVersion componentsSeparatedByString:@"."];
-    NSString *osMajorVersionString = [splitString objectAtIndex:0];
-    int osMajorVersion = [osMajorVersionString intValue];
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [self sendFrameUpdate];
+}
 
-    if (osMajorVersion > 8) {
-        [self.internalWebView setValue:nil forKeyPath:@"navigationDelegate"];
-        [self.internalWebView setValue:nil forKeyPath:@"UIDelegate"];
-        if (self.wkConfiguration) {
-            [USRVWKWebViewUtilities removeUserContentControllerMessageHandler:self.wkConfiguration handledMessages:@[@"sendEvent"]];
+- (void)sendFrameUpdate {
+    // Push the new frame to webview
+    UIWindow *window;
+    if ([[[UIApplication sharedApplication] delegate] window]) {
+        window = [[[UIApplication sharedApplication] delegate] window];
+    } else {
+        window = self.window;
+    }
+    if (window) {
+        CGRect frameRelativeToWindow = [self convertRect:self.frame toView:window];
+        if (self.viewId) {
+            [UADSWebPlayerBridge sendFrameUpdate:self.viewId frame:frameRelativeToWindow alpha:self.alpha];
         }
     }
-    else {
-        ((UIWebView *)self.internalWebView).delegate = nil;
+}
+
+- (void)constructLayout {
+    if ([self.internalWebView isKindOfClass:[UIView class]]) {
+        UIView *webview = (UIView *) self.internalWebView;
+        webview.translatesAutoresizingMaskIntoConstraints = NO;
+        NSDictionary *views = @{
+                @"webview": webview
+        };
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[webview]|" options:0 metrics:nil views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[webview]|" options:0 metrics:nil views:views]];
+    }
+}
+
+- (void)destroy {
+    [self.internalWebView setValue:nil forKeyPath:@"navigationDelegate"];
+    [self.internalWebView setValue:nil forKeyPath:@"UIDelegate"];
+    if (self.wkConfiguration) {
+        [USRVWKWebViewUtilities removeUserContentControllerMessageHandler:self.wkConfiguration handledMessages:@[@"sendEvent"]];
     }
     self.internalWebView = nil;
     self.wkConfiguration = nil;
@@ -62,137 +88,30 @@
     [USRVWKWebViewUtilities loadUrl:_internalWebView url:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
 }
 
-- (void)loadData:(NSString*)data mimeType:(NSString *)mimeType encoding:(NSString *)encoding {
+- (void)loadData:(NSString *)data mimeType:(NSString *)mimeType encoding:(NSString *)encoding {
     [self loadData:data mimeType:mimeType encoding:encoding baseUrl:@""];
 }
 
-- (void)loadData:(NSString*)data mimeType:(NSString *)mimeType encoding:(NSString *)encoding baseUrl:(NSString *)baseUrl {
-    if ([_internalWebView isKindOfClass:[UIWebView class]]) {
-        [((UIWebView*)_internalWebView) loadData:[data dataUsingEncoding:NSUTF8StringEncoding] MIMEType:mimeType textEncodingName:encoding baseURL:[NSURL URLWithString:baseUrl]];
-    } else {
-        [USRVWKWebViewUtilities loadData:_internalWebView data:[data dataUsingEncoding:NSUTF8StringEncoding] mimeType:mimeType encoding:encoding baseUrl:[NSURL URLWithString:baseUrl]];
-    }
+- (void)loadData:(NSString *)data mimeType:(NSString *)mimeType encoding:(NSString *)encoding baseUrl:(NSString *)baseUrl {
+
+    [USRVWKWebViewUtilities loadData:_internalWebView data:[data dataUsingEncoding:NSUTF8StringEncoding] mimeType:mimeType encoding:encoding baseUrl:[NSURL URLWithString:baseUrl]];
 }
 
--(void)setWebPlayerSettings:(NSDictionary*)webPlayerSettings {
+- (void)setWebPlayerSettings:(NSDictionary *)webPlayerSettings {
     _webPlayerSettings = webPlayerSettings;
 }
 
--(void)setEventSettings:(NSDictionary*)eventSettings {
-    [self setWebPlayerEventSettings:eventSettings];
+- (void)setEventSettings:(NSDictionary *)eventSettings {
+    _webPlayerEventSettings = eventSettings;
 }
 
--(void)receiveEvent:(NSString *)data {
+- (void)receiveEvent:(NSString *)data {
     NSData *jsonData = [USRVJsonUtilities dataWithJSONObject:data options:0 error:nil];
     if (jsonData) {
-        NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        NSString * stringForEvaluation = [NSString stringWithFormat:@"javascript:window.nativebridge.receiveEvent(%@)", jsonString];
-        if ([_internalWebView isKindOfClass:[UIWebView class]]) {
-            [((UIWebView *) _internalWebView) stringByEvaluatingJavaScriptFromString:stringForEvaluation];
-        } else {
-            [USRVWKWebViewUtilities evaluateJavaScript:_internalWebView string:stringForEvaluation];
-        }
-    }
-}
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSString *stringForEvaluation = [NSString stringWithFormat:@"javascript:window.nativebridge.receiveEvent(%@)", jsonString];
 
-- (void)createInternalWebView {
-    NSString *osVersion = [USRVDevice getOsVersion];
-    NSArray<NSString *> *splitString = [osVersion componentsSeparatedByString:@"."];
-    NSString *osMajorVersionString = [splitString objectAtIndex:0];
-    int osMajorVersion = [osMajorVersionString intValue];
-
-    if (osMajorVersion > 8) {
-        USRVLogDebug(@"Using WKWebView for WebPlayer");
-        [self createWKWebPlayer];
-    }
-    else {
-        USRVLogDebug(@"Using UIWebView for WebPlayer");
-        [self createUIWebPlayer];
-    }
-}
-
-- (void)createUIWebPlayer {
-    UIWebView *webView = NULL;
-    webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 1024,768)];
-    NSLog(@"WebPlayerSettings: %@", self.webPlayerSettings);
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsMediaPlaybackRequiresUserAction]) {
-        webView.mediaPlaybackRequiresUserAction = [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsMediaPlaybackRequiresUserAction];
-        NSLog(@"WebPlayer: setting %@ to %d", @"mediaPlaybackRequiresUserAction", webView.mediaPlaybackRequiresUserAction);
-    }
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsAllowsInlineMediaPlayback]) {
-        webView.allowsInlineMediaPlayback = [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsAllowsInlineMediaPlayback];
-        NSLog(@"WebPlayer: setting %@ to %d", @"allowsInlineMediaPlayback", webView.allowsInlineMediaPlayback);
-    }
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsScalesPagesToFit]) {
-        webView.scalesPageToFit = [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsScalesPagesToFit];
-        NSLog(@"WebPlayer: setting %@ to %d", @"scalesPageToFit", webView.scalesPageToFit);
-    }
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsMediaPlaybackAllowsAirPlay]) {
-        webView.mediaPlaybackAllowsAirPlay = [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsMediaPlaybackAllowsAirPlay];
-        NSLog(@"WebPlayer: setting %@ to %d", @"mediaPlaybackAllowsAirPlay", webView.mediaPlaybackAllowsAirPlay);
-    }
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsSuppressesIncrementalRendering]) {
-        webView.suppressesIncrementalRendering = [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsSuppressesIncrementalRendering];
-        NSLog(@"WebPlayer: setting %@ to %d", @"suppressesIncrementalRendering", webView.suppressesIncrementalRendering);
-    }
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsKeyboardDisplayRequiresUserAction]) {
-        webView.keyboardDisplayRequiresUserAction = [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsKeyboardDisplayRequiresUserAction];
-        NSLog(@"WebPlayer: setting %@ to %d", @"keyboardDisplayRequiresUserAction", webView.keyboardDisplayRequiresUserAction);
-    }
-    if ([self shouldSetWebPlayerSetting:kUnityAdsWebPlayerWebSettingsDataDetectorTypes]) {
-        webView.dataDetectorTypes = (UIDataDetectorTypes)[self intValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsDataDetectorTypes];
-        NSLog(@"WebPlayer: setting %@ to %d", @"dataDetectorTypes", (int)webView.dataDetectorTypes);
-    }
-    [webView setBackgroundColor:[UIColor clearColor]];
-    [webView setOpaque:false];
-    webView.scrollView.bounces = NO;
-    webView.delegate = self;
-    [self setInternalWebView:webView];
-    [self addSubview:webView];
-}
-
-- (void)webViewDidStartLoad:(UIWebView *)webView {
-    if ([self shouldSendEvent:@"onPageStarted"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString, self.viewId, nil];
-    }
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    if ([self shouldSendEvent:@"onPageFinished"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString, self.viewId, nil];
-    }
-}
-
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-    if ([self shouldSendEvent:@"onReceivedError"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: webView.request.mainDocumentURL.absoluteString,error.localizedDescription, self.viewId, nil];
-    }
-}
-
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    NSString *urlString = [[request URL] absoluteString];
-    NSLog(@"Got event: %@", urlString);
-
-    if ([urlString hasPrefix:@"umsg:"]) {
-        NSString *jsonString = [[[urlString componentsSeparatedByString:@"umsg:"] lastObject] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: jsonString, self.viewId, nil];
-        return NO;
-    } else {
-        BOOL allowNavigation = YES;
-        if ([self shouldProvideReturnValue:@"shouldOverrideUrlLoading"]) {
-            allowNavigation = [self boolValueForEventReturnValue:@"shouldOverrideUrlLoading"];
-        }
-        if (navigationType == UIWebViewNavigationTypeLinkClicked) {
-            if ([self shouldSendEvent:@"onCreateWindow"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerShouldOverrideURLLoading) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:urlString, self.viewId, nil];
-            }
-            return NO;
-        } else {
-            if ([self shouldSendEvent:@"shouldOverrideUrlLoading"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerShouldOverrideURLLoading) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: urlString, self.viewId, nil];
-            }
-        }
-        return allowNavigation;
+        [USRVWKWebViewUtilities evaluateJavaScript:_internalWebView string:stringForEvaluation];
     }
 }
 
@@ -207,8 +126,7 @@
             if (frameworkPath) {
                 frameworkLocation = [NSString pathWithComponents:@[frameworkPath, @"WebKit.framework", @"WebKit"]];
             }
-        }
-        else {
+        } else {
             frameworkLocation = [NSString stringWithFormat:@"/System/Library/Frameworks/WebKit.framework/WebKit"];
         }
 
@@ -217,12 +135,10 @@
         if (![USRVWKWebViewUtilities isFrameworkPresent]) {
             USRVLogError(@"WKWebKit still not present!");
             return;
-        }
-        else {
+        } else {
             USRVLogDebug(@"Succesfully loaded WKWebKit framework");
         }
-    }
-    else {
+    } else {
         USRVLogDebug(@"WebKit framework already present");
     }
 
@@ -242,7 +158,7 @@
         if ([wkConfiguration respondsToSelector:setAllowsInlineMediaPlaybackSelector]) {
             IMP setAllowsInlineMediaPlaybackImp = [wkConfiguration methodForSelector:setAllowsInlineMediaPlaybackSelector];
             if (setAllowsInlineMediaPlaybackImp) {
-                void (*setAllowsInlineMediaPlaybackFunc)(id, SEL, BOOL) = (void *)setAllowsInlineMediaPlaybackImp;
+                void (*setAllowsInlineMediaPlaybackFunc)(id, SEL, BOOL) = (void *) setAllowsInlineMediaPlaybackImp;
                 setAllowsInlineMediaPlaybackFunc(wkConfiguration, setAllowsInlineMediaPlaybackSelector, [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsAllowsInlineMediaPlayback]);
                 USRVLogDebug(@"Called setAllowsInlineMediaPlayback")
             }
@@ -254,7 +170,7 @@
         if ([wkConfiguration respondsToSelector:setMediaPlaybackAllowsAirPlaySelector]) {
             IMP setMediaPlaybackAllowsAirPlayImp = [wkConfiguration methodForSelector:setMediaPlaybackAllowsAirPlaySelector];
             if (setMediaPlaybackAllowsAirPlayImp) {
-                void (*setMediaPlaybackAllowsAirPlayFunc)(id, SEL, BOOL) = (void *)setMediaPlaybackAllowsAirPlayImp;
+                void (*setMediaPlaybackAllowsAirPlayFunc)(id, SEL, BOOL) = (void *) setMediaPlaybackAllowsAirPlayImp;
                 setMediaPlaybackAllowsAirPlayFunc(wkConfiguration, setMediaPlaybackAllowsAirPlaySelector, [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsMediaPlaybackAllowsAirPlay]);
                 USRVLogDebug(@"Called setAllowsAirPlayForMediaPlayback");
             }
@@ -266,7 +182,7 @@
         if ([wkConfiguration respondsToSelector:setMediaPlaybackRequiresUserActionSelector]) {
             IMP setMediaPlaybackRequiresUserActionImp = [wkConfiguration methodForSelector:setMediaPlaybackRequiresUserActionSelector];
             if (setMediaPlaybackRequiresUserActionImp) {
-                void (*setMediaPlaybackRequiresUserActionFunc)(id, SEL, BOOL) = (void *)setMediaPlaybackRequiresUserActionImp;
+                void (*setMediaPlaybackRequiresUserActionFunc)(id, SEL, BOOL) = (void *) setMediaPlaybackRequiresUserActionImp;
                 setMediaPlaybackRequiresUserActionFunc(wkConfiguration, setMediaPlaybackRequiresUserActionSelector, [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsMediaPlaybackRequiresUserAction]);
                 USRVLogDebug(@"Called setMediaPlaybackRequiresUserAction");
             }
@@ -278,7 +194,7 @@
         if ([wkConfiguration respondsToSelector:setSuppressesIncrementalRenderingSelector]) {
             IMP setSuppressesIncrementalRenderingImp = [wkConfiguration methodForSelector:setSuppressesIncrementalRenderingSelector];
             if (setSuppressesIncrementalRenderingImp) {
-                void (*setSuppressesIncrementalRenderingFunc)(id, SEL, BOOL) = (void *)setSuppressesIncrementalRenderingImp;
+                void (*setSuppressesIncrementalRenderingFunc)(id, SEL, BOOL) = (void *) setSuppressesIncrementalRenderingImp;
                 setSuppressesIncrementalRenderingFunc(wkConfiguration, setSuppressesIncrementalRenderingSelector, [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsSuppressesIncrementalRendering]);
                 USRVLogDebug(@"Called setSuppressesIncrementalRendering");
             }
@@ -290,7 +206,7 @@
         if ([wkConfiguration respondsToSelector:setMediaTypesRequiringUserActionForPlaybackSelector]) {
             IMP setMediaTypesRequiringUserActionForPlaybackImp = [wkConfiguration methodForSelector:setMediaTypesRequiringUserActionForPlaybackSelector];
             if (setMediaTypesRequiringUserActionForPlaybackImp) {
-                void (*setMediaTypesRequiringUserActionForPlaybackFunc)(id, SEL, int) = (void *)setMediaTypesRequiringUserActionForPlaybackImp;
+                void (*setMediaTypesRequiringUserActionForPlaybackFunc)(id, SEL, int) = (void *) setMediaTypesRequiringUserActionForPlaybackImp;
                 setMediaTypesRequiringUserActionForPlaybackFunc(wkConfiguration, setMediaTypesRequiringUserActionForPlaybackSelector, [self intValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsTypesRequiringAction]);
                 USRVLogDebug(@"Called setMediaTypesRequiringUserActionForPlayback");
             }
@@ -302,7 +218,7 @@
         if ([wkConfiguration respondsToSelector:setDataDetectorTypesSelector]) {
             IMP setDataDetectorTypesImp = [wkConfiguration methodForSelector:setDataDetectorTypesSelector];
             if (setDataDetectorTypesImp) {
-                void (*setDataDetectorTypesFunc)(id, SEL, int) = (void *)setDataDetectorTypesImp;
+                void (*setDataDetectorTypesFunc)(id, SEL, int) = (void *) setDataDetectorTypesImp;
                 setDataDetectorTypesFunc(wkConfiguration, setDataDetectorTypesSelector, [self intValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsDataDetectorTypes]);
                 USRVLogDebug(@"Called setDataDetectorTypes");
             }
@@ -314,7 +230,7 @@
         if ([wkConfiguration respondsToSelector:setIgnoresViewportScaleLimitsSelector]) {
             IMP setIgnoresViewportScaleLimitsImp = [wkConfiguration methodForSelector:setIgnoresViewportScaleLimitsSelector];
             if (setIgnoresViewportScaleLimitsImp) {
-                void (*setIgnoresViewportScaleLimitsFunc)(id, SEL, BOOL) = (void *)setIgnoresViewportScaleLimitsImp;
+                void (*setIgnoresViewportScaleLimitsFunc)(id, SEL, BOOL) = (void *) setIgnoresViewportScaleLimitsImp;
                 setIgnoresViewportScaleLimitsFunc(wkConfiguration, setIgnoresViewportScaleLimitsSelector, [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsIgnoresViewportScaleLimits]);
                 USRVLogDebug(@"Called setIgnoresViewportScaleLimits");
             }
@@ -326,7 +242,7 @@
         if ([wkConfiguration respondsToSelector:setIgnoresViewportScaleLimitsSelector]) {
             IMP setIgnoresViewportScaleLimitsImp = [wkConfiguration methodForSelector:setIgnoresViewportScaleLimitsSelector];
             if (setIgnoresViewportScaleLimitsImp) {
-                void (*setIgnoresViewportScaleLimitsFunc)(id, SEL, BOOL) = (void *)setIgnoresViewportScaleLimitsImp;
+                void (*setIgnoresViewportScaleLimitsFunc)(id, SEL, BOOL) = (void *) setIgnoresViewportScaleLimitsImp;
                 setIgnoresViewportScaleLimitsFunc(wkConfiguration, setIgnoresViewportScaleLimitsSelector, [self boolValueForWebPlayerSetting:kUnityAdsWebPlayerWebSettingsIgnoresViewportScaleLimits]);
                 USRVLogDebug(@"Called setIgnoresViewportScaleLimits");
             }
@@ -334,11 +250,11 @@
     }
 
     id wkWebsiteDataStore = NSClassFromString(@"WKWebsiteDataStore");
-    if(wkWebsiteDataStore) {
+    if (wkWebsiteDataStore) {
         SEL nonPersistentDataStoreSelector = NSSelectorFromString(@"nonPersistentDataStore");
-        if([wkWebsiteDataStore respondsToSelector:nonPersistentDataStoreSelector]) {
+        if ([wkWebsiteDataStore respondsToSelector:nonPersistentDataStoreSelector]) {
             IMP nonPersistentDataStoreImp = [wkWebsiteDataStore methodForSelector:nonPersistentDataStoreSelector];
-            id (*nonPersistentDataStoreFunc)() = (void *)nonPersistentDataStoreImp;
+            id (*nonPersistentDataStoreFunc)(void) = (void *) nonPersistentDataStoreImp;
             id nonPersistentDataStore = nonPersistentDataStoreFunc();
             [wkConfiguration setValue:nonPersistentDataStore forKey:@"websiteDataStore"];
         }
@@ -365,8 +281,8 @@
     }
 
     USRVLogDebug(@"Got WebView");
-    [(UIView *)webView setBackgroundColor:[UIColor clearColor]];
-    [(UIView *)webView setOpaque:false];
+    [(UIView *) webView setBackgroundColor:[UIColor clearColor]];
+    [(UIView *) webView setOpaque:false];
     [webView setValue:@NO forKeyPath:@"scrollView.bounces"];
     [webView setValue:self forKeyPath:@"navigationDelegate"];
     [webView setValue:self forKeyPath:@"UIDelegate"];
@@ -383,19 +299,19 @@
 
 - (void)webView:(id)webView didFinishNavigation:(id)navigation {
     if ([self shouldSendEvent:@"onPageFinished"]) {
-       [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageFinished) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:[(NSURL *) [webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
     }
 }
 
 - (void)webView:(id)webView didStartProvisionalNavigation:(id)navigation {
     if ([self shouldSendEvent:@"onPageStarted"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerPageStarted) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:[(NSURL *) [webView valueForKeyPath:@"URL"] absoluteString], self.viewId, nil];
     }
 }
 
 - (void)webView:(id)webView didFailProvisionalNavigation:(id)navigation withError:(NSError *)error {
     if ([self shouldSendEvent:@"onReceivedError"]) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [(NSURL*)[webView valueForKeyPath:@"URL"] absoluteString],error.localizedDescription, self.viewId, nil];
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerError) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:[(NSURL *) [webView valueForKeyPath:@"URL"] absoluteString], error.localizedDescription, self.viewId, nil];
     }
 }
 
@@ -405,14 +321,13 @@
 
     if ([body isKindOfClass:[NSString class]]) {
         data = [body dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    else if ([body isKindOfClass:[NSDictionary class]]) {
+    } else if ([body isKindOfClass:[NSDictionary class]]) {
         data = [USRVJsonUtilities dataWithJSONObject:body options:0 error:nil];
     }
 
     if (data) {
-        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], self.viewId, nil];
-        NSLog(@"datadesc: %@",[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerEvent) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], self.viewId, nil];
+        NSLog(@"datadesc: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     }
 }
 
@@ -451,10 +366,10 @@ typedef NS_ENUM(NSInteger, UADSWKWebViewDecisionPolicy) {
     }
     id request = [navigationAction valueForKey:@"request"];
     if (request != nil) {
-        NSURL* url = [request valueForKey:@"URL"];
+        NSURL *url = [request valueForKey:@"URL"];
         if (url != nil) {
             if ([self shouldSendEvent:@"onCreateWindow"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [url absoluteString], self.viewId, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:[url absoluteString], self.viewId, nil];
             }
         }
     }
@@ -463,13 +378,13 @@ typedef NS_ENUM(NSInteger, UADSWKWebViewDecisionPolicy) {
 - (id)webView:(id)webView createWebViewWithConfiguration:(id)configuration forNavigationAction:(id)navigationAction windowFeatures:(id)windowFeatures {
     id request = [navigationAction valueForKey:@"request"];
     if (request != nil) {
-        NSURL* url = [request valueForKey:@"URL"];
+        NSURL *url = [request valueForKey:@"URL"];
         if (url != nil) {
             if ([self shouldProvideReturnValue:@"onCreateWindow"] && [self boolValueForEventReturnValue:@"onCreateWindow"]) {
                 [USRVWKWebViewUtilities loadUrl:_internalWebView url:[NSURLRequest requestWithURL:url]];
             }
             if ([self shouldSendEvent:@"onCreateWindow"]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1: [url absoluteString], self.viewId, nil];
+                [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromWebPlayerEvent(kUnityAdsWebPlayerCreateWebView) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryWebPlayer) param1:[url absoluteString], self.viewId, nil];
             }
         }
     }

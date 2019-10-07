@@ -1,6 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
-#import "UADSApiWebPlayer.h"
+#import "UADSWebPlayerHandler.h"
 
 @interface WebPlayerTestsWebApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
@@ -120,7 +120,7 @@
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
     [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
     
-    [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) viewId:@"webplayer" webPlayerSettings:[UADSApiWebPlayer getWebPlayerSettings]]];
+    [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) viewId:UADSWebPlayerViewId webPlayerSettings:nil]];
 }
 
 - (void)tearDown {

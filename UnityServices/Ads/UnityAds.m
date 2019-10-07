@@ -45,10 +45,9 @@
 }
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId {
+    [USRVClientProperties setCurrentViewController:viewController];
     if ([UnityAds isReady:placementId]) {
         USRVLogInfo(@"Unity Ads opening new ad unit for placement %@", placementId);
-
-        [USRVClientProperties setCurrentViewController:viewController];
         
         UIInterfaceOrientation statusBarOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 

@@ -33,7 +33,7 @@ static NSArray *nativeCallbackParams = NULL;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [USRVWebViewApp create:config];
+        [USRVWebViewApp create:config view:nil];
         [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
         [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [expectation fulfill];

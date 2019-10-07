@@ -11,6 +11,7 @@ static NSMutableDictionary *storages;
         storages = [[NSMutableDictionary alloc] init];
     }
 
+
     NSString *cacheDir = [USRVSdkProperties getCacheDirectory];
     NSString *localStorageFilePrefix = [USRVSdkProperties getLocalStorageFilePrefix];
     [self addStorageLocation:[NSString stringWithFormat:@"%@/%@%@", cacheDir, localStorageFilePrefix, @"public-data.json"] forStorageType:kUnityServicesStorageTypePublic];
@@ -26,6 +27,11 @@ static NSMutableDictionary *storages;
     return true;
 }
 
+
++ (dispatch_queue_t)getSynchronize {
+    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+}
+
 + (void)initStorage:(UnityServicesStorageType)storageType {
     if (!storages) {
         storages = [[NSMutableDictionary alloc] init];
@@ -36,12 +42,12 @@ static NSMutableDictionary *storages;
         if (storage) {
             [storage initStorage];
         }
-    }
-    
-    else if ([storageLocations objectForKey:[NSNumber numberWithInt:storageType]]) {
-        USRVStorage *storage = [[USRVStorage alloc] initWithLocation:[storageLocations objectForKey:[NSNumber numberWithInt:storageType]] type:storageType];
+    } else if ([storageLocations objectForKey:[NSNumber numberWithInteger:storageType]]) {
+        USRVStorage *storage = [[USRVStorage alloc] initWithLocation:[storageLocations objectForKey:[NSNumber numberWithInteger:storageType]] type:storageType];
         [storage initStorage];
-        [storages setObject:storage forKey:[NSNumber numberWithInt:storageType]];
+        dispatch_sync([self getSynchronize], ^{
+            [storages setObject:storage forKey:[NSNumber numberWithInteger:storageType]];
+        });
     }
 }
 
@@ -49,7 +55,7 @@ static NSMutableDictionary *storages;
     if (![USRVStorageManager hasStorage:storageType]) {
         [USRVStorageManager initStorage:storageType];
         USRVStorage *storage = [USRVStorageManager getStorage:storageType];
-        
+
         if (storage && ![storage storageFileExists]) {
             [storage writeStorage];
         }
@@ -66,34 +72,41 @@ static NSMutableDictionary *storages;
         storageLocations = [[NSMutableDictionary alloc] init];
     }
 
-    if (![storageLocations objectForKey:[NSNumber numberWithInt:storageType]]) {
-        [storageLocations setObject:location forKey:[NSNumber numberWithInt:storageType]];
-    }
+    dispatch_sync([self getSynchronize], ^{
+        if (![storageLocations objectForKey:[NSNumber numberWithInteger:storageType]]) {
+            [storageLocations setObject:location forKey:[NSNumber numberWithInteger:storageType]];
+        }
+    });
 }
 
 + (void)removeStorage:(UnityServicesStorageType)storageType {
-    if ([storageLocations objectForKey:[NSNumber numberWithInt:storageType]]) {
-        [storageLocations removeObjectForKey:[NSNumber numberWithInt:storageType]];
-    }
-    if ([storages objectForKey:[NSNumber numberWithInt:storageType]]) {
-        [storages removeObjectForKey:[NSNumber numberWithInt:storageType]];
-    }
+    dispatch_sync([self getSynchronize], ^{
+        if ([storageLocations objectForKey:[NSNumber numberWithInteger:storageType]]) {
+            [storageLocations removeObjectForKey:[NSNumber numberWithInteger:storageType]];
+        }
+    });
+
+    dispatch_sync([self getSynchronize], ^{
+        if ([storages objectForKey:[NSNumber numberWithInteger:storageType]]) {
+            [storages removeObjectForKey:[NSNumber numberWithInteger:storageType]];
+        }
+    });
 }
 
 + (USRVStorage *)getStorage:(UnityServicesStorageType)storageType {
-    if (storages) {
-        return [storages objectForKey:[NSNumber numberWithInt:storageType]];
-    }
-
-    return NULL;
+    __block USRVStorage *result = NULL;
+    dispatch_sync([self getSynchronize], ^{
+        result = [storages objectForKey:[NSNumber numberWithInteger:storageType]];
+    });
+    return result;
 }
 
 + (BOOL)hasStorage:(UnityServicesStorageType)storageType {
-    if ([storages objectForKey:[NSNumber numberWithInt:storageType]]) {
-        return true;
-    }
-    
-    return false;
+    __block BOOL result = false;
+    dispatch_sync([self getSynchronize], ^{
+        result = [storages objectForKey:[NSNumber numberWithInteger:storageType]];
+    });
+    return result;
 }
 
 @end

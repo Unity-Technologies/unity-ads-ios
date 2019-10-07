@@ -68,7 +68,7 @@
     
     NSPredicate *finishedPredicate = [NSPredicate predicateWithFormat: @"didFinish == YES"];
     expectation = [self expectationForPredicate:finishedPredicate evaluatedWithObject:[UADSHybridTest class] handler:nil];
-    [self waitForExpectationsWithTimeout:300 handler:nil];
+    [self waitForExpectationsWithTimeout:600 handler:nil];
     
     XCTAssertTrue([UADSHybridTest getFailures] == 0, "Failures should be 0");
 }

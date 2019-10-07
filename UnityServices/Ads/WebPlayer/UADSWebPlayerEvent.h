@@ -6,7 +6,9 @@ typedef NS_ENUM(NSInteger, UnityAdsWebPlayerEvent) {
     kUnityAdsWebPlayerError,
     kUnityAdsWebPlayerEvent,
     kUnityAdsWebPlayerShouldOverrideURLLoading,
-    kUnityAdsWebPlayerCreateWebView
+    kUnityAdsWebPlayerCreateWebView,
+    kUnityAdsWebPlayerFrameUpdate,
+    kUnityAdsWebPlayerGetFrameResponse
 };
 
 NSString *UADSNSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent);

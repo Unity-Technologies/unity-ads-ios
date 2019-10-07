@@ -5,12 +5,12 @@ NSString * const kUnityServicesCacheDirName = @"UnityAdsCache";
 NSString * const kUnityServicesLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString * const kUnityServicesLocalStorageFilePrefix  = @"UnityAdsStorage-";
 NSString * const kUnityServicesWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
-NSString * const kUnityServicesVersionName = @"3.2.0";
+NSString * const kUnityServicesVersionName = @"3.3.0";
 NSString * const kUnityServicesFlavorDebug = @"debug";
 NSString * const kUnityServicesFlavorRelease = @"release";
 NSString * const kChinaIsoAlpha2Code = @"CN";
 NSString * const kChinaIsoAlpha3Code = @"CHN";
-int const kUnityServicesVersionCode = 3200;
+int const kUnityServicesVersionCode = 3300;
 
 @implementation USRVSdkProperties
 

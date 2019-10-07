@@ -3,24 +3,27 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, UnityAdsBannerEvent) {
-    kUnityAdsBannerEventResized,
-    kUnityAdsBannerEventVisibilityChanged,
-    kUnityAdsBannerEventLoaded,
-    kUnityAdsBannerEventDestroyed,
-    kUnityAdsBannerEventAttached,
-    kUnityAdsBannerEventDetached
+typedef NS_ENUM(NSInteger, UADSBannerEvent) {
+    UADSBannerEventResized,
+    UADSBannerEventVisibilityChanged,
+    UADSBannerEventLoaded,
+    UADSBannerEventDestroyed,
+    UADSBannerEventAttached,
+    UADSBannerEventDetached,
+    // Banner load by placement events
+    UADSBannerEventLoadPlacement,
+    UADSBannerEventDestroyBanner
 };
 
 /**
  * These visibility values mirror those of Android's.
  */
-typedef NS_ENUM(NSInteger, UnityAdsBannerVisibility) {
-    kUnityAdsBannerVisibilityVisible = 0x00000000,
-    kUnityAdsBannerVisibilityInvisible = 0x00000004,
-    kUnityAdsBannerVisibilityGone = 0x00000008
+typedef NS_ENUM(NSInteger, UADSBannerVisibility) {
+    UADSBannerVisibilityVisible = 0x00000000,
+    UADSBannerVisibilityInvisible = 0x00000004,
+    UADSBannerVisibilityGone = 0x00000008
 };
 
-NSString *UADSNSStringFromBannerEvent(UnityAdsBannerEvent event);
+NSString *UADSNSStringFromBannerEvent(UADSBannerEvent event);
 
 #endif

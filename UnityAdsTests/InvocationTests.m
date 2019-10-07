@@ -1,7 +1,8 @@
 #import <XCTest/XCTest.h>
+#import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface InvocationTestsWebView : UIWebView
+@interface InvocationTestsWebView : WKWebView
 @property (nonatomic, assign) BOOL jsInvoked;
 @property (nonatomic, strong) NSString *jsCall;
 @property (nonatomic, strong) XCTestExpectation *expectation;
@@ -24,15 +25,18 @@
     return self;
 }
 
-- (nullable NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script {
+- (void)evaluateJavaScript:(NSString *)javaScriptString
+         completionHandler:(void (^)(id, NSError *error))completionHandler {
     self.jsInvoked = true;
-    self.jsCall = script;
-    
+    self.jsCall = javaScriptString;
+
     if (self.expectation) {
         [self.expectation fulfill];
     }
     
-    return NULL;
+    if (completionHandler) {
+        completionHandler(self, nil);
+    }
 }
 
 @end
@@ -63,11 +67,22 @@ static NSMutableArray *CALLBACKS;
     
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
+
     InvocationTestsWebView *webView = [[InvocationTestsWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
     
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [expectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     INVOKE_COUNT = 0;
     VALUES = [[NSMutableDictionary alloc] init];
     CALLBACKS = [[NSMutableArray alloc] init];

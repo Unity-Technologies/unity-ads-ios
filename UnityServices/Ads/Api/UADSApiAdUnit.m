@@ -41,21 +41,15 @@ static UADSViewController *adUnitViewController = NULL;
         USRVLogDebug(@"PRESENTING VIEWCONTROLLER");
         UADSViewController *adUnit = [[UADSViewController alloc] initWithViews:views supportedOrientations:supportedOrientations statusBarHidden:[statusBarHidden boolValue] shouldAutorotate:[shouldAutorotate boolValue] isTransparent:[isTransparent boolValue] homeIndicatorAutoHidden: [homeIndicatorAutoHidden boolValue]];
         [adUnit setModalPresentationCapturesStatusBarAppearance:true];
-        if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_0 && [isTransparent boolValue]) {
-            adUnit.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-            if ([USRVClientProperties getCurrentViewController]) {
-                [USRVClientProperties getCurrentViewController].modalPresentationStyle = UIModalPresentationCurrentContext;
-            }
-            else {
-                [callback error:UADSNSStringFromAdUnitError(kUnityAdsAdUnitHostViewControllerNull) arg1:nil];
-                return;
-            }
-        }
 
-        if ([USRVClientProperties getCurrentViewController]) {
-            [[USRVClientProperties getCurrentViewController] presentViewController:adUnit animated:[animated boolValue] completion:NULL];
-        }
-        else {
+        UIViewController *viewController = [USRVClientProperties getCurrentViewController];
+        if (viewController) {
+            if ([isTransparent boolValue]) {
+                adUnit.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+                viewController.modalPresentationStyle = UIModalPresentationCurrentContext;
+            }
+            [viewController presentViewController:adUnit animated:[animated boolValue] completion:NULL];
+        } else {
             [callback error:UADSNSStringFromAdUnitError(kUnityAdsAdUnitHostViewControllerNull) arg1:nil];
             return;
         }

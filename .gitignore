@@ -66,6 +66,7 @@ Carthage/Build
 # https://github.com/fastlane/fastlane/blob/master/docs/Gitignore.md
 
 fastlane/report.xml
+fastlane/test_output
 fastlane/screenshots
 compile_commands.json
 
@@ -75,9 +76,6 @@ UnityAdsTests/index.html
 UnityAds.framework
 
 .DS_Store
-
-# Bundler for Ruby gems
-Gemfile.lock
 
 # intellij products
 .idea/

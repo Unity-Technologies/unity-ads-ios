@@ -74,6 +74,10 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         file_to_add = g.new_file(Dir.pwd + '/' + f)
         target.source_build_phase.add_file_reference(file_to_add, true)
       end
+      Dir.glob("*.aiff") do |f|
+        file_to_add = g.new_file(Dir.pwd + '/' + f)
+        target.source_build_phase.add_file_reference(file_to_add, true)
+      end
 
       public_patterns = [
         # Core
@@ -91,6 +95,10 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
 
         # Banners
         /UADSBanner\.h/,
+        /UADSBannerView\.h/,
+        /UADSBannerViewDelegate\.h/,
+        /UnityAdsBannerDelegate\.h/,
+        /UADSBannerError\.h/,
 
         # Analytics
         /UANAApiAnalytics.h/,
@@ -149,7 +157,9 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   framework_target = project.new_target(:framework, project_name, :ios)
   framework_test_target = project.new_target(:unit_test_bundle, project_name + "Tests", :ios)
   integration_test_target_name = 'UnityAdsIntegrationTests'
+  banner_integration_test_target_name = 'UnityAdsBannerIntegrationTests'
   framework_integration_test_target = project.new_target(:unit_test_bundle, project_name + "IntegrationTests", :ios)
+  framework_banner_integration_test_target = project.new_target(:unit_test_bundle, project_name + "BannerIntegrationTests", :ios)
   @framework_example_target = project.new_target(:application, project_name + "Example", :ios)
   @framework_monetization_example_target = project.new_target(:application, "UnityMonetizationExample", :ios) # monetization
 
@@ -159,6 +169,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   create_groups_from_dir("UnityServices", project, framework_target)
   create_groups_from_dir("#{test_target_name}", project, framework_test_target)
   create_groups_from_dir("#{integration_test_target_name}", project, framework_integration_test_target)
+  create_groups_from_dir("#{banner_integration_test_target_name}", project, framework_banner_integration_test_target)
   create_groups_from_dir("#{example_target_name}", project, @framework_example_target)
   create_groups_from_dir("UnityMonetizationExample", project, @framework_monetization_example_target) # monetization
 
@@ -167,14 +178,14 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAds"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
     bc.build_settings['HEADER_SEARCH_PATHS'] = ["UnityAds/", "UnityServices/"]
-    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
   end
 
   # Configure the example target
   @framework_example_target.build_configurations.each do |bc|
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.example"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
-    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
@@ -183,7 +194,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   @framework_monetization_example_target.build_configurations.each do |bc|
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.monetization.example"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
-    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
@@ -210,11 +221,24 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
+  # Configure the banner integration test target
+  framework_banner_integration_test_target.build_configurations.each do |bc|
+    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsBannerIntegrationTests"
+    bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
+    bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
+    bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
+    bc.build_settings['TEST_HOST'] = "$(BUILT_PRODUCTS_DIR)/UnityAdsExample.app/UnityAdsExample"
+    bc.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "iPhone Developer"
+    bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
+  end
+
   # Add target dependencies
   framework_test_target.add_dependency(framework_target)
   framework_test_target.add_dependency(@framework_example_target)
   framework_integration_test_target.add_dependency(framework_target)
+  framework_banner_integration_test_target.add_dependency(framework_target)
   framework_integration_test_target.add_dependency(@framework_example_target)
+  framework_banner_integration_test_target.add_dependency(@framework_example_target)
   @framework_example_target.add_dependency(framework_target)
   @framework_monetization_example_target.add_dependency(framework_target)
 
@@ -231,6 +255,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   # Configure the example target as the test host for the test target
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_integration_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
+  project.root_object.attributes["TargetAttributes"] = Hash["#{framework_banner_integration_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
 
   # Load Saved Scheme
   scheme_dir = 'xcschemes/'
@@ -238,11 +263,13 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   temp_file = File.join(scheme_dir, scheme_name)
   scheme = Xcodeproj::XCScheme.new(temp_file)
   integration_test_scheme = Xcodeproj::XCScheme.new('xcschemes/UnityAdsIntegrationTests.xcscheme')
+  banner_integration_test_scheme = Xcodeproj::XCScheme.new('xcschemes/UnityAdsBannerIntegrationTests.xcscheme')
 
   # Serialize and save project + scheme
   project.save(xcode_project_name)
   scheme.save_as(xcode_project_name, project_name, true)
   integration_test_scheme.save_as(xcode_project_name, integration_test_target_name, true)
+  banner_integration_test_scheme.save_as(xcode_project_name, banner_integration_test_target_name, true)
 end
 
 def generate_static_library_project(xcode_project_name, project_name)
@@ -268,7 +295,7 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['ONLY_ACTIVE_ARCH'] = "NO"
     bc.build_settings['ENABLE_BITCODE'] = "YES"
     bc.build_settings['BITCODE_GENERATION_MODE'] = "bitcode"
-    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "7.0"
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
 
     bc.build_settings['ARCHS'] = "$(ARCHS_$(XCODE_VERSION_MAJOR))"
     bc.build_settings['HIDE_BITCODE_SYMBOLS'] = "NO"
@@ -282,11 +309,11 @@ def generate_static_library_project(xcode_project_name, project_name)
     bc.build_settings['ARCHS_0600'] = "$(ARCHS_STANDARD) armv7s"
     bc.build_settings['ARCHS_0500'] = "$(ARCHS_STANDARD_INCLUDING_64_BIT)"
     bc.build_settings['ARCHS_0400'] = "$(ARCHS_STANDARD_32_BIT)"
-    bc.build_settings['TARGET_arm64'] = "7.0"
-    bc.build_settings['TARGET_armv7'] = "7.0"
-    bc.build_settings['TARGET_x86_64'] = "7.0"
-    bc.build_settings['TARGET_i386'] = "7.0"
-    bc.build_settings['TARGET_armv7s'] = "7.0"
+    bc.build_settings['TARGET_arm64'] = "9.0"
+    bc.build_settings['TARGET_armv7'] = "9.0"
+    bc.build_settings['TARGET_x86_64'] = "9.0"
+    bc.build_settings['TARGET_i386'] = "9.0"
+    bc.build_settings['TARGET_armv7s'] = "9.0"
 
     bc.build_settings['HIDE_BITCODE_SYMBOLS'] = "NO"
     bc.build_settings['STRIP_BITCODE_FROM_COPIED_FILES'] = "NO"

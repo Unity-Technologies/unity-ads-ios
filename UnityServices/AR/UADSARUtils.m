@@ -7,6 +7,9 @@
 #import "USRVWKWebViewUtilities.h"
 #import "UADSARView.h"
 
+// Omit from static analysis.
+#ifndef __clang_analyzer__
+
 static void (*sessionAddAnchorFunc)(id, SEL, id) = nil;
 static SEL sessionAddAnchorSelector = nil;
 static void (*sessionRemoveAnchorFunc)(id, SEL, id) = nil;
@@ -678,3 +681,5 @@ projectionMatrixForOrientation:(UIInterfaceOrientation)orientation
     return size;
 }
 @end
+
+#endif // not __clang_analyzer__

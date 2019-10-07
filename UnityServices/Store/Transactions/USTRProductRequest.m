@@ -56,8 +56,8 @@ static NSMutableArray<USTRProductRequest*> *requests;
             if (product) {
                 NSMutableDictionary *productDict = [[NSMutableDictionary alloc] init];
 
-                if (product.downloadable) {
-                    [productDict setObject:[NSNumber numberWithBool:product.downloadable] forKey:@"downloadable"];
+                if (product.isDownloadable) {
+                    [productDict setObject:[NSNumber numberWithBool:product.isDownloadable] forKey:@"downloadable"];
                 }
                 if (product.localizedTitle) {
                     [productDict setObject:product.localizedTitle forKey:@"localizedTitle"];

@@ -1,4 +1,5 @@
 #import <XCTest/XCTest.h>
+#import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
 @interface WebViewBridgeTestApi : NSObject
@@ -58,7 +59,7 @@ static NSString *nativeCallbackValue = NULL;
 
 @end
 
-@interface UrlProtocolMockWebView : UIWebView
+@interface UrlProtocolMockWebView : WKWebView
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSString *lastJSString;
 @end
@@ -67,14 +68,18 @@ static NSString *nativeCallbackValue = NULL;
 @synthesize expectation = _expectation;
 @synthesize lastJSString = _lastJSString;
 
-- (nullable NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script {
+- (void)evaluateJavaScript:(NSString *)javaScriptString
+         completionHandler:(void (^)(id, NSError *error))completionHandler {
     if (self.expectation) {
         [self.expectation fulfill];
         self.expectation = NULL;
     }
     
-    [self setLastJSString:script];
-    return NULL;
+    [self setLastJSString:javaScriptString];
+
+    if (completionHandler) {
+        completionHandler(self, nil);
+    }
 }
 @end
 
@@ -103,10 +108,9 @@ static NSString *nativeCallbackValue = NULL;
     XCTestExpectation *expectation = [self expectationWithDescription:@"setup"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
-        [USRVWebViewApp create:config];
+        [USRVWebViewApp create:config view:mockWebView];
         [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
         [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-        [[USRVWebViewApp getCurrentApp] setWebView:mockWebView];
         [expectation fulfill];
     });
     
@@ -165,14 +169,14 @@ static NSString *nativeCallbackValue = NULL;
     NSString *jsonString = @"[[\"WebViewBridgeTestApi\", \"apiTestMethodNoParamz\", [], \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
-    
+
     @try {
         [handler handleData:jsonData invocationType:@"handleInvocation"];
     }
     @catch (NSException *exception) {
         receivedException = exception;
     }
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
@@ -181,7 +185,7 @@ static NSString *nativeCallbackValue = NULL;
             success = false;
         }
     }];
-    
+
     NSString *jsString = [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] lastJSString];
     XCTAssertTrue([jsString rangeOfString:@"ERROR"].location != NSNotFound, @"Last JSString should contain 'ERROR'");
     XCTAssertTrue([jsString rangeOfString:@"InvalidInvocationException"].location != NSNotFound, @"Last JSString should contain 'InvalidInvocationException'");
@@ -192,14 +196,14 @@ static NSString *nativeCallbackValue = NULL;
     NSString *jsonString = @"[[\"WebViewBridgeTestApiz\", \"apiTestMethodNoParams\", [], \"CALLBACK_01\"]]";
     NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSException *receivedException;
-    
+
     @try {
         [handler handleData:jsonData invocationType:@"handleInvocation"];
     }
     @catch (NSException *exception) {
         receivedException = exception;
     }
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
     [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
     __block BOOL success = true;
@@ -208,7 +212,7 @@ static NSString *nativeCallbackValue = NULL;
             success = false;
         }
     }];
-    
+
     NSString *jsString = [(UrlProtocolMockWebView *)[[USRVWebViewApp getCurrentApp] webView] lastJSString];
     XCTAssertTrue([jsString rangeOfString:@"ERROR"].location != NSNotFound, @"Last JSString should contain 'ERROR'");
     XCTAssertTrue([jsString rangeOfString:@"InvalidInvocationException"].location != NSNotFound, @"Last JSString should contain 'InvalidInvocationException'");

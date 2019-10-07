@@ -19,7 +19,7 @@
             [productDict setObject:transaction.payment.productIdentifier forKey:@"productId"];
         }
         if (transaction.transactionState) {
-            [productDict setObject:[NSNumber numberWithInt:transaction.transactionState] forKey:@"transactionState"];
+            [productDict setObject:[NSNumber numberWithInteger:transaction.transactionState] forKey:@"transactionState"];
         }
         if (transaction.transactionDate) {
             [productDict setObject:[NSNumber numberWithDouble:[transaction.transactionDate timeIntervalSince1970]] forKey:@"transactionDate"];

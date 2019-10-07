@@ -24,6 +24,7 @@
         [self setSupportedOrientations:[supportedOrientations intValue]];
         [self setAutorotate:shouldAutorotate];
         [self setHomeIndicatorAutoHidden:homeIndicatorAutoHidden];
+        self.modalPresentationStyle = UIModalPresentationFullScreen;
     }
 
     [[USRVWebViewApp getCurrentApp] sendEvent:UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerInit) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit) param1:nil];

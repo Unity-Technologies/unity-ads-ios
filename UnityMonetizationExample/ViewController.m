@@ -1,5 +1,6 @@
 #import "ViewController.h"
 #import <UnityAds/UnityAds.h>
+#import <UnityAds/UADSBannerView.h>
 
 static NSString *const kDefaultGameId = @"14850";
 static NSString *const kGameIdKey = @"adsExampleAppGameId";
@@ -26,7 +27,7 @@ static BOOL bannerShown = NO;
 
 @implementation ViewController
 
--(void)viewDidLoad {
+- (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
 
@@ -51,44 +52,44 @@ static BOOL bannerShown = NO;
     self.bannerPlacementId = @"bannerads";
 }
 
--(void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
--(IBAction)doneEditingGameId:(id)sender {
+- (IBAction)doneEditingGameId:(id)sender {
     [self.gameIdTextField resignFirstResponder];
 }
 
--(IBAction)toggleTestMode:(id)sender {
+- (IBAction)toggleTestMode:(id)sender {
     self.testMode = !self.testMode;
     [self.testModeButton setTitle:self.testMode ? @"ON" : @"OFF" forState:UIControlStateNormal];
 }
 
--(IBAction)incentivizedButtonTapped:(id)sender {
+- (IBAction)incentivizedButtonTapped:(id)sender {
     [self showPlacementContent:self.incentivizedContent];
 }
 
--(IBAction)interstitialButtonTapped:(id)sender {
+- (IBAction)interstitialButtonTapped:(id)sender {
     [self showPlacementContent:self.interstitialContent];
 }
 
--(IBAction)bannerButtonTapped:(id)sender {
+- (IBAction)bannerButtonTapped:(id)sender {
     [self showHideBanner:self.bannerPlacementId];
 }
 
--(void)showPlacementContent:(UMONPlacementContent *)placementContent {
+- (void)showPlacementContent:(UMONPlacementContent *)placementContent {
     if ([placementContent isKindOfClass:[UMONShowAdPlacementContent class]]) {
         [self showAdPlacementContent:(UMONShowAdPlacementContent *) placementContent];
     }
 }
 
--(void)showAdPlacementContent:(UMONShowAdPlacementContent *)placementContent {
+- (void)showAdPlacementContent:(UMONShowAdPlacementContent *)placementContent {
     [placementContent show:self withDelegate:self];
 }
 
--(void)showHideBanner:(NSString *)placementId {
-    [UnityAdsBanner setBannerPosition:kUnityAdsBannerPositionCenter];
+- (void)showHideBanner:(NSString *)placementId {
+    [UnityAdsBanner setBannerPosition:kUnityAdsBannerPositionBottomCenter];
     if (bannerShown) {
         [UnityAdsBanner destroy];
         bannerShown = NO;
@@ -99,7 +100,7 @@ static BOOL bannerShown = NO;
 
 }
 
--(IBAction)initializeButtonTapped:(id)sender {
+- (IBAction)initializeButtonTapped:(id)sender {
     NSString *gameId = ![self.gameIdTextField.text isEqualToString:@""] ? self.gameIdTextField.text : kDefaultGameId;
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -110,7 +111,7 @@ static BOOL bannerShown = NO;
     [mediationMetaData setName:@"mediationPartner"];
     [mediationMetaData setVersion:@"v12345"];
     [mediationMetaData commit];
-    
+
     self.initializeButton.enabled = NO;
     self.initializeButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.gameIdTextField.enabled = NO;
@@ -121,7 +122,7 @@ static BOOL bannerShown = NO;
     [UnityMonetization initialize:gameId delegate:self testMode:self.testMode];
 }
 
--(void)placementContentReady:(NSString *)placementId placementContent:(UMONPlacementContent *)placementContent {
+- (void)placementContentReady:(NSString *)placementId placementContent:(UMONPlacementContent *)placementContent {
     if ([self.interstitialPlacementIds containsObject:placementId]) {
         self.interstitialContent = placementContent;
         [self enableButton:self.interstitialButton];
@@ -134,16 +135,16 @@ static BOOL bannerShown = NO;
     }
 }
 
--(void)placementContentStateDidChange:(NSString *)placementId placementContent:(UMONPlacementContent *)decision previousState:(UnityMonetizationPlacementContentState)previousState newState:(UnityMonetizationPlacementContentState)newState {
+- (void)placementContentStateDidChange:(NSString *)placementId placementContent:(UMONPlacementContent *)decision previousState:(UnityMonetizationPlacementContentState)previousState newState:(UnityMonetizationPlacementContentState)newState {
     NSLog(@"State changed for %@ - %d - %d", placementId, previousState, newState);
 }
 
--(void)enableButton:(UIButton *)btn {
+- (void)enableButton:(UIButton *)btn {
     btn.enabled = YES;
     btn.backgroundColor = [UIColor colorWithRed:0.13 green:0.59 blue:0.95 alpha:1.0];
 }
 
--(void)updateButtonForContent:(UIButton *)btn placementContent:(UMONPlacementContent *)placementContent {
+- (void)updateButtonForContent:(UIButton *)btn placementContent:(UMONPlacementContent *)placementContent {
     NSString *title;
     if ([placementContent isKindOfClass:[UMONShowAdPlacementContent class]]) {
         title = @"Show Ad";
@@ -156,33 +157,28 @@ static BOOL bannerShown = NO;
 
 #pragma mark : UnityAdsBannerDelegate
 
--(void)unityAdsBannerDidClick:(NSString *)placementId {
+- (void)unityAdsBannerDidClick:(NSString *)placementId {
 
 }
 
--(void)unityAdsBannerDidError:(NSString *)message {
-    NSLog(@"UnityAdsBannerDidError: %@", message);
+- (void)unityAdsBannerDidError:(NSString *)message {
 }
 
--(void)unityAdsBannerDidHide:(NSString *)placementId {
+- (void)unityAdsBannerDidHide:(NSString *)placementId {
 }
 
--(void)unityAdsBannerDidLoad:(NSString *)placementId view:(UIView *)view {
-    self.bannerView = view;
-    [self.view addSubview:self.bannerView];
+- (void)unityAdsBannerDidLoad:(NSString *)placementId {
 }
 
--(void)unityAdsBannerDidShow:(NSString *)placementId {
+- (void)unityAdsBannerDidShow:(NSString *)placementId {
 }
 
--(void)unityAdsBannerDidUnload:(NSString *)placementId {
-    self.bannerView = nil;
-}
--(void)unityAdsDidStart:(NSString *)placementId {
+
+- (void)unityAdsDidStart:(NSString *)placementId {
     NSLog(@"UnityAds START: %@", placementId);
 }
 
--(void)unityAdsDidFinish:(NSString *)placementId withFinishState:(UnityAdsFinishState)finishState {
+- (void)unityAdsDidFinish:(NSString *)placementId withFinishState:(UnityAdsFinishState)finishState {
     NSString *stateString = @"UNKNOWN";
     switch (finishState) {
         case kUnityAdsFinishStateError:
@@ -199,8 +195,9 @@ static BOOL bannerShown = NO;
     }
     NSLog(@"UnityAds FINISH: %@ - %@", stateString, placementId);
 }
--(void)unityServicesDidError:(UnityServicesError)error withMessage:(NSString *)message {
-    NSLog(@"UnityAds ERROR: %ld - %@",(long)error, message);
+
+- (void)unityServicesDidError:(UnityServicesError)error withMessage:(NSString *)message {
+    NSLog(@"UnityAds ERROR: %ld - %@", (long) error, message);
 }
 
 

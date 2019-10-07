@@ -20,10 +20,9 @@
 }
 
 + (void)WebViewExposed_startSession:(NSString *)sessionId callback:(USRVWebViewCallback *)callback {
-    [[USRVASWebAuthenticationSessionManager sharedInstance] startSession:sessionId callback:^(BOOL didStart){
-        [USRVWebAuthSession sendStartSessionResult:sessionId didStart:didStart];
-    }];
     [callback invoke: nil];
+    BOOL didStart = [[USRVASWebAuthenticationSessionManager sharedInstance] startSession:sessionId];
+    [USRVWebAuthSession sendStartSessionResult:sessionId didStart:didStart];
 }
 
 + (void)WebViewExposed_cancelSession:(NSString *)sessionId callback:(USRVWebViewCallback *)callback {

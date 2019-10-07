@@ -19,7 +19,7 @@
         }
         
         AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
-        [callback invoke:[NSNumber numberWithInt:status], nil];
+        [callback invoke:[NSNumber numberWithInteger:status], nil];
 
     } else {
         [callback error:@"NO_REQUESTED_PERMISSION" arg1:nil];

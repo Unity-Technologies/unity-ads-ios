@@ -1,0 +1,95 @@
+
+stages:
+  - sanity
+  - test
+  - build
+  - release
+
+sanity-check:
+  stage: sanity
+  script:
+    - echo "hello gitlab runner"
+  tags:
+    - ads_sdk_osx_worker
+
+unit-test:
+  stage: test
+  script:
+    - ./scripts/gitlab/setup.sh
+    - ./generate-project.rb
+    - bundle exec fastlane unit_test
+  tags:
+    - ads_sdk_osx_worker
+
+# unit-test-on-device:
+#   stage: test
+#   script: 
+#     - ./scripts/gitlab/setup.sh
+#     - ./generate-project.rb
+#     - bundle exec fastlane unit_test_on_device
+#   tags:
+#     - ads_sdk_osx_worker
+#     - iphone
+
+integration-test:
+  stage: test
+  script:
+    - ./scripts/gitlab/setup.sh
+    - ./generate-project.rb
+    - bundle exec fastlane integration_test
+  tags:
+    - ads_sdk_osx_worker
+
+banner-integration-test:
+  stage: test
+  script:
+    - ./scripts/gitlab/setup.sh
+    - ./generate-project.rb
+    - bundle exec fastlane banner_integration_test
+  tags:
+    - ads_sdk_osx_worker
+
+# integration-test-on-device:
+#   stage: test
+#   script:
+#     - ./scripts/gitlab/setup.sh
+#     - ./generate-project.rb
+#     - bundle exec fastlane integration_test_on_device
+#   tags:
+#     - ads_sdk_osx_worker
+#     - iphone
+
+static-analysis:
+  stage: test
+  script:
+    - ./scripts/gitlab/setup.sh
+    - ./generate-project.rb
+    - ./scripts/gitlab/analyze.sh
+  tags:
+    - ads_sdk_osx_worker
+
+build-release:
+  stage: build
+  script:
+    - xcodebuild -version
+    - make zip
+  tags:
+    - ads_sdk_osx_worker
+  artifacts:
+    when: on_success
+    paths:
+      - UnityAds.framework.zip
+
+release:
+  only: 
+    - /^feature/gitlab-release-stage/
+    - /^release\/[0-9\.]*/
+  stage: release
+  script:
+    - echo "Running a release"
+    - ./scripts/gitlab/post-internal-github-release.sh
+  tags:
+    - ads_sdk_osx_worker
+  dependencies:
+    - build-release
+  when: manual

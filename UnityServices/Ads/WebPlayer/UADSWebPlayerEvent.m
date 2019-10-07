@@ -6,6 +6,8 @@ static NSString *unityAdsWebPlayerError = @"ERROR";
 static NSString *unityAdsWebPlayerEvent = @"WEBPLAYER_EVENT";
 static NSString *unityAdsWebPlayerShouldOverrideURLLoading = @"SHOULD_OVERRIDE_URL_LOADING";
 static NSString *unityAdsWebPlayerCreateWebView = @"CREATE_WEBVIEW";
+static NSString *unityAdsWebPlayerFrameUpdate = @"FRAME_UPDATE";
+static NSString *unityAdsWebPlayerGetFrameResponse = @"GET_FRAME_RESPONSE";
 
 NSString *UADSNSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent event) {
     switch (event) {
@@ -21,6 +23,10 @@ NSString *UADSNSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent event) {
             return unityAdsWebPlayerShouldOverrideURLLoading;
         case kUnityAdsWebPlayerCreateWebView:
             return unityAdsWebPlayerCreateWebView;
+        case kUnityAdsWebPlayerFrameUpdate:
+            return unityAdsWebPlayerFrameUpdate;
+        case kUnityAdsWebPlayerGetFrameResponse:
+            return unityAdsWebPlayerGetFrameResponse;
     }
 }
 

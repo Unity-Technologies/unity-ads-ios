@@ -8,7 +8,6 @@
 @property(nonatomic, strong) NSObject <UADSLoadBridgeProtocol> *loadBridge;
 @property(nonatomic, strong) NSObject <USRVInitializationNotificationCenterProtocol> *initializationNotificationCenter;
 @property(nonatomic, strong) NSMutableDictionary *loadEventBuffer;
-@property(nonatomic, strong) dispatch_queue_t sychronizer;
 
 @end
 
@@ -30,7 +29,6 @@
     self = [super init];
 
     if (self) {
-        _sychronizer = dispatch_queue_create("UADSLoadModuleSynchronizer", NULL);
         _loadBridge = bridge;
         _initializationNotificationCenter = initializeNotificationCenter;
         _loadEventBuffer = [[NSMutableDictionary alloc] init];
@@ -39,19 +37,23 @@
     return self;
 }
 
+- (dispatch_queue_t)getSynchronize {
+    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+}
+
 -(void)load:(NSString *)placementId {
     if (placementId == nil) {
         USRVLogError(@"ERROR: Loaded placements cannot be nil");
         return;
     }
     __weak UADSLoadModule *weakSelf = self;
-    dispatch_sync(_sychronizer, ^{
+    dispatch_sync([self getSynchronize], ^{
         if (!weakSelf) {
             return;
         }
         NSNumber* loadCount = [weakSelf.loadEventBuffer objectForKey:placementId];
 
-        if (loadCount) {
+        if (loadCount != nil) {
             [weakSelf.loadEventBuffer setObject:[NSNumber numberWithInt:[loadCount integerValue] + 1.0] forKey:placementId];
         } else {
             [weakSelf.loadEventBuffer setObject:[NSNumber numberWithInt:1] forKey:placementId];
@@ -73,7 +75,7 @@
 
 -(void)sdkDidInitialize {
     __weak UADSLoadModule *weakSelf = self;
-    dispatch_sync(_sychronizer, ^{
+    dispatch_sync([self getSynchronize], ^{
         if (!weakSelf) {
             return;
         }

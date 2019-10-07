@@ -448,40 +448,40 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
 
     XCTAssertTrue([self waitForViewControllerStart], @"Couldn't start viewController properly");
     [self.viewController.view addSubview:self.videoView];
-    
+
     XCTestExpectation *prepareExpectation = [self expectationWithDescription:@"prepareExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [self.videoPlayer setProgressEventInterval:333];
         [self.videoPlayer prepare:[TestUtilities getTestVideoUrl] initialVolume:1.0f timeout:10000];
     });
-    
+
     [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:prepareExpectation];
     [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"PREPARED"];
-    
+
     __block BOOL success = true;
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
             success = false;
         }
     }];
-    
+
     [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:NULL];
     XCTAssertTrue(success, @"Prepare expectation was not opened properly or an error occurred!");
-    
+
     XCTestExpectation *playExpectation = [self expectationWithDescription:@"playExpectation"];
     [self.videoPlayer play];
-    
+
     [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setExpectation:playExpectation];
     [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setCollectEvents:@"PROGRESS"];
     [(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] setFulfillingEvent:@"COMPLETED"];
-    
+
     [self waitForExpectationsWithTimeout:30 handler:^(NSError * _Nullable error) {
         if (error) {
             success = false;
         }
     }];
-    
+
     double totalDiff = 0;
     double totalValueCount = [[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] count];
     double baseValue = [[[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] objectAtIndex:0] longLongValue];
@@ -491,9 +491,9 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
         totalDiff += currentDiff;
         baseValue = [[[(VideoPlayerTestsWebApp *)[USRVWebViewApp getCurrentApp] collectedEvents] objectAtIndex:idx] longLongValue];
     }
-    
+
     XCTAssertTrue(success, @"Play expectation was not opened properly or an error occurred!");
-    XCTAssertTrue(333 - (int)abs((int)roundf(fabs(totalDiff / totalValueCount))) < 70, @"Event approximate threshold should be less than 70ms");
+    XCTAssertLessThan(333 - (int)abs((int)roundf(fabs(totalDiff / totalValueCount))), 70, @"Event approximate threshold should be less than 70ms");
     [self.videoView removeFromSuperview];
     XCTAssertTrue([self waitForViewControllerExit], @"Couldn't exit viewController properly");
 }

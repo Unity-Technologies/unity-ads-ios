@@ -1,7 +1,8 @@
 #import <XCTest/XCTest.h>
+#import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface WebAppTestWebView : UIWebView
+@interface WebAppTestWebView : WKWebView
 @property (nonatomic, assign) BOOL jsInvoked;
 @property (nonatomic, strong) NSString *jsCall;
 @property (nonatomic, strong) XCTestExpectation *expectation;
@@ -24,16 +25,19 @@
     return self;
 }
 
-- (nullable NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)script {
+- (void)evaluateJavaScript:(NSString *)javaScriptString
+         completionHandler:(void (^)(id, NSError *error))completionHandler {
     self.jsInvoked = true;
-    self.jsCall = script;
+    self.jsCall = javaScriptString;
     
     if (self.expectation) {
         [self.expectation fulfill];
         self.expectation = NULL;
     }
     
-    return NULL;
+    if (completionHandler) {
+        completionHandler(self, nil);
+    }
 }
 
 @end
@@ -87,7 +91,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     __block BOOL success = true;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-        [USRVWebViewApp create:config];
+        [USRVWebViewApp create:config view:nil];
         [expectation fulfill];
     });
     
@@ -201,41 +205,60 @@ static BOOL nativeCallbackMethodInvoked = false;
 }
 
 - (void)testSendEventShouldSucceed {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
-    __block BOOL success = false;
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
+
+    __block BOOL success = false;
     dispatch_sync(queue, ^{
         success = [[USRVWebViewApp getCurrentApp] sendEvent:@"TEST_EVENT_1" category:@"TEST_CATEGORY_1" params:@[]];
         [(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"sendEvent should've succeeded");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
 }
 
 - (void)testSendEventWithParamsShouldSucceed_VA_LIST {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         success = [[USRVWebViewApp getCurrentApp] sendEvent:@"TEST_EVENT_1" category:@"TEST_CATEGORY_1"
                                                           param1:@"Test", [NSNumber numberWithInt:1], [NSNumber numberWithBool:true], nil];
@@ -243,24 +266,33 @@ static BOOL nativeCallbackMethodInvoked = false;
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"sendEvent should've succeeded");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
 }
 
 - (void)testSendEventWithParamsShouldSucceed_ARRAY {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         NSArray *params = [[NSArray alloc] initWithObjects:@"Test", [NSNumber numberWithInt:1], [NSNumber numberWithBool:true], nil];
         success = [[USRVWebViewApp getCurrentApp] sendEvent:@"TEST_EVENT_1" category:@"TEST_CATEGORY_1" params:params];
@@ -292,48 +324,66 @@ static BOOL nativeCallbackMethodInvoked = false;
 }
 
 - (void)testInvokeMethodShouldSucceedMethodAndClassNull {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         success = [[USRVWebViewApp getCurrentApp] invokeMethod:@"testMethod" className:@"TestClass" receiverClass:NULL callback:NULL params:@[]];
         [(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"invokeMethod -method should've returned true");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
 }
 
 - (void)testInvokeMethodShouldSucceed {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         success = [[USRVWebViewApp getCurrentApp] invokeMethod:@"testMethod" className:@"TestClass" receiverClass:@"WebAppTests" callback:@"nativeCallbackMethod:" params:@[]];
         [(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"invokeMethod -method should've returned true");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
@@ -341,17 +391,26 @@ static BOOL nativeCallbackMethodInvoked = false;
 }
 
 - (void)testInvokeMethodWithParamsShouldSucceed {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         NSArray *params = [[NSArray alloc] initWithObjects:@"Test", [NSNumber numberWithInt:1], [NSNumber numberWithBool:true], nil];
         success = [[USRVWebViewApp getCurrentApp] invokeMethod:@"testMethod" className:@"TestClass" receiverClass:@"WebAppTests" callback:@"nativeCallbackMethod:" params:params];
@@ -359,7 +418,7 @@ static BOOL nativeCallbackMethodInvoked = false;
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"invokeMethod -method should've returned true");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
@@ -391,54 +450,72 @@ static BOOL nativeCallbackMethodInvoked = false;
 }
 
 - (void)testInvokeCallbackShouldSucceed {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     USRVInvocation *invocation = [[USRVInvocation alloc] init];
     [invocation setInvocationResponseWithStatus:@"OK" error:NULL params:@[@"Test", @12345, @true]];
-    
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         success = [[USRVWebViewApp getCurrentApp] invokeCallback:invocation];
         [(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"invokeCallback -method should've succeeded");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");
 }
 
 - (void)testInvokeCallbackWithErrorShouldSucceed {
-    WebAppTestWebView *webView;
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
-    webView = [[WebAppTestWebView alloc] init];
-    [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
-    
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+        [initExpectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+
     USRVInvocation *invocation = [[USRVInvocation alloc] init];
     [invocation setInvocationResponseWithStatus:@"ERROR" error:@"TEST_ERROR_1" params:@[@"Test", @12345, @true]];
-    
+
     __block BOOL success = false;
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_sync(queue, ^{
         success = [[USRVWebViewApp getCurrentApp] invokeCallback:invocation];
         [(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] setExpectation:expectation];
         [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         }];
     });
-    
+
     XCTAssertTrue(success, @"invokeCallback -method should've succeeded");
     XCTAssertTrue([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
     XCTAssertNotNil([(WebAppTestWebView *)[[USRVWebViewApp getCurrentApp] webView] jsCall], @"The invoked JavaScript string should not be null");

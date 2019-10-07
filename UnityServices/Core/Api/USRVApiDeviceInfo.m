@@ -14,8 +14,8 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
 - (void)onVolumeChanged:(float)volume {
     if ([USRVWebViewApp getCurrentApp]) {
         [[USRVWebViewApp getCurrentApp] sendEvent:@"VOLUME_CHANGED"
-            category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryDeviceInfo)
-            param1:[NSNumber numberWithFloat:volume], [NSNumber numberWithFloat:[USRVDevice getDeviceMaxVolume]], nil];
+                                         category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryDeviceInfo)
+                                           param1:[NSNumber numberWithFloat:volume], [NSNumber numberWithFloat:[USRVDevice getDeviceMaxVolume]], nil];
     }
 }
 @end
@@ -40,7 +40,7 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
 
 + (void)WebViewExposed_getConnectionType:(USRVWebViewCallback *)callback {
     NSString *type = nil;
-    
+
     NetworkStatus status = [USRVConnectivityUtils getNetworkStatus];
     if (status == ReachableViaWiFi) {
         type = @"wifi";
@@ -49,7 +49,7 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     } else {
         type = @"none";
     }
-    
+
     [callback invoke:type, nil];
 }
 
@@ -71,6 +71,11 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
 
 + (void)WebViewExposed_getNetworkOperator:(USRVWebViewCallback *)callback {
     [callback invoke:[USRVDevice getNetworkOperator], nil];
+}
+
++ (void)WebViewExposed_checkIsMuted:(USRVWebViewCallback *)callback {
+    [USRVDevice checkIsMuted];
+    [callback invoke:nil];
 }
 
 + (void)WebViewExposed_getNetworkOperatorName:(USRVWebViewCallback *)callback {
@@ -145,6 +150,10 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     [callback invoke:[NSNumber numberWithBool:[USRVDevice isSimulator]], nil];
 }
 
++ (void)WebViewExposed_isMadeWithUnity:(USRVWebViewCallback *)callback {
+    [callback invoke:[NSNumber numberWithBool:[USRVClientProperties isMadeWithUnity]], nil]; 
+}
+
 + (void)WebViewExposed_getSupportedOrientationsPlist:(USRVWebViewCallback *)callback {
     [callback invoke:[USRVClientProperties getSupportedOrientationsPlist], nil];
 }
@@ -157,20 +166,19 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     NSArray<NSString *> *sensorList = [USRVDevice getSensorList];
     if (sensorList) {
         [callback invoke:sensorList, nil];
-    }
-    else {
+    } else {
         [callback error:USRVNSStringFromDeviceError(kUnityServicesCouldntGetSensorInfo) arg1:nil];
     }
 }
 
 + (void)WebViewExposed_getProcessInfo:(USRVWebViewCallback *)callback {
-    NSDictionary* processInfo = [USRVDevice getProcessInfo];
+    NSDictionary *processInfo = [USRVDevice getProcessInfo];
     if (processInfo) {
         [callback invoke:[USRVDevice getProcessInfo], nil];
     } else {
         [callback error:USRVNSStringFromDeviceError(kUnityServicesCouldntGetProcessInfo) arg1:nil];
     }
-    
+
 }
 
 + (void)WebViewExposed_getStatusBarWidth:(USRVWebViewCallback *)callback {
@@ -179,7 +187,7 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
 }
 
 + (void)WebViewExposed_getStatusBarHeight:(USRVWebViewCallback *)callback {
-    NSNumber *height = [NSNumber numberWithFloat: [UIApplication sharedApplication].statusBarFrame.size.height];
+    NSNumber *height = [NSNumber numberWithFloat:[UIApplication sharedApplication].statusBarFrame.size.height];
     [callback invoke:height, nil];
 }
 

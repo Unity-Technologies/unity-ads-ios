@@ -1,4 +1,5 @@
 #import <XCTest/XCTest.h>
+#import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
 @interface InitializeTests : XCTestCase
@@ -16,7 +17,7 @@
 
 - (void)testInitializeStateReset {
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
-    UIWebView *webView = [[UIWebView alloc] init];
+    WKWebView *webView = [[WKWebView alloc] init];
     
     [USRVWebViewApp setCurrentApp:webViewApp];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];

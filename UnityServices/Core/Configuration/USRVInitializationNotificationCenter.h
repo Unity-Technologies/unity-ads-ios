@@ -3,9 +3,9 @@
 
 @protocol USRVInitializationNotificationCenterProtocol
 
--(void)addDelegate:(__weak NSObject <USRVInitializationDelegate> *)delegate;
+-(void)addDelegate:(NSObject <USRVInitializationDelegate> *)delegate;
 
--(void)removeDelegate:(__weak NSObject <USRVInitializationDelegate> *)delegate;
+-(void)removeDelegate:(NSObject <USRVInitializationDelegate> *)delegate;
 
 -(void)triggerSdkDidInitialize;
 
@@ -17,9 +17,9 @@
 
 +(instancetype)sharedInstance;
 
--(void)addDelegate:(__weak NSObject <USRVInitializationDelegate> *)delegate;
+-(void)addDelegate:(NSObject <USRVInitializationDelegate> *)delegate;
 
--(void)removeDelegate:(__weak NSObject <USRVInitializationDelegate> *)delegate;
+-(void)removeDelegate:(NSObject <USRVInitializationDelegate> *)delegate;
 
 -(void)triggerSdkDidInitialize;
 

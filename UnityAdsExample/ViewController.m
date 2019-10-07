@@ -7,15 +7,19 @@ static int kMediationOrdinal = 1;
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UIButton *interstitialButton;
 @property (weak, nonatomic) IBOutlet UIButton *incentivizedButton;
+@property (weak, nonatomic) IBOutlet UIButton *bannerButton;
 @property (weak, nonatomic) IBOutlet UIButton *initializeButton;
 @property (weak, nonatomic) IBOutlet UITextField *gameIdTextField;
 @property (weak, nonatomic) IBOutlet UIButton *testModeButton;
+@property(nonatomic, strong) UIView *bannerView;
+
 
 @property (weak, nonatomic) NSString* defaultGameId;
 @property (assign, nonatomic) BOOL testMode;
 @property (copy, nonatomic) NSString* interstitialPlacementId;
 @property (copy, nonatomic) NSString* incentivizedPlacementId;
 @end
+
 
 @implementation ViewController
 
@@ -37,6 +41,8 @@ static int kMediationOrdinal = 1;
     self.incentivizedButton.enabled = NO;
     self.incentivizedButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.initializeButton.enabled = YES;
+    self.bannerButton.enabled = NO;
+    self.bannerButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.testMode = YES;
 }
 
@@ -83,6 +89,22 @@ static int kMediationOrdinal = 1;
     }
 }
 
+- (IBAction)bannerButtonTapped:(id)sender {
+    if ([self.bannerButton.titleLabel.text isEqualToString:@"Hide Banner"]) {
+        // close banner
+        [UnityAdsBanner destroy];
+        self.bannerView = nil;
+        [self.bannerButton setTitle:@"Show Banner" forState:UIControlStateNormal];
+    } else {
+        // load banner
+        [self.bannerButton setTitle:@"Hide Banner" forState:UIControlStateNormal];
+        [UnityAdsBanner setDelegate:self];
+        [UnityAdsBanner setBannerPosition:kUnityAdsBannerPositionBottomCenter];
+        [UnityAdsBanner loadBanner:@"bannerads"];
+
+    }
+}
+
 - (IBAction)initializeButtonTapped:(id)sender {
     NSString *gameId = ![self.gameIdTextField.text isEqualToString:@""] ? self.gameIdTextField.text : kDefaultGameId;
     
@@ -103,6 +125,8 @@ static int kMediationOrdinal = 1;
     self.initializeButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.17 blue:0.22 alpha:0.8];
     self.gameIdTextField.enabled = NO;
     self.testModeButton.enabled = NO;
+    self.bannerButton.enabled = YES;
+    self.bannerButton.backgroundColor = [UIColor colorWithRed:0.13 green:0.59 blue:0.95 alpha:1.0];
 
     [UnityAds setDebugMode:true];
 
@@ -157,5 +181,28 @@ static int kMediationOrdinal = 1;
     }
     NSLog(@"UnityAds FINISH: %@ - %@", stateString, placementId);
 }
+
+#pragma mark : UnityAdsBannerDelegate
+
+- (void)unityAdsBannerDidClick:(NSString *)placementId {
+    
+}
+
+- (void)unityAdsBannerDidError:(NSString *)message {
+}
+
+- (void)unityAdsBannerDidHide:(NSString *)placementId {
+}
+
+- (void)unityAdsBannerDidLoad:(NSString *)placementId view:(UIView *)bannerView{
+    ViewController *weakSelf = self;
+    if (weakSelf) {
+        [weakSelf.view addSubview:bannerView];
+    }
+}
+
+- (void)unityAdsBannerDidShow:(NSString *)placementId {
+}
+
 
 @end

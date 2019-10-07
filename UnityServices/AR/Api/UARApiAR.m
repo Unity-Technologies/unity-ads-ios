@@ -30,7 +30,7 @@
         }
 
         NSNumber *runOptions = [properties objectForKey:@"runOptions"];
-        if (runOptions) {
+        if (runOptions != nil) {
             arView.arRunOptions = (int)[runOptions integerValue];
         }
 

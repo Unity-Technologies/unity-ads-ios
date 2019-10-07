@@ -3,7 +3,7 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebRequest.h"
 #import "NSString+Hash.h"
-#import "USRVWKWebViewApp.h"
+#import "USRVWebViewApp.h"
 #import "USRVModuleConfiguration.h"
 #import "USRVWebRequestQueue.h"
 #import "USRVDevice.h"
@@ -269,25 +269,8 @@ static dispatch_once_t onceToken;
     USRVLogDebug(@"Unity Ads init: creating webapp");
     
     [self.configuration setWebViewData:[self webViewData]];
-    
-    NSString *osVersion = [USRVDevice getOsVersion];
-    NSArray<NSString *> *splitString = [osVersion componentsSeparatedByString:@"."];
-    NSString *osMajorVersionString = [splitString objectAtIndex:0];
-    int osMajorVersion = [osMajorVersionString intValue];
-    
-    if (osMajorVersion > 8) {
-        USRVLogDebug(@"Using WKWebView");
-        [USRVWKWebViewApp create:self.configuration];
-        
-        if (![USRVWKWebViewApp getCurrentApp]) {
-            USRVLogDebug(@"Error creating WKWebView, falling back to UIWebView");
-            [USRVWebViewApp create:self.configuration];
-        }
-    }
-    else {
-        USRVLogDebug(@"Using UIWebView");
-        [USRVWebViewApp create:self.configuration];
-    }
+
+    [USRVWebViewApp create:self.configuration view:nil];
 
     id nextState = [[USRVInitializeStateComplete alloc] initWithConfiguration:self.configuration];
     return nextState;
