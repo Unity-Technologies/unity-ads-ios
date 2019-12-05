@@ -16,6 +16,7 @@
              @"USRVApiSdk",
              @"USRVApiStorage",
              @"USRVApiDeviceInfo",
+             @"USRVApiClassDetection",
              @"USRVApiCache",
              @"USRVApiUrl",
              @"USRVApiRequest",

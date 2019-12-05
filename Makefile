@@ -13,3 +13,10 @@ verify-release-build:
 		echo 'UnityAds.framework.zip does not exist'; \
 		exit 1; \
 	fi;
+
+setup:
+	./scripts/setup.sh
+
+project:
+	./generate-project.rb
+	bundle exec fastlane provision_example_app

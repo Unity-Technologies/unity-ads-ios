@@ -43,14 +43,8 @@
 
 - (void)sendFrameUpdate {
     // Push the new frame to webview
-    UIWindow *window;
-    if ([[[UIApplication sharedApplication] delegate] window]) {
-        window = [[[UIApplication sharedApplication] delegate] window];
-    } else {
-        window = self.window;
-    }
-    if (window) {
-        CGRect frameRelativeToWindow = [self convertRect:self.frame toView:window];
+    if (self.window) {
+        CGRect frameRelativeToWindow = [self convertRect:self.frame toView:self.window];
         if (self.viewId) {
             [UADSWebPlayerBridge sendFrameUpdate:self.viewId frame:frameRelativeToWindow alpha:self.alpha];
         }

@@ -8,8 +8,6 @@
 
 -(instancetype)initWithBannerAdId:(NSString *)bannerAdId webPlayerSettings:(NSDictionary *)webPlayerSettings webPlayerEventSettings:(NSDictionary *)webPlayerEventSettings size:(CGSize)size;
 
--(void)close;
-
 @end
 
 @protocol UADSBannerWebPlayerContainerDelegate

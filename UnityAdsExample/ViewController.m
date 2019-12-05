@@ -130,7 +130,8 @@ static int kMediationOrdinal = 1;
 
     [UnityAds setDebugMode:true];
 
-    [UnityAds initialize:gameId delegate:self testMode:self.testMode];
+    [UnityAds addDelegate:self];
+    [UnityAds initialize:gameId testMode:self.testMode];
 }
 
 - (void)unityAdsReady:(NSString *)placementId {

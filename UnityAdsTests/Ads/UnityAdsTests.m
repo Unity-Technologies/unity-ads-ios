@@ -54,7 +54,7 @@
     UnityAdsDelegateMock *firstDelegate = [[UnityAdsDelegateMock alloc] init];
     [UnityAds initialize:@"mediator1" delegate:firstDelegate];
     XCTAssertEqual([UnityAds getDelegate], firstDelegate);
-    [UnityAds removeDelegate:firstDelegate];
+    [UnityAds setDelegate:nil];
     XCTAssertNil([UnityAds getDelegate]);
 }
 

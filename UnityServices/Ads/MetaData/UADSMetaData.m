@@ -50,7 +50,7 @@
             for (NSString *key in self.storageContents) {
                 id value = [self getValueForKey:key];
                 if ([storage getValueForKey:key] && [[storage getValueForKey:key] isKindOfClass:[NSDictionary class]] && [value isKindOfClass:[NSDictionary class]]) {
-                    value = [NSDictionary dictionaryByMerging:value secondary:[storage getValueForKey:key]];
+                    value = [NSDictionary unityads_dictionaryByMerging:value secondary:[storage getValueForKey:key]];
                 }
 
                 [storage set:key value:value];

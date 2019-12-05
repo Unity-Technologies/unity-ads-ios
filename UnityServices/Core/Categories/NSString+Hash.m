@@ -3,8 +3,11 @@
 
 @implementation NSString (Hash)
 
-- (NSString *)sha256 {
+- (NSString *)unityads_sha256 {
     const char* str = [self UTF8String];
+    if (str == NULL) {
+        str = "";
+    }
     unsigned char result[CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(str, (CC_LONG)strlen(str), result);
     

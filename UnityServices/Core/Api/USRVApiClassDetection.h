@@ -1,0 +1,2 @@
+@interface USRVApiClassDetection : NSObject
+@end

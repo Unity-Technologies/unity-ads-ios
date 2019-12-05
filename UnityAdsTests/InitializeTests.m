@@ -72,7 +72,7 @@
 - (void)testInitializeStateCreate {
     NSString *url = @"https://www.example.com/handlecallback.html";
     NSString *data = @"<script>var nativebridge = new Object(); nativebridge.handleCallback = new function() {	webviewbridge.handleInvocation(\"[['com.unity3d.ads.api.Sdk','initComplete', [], 'CALLBACK_01']]\"); }</script>";
-    NSString *hash = [data sha256];
+    NSString *hash = [data unityads_sha256];
     
     USRVConfiguration *config = [[USRVConfiguration alloc] init];
     [config setWebViewUrl:url];

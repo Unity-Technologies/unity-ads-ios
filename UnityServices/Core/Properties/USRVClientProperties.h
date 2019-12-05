@@ -9,7 +9,7 @@
 + (NSString *)getAppName;
 + (NSString *)getAppVersion;
 + (BOOL)isAppDebuggable;
-+ (BOOL)isMadeWithUnity;
++ (NSArray *) areClassesPresent:(NSArray *) classNames;
 + (void)setCurrentViewController:(UIViewController *)viewController;
 + (UIViewController *)getCurrentViewController;
 

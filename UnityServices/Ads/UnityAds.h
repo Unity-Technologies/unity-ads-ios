@@ -52,7 +52,15 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param delegate delegate for UnityAdsDelegate callbacks
  */
 + (void)initialize:(NSString *)gameId
-          delegate:(nullable id<UnityAdsDelegate>)delegate;
+          delegate:(nullable id<UnityAdsDelegate>)delegate __attribute__((deprecated("Please migrate to using initialize without a delegate and add the delegate with the addDelegate method")));
+
+/**
+ *  Initializes UnityAds. UnityAds should be initialized when app starts.
+ *
+ *  @param gameId   Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
+ */
++ (void)initialize:(NSString *)gameId;
+
 /**
  *  Initializes UnityAds. UnityAds should be initialized when app starts.
  *
@@ -62,7 +70,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)initialize:(NSString *)gameId
           delegate:(nullable id<UnityAdsDelegate>)delegate
+          testMode:(BOOL)testMode __attribute__((deprecated("Please migrate to using initialize without a delegate and add the delegate with the addDelegate method")));
+
+/**
+*  Initializes UnityAds. UnityAds should be initialized when app starts.
+*
+*  @param gameId        Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
+*  @param testMode      Set this flag to `YES` to indicate test mode and show only test ads.
+*/
++ (void)initialize:(NSString *)gameId
           testMode:(BOOL)testMode;
+
 /**
  *  Initializes UnityAds. UnityAds should be initialized when app starts.
  *  Note: The `load` API is in closed beta and available upon invite only. If you would like to be considered for the beta, please contact Unity Ads Support.
@@ -75,7 +93,20 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)initialize:(NSString *)gameId
                   delegate:(nullable id<UnityAdsDelegate>)delegate
                   testMode:(BOOL)testMode
+    enablePerPlacementLoad:(BOOL)enablePerPlacementLoad __attribute__((deprecated("Please migrate to using initialize without a delegate and add the delegate with the addDelegate method")));
+
+/**
+ *  Initializes UnityAds. UnityAds should be initialized when app starts.
+ *  Note: The `load` API is in closed beta and available upon invite only. If you would like to be considered for the beta, please contact Unity Ads Support.
+ *
+ *  @param gameId        Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
+ *  @param testMode      Set this flag to `YES` to indicate test mode and show only test ads.
+ *  @param enablePerPlacementLoad Set this flag to `YES` to disable automatic placement caching. When this is enabled, developer must call `load` on placements before calling show
+ */
++ (void)initialize:(NSString *)gameId
+                  testMode:(BOOL)testMode
     enablePerPlacementLoad:(BOOL)enablePerPlacementLoad;
+
 /**
  *  Load a placement to make it available to show. Ads generally take a few seconds to finish loading before they can be shown.
  *  Note: The `load` API is in closed beta and available upon invite only. If you would like to be considered for the beta, please contact Unity Ads Support.
@@ -100,27 +131,33 @@ NS_ASSUME_NONNULL_BEGIN
  *  Provides the currently assigned `UnityAdsDelegate`. Meant to support use of single delegate
  *
  *  @return The current `UnityAdsDelegate`.
+ *  @deprecated this method is deprecated in favor of addDelegate
  */
-+ (id<UnityAdsDelegate>)getDelegate __attribute__((deprecated("Please migrate to using addDelegate and removeDelegate. This now returns the first delegate added")));
++ (id<UnityAdsDelegate>)getDelegate __attribute__((deprecated("Please migrate to using addDelegate and removeDelegate")));
 /**
  *  Allows the delegate to be reassigned after UnityAds has already been initialized. Meant to support use of a single delegate.
  *  Use `addDelegate` if you wish to have multiple `UnityAdsDelegate`
+ *  Replaces any delegate set through `setDelegate` and through initialize
  *
  *  @param delegate The new `UnityAdsDelegate' for UnityAds to send callbacks to.
+ *  @deprecated this method is deprecated in favor of addDelegate
  */
 + (void)setDelegate:(id<UnityAdsDelegate>)delegate __attribute__((deprecated("Please migrate to using addDelegate and removeDelegate")));
+
 /**
  *  Allows a delegate to be registered after UnityAds has already been initialized.
  *
  *  @param delegate The new `UnityAdsDelegate' for UnityAds to send callbacks to.
  */
-+ (void)addDelegate:(id<UnityAdsDelegate>)delegate;
++ (void)addDelegate:(__nullable id<UnityAdsDelegate>)delegate;
 /**
  *  Allows a delegate to be removed after UnityAds has already been initialized.
+ *  This only removes delegates that have been added through `addDelegate`
  *
  *  @param delegate The already added `UnityAdsDelegate' for UnityAds to send callbacks to.
  */
 + (void)removeDelegate:(id<UnityAdsDelegate>)delegate;
+
 /**
  *  Get the current debug status of `UnityAds`.
  *

@@ -33,7 +33,7 @@
     [objectTwoSub setValue:@"secondary" forKey:@"override"];
     [objectTwo setValue:objectTwoSub forKey:@"test"];
     
-    NSDictionary *merged = [NSDictionary dictionaryByMerging:objectOne secondary:objectTwo];
+    NSDictionary *merged = [NSDictionary unityads_dictionaryByMerging:objectOne secondary:objectTwo];
     
     NSLog(@"%@", merged);
     

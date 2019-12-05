@@ -129,6 +129,7 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
     return [[NSUUID UUID] UUIDString];;
 }
 
+// This has a memory leak in simulator, but the leak does not happen on iPhone.
 + (BOOL)isWiredHeadsetOn {
     AVAudioSessionRouteDescription *route = [[AVAudioSession sharedInstance] currentRoute];
     for (AVAudioSessionPortDescription *desc in [route outputs]) {

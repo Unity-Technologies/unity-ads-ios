@@ -150,10 +150,6 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     [callback invoke:[NSNumber numberWithBool:[USRVDevice isSimulator]], nil];
 }
 
-+ (void)WebViewExposed_isMadeWithUnity:(USRVWebViewCallback *)callback {
-    [callback invoke:[NSNumber numberWithBool:[USRVClientProperties isMadeWithUnity]], nil]; 
-}
-
 + (void)WebViewExposed_getSupportedOrientationsPlist:(USRVWebViewCallback *)callback {
     [callback invoke:[USRVClientProperties getSupportedOrientationsPlist], nil];
 }

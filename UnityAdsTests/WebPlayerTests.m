@@ -146,8 +146,7 @@
     [self.viewController.view addSubview:self.webPlayerView];
     
     XCTestExpectation *pageStartExpectation = [self expectationWithDescription:@"pageStartExpectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(queue, ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         [self.webPlayerView loadUrl:[TestUtilities getTestServerAddress]];
     });
     
@@ -191,8 +190,7 @@
     [self.viewController.view addSubview:self.webPlayerView];
     
     XCTestExpectation *pageStartExpectation = [self expectationWithDescription:@"pageStartExpectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(queue, ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         [self.webPlayerView loadUrl:@"http://testing.wrong.url"];
     });
     

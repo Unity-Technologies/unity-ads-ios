@@ -22,7 +22,7 @@
 }
 
 - (void)testGetAppName {
-    XCTAssertEqualObjects([USRVClientProperties getAppName], @"com.unity3d.ads.example", "App name should be eqaul to 'com.unity3d.ads.example");
+    XCTAssertEqualObjects([USRVClientProperties getAppName], @"com.unity3d.ads.exampleapp", "App name should be eqaul to 'com.unity3d.ads.exampleapp");
 }
 
 - (void)testGetAppVersion {

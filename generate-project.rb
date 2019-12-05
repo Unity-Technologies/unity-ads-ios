@@ -157,11 +157,17 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   framework_target = project.new_target(:framework, project_name, :ios)
   framework_test_target = project.new_target(:unit_test_bundle, project_name + "Tests", :ios)
   integration_test_target_name = 'UnityAdsIntegrationTests'
+
   banner_integration_test_target_name = 'UnityAdsBannerIntegrationTests'
-  framework_integration_test_target = project.new_target(:unit_test_bundle, project_name + "IntegrationTests", :ios)
   framework_banner_integration_test_target = project.new_target(:unit_test_bundle, project_name + "BannerIntegrationTests", :ios)
+
+  hybrid_test_target_name = 'UnityAdsHybridTests'
+  framework_hybrid_test_target = project.new_target(:unit_test_bundle, "UnityAdsHybridTests", :ios)
+
+  framework_integration_test_target = project.new_target(:unit_test_bundle, project_name + "IntegrationTests", :ios)
+  
+  @framework_hybrid_tests_example_target = project.new_target(:application, "UnityAdsHybridTestsExample", :ios)
   @framework_example_target = project.new_target(:application, project_name + "Example", :ios)
-  @framework_monetization_example_target = project.new_target(:application, "UnityMonetizationExample", :ios) # monetization
 
   # Use our function to add resources to targets from subdirectories
   create_groups_from_dir("#{project_name}", project, framework_target)
@@ -170,8 +176,9 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   create_groups_from_dir("#{test_target_name}", project, framework_test_target)
   create_groups_from_dir("#{integration_test_target_name}", project, framework_integration_test_target)
   create_groups_from_dir("#{banner_integration_test_target_name}", project, framework_banner_integration_test_target)
+  create_groups_from_dir("#{hybrid_test_target_name}", project, framework_hybrid_test_target)
   create_groups_from_dir("#{example_target_name}", project, @framework_example_target)
-  create_groups_from_dir("UnityMonetizationExample", project, @framework_monetization_example_target) # monetization
+  create_groups_from_dir("UnityAdsHybridTestsExample", project, @framework_hybrid_tests_example_target)
 
   # Configure the framework target
   framework_target.build_configurations.each do |bc|
@@ -183,16 +190,16 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
 
   # Configure the example target
   @framework_example_target.build_configurations.each do |bc|
-    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.example"
+    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.exampleapp"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
-    # Configure the monetization example target
-  @framework_monetization_example_target.build_configurations.each do |bc|
-    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.monetization.example"
+   # Configure the example target
+   @framework_hybrid_tests_example_target.build_configurations.each do |bc|
+    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.hybrid.example"
     bc.build_settings['CURRENT_PROJECT_VERSION'] = 1
     bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
@@ -201,6 +208,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
 
   # Configure the test target
   framework_test_target.build_configurations.each do |bc|
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsTests"
     bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
     bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
@@ -212,6 +220,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
 
   # Configure the integration test target
   framework_integration_test_target.build_configurations.each do |bc|
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsIntegrationTests"
     bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
     bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
@@ -223,6 +232,7 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
 
   # Configure the banner integration test target
   framework_banner_integration_test_target.build_configurations.each do |bc|
+    bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = "9.0"
     bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsBannerIntegrationTests"
     bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
     bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
@@ -232,15 +242,28 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
     bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
   end
 
+  # Configure the hybrid test target
+  framework_hybrid_test_target.build_configurations.each do |bc|
+    bc.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = "com.unity3d.ads.UnityAdsHybridTests"
+    bc.build_settings['FRAMEWORK_SEARCH_PATHS'] = ["$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices", "$(inherited)"]
+    bc.build_settings['HEADER_SEARCH_PATHS'] = ["$(TARGET_TEMP_DIR)/../$(PROJECT_NAME).build/DerivedSources", "$(PROJECT_DIR)/UnityAds", "$(PROJECT_DIR)/UnityServices"]
+    bc.build_settings['LD_RUNPATH_SEARCH_PATHS'] = ["$(inherited)", "@executable_path/Frameworks", "@loader_path/Frameworks"]
+    bc.build_settings['TEST_HOST'] = "$(BUILT_PRODUCTS_DIR)/UnityAdsHybridTestsExample.app/UnityAdsHybridTestsExample"
+    bc.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "iPhone Developer"
+    bc.build_settings['DEVELOPMENT_TEAM'] = '4DZT52R2T5'
+  end
+
   # Add target dependencies
   framework_test_target.add_dependency(framework_target)
   framework_test_target.add_dependency(@framework_example_target)
   framework_integration_test_target.add_dependency(framework_target)
   framework_banner_integration_test_target.add_dependency(framework_target)
+  framework_hybrid_test_target.add_dependency(framework_target)
   framework_integration_test_target.add_dependency(@framework_example_target)
   framework_banner_integration_test_target.add_dependency(@framework_example_target)
+  framework_hybrid_test_target.add_dependency(@framework_hybrid_tests_example_target)
   @framework_example_target.add_dependency(framework_target)
-  @framework_monetization_example_target.add_dependency(framework_target)
+  @framework_hybrid_tests_example_target.add_dependency(framework_target)
 
   # Add copy files build phase to example target build configuration
   copy_framework_to_example_phase = project.new(Xcodeproj::Project::PBXCopyFilesBuildPhase)
@@ -250,12 +273,13 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   copied_framework_file_reference.settings ||= {}
   copied_framework_file_reference.settings['ATTRIBUTES'] = ['CodeSignOnCopy']
   @framework_example_target.build_phases << copy_framework_to_example_phase
-  @framework_monetization_example_target.build_phases << copy_framework_to_example_phase
+  @framework_hybrid_tests_example_target.build_phases << copy_framework_to_example_phase
 
   # Configure the example target as the test host for the test target
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_integration_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
   project.root_object.attributes["TargetAttributes"] = Hash["#{framework_banner_integration_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_example_target.uuid}"]]
+  project.root_object.attributes["TargetAttributes"] = Hash["#{framework_hybrid_test_target.uuid}" => Hash["TestTargetID" => "#{@framework_hybrid_tests_example_target.uuid}"]]
 
   # Load Saved Scheme
   scheme_dir = 'xcschemes/'
@@ -264,12 +288,14 @@ def generate_framework_project(xcode_project_name, project_name, test_target_nam
   scheme = Xcodeproj::XCScheme.new(temp_file)
   integration_test_scheme = Xcodeproj::XCScheme.new('xcschemes/UnityAdsIntegrationTests.xcscheme')
   banner_integration_test_scheme = Xcodeproj::XCScheme.new('xcschemes/UnityAdsBannerIntegrationTests.xcscheme')
+  hybrid_test_scheme = Xcodeproj::XCScheme.new('xcschemes/UnityAdsHybridTests.xcscheme')
 
   # Serialize and save project + scheme
   project.save(xcode_project_name)
   scheme.save_as(xcode_project_name, project_name, true)
   integration_test_scheme.save_as(xcode_project_name, integration_test_target_name, true)
   banner_integration_test_scheme.save_as(xcode_project_name, banner_integration_test_target_name, true)
+  hybrid_test_scheme.save_as(xcode_project_name, hybrid_test_target_name, true)
 end
 
 def generate_static_library_project(xcode_project_name, project_name)

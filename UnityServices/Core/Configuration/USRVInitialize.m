@@ -199,7 +199,7 @@ static dispatch_once_t onceToken;
     if ([[NSFileManager defaultManager] fileExistsAtPath:localWebViewFile]) {
         NSData *fileData = [NSData dataWithContentsOfFile:localWebViewFile options:NSDataReadingUncached error:nil];
         NSString *fileString = [[NSString alloc] initWithBytesNoCopy:(void *)[fileData bytes] length:[fileData length] encoding:NSUTF8StringEncoding freeWhenDone:NO];
-        NSString *localWebViewHash = [fileString sha256];
+        NSString *localWebViewHash = [fileString unityads_sha256];
         
         if (localWebViewHash && [localWebViewHash isEqualToString:self.configuration.webViewHash]) {
             USRVLogInfo(@"Unity Ads init: webapp loaded from local cache");

@@ -3,6 +3,7 @@
 #import <UnityAds/UnityAds.h>
 #import "BannerTestDelegate.h"
 #import "UnityBannerTestDelegate.h"
+#import "UADSBannerRefreshInfo.h"
 
 @implementation NSURLRequest (ATS)
 + (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host {
@@ -71,6 +72,33 @@
 
     [self waitForExpectationsWithTimeout:100 handler:^(NSError *_Nullable error) {
     }];
+    [UnityAdsBanner destroy];
+}
+
+- (void)testLegacyBannerLoadwithRefresh {
+    UnityBannerTestDelegate *unityBannerTestDelegate = [[UnityBannerTestDelegate alloc] init];
+    [UnityAdsBanner setDelegate:unityBannerTestDelegate];
+    [[UADSBannerRefreshInfo sharedInstance] setRefreshRateForPlacementId:@"bannerads" refreshRate:[NSNumber numberWithInt:15]];
+    
+    XCTestExpectation *loadExpectation = [self expectationWithDescription:@"didLoadBlockExpectation"];
+    unityBannerTestDelegate.didLoadBlock = ^(NSString *placementId, UIView *view) {
+        XCTAssertEqual(placementId, @"bannerads");
+        XCTAssertNotNil(view);
+        [loadExpectation fulfill];
+    };
+    [UnityAdsBanner loadBanner:@"bannerads"];
+    [self waitForExpectationsWithTimeout:100 handler:^(NSError *_Nullable error) {
+    }];
+    
+    loadExpectation = [self expectationWithDescription:@"didLoadBlockExpectation"];
+    unityBannerTestDelegate.didLoadBlock = ^(NSString *placementId, UIView *view) {
+        XCTAssertEqual(placementId, @"bannerads");
+        XCTAssertNotNil(view);
+        [loadExpectation fulfill];
+    };
+    [self waitForExpectationsWithTimeout:100 handler:^(NSError *_Nullable error) {
+    }];
+    
     [UnityAdsBanner destroy];
 }
 

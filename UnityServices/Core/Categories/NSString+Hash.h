@@ -1,5 +1,5 @@
 @interface NSString (Hash)
 
-- (NSString*)sha256;
+- (NSString*)unityads_sha256;
 
 @end

@@ -13,15 +13,30 @@
 
 #pragma mark Public Selectors
 
++ (void)initialize:(NSString *)gameId {
+    [self initialize:gameId delegate:nil testMode:false enablePerPlacementLoad:false];
+}
+
 + (void)initialize:(NSString *)gameId
           delegate:(id<UnityAdsDelegate>)delegate {
     [self initialize:gameId delegate:delegate testMode:false];
 }
 
 + (void)initialize:(NSString *)gameId
+          testMode:(BOOL)testMode {
+    [self initialize:gameId delegate:nil testMode:testMode enablePerPlacementLoad:false];
+}
+
++ (void)initialize:(NSString *)gameId
           delegate:(id<UnityAdsDelegate>)delegate
           testMode:(BOOL)testMode {
     [self initialize:gameId delegate:delegate testMode:testMode enablePerPlacementLoad:false];
+}
+
++ (void)initialize:(NSString *)gameId
+              testMode:(BOOL)testMode
+enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
+    [self initialize:gameId delegate:nil testMode:testMode enablePerPlacementLoad:enablePerPlacementLoad];
 }
 
 + (void)initialize:(NSString *)gameId
@@ -75,15 +90,14 @@
 }
 
 + (id<UnityAdsDelegate>)getDelegate {
-    // returns the first listener
-    return [[UADSProperties getDelegates] firstObject];
+    return [UADSProperties getDelegate];
 }
 
 + (void)setDelegate:(id<UnityAdsDelegate>)delegate {
-    [UADSProperties addDelegate:delegate];
+    [UADSProperties setDelegate:delegate];
 }
 
-+ (void)addDelegate:(id<UnityAdsDelegate>)delegate {
++ (void)addDelegate:(__nullable id<UnityAdsDelegate>)delegate {
     [UADSProperties addDelegate:delegate];
 }
 
