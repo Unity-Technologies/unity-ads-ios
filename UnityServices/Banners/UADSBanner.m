@@ -53,7 +53,7 @@ typedef NS_ENUM(NSInteger, UADSBannerSize) {
             if (weakSelf.currentBannerView) {
                 [weakSelf sendError:@"A Banner is already in use, please call destroy before loading another banner!"];
             } else {
-                CGSize size = CGSizeMake([weakSelf WidthFromDynamicBannerSize:UADSBannerSizeDynamic], [weakSelf HeightFromUADSBannerSize:UADSBannerSizeDynamic]);
+                CGSize size = CGSizeMake(UADSBannerSizeStandardWidth, UADSBannerSizeStandardHeight);
                 UADSBannerAdRefreshView *bannerAdRefreshView = [[UADSBannerAdRefreshView alloc] initWithPlacementId:placementId size:size];
                 UADSBannerWrapperView *bannerWrapperView = [[UADSBannerWrapperView alloc] initWithBannerAdRefreshView:bannerAdRefreshView bannerPosition:weakSelf.currentBannerPosition];
                 weakSelf.currentBannerView = bannerWrapperView;
