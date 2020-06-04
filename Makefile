@@ -20,3 +20,6 @@ setup:
 project:
 	./generate-project.rb
 	bundle exec fastlane provision_example_app
+
+generate-mute-detection-header:
+	./create-mute-header.sh MuteSwitchDetection.aiff

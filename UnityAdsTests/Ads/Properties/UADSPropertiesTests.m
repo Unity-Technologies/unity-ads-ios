@@ -88,7 +88,6 @@
     } @catch (NSException *exception) {
         XCTFail(@"Exception was thrown");
     }
-
 }
 
 - (void)testAddMultipleDelegates {
@@ -172,6 +171,64 @@
     XCTAssertEqual(100, [UADSProperties getShowTimeout]);
     [UADSProperties setShowTimeout:UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT];
     XCTAssertEqual(UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT, [UADSProperties getShowTimeout]);
+}
+
+- (void)testMultipleThreadsAddRemoveDelegates {
+    XCTestExpectation *expectationThread1 = [self expectationWithDescription:@"expectation1"];
+    XCTestExpectation *expectationThread2 = [self expectationWithDescription:@"expectation2"];
+    XCTestExpectation *expectationThread3 = [self expectationWithDescription:@"expectation3"];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @try {
+            for (int x=0; x<1000; x++) {
+                UnityAdsDelegateMock *delegate = [[UnityAdsDelegateMock alloc] init];
+                [UADSProperties addDelegate:delegate];
+                [UADSProperties getDelegates];
+                [UADSProperties removeDelegate:delegate];
+            }
+            [expectationThread1 fulfill];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"CRASH: %@", exception);
+            NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
+        }
+    });
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @try {
+            for (int x=0; x<1000; x++) {
+                UnityAdsDelegateMock *delegate = [[UnityAdsDelegateMock alloc] init];
+                [UADSProperties addDelegate:delegate];
+                [UADSProperties getDelegates];
+                [UADSProperties removeDelegate:delegate];
+            }
+            [expectationThread2 fulfill];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"CRASH: %@", exception);
+            NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
+        }
+    });
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @try {
+            for (int x=0; x<1000; x++) {
+                UnityAdsDelegateMock *delegate = [[UnityAdsDelegateMock alloc] init];
+                [UADSProperties addDelegate:delegate];
+                [UADSProperties getDelegates];
+                [UADSProperties removeDelegate:delegate];
+            }
+            [expectationThread3 fulfill];
+        }
+        @catch (NSException *exception) {
+            NSLog(@"CRASH: %@", exception);
+            NSLog(@"Stack Trace: %@", [exception callStackSymbols]);
+        }
+    });
+    
+    [self waitForExpectationsWithTimeout:10.0 handler:^(NSError *error) {
+        if (error) {
+            XCTFail("race condition found");
+        }
+    }];
 }
 
 @end
