@@ -1,0 +1,2 @@
+@interface USRVApiTrackingManager : NSObject
+@end

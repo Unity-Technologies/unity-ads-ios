@@ -22,6 +22,23 @@ __weak static UIViewController *_currentViewController = nil;
     return supportedOrientations;
 }
 
++ (NSArray<NSString *> *)getAdNetworkIdsPlist {
+    NSMutableArray<NSString *> * adNetworkIds = [[NSMutableArray alloc] init];
+    NSArray* adNetworkItems = [NSBundle.mainBundle.infoDictionary objectForKey:@"SKAdNetworkItems"];
+    if (adNetworkItems != nil) {
+        adNetworkIds = [[NSMutableArray alloc] initWithCapacity:[adNetworkItems count]];
+        
+        for (int i = 0; i < adNetworkItems.count; i++) {
+            NSString* adNetworkId = [[adNetworkItems objectAtIndex:i] objectForKey:@"SKAdNetworkIdentifier"];
+            
+            if (adNetworkId != nil) {
+                [adNetworkIds addObject:adNetworkId];
+            }
+        }
+    }
+    return adNetworkIds;
+}
+
 + (int)getSupportedOrientations {
     return (int) [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:[[UIApplication sharedApplication] keyWindow]];
 }

@@ -1,6 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 #import <sys/utsname.h>
+#import "NSString+Hash.h"
 
 @interface DeviceTests : XCTestCase
 @end
@@ -164,6 +165,45 @@
 
 - (void)testGetCPUCount {
     XCTAssertTrue([USRVDevice getCPUCount] > 0, @"Device CPU count should be greater than 0");
+}
+
+- (void)testGetDeviceName {
+    NSString *deviceName = [USRVDevice getDeviceName];
+    XCTAssertEqualObjects(deviceName, [[[UIDevice currentDevice] name] unityads_sha256], @"Device name should be correct");
+}
+
+- (void)testGetIdentifierForVendor {
+    NSString *identifierForVendor = [USRVDevice getVendorIdentifier];
+    NSLog(@"IDFV: %@", identifierForVendor);
+    XCTAssertNotNil(identifierForVendor, "Identifier for vendor should not be nil");
+}
+
+- (void)testGetSystemBootTime {
+    NSNumber *systemBootTime = [USRVDevice getSystemBootTime];
+    NSLog(@"System Boot Time: %d", [systemBootTime intValue]);
+    XCTAssertTrue(systemBootTime > 0, "Sytem Boot Time should be a positive integer and not equal to 0");
+}
+
+- (void)testGetSystemBootTimeReturnsSame {
+    NSNumber *systemBootTime1 = [USRVDevice getSystemBootTime];
+    NSNumber *systemBootTime2 = [USRVDevice getSystemBootTime];
+
+    XCTAssertEqual(systemBootTime1, systemBootTime2, "Sytem Boot Time should be equal");
+}
+
+- (void)testGetLocaleList {
+    NSArray<NSString*> *localeList = [USRVDevice getLocaleList];
+    
+    XCTAssertGreaterThanOrEqual([localeList count], 1, @"Locale list should have at least 1 item in it");
+    
+    if ([USRVDevice isSimulator]) {
+        XCTAssertEqualObjects(localeList[0], @"en", @"Locale list should be correct");
+    }
+}
+
+- (void)testGetCurrentUITheme {
+    NSNumber *currentTheme = [USRVDevice getCurrentUITheme];
+    XCTAssertEqual(currentTheme, [NSNumber numberWithInt:1], @"Current theme should be light");
 }
 
 @end

@@ -75,4 +75,13 @@
 
 + (void)checkIsMuted;
 
++ (NSString *)getVendorIdentifier;
+
++ (NSString*)getDeviceName;
+
++ (NSNumber*)getSystemBootTime;
+
++ (NSArray<NSString*>*)getLocaleList;
+
++ (NSNumber*)getCurrentUITheme;
 @end
