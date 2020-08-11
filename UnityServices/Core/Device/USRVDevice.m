@@ -6,11 +6,14 @@
 #import <sys/utsname.h>
 #import <mach/mach.h>
 #import <objc/runtime.h>
+#import <sys/sysctl.h>
 
 #import "USRVDevice.h"
 #import "USRVConnectivityUtils.h"
+#import "NSString+Hash.h"
 
 static CTTelephonyNetworkInfo *uadsTelephonyInfo;
+static NSNumber *uadsBootTime = nil;
 
 @implementation USRVDevice
 
@@ -419,6 +422,46 @@ static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 + (void)checkIsMuted {
     [[USRVMuteSwitch sharedInstance] detectMuteSwitch];
     return;
+}
+
++ (NSString *)getVendorIdentifier {
+    NSString *vendorIdentifier = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    return vendorIdentifier ?: @"00000000-0000-0000-0000-000000000000";
+}
+
++ (NSString*)getDeviceName {
+    return [[[UIDevice currentDevice] name] unityads_sha256];
+}
+
++ (NSNumber*)getSystemBootTime {
+    if (uadsBootTime == nil) {
+        struct timeval bootTime;
+        size_t len = sizeof(bootTime);
+        int mib[2] = {CTL_KERN, KERN_BOOTTIME};
+        
+        if(sysctl(mib, sizeof(mib) / sizeof(*mib), &bootTime, &len, NULL, 0) >= 0) {
+            uadsBootTime = [NSNumber numberWithLong:bootTime.tv_sec];
+        }
+    }
+    
+    if (uadsBootTime == nil) {
+        return [NSNumber numberWithLong:-1];
+    }
+
+    return uadsBootTime;
+}
+
++ (NSArray<NSString*>*)getLocaleList {
+    return [NSLocale preferredLanguages];
+}
+
++ (NSNumber*)getCurrentUITheme {
+    if (@available(iOS 12.0, *)) {
+        id value = [UIScreen.mainScreen.traitCollection valueForKey:@"userInterfaceStyle"];
+        return [NSNumber numberWithInt:[value intValue]];
+    }
+    
+    return [NSNumber numberWithInt:1];
 }
 
 @end

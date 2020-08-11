@@ -27,6 +27,7 @@
 #import "USRVInitialize.h"
 #import "USRVWebViewMethodInvokeHandler.h"
 #import "USRVVolumeChange.h"
+#import "USRVMuteSwitch.h"
 #import "UADSProperties.h"
 #import "UADSVideoPlayerHandler.h"
 

@@ -51,6 +51,13 @@
     XCTAssertEqualObjects([USRVClientProperties getGameId], @"54321");
 }
 
+- (void)testGetAdNetworkIds {
+    NSArray* ids = [USRVClientProperties getAdNetworkIdsPlist];
+    NSArray* expected = @[@"4DZT52R2T5.skadnetwork", @"example.skadnetwork"];
+
+    XCTAssertTrue([expected isEqualToArray:ids], @"Both arrays should be equal: %@ %@", ids, expected);
+}
+
 /* TEST DELEGATE */
 
 - (void)unityAdsReady:(NSString *)placementId {

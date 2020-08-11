@@ -154,6 +154,10 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     [callback invoke:[USRVClientProperties getSupportedOrientationsPlist], nil];
 }
 
++ (void)WebViewExposed_getAdNetworkIdsPlist:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVClientProperties getAdNetworkIdsPlist], nil];
+}
+
 + (void)WebViewExposed_getSupportedOrientations:(USRVWebViewCallback *)callback {
     [callback invoke:[NSNumber numberWithInt:[USRVClientProperties getSupportedOrientations]], nil];
 }
@@ -220,6 +224,26 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
 
 + (void)WebViewExposed_getCPUCount:(USRVWebViewCallback *)callback {
     [callback invoke:[NSNumber numberWithUnsignedInteger:[USRVDevice getCPUCount]], nil];
+}
+
++ (void)WebViewExposed_getVendorIdentifier:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getVendorIdentifier], nil];
+}
+
++ (void)WebViewExposed_getDeviceName:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getDeviceName], nil];
+}
+
++ (void)WebViewExposed_getSystemBootTime:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getSystemBootTime], nil];
+}
+
++ (void)WebViewExposed_getLocaleList:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getLocaleList], nil];
+}
+
++ (void)WebViewExposed_getCurrentUITheme:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getCurrentUITheme], nil];
 }
 
 @end

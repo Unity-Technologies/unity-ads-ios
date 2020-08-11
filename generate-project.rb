@@ -74,10 +74,6 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         file_to_add = g.new_file(Dir.pwd + '/' + f)
         target.source_build_phase.add_file_reference(file_to_add, true)
       end
-      Dir.glob("*.aiff") do |f|
-        file_to_add = g.new_file(Dir.pwd + '/' + f)
-        target.source_build_phase.add_file_reference(file_to_add, true)
-      end
 
       public_patterns = [
         # Core

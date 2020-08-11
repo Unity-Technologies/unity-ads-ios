@@ -5,6 +5,7 @@
 + (void)setGameId:(NSString *)gid;
 + (NSString *)getGameId;
 + (NSArray<NSString*>*)getSupportedOrientationsPlist;
++ (NSArray<NSString *>*)getAdNetworkIdsPlist;
 + (int)getSupportedOrientations;
 + (NSString *)getAppName;
 + (NSString *)getAppVersion;
