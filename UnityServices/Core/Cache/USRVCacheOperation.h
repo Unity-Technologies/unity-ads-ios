@@ -9,7 +9,7 @@
 @property (nonatomic, assign) id progressTimer;
 @property (nonatomic, assign) long long lastProgressEvent;
 @property (nonatomic, assign) long long expectedContentSize;
-@property (nonatomic, strong) USRVWebRequest *request;
+@property (nonatomic, strong) id<USRVWebRequest> request;
 @property (nonatomic, strong) NSDictionary<NSString*, NSArray*> *headers;
 @property (nonatomic, assign) BOOL append;
 

@@ -131,7 +131,20 @@ static int kMediationOrdinal = 1;
     [UnityAds setDebugMode:true];
 
     [UnityAds addDelegate:self];
-    [UnityAds initialize:gameId testMode:self.testMode];
+    [UnityAds initialize:gameId testMode:self.testMode initializationDelegate:self];
+}
+
+- (void)initializationComplete {
+    NSLog(@"UnityAds initializationComplete");
+}
+
+- (void)initializationFailed:(UnityAdsInitializationError)error withMessage:(NSString *)message {
+    NSLog(@"UnityAds initializationFailed: %ld - %@",(long)error, message);
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"UnityAds Error" message:[NSString stringWithFormat:@"%ld - %@",(long)error, message] preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [alert addAction:action];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)unityAdsReady:(NSString *)placementId {

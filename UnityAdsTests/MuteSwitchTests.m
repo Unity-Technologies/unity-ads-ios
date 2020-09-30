@@ -55,7 +55,7 @@
     MuteSwitchTestsWebApp *webviewApp = [[MuteSwitchTestsWebApp alloc] init];
     [USRVWebViewApp setCurrentApp:webviewApp];
     [webviewApp setWebAppLoaded:true];
-    [webviewApp setWebAppInitialized:true];
+    [webviewApp completeWebViewAppInitialization:true];
 
 }
 

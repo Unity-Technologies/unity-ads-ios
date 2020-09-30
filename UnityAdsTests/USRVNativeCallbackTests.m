@@ -34,9 +34,11 @@ static NSArray *nativeCallbackParams = NULL;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:nil];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [expectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
     
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {

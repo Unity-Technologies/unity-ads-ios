@@ -4,7 +4,7 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebViewCallback.h"
 #import "USRVInitialize.h"
-#import "USRVInitializationNotificationCenter.h"
+#import "USRVDevice.h"
 
 @implementation USRVApiSdk
 
@@ -20,27 +20,30 @@
         [NSNumber numberWithInt:[USRVSdkProperties getVersionCode]],
         [USRVSdkProperties getVersionName],
         [NSNumber numberWithBool:[USRVClientProperties isAppDebuggable]],
-        [[[USRVWebViewApp getCurrentApp] configuration] configUrl],
+        [USRVSdkProperties getConfigUrl],
         [[[USRVWebViewApp getCurrentApp] configuration] webViewUrl],
         [[[USRVWebViewApp getCurrentApp] configuration] webViewHash] ? [[[USRVWebViewApp getCurrentApp] configuration] webViewHash] : [NSNull null],
         [[[USRVWebViewApp getCurrentApp] configuration] webViewVersion] ? [[[USRVWebViewApp getCurrentApp] configuration] webViewVersion] : [NSNull null],
         [NSNumber numberWithLongLong:[USRVSdkProperties getInitializationTime]],
         [NSNumber numberWithBool:[USRVSdkProperties isReinitialized]],
         [NSNumber numberWithBool:[USRVSdkProperties isPerPlacementLoadEnabled]],
+        [NSNumber numberWithBool:[USRVSdkProperties getLatestConfiguration] != nil],
+        [USRVDevice getElapsedRealtime],
      nil];
 }
 
 + (void)WebViewExposed_initComplete:(USRVWebViewCallback *)callback {
     USRVLogDebug(@"Web application initialized");
     [USRVSdkProperties setInitialized:YES];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:YES];
-    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkDidInitialize];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:YES];
     [callback invoke:nil];
 }
 
-+ (void)WebViewExposed_initError:(NSString *)message code:(int)code callback:(USRVWebViewCallback *)callback {
++ (void)WebViewExposed_initError:(NSString *)message code:(NSNumber *)code callback:(USRVWebViewCallback *)callback {
     USRVLogError(@"Web application failed to load with error : %@", message);
-    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail:message code:code];
+    [[USRVWebViewApp getCurrentApp] setWebAppFailureMessage: message];
+    [[USRVWebViewApp getCurrentApp] setWebAppFailureCode: code];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:NO];
     [callback invoke:nil];
 }
 
@@ -78,11 +81,17 @@
     
     if (currentWebViewApp != nil) {
         [currentWebViewApp setWebAppLoaded:false];
-        [currentWebViewApp setWebAppInitialized:false];
+        [currentWebViewApp completeWebViewAppInitialization:false];
     }
 
     [USRVSdkProperties setReinitialized:true];
     [USRVInitialize initialize:[[USRVWebViewApp getCurrentApp] configuration]];
+}
+
++ (void)WebViewExposed_downloadLatestWebView:(USRVWebViewCallback *)callback {
+    USRVLogDebug(@"Unity Ads init: WebView called download");
+    USRVDownloadLatestWebViewStatus status = [USRVInitialize downloadLatestWebView];
+    [callback invoke:[NSNumber numberWithInt:status], nil];
 }
 
 @end

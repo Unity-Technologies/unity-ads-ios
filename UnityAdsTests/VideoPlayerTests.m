@@ -132,7 +132,7 @@ static NSString *invalidVideoUrl = @"https://static.applifier.com/impact/11017/i
     VideoPlayerTestsWebApp *webViewApp = [[VideoPlayerTestsWebApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     
     [self setVideoView:[[UADSVideoView alloc] initWithFrame:CGRectMake(0, 0, 400, 400)]];
     [self.videoView setVideoFillMode:AVLayerVideoGravityResizeAspect];

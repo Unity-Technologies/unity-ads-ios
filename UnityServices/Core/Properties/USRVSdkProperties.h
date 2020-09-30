@@ -1,4 +1,6 @@
 #import "UnityServices.h"
+#import "UnityAdsInitializationDelegate.h"
+#import "USRVConfiguration.h"
 
 @interface USRVSdkProperties : NSObject
 
@@ -11,6 +13,13 @@ FOUNDATION_EXPORT int const kUnityServicesVersionCode;
 FOUNDATION_EXPORT NSString * const kUnityServicesFlavorDebug;
 FOUNDATION_EXPORT NSString * const kUnityServicesFlavorRelease;
 
+typedef NS_ENUM(NSInteger, InitializationState) {
+    NOT_INITIALIZED,
+    INITIALIZING,
+    INITIALIZED_SUCCESSFULLY,
+    INITIALIZED_FAILED
+};
+
 + (BOOL)isInitialized;
 + (void)setInitialized:(BOOL)initialized;
 + (BOOL)isTestMode;
@@ -18,6 +27,10 @@ FOUNDATION_EXPORT NSString * const kUnityServicesFlavorRelease;
 + (void)setPerPlacementLoadEnabled:(BOOL)perPlacementLoadEnabled;
 + (BOOL)isPerPlacementLoadEnabled;
 + (int)getVersionCode;
++ (void)setInitializationState:(InitializationState)initializationState;
++ (InitializationState)getCurrentInitializationState;
++ (void)notifyInitializationFailed:(UnityAdsInitializationError)error withErrorMessage:(NSString *)message;
++ (void)notifyInitializationComplete;
 + (NSString *)getVersionName;
 + (NSString *)getCacheDirectoryName;
 + (NSString *)getCacheFilePrefix;
@@ -26,7 +39,10 @@ FOUNDATION_EXPORT NSString * const kUnityServicesFlavorRelease;
 + (NSString *)getConfigUrl;
 + (NSString *)getDefaultConfigUrl:(NSString *)flavor;
 + (NSString *)getLocalWebViewFile;
++ (NSString *)getLocalConfigFilepath;
 + (NSString *)getCacheDirectory;
++ (void) setLatestConfiguration:(USRVConfiguration*)configuration;
++ (USRVConfiguration*)getLatestConfiguration;
 + (void)setInitializationTime:(long long)milliseconds;
 + (long long)getInitializationTime;
 + (void)setReinitialized:(BOOL)status;
@@ -35,6 +51,9 @@ FOUNDATION_EXPORT NSString * const kUnityServicesFlavorRelease;
 + (BOOL)getDebugMode;
 + (id<UnityServicesDelegate>)getDelegate;
 + (void)setDelegate:(id<UnityServicesDelegate>)delegate;
++ (void)addInitializationDelegate:(id<UnityAdsInitializationDelegate>)delegate;
++ (NSMutableArray<id<UnityAdsInitializationDelegate>> *)getInitializationDelegates;
++ (void)resetInitializationDelegates;
 + (BOOL)isChinaLocale:(NSString *)networkISOCode;
 
 @end

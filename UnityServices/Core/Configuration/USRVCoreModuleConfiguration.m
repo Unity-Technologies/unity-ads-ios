@@ -8,6 +8,9 @@
 #import "USRVConnectivityUtils.h"
 #import "USRVSdkProperties.h"
 #import "USRVConnectivityMonitor.h"
+#import "USRVInitialize.h"
+#import "USRVInitializationNotificationCenter.h"
+#import "USRVSDKMetrics.h"
 
 @implementation USRVCoreModuleConfiguration
 
@@ -34,6 +37,7 @@
 }
 
 - (BOOL)resetState:(USRVConfiguration *)configuration {
+    [USRVSDKMetrics setConfiguration:configuration];
     [USRVDevice initCarrierUpdates];
     [USRVConnectivityUtils initCarrierInfo];
     [USRVSdkProperties setInitialized:NO];
@@ -50,14 +54,31 @@
 }
 
 - (BOOL)initModuleState:(USRVConfiguration *)configuration {
+    [USRVSDKMetrics setConfiguration:configuration];
     return true;
 }
 
 - (BOOL)initErrorState:(USRVConfiguration *)configuration state:(NSString *)state message:(NSString *)message {
+    [USRVSDKMetrics setConfiguration:configuration];
+    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail:@"Unity Ads SDK failed to initialize" code:0];
+
+    NSString *errorMessage = @"Unity Ads failed to initialize due to internal error";
+    if ([state isEqualToString:InitializeStateCreateStateName]) {
+        errorMessage = message;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [USRVSdkProperties notifyInitializationFailed:kUnityInitializationErrorInternalError withErrorMessage:errorMessage];
+    });
     return true;
 }
 
 - (BOOL)initCompleteState:(USRVConfiguration *)configuration {
+    [USRVSDKMetrics setConfiguration:configuration];
+    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkDidInitialize];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [USRVSdkProperties notifyInitializationComplete];
+    });
     return true;
 }
 

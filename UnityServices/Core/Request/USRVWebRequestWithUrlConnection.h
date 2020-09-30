@@ -1,9 +1,9 @@
-
+#import "USRVWebRequest.h"
 
 typedef void(^UnityServicesWebRequestProgress)(NSString *url, long long bytes, long long totalBytes);
 typedef void(^UnityServicesWebRequestStart)(NSString *url, long long totalBytes);
 
-@protocol USRVWebRequest <NSObject>
+@interface USRVWebRequestWithUrlConnection : NSObject <USRVWebRequest, NSURLConnectionDelegate>
 
 @property (nonatomic, strong) NSString *url;
 @property (nonatomic, strong) NSString *requestType;
@@ -28,5 +28,6 @@ typedef void(^UnityServicesWebRequestStart)(NSString *url, long long totalBytes)
 - (instancetype)initWithUrl:(NSString *)url requestType:(NSString *)requestType headers:(NSDictionary<NSString*,NSArray<NSString*>*> *)headers connectTimeout:(int)connectTimeout;
 - (NSData *)makeRequest;
 - (void)cancel;
+
 
 @end

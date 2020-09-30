@@ -7,6 +7,9 @@ framework module UnityAds {
   header "UnityServices.h"
   header "UnityAnalytics.h"
   header "UANAApiAnalytics.h"
+  header "UnityAdsInitializationDelegate.h"
+  header "UnityAdsInitializationError.h"
+  header "UnityAdsLoadDelegate.h"
 
   header "USRVUnityPurchasing.h"
   header "USRVUnityPurchasingDelegate.h"

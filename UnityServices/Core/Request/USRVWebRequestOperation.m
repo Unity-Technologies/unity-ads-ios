@@ -1,4 +1,5 @@
 #import "USRVWebRequestOperation.h"
+#import "USRVWebRequestFactory.h"
 
 @implementation USRVWebRequestOperation
 
@@ -7,7 +8,7 @@
     self = [super init];
     
     if (self) {
-        [self setRequest:[[USRVWebRequest alloc] initWithUrl:url requestType:requestType headers:headers connectTimeout:connectTimeout]];
+        [self setRequest:[USRVWebRequestFactory create:url requestType:requestType headers:headers connectTimeout:connectTimeout]];
         [self.request setBody:body];
         
         [self setCompleteBlock:completeBlock];

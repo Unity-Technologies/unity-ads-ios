@@ -30,6 +30,8 @@
 #import "USRVMuteSwitch.h"
 #import "UADSProperties.h"
 #import "UADSVideoPlayerHandler.h"
+#import "USRVWebRequestWithUrlConnection.h"
+#import "USRVWebRequestFactory.h"
 
 // METADATA
 #import "UADSMetaData.h"

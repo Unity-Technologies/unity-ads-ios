@@ -1,13 +1,39 @@
 #import "USRVSdkProperties.h"
 #import "UADSLoadModule.h"
-#import "UADSLoadBridge.h"
 #import "USRVInitializationNotificationCenter.h"
+#import "UADSProperties.h"
+#import "USRVSdkProperties.h"
+#import "USRVWebViewApp.h"
+#import "USRVSDKMetrics.h"
+#import "USRVDevice.h"
+
+static volatile NSCondition* lock = nil;
+static volatile BOOL status = NO;
+static USRVConfiguration *configuration = nil;
+
+@interface LoadEventState : NSObject {
+}
+@property(nonatomic, readwrite) NSString* placementId;
+@property(nonatomic, readwrite) NSString* listenerId;
+@property(nonatomic, readwrite) NSNumber* time;
+@property(nonatomic, strong) id<UnityAdsLoadDelegate> delegate;
+@end
+
+@implementation LoadEventState
+
+-(id)init {
+   self = [super init];
+   return self;
+}
+
+@end
 
 @interface UADSLoadModule ()
 
-@property(nonatomic, strong) NSObject <UADSLoadBridgeProtocol> *loadBridge;
 @property(nonatomic, strong) NSObject <USRVInitializationNotificationCenterProtocol> *initializationNotificationCenter;
-@property(nonatomic, strong) NSMutableDictionary *loadEventBuffer;
+@property(nonatomic, strong) NSMutableDictionary *loadEventState;
+@property(nonatomic, strong) NSMutableArray *loadEventBuffer;
+@property(nonatomic, strong) dispatch_queue_t loadQueue;
 
 @end
 
@@ -17,74 +43,182 @@
     static UADSLoadModule *sharedLoadEventManager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        UADSLoadBridge *loadBridge = [[UADSLoadBridge alloc] init];
         USRVInitializationNotificationCenter *initializationNotificationCenter = [USRVInitializationNotificationCenter sharedInstance];
-        sharedLoadEventManager = [[UADSLoadModule alloc] initWithBridge:loadBridge initializationNotificationCenter:initializationNotificationCenter];
+        sharedLoadEventManager = [[UADSLoadModule alloc] initWithNotificationCenter:initializationNotificationCenter];
     });
     return sharedLoadEventManager;
 }
 
--(instancetype)initWithBridge:(NSObject <UADSLoadBridgeProtocol> *)bridge initializationNotificationCenter:(NSObject <USRVInitializationNotificationCenterProtocol> *)initializeNotificationCenter {
+-(instancetype)initWithNotificationCenter:(NSObject <USRVInitializationNotificationCenterProtocol> *)initializeNotificationCenter {
 
     self = [super init];
 
     if (self) {
-        _loadBridge = bridge;
+        _loadQueue = dispatch_queue_create("unity-ads-load-api-queue", NULL);
         _initializationNotificationCenter = initializeNotificationCenter;
-        _loadEventBuffer = [[NSMutableDictionary alloc] init];
+        _loadEventState = [[NSMutableDictionary alloc] init];
+        _loadEventBuffer = [[NSMutableArray alloc] init];
+        if (configuration == nil) {
+            configuration = [[USRVConfiguration alloc] init];
+            USRVLogError(@"Configuration is null, apply default configuration");
+        }
         [self.initializationNotificationCenter addDelegate:self];
     }
     return self;
 }
 
-- (dispatch_queue_t)getSynchronize {
-    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-}
-
--(void)load:(NSString *)placementId {
-    if (placementId == nil) {
-        USRVLogError(@"ERROR: Loaded placements cannot be nil");
+-(void)load:(NSString *)placementId loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
+    if (placementId == nil || [placementId isEqual: @""]) {
+        [loadDelegate unityAdsAdFailedToLoad:placementId];
         return;
     }
-    __weak UADSLoadModule *weakSelf = self;
-    dispatch_sync([self getSynchronize], ^{
-        if (!weakSelf) {
-            return;
+    
+    LoadEventState* loadEventState = [self createLoadEventState:placementId listener:loadDelegate];
+    
+    if ([USRVSdkProperties isInitialized]) {
+        dispatch_async(_loadQueue, ^{
+            [self runLoadRequest:loadEventState];
+        });
+    } else {
+        @synchronized (_loadEventBuffer) {
+            [_loadEventBuffer addObject:loadEventState];
         }
-        NSNumber* loadCount = [weakSelf.loadEventBuffer objectForKey:placementId];
+    }
+}
 
-        if (loadCount != nil) {
-            [weakSelf.loadEventBuffer setObject:[NSNumber numberWithInt:[loadCount integerValue] + 1.0] forKey:placementId];
-        } else {
-            [weakSelf.loadEventBuffer setObject:[NSNumber numberWithInt:1] forKey:placementId];
-        }
+-(LoadEventState*)createLoadEventState:(NSString*)placementId listener:(id<UnityAdsLoadDelegate>)listener {
+    
+    NSString* listenerId = [[NSUUID UUID] UUIDString];
+    
+    LoadEventState* state = [[LoadEventState alloc] init];
+    
+    state.delegate = listener;
+    state.placementId = placementId;
+    state.listenerId = listenerId;
+    state.time = [USRVDevice getElapsedRealtime];
+    
+   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([configuration noFillTimeout] * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+       [self sendAdFailedToLoad:placementId listenerId:listenerId];
+    });
+    
+    @synchronized (_loadEventState) {
+        [_loadEventState setObject:state forKey:listenerId];
+    }
+    
+    return state;
+}
 
-        if ([USRVSdkProperties isInitialized]) {
-            [weakSelf sendLoadEvents];
-        }
+-(void)runLoadRequest:(LoadEventState*)loadEventState {
+    if (![UADSLoadModule load:loadEventState]) {
+        [self sendAdFailedToLoad:loadEventState.placementId listenerId:loadEventState.listenerId];
+    }
+}
+
+-(void)sendAdLoaded:(NSString*)placementId listenerId:(NSString*)listenerId {
+    LoadEventState* loadEventState = nil;
+    @synchronized (_loadEventState) {
+        loadEventState = [_loadEventState objectForKey:listenerId];
+        [_loadEventState removeObjectForKey:listenerId];
+    }
+    
+    if (loadEventState == nil) {
+        return;
+    }
+    
+    if (loadEventState.delegate == nil) {
+        return;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [loadEventState.delegate unityAdsAdLoaded:placementId];
     });
 }
 
--(void)sendLoadEvents {
-    NSDictionary *placements = [[NSDictionary alloc] initWithDictionary:self.loadEventBuffer];
-    if ([placements allKeys].count > 0) {
-        [self.loadBridge loadPlacements:placements];
+-(void)sendAdFailedToLoad:(NSString*)placementId listenerId:(NSString*)listenerId {
+    LoadEventState* loadEventState = nil;
+    @synchronized (_loadEventState) {
+        loadEventState = [_loadEventState objectForKey:listenerId];
+        [_loadEventState removeObjectForKey:listenerId];
     }
-    [self.loadEventBuffer removeAllObjects];
+    
+    if (loadEventState == nil) {
+        return;
+    }
+    
+    if (loadEventState.delegate == nil) {
+        return;
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [loadEventState.delegate unityAdsAdFailedToLoad:placementId];
+    });
 }
 
 -(void)sdkDidInitialize {
-    __weak UADSLoadModule *weakSelf = self;
-    dispatch_sync([self getSynchronize], ^{
-        if (!weakSelf) {
-            return;
-        }
-        [weakSelf sendLoadEvents];
+    NSArray* loadEventBuffer;
+    @synchronized (_loadEventBuffer) {
+        loadEventBuffer = [_loadEventBuffer copy];
+        [_loadEventBuffer removeAllObjects];
+    }
+    
+    dispatch_async(_loadQueue, ^{
+        [loadEventBuffer enumerateObjectsUsingBlock:^(LoadEventState* loadEventState, NSUInteger idx, BOOL* stop) {
+            [self runLoadRequest:loadEventState];
+        }];
     });
 }
 
 -(void)sdkInitializeFailed:(NSError *)error {
+    NSArray* loadEventBuffer;
+    @synchronized (_loadEventBuffer) {
+        loadEventBuffer = [_loadEventBuffer copy];
+        [_loadEventBuffer removeAllObjects];
+    }
+    
+    [loadEventBuffer enumerateObjectsUsingBlock:^(LoadEventState* loadEventState, NSUInteger idx, BOOL* stop) {
+        [self sendAdFailedToLoad:loadEventState.placementId listenerId:loadEventState.listenerId];
+    }];
+}
 
++(BOOL)load:(LoadEventState*)loadEventState {
+    NSString *receiverClass = NSStringFromClass(self.class);
+    NSString *receiverSelector = @"loadCallback:";
+    
+    NSDictionary* dictionary = @{
+        @"placementId" : loadEventState.placementId,
+        @"listenerId" : loadEventState.listenerId,
+        @"time": loadEventState.time
+    };
+
+    lock = [[NSCondition alloc] init];
+
+    [[USRVWebViewApp getCurrentApp] invokeMethod:@"load" className:@"webview" receiverClass:receiverClass callback:receiverSelector params:@[dictionary]];
+    
+    status = NO;
+    
+    [lock lock];
+    bool signaled = [lock waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:[configuration loadTimeout]/1000]];
+    [lock unlock];
+    lock = nil;
+    
+    if (!signaled) {
+        [[USRVSDKMetrics getInstance] sendEvent:@"native_load_callback_failed"];
+    }
+    
+    return signaled && status;
+}
+
++(void)loadCallback: (NSArray *)params {
+    if (lock) {
+        [lock lock];
+        status = [[params objectAtIndex:0] isEqualToString:@"OK"];
+        [lock signal];
+        [lock unlock];
+    }
+}
+
++ (void)setConfiguration:(USRVConfiguration *)config {
+    configuration = config;
 }
 
 @end

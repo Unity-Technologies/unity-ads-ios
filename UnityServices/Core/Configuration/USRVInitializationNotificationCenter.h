@@ -9,7 +9,7 @@
 
 -(void)triggerSdkDidInitialize;
 
--(void)triggerSdkInitializeDidFail:(NSString *)message code:(int)code;
+-(void)triggerSdkInitializeDidFail:(NSString *)message code:(NSNumber *)code;
 
 @end
 
@@ -23,6 +23,6 @@
 
 -(void)triggerSdkDidInitialize;
 
--(void)triggerSdkInitializeDidFail:(NSString *)message code:(int)code;
+-(void)triggerSdkInitializeDidFail:(NSString *)message code:(NSNumber *)code;
 
 @end

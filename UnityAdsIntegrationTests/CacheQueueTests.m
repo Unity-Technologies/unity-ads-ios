@@ -3,6 +3,8 @@
 #import "USRVWebViewApp.h"
 #import "USRVCacheQueue.h"
 #import "USRVSdkProperties.h"
+#import "USRVWebRequest.h"
+#import "USRVWebRequestFactory.h"
 #import "TestUtilities.h"
 
 static long kMinFileSize = 5000;
@@ -28,6 +30,11 @@ static long kMinFileSize = 5000;
         if (self.resumeEndExpectation) {
             [self.resumeEndExpectation fulfill];
             self.resumeEndExpectation = nil;
+        }
+        
+        if (self.progressExpectation) {
+            [self.progressExpectation fulfill];
+            self.progressExpectation = nil;
         }
     }
     if (eventId && [eventId isEqualToString:@"DOWNLOAD_PROGRESS"]) {
@@ -74,8 +81,14 @@ static long kMinFileSize = 5000;
 - (void)setUp {
     [super setUp];
     MockWebViewApp *webApp = [[MockWebViewApp alloc] init];
+    [USRVWebRequestFactory setImplementationType:kUnityAdsWebRequestUrlConnection];
     [USRVWebViewApp setCurrentApp:webApp];
     [USRVCacheQueue start];
+}
+
+- (void)tearDown {
+    [super tearDown];
+    [USRVWebRequestFactory setImplementationType:kUnityAdsWebRequestUrlConnection];
 }
 
 - (void)testDownloadFile {
@@ -103,11 +116,16 @@ static long kMinFileSize = 5000;
 
     [USRVCacheQueue setProgressInterval:50];
     [USRVCacheQueue download:[TestUtilities getTestVideoUrl] target:fileName headers:nil append:false];
-
-    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
-        [mockApp setProgressExpectation:nil];
+    
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
     }];
-
+ 
+    //Check to see if we had an inconsistency that resulted in the whole file being downloaded before a pause could happen
+     unsigned long long fileSize = [[NSFileHandle fileHandleForUpdatingAtPath:fileName] seekToEndOfFile] ;
+    if (fileSize == [TestUtilities getTestVideoExpectedSize]) {
+        return;
+    }
+    
     [USRVCacheQueue cancelAllDownloads];
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:fileName], "File should exist");
 
@@ -120,7 +138,7 @@ static long kMinFileSize = 5000;
     }];
 
     NSFileHandle *fileHandle = [NSFileHandle fileHandleForUpdatingAtPath:fileName];
-    unsigned long long fileSize = [fileHandle seekToEndOfFile];
+    fileSize = [fileHandle seekToEndOfFile];
     XCTAssertTrue(fileSize > kMinFileSize, "File size should be over 5000 %llu", fileSize);
     XCTAssertTrue(fileSize < [TestUtilities getTestVideoExpectedSize], "File size should be less than kVideoSize (%d)", [TestUtilities getTestVideoExpectedSize]);
 

@@ -15,17 +15,6 @@
 #import "USRVWebViewApp.h"
 #import "UnityAds.h"
 
-@interface MockHybridTestAppConfiguration : USRVConfiguration
-@end
-
-@implementation MockHybridTestAppConfiguration
-- (NSArray<NSString*>*)getWebAppApiClassList {
-    NSMutableArray *apiList = [[NSMutableArray alloc] initWithArray:[super getWebAppApiClassList]];
-    [apiList addObject:@"UADSHybridTest"];
-    return apiList;
-}
-@end
-
 @interface UnityAdsExampleUITests : XCTestCase
 @end
 
@@ -53,7 +42,10 @@
     [USRVClientProperties setGameId:@"14850"];
     [USRVSdkProperties setTestMode:YES];
     [UnityAds setDebugMode:YES];
-    MockHybridTestAppConfiguration *configuration = [[MockHybridTestAppConfiguration alloc] init];
+    USRVConfiguration *configuration = [[USRVConfiguration alloc] init];
+    NSMutableArray *apiList = [[NSMutableArray alloc] initWithArray:[configuration getWebAppApiClassList]];
+    [apiList addObject:@"UADSHybridTest"];
+    [USRVInvocation setClassTable:apiList];
     [USRVSdkProperties setConfigUrl:[USRVSdkProperties getDefaultConfigUrl:@"test"]];
     [USRVInitialize initialize:configuration];
     

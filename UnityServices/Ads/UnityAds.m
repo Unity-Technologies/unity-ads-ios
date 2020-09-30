@@ -23,6 +23,11 @@
 }
 
 + (void)initialize:(NSString *)gameId
+        initializationDelegate:(id<UnityAdsInitializationDelegate>)initializationDelegate {
+    [self initialize:gameId testMode:false enablePerPlacementLoad:false initializationDelegate:initializationDelegate];
+}
+
++ (void)initialize:(NSString *)gameId
           testMode:(BOOL)testMode {
     [self initialize:gameId delegate:nil testMode:testMode enablePerPlacementLoad:false];
 }
@@ -31,6 +36,12 @@
           delegate:(id<UnityAdsDelegate>)delegate
           testMode:(BOOL)testMode {
     [self initialize:gameId delegate:delegate testMode:testMode enablePerPlacementLoad:false];
+}
+
++ (void)initialize:(NSString *)gameId
+          testMode:(BOOL)testMode
+          initializationDelegate:(id<UnityAdsInitializationDelegate>)initializationDelegate {
+    [self initialize:gameId testMode:testMode enablePerPlacementLoad:false initializationDelegate:initializationDelegate];
 }
 
 + (void)initialize:(NSString *)gameId
@@ -44,11 +55,26 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
           testMode:(BOOL)testMode
           enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     [UnityAds addDelegate:delegate];
-    [UnityServices initialize:gameId delegate:[[UnityServicesListener alloc] init] testMode:testMode usePerPlacementLoad:enablePerPlacementLoad];
+    [self initialize:gameId testMode:testMode enablePerPlacementLoad:enablePerPlacementLoad initializationDelegate:nil];
+}
+
++ (void)initialize:(NSString *)gameId
+          testMode:(BOOL)testMode
+          enablePerPlacementLoad:(BOOL)enablePerPlacementLoad
+          initializationDelegate:(id<UnityAdsInitializationDelegate>)initializationDelegate {
+    [UnityServices initialize:gameId delegate:[[UnityServicesListener alloc] init] testMode:testMode usePerPlacementLoad:enablePerPlacementLoad initializationDelegate:initializationDelegate];
 }
 
 + (void)load:(NSString *)placementId {
-    [[UADSLoadModule sharedInstance] load:placementId];
+    [self load:placementId loadDelegate:nil];
+}
+
++ (void)load:(NSString *)placementId loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
+    [[UADSLoadModule sharedInstance] load:placementId loadDelegate:loadDelegate];
+}
+
++ (void)load:(NSString *)placementId adm:(NSString *)adm delegate:(nullable id<UnityAdsLoadDelegate>)delegate {
+    USRVLogError(@"Current version of Unity Ads SDK does not support this method");
 }
 
 + (void)show:(UIViewController *)viewController {
@@ -150,6 +176,11 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     } else {
         [UnityAdsDelegateUtil unityAdsDidFinish:@"" withFinishState:kUnityAdsFinishStateError];
     }
+}
+
++ (NSString* __nullable)getToken {
+    USRVLogError(@"Current version of Unity Ads SDK does not support this method");
+    return nil;
 }
 
 @end

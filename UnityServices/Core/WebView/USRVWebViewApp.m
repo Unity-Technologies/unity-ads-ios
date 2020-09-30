@@ -7,11 +7,14 @@
 #import "USRVWebViewMethodInvokeHandler.h"
 #import "USRVWKWebViewUtilities.h"
 #import "USRVJsonUtilities.h"
+#import "USRVSDKMetrics.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
 @interface USRVWebViewApp ()
 
+@property (atomic, assign) BOOL webAppInitialized;
+@property (atomic, assign) BOOL webAppInitializatonDone;
 @property (nonatomic, assign) SEL evaluateJavaScriptSelector;
 @property (nonatomic, assign) void (*evaluateJavaScriptFunc)(id, SEL, NSString *, id);
 
@@ -20,6 +23,7 @@
 @implementation USRVWebViewApp
 
 static USRVWebViewApp *currentApp = NULL;
+static NSCondition *blockCondition = nil;
 
 + (USRVWebViewApp *)getCurrentApp {
     return currentApp;
@@ -29,12 +33,47 @@ static USRVWebViewApp *currentApp = NULL;
     currentApp = webViewApp;
 }
 
-+ (void)create:(USRVConfiguration *)configuration view:(UIView *)view {
+- (void)completeWebViewAppInitialization:(BOOL)initialized {
+    [blockCondition lock];
+    _webAppInitialized = initialized;
+    _webAppInitializatonDone = YES;
+    [blockCondition signal];
+    [blockCondition unlock];
+}
+
+- (void)resetWebViewAppInitialization {
+    _webAppLoaded = NO;
+    _webAppFailureCode = [NSNumber numberWithInt:-1];
+    _webAppFailureMessage = @"";
+    _webAppInitialized = NO;
+    _webAppInitializatonDone = NO;
+}
+
+- (BOOL)isWebAppInitialized {
+    return _webAppInitialized;
+}
+
+- (void)setWebAppFailureMessage:(NSString *) message {
+    _webAppFailureMessage = message;
+}
+
+- (void)setWebAppFailureCode:(NSNumber *) code {
+    _webAppFailureCode = code;
+}
+
+- (NSString *)getWebAppFailureMessage {
+    return _webAppFailureMessage;
+}
+
+- (NSNumber *)getWebAppFailureCode {
+    return _webAppFailureCode;
+}
+
++ (BOOL)create:(USRVConfiguration *)configuration view:(UIView *)view {
     USRVLogDebug(@"CREATING WKWEBVIEWAPP");
     NSString *frameworkLocation;
-    
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] initWithConfiguration:configuration];
-    
+
     if (![USRVWKWebViewUtilities isFrameworkPresent]) {
         USRVLogDebug(@"WebKit framework not present, trying to load it");
         if ([USRVDevice isSimulator]) {
@@ -51,7 +90,7 @@ static USRVWebViewApp *currentApp = NULL;
         
         if (![USRVWKWebViewUtilities isFrameworkPresent]) {
             USRVLogError(@"WKWebKit still not present!");
-            return;
+            return NO;
         }
         else {
             USRVLogDebug(@"Succesfully loaded WKWebKit framework");
@@ -165,14 +204,38 @@ static USRVWebViewApp *currentApp = NULL;
         else {
             return;
         }
-        
+
+        blockCondition = [[NSCondition alloc] init];
         if ([USRVWKWebViewUtilities loadFileUrl:webView url:url allowReadAccess:[NSURL fileURLWithPath:[USRVSdkProperties getCacheDirectory]]]) {
             [webViewApp createBackgroundView];
             [webViewApp.backgroundView placeViewToBackground];
             [webViewApp placeWebViewToBackgroundView];
             [USRVWebViewApp setCurrentApp:webViewApp];
+        } else {
+            blockCondition = nil;
         }
     });
+
+    if (blockCondition == nil) {
+        return NO;
+    }
+    BOOL webViewCreateDidNotTimeout = NO;
+    [blockCondition lock];
+    //wait till either webAppInitializatonDone is true or blockCondition time limit is reached
+    double webViewCreateTimeoutInSeconds = [configuration webViewAppCreateTimeout] / (double)1000;
+    while (![webViewApp webAppInitializatonDone] && (webViewCreateDidNotTimeout = [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:webViewCreateTimeoutInSeconds]])) {
+    }
+    [blockCondition unlock];
+    bool createdSuccessfully = webViewCreateDidNotTimeout && [webViewApp isWebAppInitialized];
+    
+    if (!createdSuccessfully) {
+        [[USRVSDKMetrics getInstance] sendEventWithTags:@"native_webview_creation_failed" tags:@{
+            @"wto": [NSString stringWithFormat:@"%d", !webViewCreateDidNotTimeout],
+            @"wad": @"true", // Will always be true here on iOS, but aligned with Android metrics
+            @"wai": [NSString stringWithFormat:@"%d", [webViewApp isWebAppInitialized]],
+        }];
+    }
+    return createdSuccessfully;
 }
 
 

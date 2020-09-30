@@ -1,17 +1,16 @@
 #import "UADSProperties.h"
 
-int const UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT = 5000;
+NSString * const UADSPROPERTIES_CONFIGURED_NO_FILL_TIMEOUT_KEY = @"UADSNoFillTimeout";
 
 @implementation UADSProperties
 
 static id<UnityAdsDelegate> _delegate = nil;
 static NSMutableOrderedSet<id<UnityAdsDelegate>> *_delegates = nil;
-static int _showTimeout = UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT;
 
 + (void)initialize {
     if (self == [UADSProperties class]) {
         _delegates = [[NSMutableOrderedSet alloc] init];
-    }    
+    }
 }
 
 // Public
@@ -68,12 +67,13 @@ static int _showTimeout = UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT;
     }
 }
 
-+(void)setShowTimeout:(int)timeout {
-    _showTimeout = timeout;
-}
 
-+(int)getShowTimeout {
-    return _showTimeout;
++(int)getConfiguredNoFillTimeout:(int)defaultTimeout {
+    id timeout = [[NSBundle mainBundle] objectForInfoDictionaryKey:UADSPROPERTIES_CONFIGURED_NO_FILL_TIMEOUT_KEY];
+    if ([timeout isKindOfClass:[NSNumber class]]) {
+        return [timeout intValue];
+    }
+    return defaultTimeout;
 }
 
 @end

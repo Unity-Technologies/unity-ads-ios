@@ -12,6 +12,10 @@
 #import "USRVConnectivityUtils.h"
 #import "NSString+Hash.h"
 
+#ifndef MSEC_PER_SEC
+#define MSEC_PER_SEC 1000ull
+#endif
+
 static CTTelephonyNetworkInfo *uadsTelephonyInfo;
 static NSNumber *uadsBootTime = nil;
 
@@ -422,6 +426,22 @@ static NSNumber *uadsBootTime = nil;
 + (void)checkIsMuted {
     [[USRVMuteSwitch sharedInstance] detectMuteSwitch];
     return;
+}
+
+// getUptime since boot in milliseconds, excluding time sleeping.
++ (NSNumber *)getUptime {
+    return [NSNumber numberWithUnsignedLongLong:(CACurrentMediaTime() * MSEC_PER_SEC)];
+}
+
+// getElapsedRealtime since boot in milliseconds, including time sleeping.
+// Calls by devices older than iOS 10 will report 0 as clock_gettime_nsec_np
+// is not supported.
++ (NSNumber *)getElapsedRealtime {
+    unsigned long long millisecondsSinceBoot = 0;
+    if (@available(iOS 10.0, *)) {
+        millisecondsSinceBoot = clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW) / NSEC_PER_MSEC;
+    }
+    return [NSNumber numberWithUnsignedLongLong:millisecondsSinceBoot];
 }
 
 + (NSString *)getVendorIdentifier {

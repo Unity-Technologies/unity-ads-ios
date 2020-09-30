@@ -1,5 +1,7 @@
 #import "UADSAdsModuleConfiguration.h"
 #import "UADSPlacement.h"
+#import "UADSLoadModule.h"
+#import "UADSWebViewShowOperation.H"
 
 @implementation UADSAdsModuleConfiguration
 
@@ -11,16 +13,21 @@
              @"UADSApiWebPlayer",
              @"UADSApiPlacement",
              @"UADSApiPurchasing",
-             @"UADSAdsProperties"
+             @"UADSAdsProperties",
+             @"UADSApiLoad"
              ];
 }
 
 - (BOOL)resetState:(USRVConfiguration *)configuration {
     [UADSPlacement reset];
+    [UADSWebViewShowOperation setConfiguration:configuration];
+    [UADSLoadModule setConfiguration:configuration];
     return true;
 }
 
 - (BOOL)initModuleState:(USRVConfiguration *)configuration {
+    [UADSWebViewShowOperation setConfiguration:configuration];
+    [UADSLoadModule setConfiguration:configuration];
     return true;
 }
 
@@ -29,6 +36,8 @@
 }
 
 - (BOOL)initCompleteState:(USRVConfiguration *)configuration {
+    [UADSWebViewShowOperation setConfiguration:configuration];
+    [UADSLoadModule setConfiguration:configuration];
     return true;
 }
 

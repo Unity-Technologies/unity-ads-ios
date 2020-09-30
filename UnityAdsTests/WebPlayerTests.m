@@ -118,7 +118,7 @@
     WebPlayerTestsWebApp *webViewApp = [[WebPlayerTestsWebApp alloc] init];
     [USRVWebViewApp setCurrentApp:webViewApp];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     
     [self setWebPlayerView:[[UADSWebPlayerView alloc] initWithFrame:CGRectMake(0, 0, 400, 400) viewId:UADSWebPlayerViewId webPlayerSettings:nil]];
 }

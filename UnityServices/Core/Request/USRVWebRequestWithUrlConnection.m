@@ -1,13 +1,13 @@
-#import "USRVWebRequest.h"
+#import "USRVWebRequestWithUrlConnection.h"
 #import "USRVWebRequestError.h"
 
-@interface USRVWebRequest () <NSURLConnectionDelegate>
+@interface USRVWebRequestWithUrlConnection () <NSURLConnectionDelegate>
 
 @property (nonatomic, assign) BOOL stubbed;
 
 @end
 
-@implementation USRVWebRequest
+@implementation USRVWebRequestWithUrlConnection
 
 - (void)setStubbed:(BOOL)stubbed {
     _stubbed = stubbed;
@@ -106,7 +106,6 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     [self.receivedData setLength:0];
-    self.expectedContentLength = [response expectedContentLength];
     if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         self.responseCode = [httpResponse statusCode];
@@ -115,6 +114,20 @@
 
     if (!self.responseHeaders) {
         self.responseHeaders = [[NSDictionary alloc] init];
+    }
+    
+    // X-OrigLength is a custom field which contains uncompressed response size.
+    // More infromation here https://unity.slack.com/archives/CULLDMTH9/p1589991686357100
+    self.expectedContentLength = [response expectedContentLength];
+    if (self.expectedContentLength == -1) {
+        NSString* value = [self.responseHeaders objectForKey:@"X-OrigLength"];
+        if (value != nil) {
+            self.expectedContentLength = value.intValue;
+        }
+    }
+    
+    if (self.expectedContentLength != -1) {
+        self.receivedData = [[NSMutableData alloc] initWithCapacity:self.expectedContentLength];
     }
 
     if (self.startBlock) {

@@ -78,7 +78,7 @@
     }
 }
 
-- (void)triggerSdkInitializeDidFail:(NSString *)message code:(int)code {
+- (void)triggerSdkInitializeDidFail:(NSString *)message code:(NSNumber *)code {
     @synchronized (self) {
         NSDictionary *delegates = [NSDictionary dictionaryWithDictionary:self.sdkDelegates];
         __weak USRVInitializationNotificationCenter *weakSelf = self;
@@ -87,7 +87,7 @@
                 USRVInitializationDelegateWrapper *delegateWrapper = [delegates objectForKey:key];
                 @try {
                     if (delegateWrapper.delegate) {
-                        NSError *error = [[NSError alloc] initWithDomain:@"USRVInitializationNotificationCenter" code:code userInfo:@{@"message": message}];
+                        NSError *error = [[NSError alloc] initWithDomain:@"USRVInitializationNotificationCenter" code:code.integerValue userInfo:@{@"message": message}];
                         [delegateWrapper.delegate sdkInitializeFailed:error];
                     } else {
                         // clean up empty wrapper

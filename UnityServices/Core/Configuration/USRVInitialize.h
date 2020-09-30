@@ -1,10 +1,12 @@
 #import "USRVConfiguration.h"
 #import "USRVConnectivityMonitor.h"
+#import "USRVApiSdk.h"
 
 @interface USRVInitialize : NSObject
 
 + (void)initialize:(USRVConfiguration *)configuration;
 + (void)reset;
++ (USRVDownloadLatestWebViewStatus)downloadLatestWebView;
 
 @end
 
@@ -14,11 +16,16 @@
 
 @interface USRVInitializeState : NSOperation
 
-@property (nonatomic, assign) USRVConfiguration *configuration;
+@property (nonatomic, strong) USRVConfiguration *configuration;
 
 - (instancetype)execute;
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration;
 
+@end
+
+// LOAD CONFIG
+
+@interface USRVInitializeStateLoadConfigFile : USRVInitializeState
 @end
 
 // RESET
@@ -43,11 +50,11 @@
 
 @interface USRVInitializeStateConfig : USRVInitializeState
 
+@property (nonatomic, strong) USRVConfiguration *localConfig;
 @property (nonatomic, assign) int retries;
-@property (nonatomic, assign) int maxRetries;
-@property (nonatomic, assign) int retryDelay;
+@property (nonatomic, assign) long retryDelay;
 
-- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay;
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(long)retryDelay;
 
 @end
 
@@ -61,16 +68,15 @@
 
 @interface USRVInitializeStateLoadWeb : USRVInitializeState
 
-- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay;
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(long)retryDelay;
 
 @property (nonatomic, assign) int retries;
-@property (nonatomic, assign) int maxRetries;
-@property (nonatomic, assign) int retryDelay;
+@property (nonatomic, assign) long retryDelay;
 
 @end
 
 // CREATE
-
+#define InitializeStateCreateStateName @"create webapp"
 @interface USRVInitializeStateCreate : USRVInitializeState
 
 @property (atomic, strong) NSString *webViewData;
@@ -90,6 +96,8 @@
 @interface USRVInitializeStateError : USRVInitializeState
 
 @property (nonatomic, strong) id erroredState;
+@property (nonatomic, assign) NSString *stateName;
+@property (nonatomic, assign) NSString *message;
 
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration erroredState:(id)erroredState stateName:(NSString *)stateName message:(NSString *)message;
 
@@ -110,8 +118,59 @@
 @interface USRVInitializeStateRetry:  USRVInitializeState
 
 @property (nonatomic, strong) id retryState;
-@property (nonatomic, assign) int retryDelay;
+@property (nonatomic, assign) long retryDelay;
 
-- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retryState:(id)retryState retryDelay:(int)retryDelay;
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retryState:(id)retryState retryDelay:(long)retryDelay;
+
+@end
+
+// CLEAN CACHE
+@interface USRVInitializeStateCleanCache : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration nextState:(USRVInitializeState*)nextState;
+
+@property (nonatomic, strong) USRVInitializeState* nextState;
+
+@end
+
+// CHECK FOR UPDATED WEBVIEW
+@interface USRVInitializeStateCheckForUpdatedWebView : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration localConfiguration:(USRVConfiguration *)localConfiguration;
+
+@property (nonatomic, strong) USRVConfiguration* localWebViewConfiguration;
+@property (nonatomic, strong) NSString* localWebViewData;
+
+@end
+
+// LOAD CACHE CONFIG AND WEBVIEW
+@interface USRVInitializeStateLoadCacheConfigAndWebView : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration localConfig:(USRVConfiguration *)localConfig;
+
+@property (nonatomic, strong) USRVConfiguration *localConfig;
+
+@end
+
+// DOWNLOAD LATEST WEBVIEW
+@interface USRVInitializeStateDownloadLatestWebView : USRVInitializeState
+
+@property (nonatomic, assign) int retries;
+@property (nonatomic, assign) long retryDelay;
+
+@end
+
+// UPDATE CACHE
+@interface USRVInitializeStateUpdateCache : USRVInitializeState
+
+@property (nonatomic, strong) NSString* localWebViewData;
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration webViewData:(NSString *)webViewData;
+
+@end
+
+// CHECK FOR CACHED WEBVIEW UPDATE
+
+@interface USRVInitializeStateCheckForCachedWebViewUpdate : USRVInitializeState
 
 @end

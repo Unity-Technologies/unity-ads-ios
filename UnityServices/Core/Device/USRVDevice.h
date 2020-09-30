@@ -75,6 +75,10 @@
 
 + (void)checkIsMuted;
 
++ (NSNumber *)getUptime;
+
++ (NSNumber *)getElapsedRealtime;
+
 + (NSString *)getVendorIdentifier;
 
 + (NSString*)getDeviceName;

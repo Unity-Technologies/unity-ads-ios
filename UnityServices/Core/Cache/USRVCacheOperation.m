@@ -5,6 +5,7 @@
 #import "USRVWebViewEventCategory.h"
 #import "USRVApiRequest.h"
 #import "USRVApiCache.h"
+#import "USRVWebRequestFactory.h"
 
 @implementation USRVCacheOperation
 
@@ -70,7 +71,7 @@
     }
 
     long long startTime = [[NSDate date] timeIntervalSince1970] * 1000;
-    self.request = [[USRVWebRequest alloc] initWithUrl:self.source requestType:@"GET" headers:NULL connectTimeout:self.connectTimeout];
+    self.request = [USRVWebRequestFactory create:self.source requestType:@"GET" headers:NULL connectTimeout:self.connectTimeout];
 
     if (self.append) {
         @try {

@@ -2,7 +2,7 @@
 #import "UnityAdsTests-Bridging-Header.h"
 
 
-@interface USRVWebRequest (Mock)
+@interface USRVWebRequestWithUrlConnection (Mock)
 
 - (void)setStubbed:(BOOL)stubbed;
 - (BOOL)getStubbed;
@@ -11,7 +11,7 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection;
 @end
 
-@implementation USRVWebRequest (Mock)
+@implementation USRVWebRequestWithUrlConnection (Mock)
 
 - (nullable NSURLConnection *)createConnection:(NSURLRequest *)request delegate:(nullable id)delegate startImmediately:(BOOL)startImmediately {
     if ([self getStubbed]) {
@@ -39,7 +39,7 @@
 
 - (void)testBasicGetRequest {
     NSString *url = [TestUtilities getTestServerAddress];
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     [request setStubbed:YES];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
@@ -72,7 +72,7 @@
 
 - (void)testBasicPostRequest {
     NSString *url =  [TestUtilities getTestServerAddress];
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     [request setStubbed:YES];
     [request setBody:@"hello=world"];
 
@@ -106,7 +106,7 @@
 
 - (void)testEmptyGetUrl {
     NSString *url = @"";
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
 
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
@@ -133,7 +133,7 @@
 
 - (void)testEmptyPostUrl {
     NSString *url = @"";
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -159,7 +159,7 @@
 
 - (void)testNullGetUrl {
     NSString *url = NULL;
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -185,7 +185,7 @@
 
 - (void)testNullPostUrl {
     NSString *url = NULL;
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];
@@ -211,7 +211,7 @@
 
 - (void)testInvalidGetUrl {
     NSString *url = @"https://www.gougle.fi/";
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"GET" headers:NULL connectTimeout:30000];
     [request setStubbed:YES];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
@@ -245,7 +245,7 @@
 
 - (void)testInvalidPostUrl {
     NSString *url = @"https://www.gougle.fi/";
-    USRVWebRequest *request = [[USRVWebRequest alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl:url requestType:@"POST" headers:NULL connectTimeout:30000];
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __block NSData *data = [[NSData alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription:@"expectation"];

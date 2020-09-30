@@ -167,6 +167,18 @@
     XCTAssertTrue([USRVDevice getCPUCount] > 0, @"Device CPU count should be greater than 0");
 }
 
+- (void)testGetUptime {
+    NSNumber *uptime = [USRVDevice getUptime];
+    NSLog(@"Uptime: %d", [uptime intValue]);
+    XCTAssertTrue(uptime >= 0, "Uptime should be a positive integer");
+}
+
+- (void)testGetElapsedRealtime {
+    NSNumber *elapsedRealtime = [USRVDevice getUptime];
+    NSLog(@"Elapsed Realtime: %d", [elapsedRealtime intValue]);
+    XCTAssertTrue(elapsedRealtime >= 0, "Elapsed Realtime should be a positive integer");
+}
+
 - (void)testGetDeviceName {
     NSString *deviceName = [USRVDevice getDeviceName];
     XCTAssertEqualObjects(deviceName, [[[UIDevice currentDevice] name] unityads_sha256], @"Device name should be correct");

@@ -95,6 +95,11 @@ static BOOL nativeCallbackMethodInvoked = false;
         [expectation fulfill];
     });
     
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
+    });
+    
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
         if (error) {
             success = false;
@@ -111,7 +116,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
 
     USRVNativeCallback *localNativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"nativeCallbackMethod:" receiverClass:@"WebAppTests"];
     
@@ -129,7 +134,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
 
     USRVNativeCallback *localNativeCallback = [[USRVNativeCallback alloc] initWithMethod:@"nativeCallbackMethod:" receiverClass:@"WebAppTests"];
     
@@ -152,7 +157,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
 
     XCTAssertNotNil([[USRVWebViewApp getCurrentApp] webView], @"Current WebApps WebView should not be null because it was set");
     XCTAssertEqualObjects(webView, [[USRVWebViewApp getCurrentApp] webView], @"Local and WebApps WebView should be the same object");
@@ -165,7 +170,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
     [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     
     USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
     [[USRVWebViewApp getCurrentApp] setConfiguration:config];
@@ -180,7 +185,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     [USRVWebViewApp setCurrentApp:webViewApp];
     webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
 
     XCTAssertFalse([[USRVWebViewApp getCurrentApp] webAppLoaded], @"WebApp should not be loaded. It was just created");
     
@@ -195,7 +200,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     [USRVWebViewApp setCurrentApp:webViewApp];
     webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     
     BOOL success = [[USRVWebViewApp getCurrentApp] sendEvent:@"TEST_EVENT_1" category:@"TEST_CATEGORY_1" params:@[]];
     
@@ -215,9 +220,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -249,9 +256,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -283,9 +292,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -312,7 +323,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     [USRVWebViewApp setCurrentApp:webViewApp];
     webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     
     BOOL success = false;
     success = [[USRVWebViewApp getCurrentApp] invokeMethod:@"testMethod" className:@"TestClass" receiverClass:@"WebAppTests" callback:@"nativeCallbackMethod:" params:@[]];
@@ -334,9 +345,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -367,9 +380,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -401,9 +416,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -431,7 +448,7 @@ static BOOL nativeCallbackMethodInvoked = false;
     [USRVWebViewApp setCurrentApp:webViewApp];
     webView = [[WebAppTestWebView alloc] init];
     [[USRVWebViewApp getCurrentApp] setWebView:webView];
-    [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
+    [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     
     USRVInvocation *invocation = [[USRVInvocation alloc] init];
     //NSArray *params = @[[NSString stringWithFormat:@"Test"], [NSNumber numberWithInt:1], [NSNumber numberWithBool:true], nil];
@@ -460,9 +477,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -496,9 +515,11 @@ static BOOL nativeCallbackMethodInvoked = false;
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         [USRVWebViewApp create:config view:webView];
-        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
-        [[USRVWebViewApp getCurrentApp] setWebAppInitialized:true];
         [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
     });
 
     [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
@@ -533,6 +554,37 @@ static BOOL nativeCallbackMethodInvoked = false;
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)];
     [backgroundView addSubview:view];
     XCTAssertEqual(0, [[backgroundView subviews] count], @"View count should seem 0");
+}
+
+- (void)testResetWebViewAppInitializationWhenWebviewSuccessfully {
+    USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
+    [USRVWebViewApp setCurrentApp:webViewApp];
+
+    WebAppTestWebView *webView = [[WebAppTestWebView alloc] init];
+
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:@"http://localhost/"];
+    XCTestExpectation *initExpectation = [self expectationWithDescription:@"initExpectation"];
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVWebViewApp create:config view:webView];
+        [initExpectation fulfill];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), queue, ^{
+        [[USRVWebViewApp getCurrentApp] setWebAppLoaded:true];
+        [[USRVWebViewApp getCurrentApp] completeWebViewAppInitialization:true];
+    });
+
+    [self waitForExpectationsWithTimeout:60 handler:^(NSError * _Nullable error) {
+    }];
+    XCTAssertTrue([[USRVWebViewApp getCurrentApp] webAppLoaded]);
+    XCTAssertTrue([[USRVWebViewApp getCurrentApp] isWebAppInitialized]);
+    
+    [[USRVWebViewApp getCurrentApp] resetWebViewAppInitialization];
+    
+    XCTAssertFalse([[USRVWebViewApp getCurrentApp] webAppLoaded]);
+    XCTAssertFalse([[USRVWebViewApp getCurrentApp] isWebAppInitialized]);
+    XCTAssertEqual([NSNumber numberWithInt:-1], [[USRVWebViewApp getCurrentApp] getWebAppFailureCode]);
+    XCTAssertEqual(0, [[[USRVWebViewApp getCurrentApp] getWebAppFailureMessage] length]);    
 }
 
 @end

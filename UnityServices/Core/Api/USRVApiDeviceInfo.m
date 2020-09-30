@@ -226,6 +226,14 @@ static USRVVolumeChangeListener *volumeChangeListener = NULL;
     [callback invoke:[NSNumber numberWithUnsignedInteger:[USRVDevice getCPUCount]], nil];
 }
 
++ (void)WebViewExposed_getUptime:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getUptime], nil];
+}
+
++ (void)WebViewExposed_getElapsedRealtime:(USRVWebViewCallback *)callback {
+    [callback invoke:[USRVDevice getElapsedRealtime], nil];
+}
+
 + (void)WebViewExposed_getVendorIdentifier:(USRVWebViewCallback *)callback {
     [callback invoke:[USRVDevice getVendorIdentifier], nil];
 }

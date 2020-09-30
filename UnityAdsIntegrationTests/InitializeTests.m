@@ -17,8 +17,8 @@
 }
 
 - (void)testInitializeStateConfig {
-    USRVConfiguration *config = [[USRVConfiguration alloc] init];
-    [config setConfigUrl:[USRVSdkProperties getConfigUrl]];
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:[USRVSdkProperties getConfigUrl]];
+    
     USRVInitializeStateConfig *initializeState = [[USRVInitializeStateConfig alloc] initWithConfiguration:config];
 
     __block id nextState = NULL;
@@ -39,8 +39,7 @@
 }
 
 - (void)testInitializeStateLoadWeb {
-    USRVConfiguration *config = [[USRVConfiguration alloc] init];
-    [config setConfigUrl:[USRVSdkProperties getConfigUrl]];
+    USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl:[USRVSdkProperties getConfigUrl]];
 
     __block id nextState = NULL;
 

@@ -2,6 +2,7 @@
 #import "UADSProperties.h"
 #import "UnityAds.h"
 #import "UnityAdsDelegateMock.h"
+#import "USRVSdkProperties.h"
 
 @interface UADSPropertiesTests: XCTestCase
 @end
@@ -14,7 +15,6 @@
     for (id<UnityAdsDelegate> delegate in [UADSProperties getDelegates]) {
         [UADSProperties removeDelegate:delegate];
     }
-    [UADSProperties setShowTimeout:UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT];
 }
 
 - (void)tearDown {
@@ -23,7 +23,9 @@
     for (id<UnityAdsDelegate> delegate in [UADSProperties getDelegates]) {
         [UADSProperties removeDelegate:delegate];
     }
-    [UADSProperties setShowTimeout:UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT];
+    //set Initialize State as INITIALIZING so it will not actually go down to initialize
+    //and interfere other tests
+    [USRVSdkProperties setInitializationState:INITIALIZING];
 }
 
 - (void)testSetDelegate {
@@ -163,14 +165,6 @@
     XCTAssertFalse([[UADSProperties getDelegates] containsObject:delegate1]);
     XCTAssertTrue([[UADSProperties getDelegates] containsObject:delegate2]);
     XCTAssertTrue([[UADSProperties getDelegates] containsObject:delegate3]);
-}
-
-- (void)testSetShowTimeout {
-    XCTAssertEqual(UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT, [UADSProperties getShowTimeout]);
-    [UADSProperties setShowTimeout:100];
-    XCTAssertEqual(100, [UADSProperties getShowTimeout]);
-    [UADSProperties setShowTimeout:UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT];
-    XCTAssertEqual(UADSPROPERTIES_DEFAULT_SHOW_TIMEOUT, [UADSProperties getShowTimeout]);
 }
 
 - (void)testMultipleThreadsAddRemoveDelegates {

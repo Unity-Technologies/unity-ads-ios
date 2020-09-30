@@ -123,14 +123,27 @@
 }
 
 - (void)productViewControllerDidFinish:(SKStoreProductViewController *)viewController {
-    if (viewController.presentingViewController != nil) {
-        [viewController.presentingViewController dismissViewControllerAnimated:self.presentingAnimated completion:^{
-            if ([USRVWebViewApp getCurrentApp]) {
-                [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetClosed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:self.presentingParameters, nil];
-            }
-            self.presentingParameters = nil;
-        }];
+    [self sendAppSheetClosed];
+    self.presentingParameters = nil;
+
+    if (viewController == nil) {
+        return;
     }
+
+    if ([viewController isBeingDismissed]) {
+        // iOS/iPadOS 13+ dismisses the viewController for us.
+        return;
+    }
+
+    [viewController.presentingViewController dismissViewControllerAnimated:self.presentingAnimated completion:^{}];
+}
+
+- (void) sendAppSheetClosed {
+    if ([USRVWebViewApp getCurrentApp] == nil) {
+        return;
+    }
+
+    [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetClosed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:self.presentingParameters, nil];
 }
 
 @end

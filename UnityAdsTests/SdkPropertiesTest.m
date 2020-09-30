@@ -1,6 +1,7 @@
 #import <XCTest/XCTest.h>
 
 #import "UnityAdsTests-Bridging-Header.h"
+#import "UnityAdsInitializationDelegateMock.h"
 
 @interface SdkPropertiesTest : XCTestCase
 
@@ -66,14 +67,6 @@
     
 }
 
--(void)testSetShowTimeout {
-    XCTAssertTrue(5000 == [UADSProperties getShowTimeout], @"Default show timeout should be 5000");
-    
-    [UADSProperties setShowTimeout:4000];
-    
-    XCTAssertTrue(4000 == [UADSProperties getShowTimeout], @"New show timeout should equal to 4000");
-}
-
 - (void)testIsChinaLocale {    
     XCTAssertTrue([USRVSdkProperties isChinaLocale:@"cn"], @"Should return true with a china iso alpha 2 code");
     XCTAssertTrue([USRVSdkProperties isChinaLocale:@"chn" ], @"Should return true with a china iso alpha 3 code");
@@ -84,4 +77,115 @@
     XCTAssertFalse([USRVSdkProperties isChinaLocale:@"us"], @"Should return false with a US iso code");
 }
 
+- (void)testGetInitializationDelegatesWhenEmpty {
+    XCTAssertEqual(0, [[USRVSdkProperties getInitializationDelegates] count]);
+}
+
+- (void)testAddInitializationDelegateAndGetInitializationDelegates {
+    UnityAdsInitializationDelegateMock *initializationDelegate = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+
+    XCTAssertEqual(1, [[USRVSdkProperties getInitializationDelegates] count]);
+    XCTAssertTrue([[USRVSdkProperties getInitializationDelegates] containsObject: initializationDelegate]);
+}
+
+- (void)testAddMultipleInitializationDelegatesAndGetInitializationDelegates {
+    UnityAdsInitializationDelegateMock *initializationDelegate1 = [[UnityAdsInitializationDelegateMock alloc] init];
+    UnityAdsInitializationDelegateMock *initializationDelegate2 = [[UnityAdsInitializationDelegateMock alloc] init];
+    UnityAdsInitializationDelegateMock *initializationDelegate3 = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate1];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate2];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate3];
+
+    NSMutableArray *delegates = [USRVSdkProperties getInitializationDelegates];
+
+    XCTAssertEqual(3, [[USRVSdkProperties getInitializationDelegates] count]);
+    XCTAssertEqual(initializationDelegate1, [delegates objectAtIndex:0]);
+    XCTAssertEqual(initializationDelegate2, [delegates objectAtIndex:1]);
+    XCTAssertEqual(initializationDelegate3, [delegates objectAtIndex:2]);
+}
+
+- (void)testAddMultipleSameInitializationDelegatesAndGetInitializationDelegates {
+    UnityAdsInitializationDelegateMock *initializationDelegate = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+
+    XCTAssertEqual(1, [[USRVSdkProperties getInitializationDelegates] count]);
+}
+
+- (void)testResetInitializationDelegatesAndGetInitializationDelegates {
+    UnityAdsInitializationDelegateMock *initializationDelegate1 = [[UnityAdsInitializationDelegateMock alloc] init];
+    UnityAdsInitializationDelegateMock *initializationDelegate2 = [[UnityAdsInitializationDelegateMock alloc] init];
+    UnityAdsInitializationDelegateMock *initializationDelegate3 = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate1];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate2];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate3];
+
+    XCTAssertEqual(3, [[USRVSdkProperties getInitializationDelegates] count]);
+
+    [USRVSdkProperties resetInitializationDelegates];
+
+    XCTAssertEqual(0, [[USRVSdkProperties getInitializationDelegates] count]);
+}
+
+- (void)testAddInitializationDelegateAfterResetInitializationDelegatesAndGetInitializationDelegates {
+    UnityAdsInitializationDelegateMock *initializationDelegate = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+
+    XCTAssertEqual(1, [[USRVSdkProperties getInitializationDelegates] count]);
+
+    [USRVSdkProperties resetInitializationDelegates];
+
+    XCTAssertEqual(0, [[USRVSdkProperties getInitializationDelegates] count]);
+
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+
+    XCTAssertEqual(1, [[USRVSdkProperties getInitializationDelegates] count]);
+    XCTAssertTrue([[USRVSdkProperties getInitializationDelegates] containsObject: initializationDelegate]);
+}
+
+- (void)testNotifyInitializationCallbackAndSetInitializeStateWhenInitializeSuccessfully {
+    UnityAdsInitializationDelegateMock *initializationDelegate = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+    
+    XCTAssertEqual(1, [[USRVSdkProperties getInitializationDelegates] count]);
+    
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"expectation"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"delegate call"];
+    initializationDelegate.expectation = expectation2;
+    
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVSdkProperties notifyInitializationComplete];
+        [expectation1 fulfill];
+    });
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+    }];
+    
+    XCTAssertEqual(INITIALIZED_SUCCESSFULLY, [USRVSdkProperties getCurrentInitializationState]);
+    XCTAssertTrue(initializationDelegate.didInitializeSuccessfully);
+}
+
+- (void)testNotifyInitializationCallbackAndSetInitializeStateWhenInitializeFailed {
+    UnityAdsInitializationDelegateMock *initializationDelegate = [[UnityAdsInitializationDelegateMock alloc] init];
+    [USRVSdkProperties addInitializationDelegate:initializationDelegate];
+    
+    XCTAssertEqual(1, [[USRVSdkProperties getInitializationDelegates] count]);
+    
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"expectation"];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"delegate call"];
+    initializationDelegate.expectation = expectation2;
+    
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
+        [USRVSdkProperties notifyInitializationFailed:kUnityInitializationErrorInternalError withErrorMessage:@"SDK failed to initialize"];
+        [expectation1 fulfill];
+    });
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError * _Nullable error) {
+    }];
+    
+    XCTAssertEqual(INITIALIZED_FAILED, [USRVSdkProperties getCurrentInitializationState]);
+    XCTAssertEqual(kUnityInitializationErrorInternalError, initializationDelegate.didInitializeFailedError);
+    XCTAssertEqualObjects(@[@"SDK failed to initialize"], initializationDelegate.didInitializeFailedErrorMessage);
+}
 @end

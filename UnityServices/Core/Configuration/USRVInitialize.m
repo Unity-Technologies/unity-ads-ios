@@ -8,6 +8,11 @@
 #import "USRVWebRequestQueue.h"
 #import "USRVDevice.h"
 #import "USRVCacheQueue.h"
+#import "USRVWebRequestFactory.h"
+#import "USRVSDKMetrics.h"
+
+#import <CommonCrypto/CommonDigest.h>
+#import <sys/mman.h>
 
 @implementation USRVInitialize
 
@@ -25,7 +30,7 @@ static dispatch_once_t onceToken;
 
     if (initializeQueue && initializeQueue.operationCount == 0) {
         currentConfiguration = configuration;
-        id state = [[USRVInitializeStateReset alloc] initWithConfiguration:currentConfiguration];
+        id state = [[USRVInitializeStateLoadConfigFile alloc] initWithConfiguration:currentConfiguration];
         [initializeQueue addOperation:state];
     }
 }
@@ -35,6 +40,24 @@ static dispatch_once_t onceToken;
         id state = [[USRVInitializeStateForceReset alloc] initWithConfiguration:currentConfiguration];
         [initializeQueue addOperation:state];
     }
+}
+
++ (USRVDownloadLatestWebViewStatus) downloadLatestWebView {
+    if (!initializeQueue) {
+        return kDownloadLatestWebViewStatusInitQueueNull;
+    }
+    
+    if (initializeQueue.operationCount != 0) {
+        return kDownloadLatestWebViewStatusInitQueueNotEmpty;
+    }
+    
+    if ([USRVSdkProperties getLatestConfiguration] == nil) {
+        return kDownloadLatestWebViewStatusMissingLatestConfig;
+    }
+    
+    id state = [[USRVInitializeStateCheckForCachedWebViewUpdate alloc] initWithConfiguration:[USRVSdkProperties getLatestConfiguration]];
+    [initializeQueue addOperation:state];
+    return kDownloadLatestWebViewStatusBackgroundDownloadStarted;
 }
 
 @end
@@ -68,6 +91,34 @@ static dispatch_once_t onceToken;
 
 @end
 
+// LOAD_LOCAL_CONFIG
+
+@implementation USRVInitializeStateLoadConfigFile : USRVInitializeState
+
+- (instancetype)execute {
+    USRVConfiguration* localConfig;
+    @try {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[USRVSdkProperties getLocalConfigFilepath]]) {
+            NSData* configData = [NSData dataWithContentsOfFile:[USRVSdkProperties getLocalConfigFilepath] options:NSDataReadingUncached error:nil];
+            localConfig = [[USRVConfiguration alloc] initWithConfigJsonData:configData];
+            
+            if ([[USRVSdkProperties getVersionName] isEqualToString:[localConfig sdkVersion]]) {
+                self.configuration = localConfig;
+                USRVLogDebug(@"Unity Ads init: Using cached configuration parameters");
+            }
+        }
+    }
+    @catch(NSException *exception) {
+        USRVLogDebug(@"Unity Ads init: Using default configuration parameters");
+    }
+    @finally {
+        id nextState = [[USRVInitializeStateReset alloc] initWithConfiguration:self.configuration];
+        return nextState;
+    }
+}
+
+@end
+
 // RESET
 
 @implementation USRVInitializeStateReset : USRVInitializeState
@@ -78,8 +129,7 @@ static dispatch_once_t onceToken;
     USRVWebViewApp *currentWebViewApp = [USRVWebViewApp getCurrentApp];
     
     if (currentWebViewApp != NULL) {
-        [currentWebViewApp setWebAppLoaded:false];
-        [currentWebViewApp setWebAppInitialized:false];
+        [currentWebViewApp resetWebViewAppInitialization];
         NSCondition *blockCondition = [[NSCondition alloc] init];
         [blockCondition lock];
         
@@ -95,12 +145,14 @@ static dispatch_once_t onceToken;
                 [blockCondition unlock];
             });
         }
-        
-        BOOL success = [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:10]];
+        double resetWebAppTimeoutInSeconds = [self.configuration resetWebAppTimeout] / (double)1000;
+        BOOL success = [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:resetWebAppTimeoutInSeconds]];
         [blockCondition unlock];
         
         if (!success) {
             USRVLogError(@"Unity Ads init: dispatch async did not run through while resetting SDK");
+            id nextState = [[USRVInitializeStateError alloc] initWithConfiguration:self.configuration erroredState:self stateName:@"create webapp" message:@"Failure to reset the webapp"];
+            return nextState;
         }
 
         [USRVWebViewApp setCurrentApp:NULL];
@@ -112,7 +164,6 @@ static dispatch_once_t onceToken;
             [moduleConfiguration resetState:self.configuration];
         }
     }
-
     id nextState = [[USRVInitializeStateInitModules alloc] initWithConfiguration:self.configuration];
     return nextState;
 }
@@ -124,6 +175,7 @@ static dispatch_once_t onceToken;
 @implementation USRVInitializeStateForceReset : USRVInitializeStateReset
 
 - (instancetype)execute {
+    [USRVSdkProperties setInitializationState:NOT_INITIALIZED];
     [super execute];
     return nil;
 }
@@ -139,8 +191,7 @@ static dispatch_once_t onceToken;
             [moduleConfiguration initModuleState:self.configuration];
         }
     }
-
-    id nextState = [[USRVInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0 retryDelay:5];
+    id nextState = [[USRVInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:0 retryDelay:[self.configuration retryDelay]];
     return nextState;
 }
 
@@ -151,12 +202,13 @@ static dispatch_once_t onceToken;
 
 @implementation USRVInitializeStateConfig : USRVInitializeState
 
-- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay {
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(long)retryDelay {
     self = [super initWithConfiguration:configuration];
+    self.localConfig = configuration;
+    self.configuration = [[USRVConfiguration alloc] initWithConfigUrl:[USRVSdkProperties getConfigUrl]];
     
     if (self) {
         [self setRetries:retries];
-        [self setMaxRetries:6];
         [self setRetryDelay:retryDelay];
     }
     
@@ -166,23 +218,27 @@ static dispatch_once_t onceToken;
 - (instancetype)execute {
     USRVLogInfo(@"Unity Ads init: load configuration from %@", [USRVSdkProperties getConfigUrl]);
 
-    [self.configuration setConfigUrl:[USRVSdkProperties getConfigUrl]];
     [self.configuration makeRequest];
     
     if (!self.configuration.error) {
-        id nextState = [[USRVInitializeStateLoadCache alloc] initWithConfiguration:self.configuration];
-        return nextState;
+        if (self.configuration.delayWebViewUpdate) {
+            id nextState = [[USRVInitializeStateLoadCacheConfigAndWebView alloc] initWithConfiguration:self.configuration localConfig:self.localConfig];
+            return nextState;
+        } else {
+            id nextState = [[USRVInitializeStateLoadCache alloc] initWithConfiguration:self.configuration];
+            return nextState;
+        }
     }
-    else if (self.configuration.error && self.retries < self.maxRetries) {
-        self.retryDelay = self.retryDelay * 2;
+    else if (self.configuration.error && self.retries < [self.configuration maxRetries]) {
+        self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
         self.retries++;
-        id retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
-        id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
+        id retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration:self.localConfig retries:self.retries retryDelay:self.retryDelay];
+        id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration:self.localConfig retryState:retryState retryDelay:self.retryDelay];
         return nextState;
     }
     else {
-        id erroredState = [[USRVInitializeStateConfig alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
-        id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState stateName:@"network error" message:@"Network error occured init SDK initialization, waiting for connection"];
+        id erroredState = [[USRVInitializeStateConfig alloc] initWithConfiguration:self.localConfig retries:self.retries retryDelay:self.retryDelay];
+        id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration:self.localConfig erroredState:erroredState stateName:@"network config request" message:@"Network error occured init SDK initialization, waiting for connection"];
         return nextState;
     }
 }
@@ -208,7 +264,7 @@ static dispatch_once_t onceToken;
         }
     }
 
-    id nextState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0 retryDelay:5];
+    id nextState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0 retryDelay:[self.configuration retryDelay]];
     return nextState;
 }
 
@@ -218,12 +274,11 @@ static dispatch_once_t onceToken;
 
 @implementation USRVInitializeStateLoadWeb : USRVInitializeState
 
-- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(int)retryDelay {
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(long)retryDelay {
     self = [super initWithConfiguration:configuration];
 
     if (self) {
         [self setRetries:retries];
-        [self setMaxRetries:6];
         [self setRetryDelay:retryDelay];
     }
 
@@ -234,15 +289,22 @@ static dispatch_once_t onceToken;
     NSString *urlString = [NSString stringWithFormat:@"%@", [self.configuration webViewUrl]];
 
     USRVLogInfo(@"Unity Ads init: loading webapp from %@", urlString);
+
+    NSURL *candidateURL = [NSURL URLWithString:urlString];
+    bool validUrl = (candidateURL && candidateURL.scheme && candidateURL.host);
+    if (!validUrl) {
+        id nextState = [[USRVInitializeStateError alloc] initWithConfiguration:self.configuration erroredState:self stateName:@"malformed webview request" message:@"Malformed URL when attempting to obtain the webview html"];
+        return nextState;
+    }
     
-    USRVWebRequest *webRequest = [[USRVWebRequest alloc] initWithUrl:urlString requestType:@"GET" headers:NULL connectTimeout:30000];
+    id<USRVWebRequest> webRequest = [USRVWebRequestFactory create:urlString requestType:@"GET" headers:NULL connectTimeout:30000];
     NSData *responseData = [webRequest makeRequest];
 
     if (!webRequest.error) {
         [responseData writeToFile:[USRVSdkProperties getLocalWebViewFile] atomically:YES];
     }
-    else if (webRequest.error && self.retries < self.maxRetries) {
-        self.retryDelay = self.retryDelay * 2;
+    else if (webRequest.error && self.retries < [self.configuration maxRetries]) {
+        self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
         self.retries++;
         id retryState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
         id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
@@ -250,11 +312,16 @@ static dispatch_once_t onceToken;
     }
     else if (webRequest.error) {
         id erroredState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
-        id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState stateName:@"load web" message:@"Network error while loading WebApp from internet, waiting for connection"];
+        id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration:self.configuration erroredState:erroredState stateName:@"network webview request" message:@"Network error while loading WebApp from internet, waiting for connection"];
         return nextState;
     }
 
     NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+    NSString *webViewHash = [self.configuration webViewHash];
+    if (webViewHash != nil && ![[responseString unityads_sha256] isEqualToString:webViewHash]) {
+        id nextState = [[USRVInitializeStateError alloc] initWithConfiguration:self.configuration erroredState:self stateName:@"invalid hash" message:@"Webview hash did not match returned hash in configuration"];
+        return nextState;
+    }
     id nextState = [[USRVInitializeStateCreate alloc] initWithConfiguration:self.configuration webViewData:responseString];
     return nextState;
 }
@@ -264,16 +331,23 @@ static dispatch_once_t onceToken;
 // CREATE
 
 @implementation USRVInitializeStateCreate : USRVInitializeState
-
 - (instancetype)execute {
     USRVLogDebug(@"Unity Ads init: creating webapp");
     
     [self.configuration setWebViewData:[self webViewData]];
 
-    [USRVWebViewApp create:self.configuration view:nil];
-
-    id nextState = [[USRVInitializeStateComplete alloc] initWithConfiguration:self.configuration];
-    return nextState;
+    if ([USRVWebViewApp create:self.configuration view:nil]) {
+        id nextState = [[USRVInitializeStateComplete alloc] initWithConfiguration:self.configuration];
+        return nextState;
+    } else {
+        id erroredState = [[USRVInitializeStateCreate alloc] init];
+        NSString *errorMessage = @"Unity Ads WebApp creation failed";
+        if ([[USRVWebViewApp getCurrentApp] getWebAppFailureMessage] != nil) {
+            errorMessage = [[USRVWebViewApp getCurrentApp] getWebAppFailureMessage];
+        }
+        id nextState = [[USRVInitializeStateError alloc] initWithConfiguration:self.configuration erroredState:erroredState stateName:InitializeStateCreateStateName message:errorMessage];
+        return nextState;
+    }
 }
 
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration webViewData:(NSString *)webViewData {
@@ -312,19 +386,26 @@ static dispatch_once_t onceToken;
     
     if (self) {
         [self setErroredState:erroredState];
-    }
-
-    for (NSString *moduleName in [self.configuration getModuleConfigurationList]) {
-        USRVModuleConfiguration *moduleConfiguration = [self.configuration getModuleConfiguration:moduleName];
-        if (moduleConfiguration) {
-            [moduleConfiguration initErrorState:self.configuration state:stateName message:message];
-        }
+        [self setStateName:stateName];
+        [self setMessage:message];
     }
 
     return self;
 }
 
 - (instancetype)execute {
+    for (NSString *moduleName in [self.configuration getModuleConfigurationList]) {
+        USRVModuleConfiguration *moduleConfiguration = [self.configuration getModuleConfiguration:moduleName];
+        if (moduleConfiguration) {
+            [moduleConfiguration initErrorState:self.configuration state:self.stateName message:self.message];
+        }
+    }
+    
+    // TODO: Fix _state.replaceAll... with Enum values to ensure future compatibility with tag values - This works for now
+    [[USRVSDKMetrics getInstance] sendEventWithTags:@"native_initialization_failed" tags:@{
+        @"stt": [self.stateName stringByReplacingOccurrencesOfString:@" " withString:@"_"]
+    }];
+
     return NULL;
 }
 @end
@@ -361,7 +442,8 @@ static dispatch_once_t onceToken;
         [USRVConnectivityMonitor startListening:self];
     });
     
-    BOOL success = [self.blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:10000 * 60]];
+    double networkErrorTimeoutInSeconds = [self.configuration networkErrorTimeout] / (double)1000;
+    BOOL success = [self.blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:networkErrorTimeoutInSeconds]];
     
     if (success) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -374,17 +456,17 @@ static dispatch_once_t onceToken;
     else {
         dispatch_async(dispatch_get_main_queue(), ^{
             [USRVConnectivityMonitor stopListening:self];
-            
         });
     }
 
     [self.blockCondition unlock];
-    return NULL;
+    id nextState = [[USRVInitializeStateError alloc] initWithConfiguration:self.configuration erroredState:self.erroredState stateName:self.stateName message:self.message];
+    return nextState;
 }
 
 - (BOOL)shouldHandleConnectedEvent {
     long long currentTimeMs = [[NSDate date] timeIntervalSince1970] * 1000;
-    if (currentTimeMs - self.lastConnectedEventTimeMs >= 10000 && self.receivedConnectedEvents < 500) {
+    if (currentTimeMs - self.lastConnectedEventTimeMs >= [self.configuration connectedEventThresholdInMs] && self.receivedConnectedEvents < [self.configuration maximumConnectedEvents]) {
         return true;
     }
 
@@ -397,7 +479,7 @@ static dispatch_once_t onceToken;
 
 @implementation USRVInitializeStateRetry: USRVInitializeState
 
-- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retryState:(id)retryState retryDelay:(int)retryDelay {
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retryState:(id)retryState retryDelay:(long)retryDelay {
     self = [super initWithConfiguration:configuration];
 
     if (self) {
@@ -409,13 +491,256 @@ static dispatch_once_t onceToken;
 }
 
 - (instancetype)execute {
-    USRVLogDebug(@"Unity Ads init: retrying in %d seconds ", self.retryDelay);
+    double retryDelayInSeconds = self.retryDelay / (double)1000;
+    USRVLogDebug(@"Unity Ads init: retrying in %f seconds ", retryDelayInSeconds);
     
     NSCondition *blockCondition = [[NSCondition alloc] init];
     [blockCondition lock];
-    [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:self.retryDelay]];
+    [blockCondition waitUntilDate:[[NSDate alloc] initWithTimeIntervalSinceNow:retryDelayInSeconds]];
     [blockCondition unlock];
     
     return self.retryState;
 }
+@end
+
+// CLEAN CACHE
+
+@implementation USRVInitializeStateCleanCache : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration nextState:(USRVInitializeState*)nextState {
+    self = [super initWithConfiguration:configuration];
+    
+    if (self) {
+        [self setNextState:nextState];
+    }
+    
+    return self;
+}
+
+- (instancetype)execute {
+    NSString *localConfigFilepath = [USRVSdkProperties getLocalConfigFilepath];
+    NSString *localWebViewFilepath = [USRVSdkProperties getLocalWebViewFile];
+    NSError *error = nil;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:localConfigFilepath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:localConfigFilepath error:&error];
+        if (error != nil) {
+            USRVLogError(@"Unity Ads init: failed to delete file from cache: %@", localConfigFilepath)
+            error = nil;
+        }
+    }
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:localWebViewFilepath]) {
+        [[NSFileManager defaultManager] removeItemAtPath:localWebViewFilepath error:&error];
+        if (error != nil) {
+            USRVLogError(@"Unity Ads init: failed to delete file from cache: %@", localWebViewFilepath)
+        }
+    }
+    
+    return _nextState;
+}
+
+@end
+
+//CHECK FOR UPDATED WEBVIEW
+
+@implementation USRVInitializeStateCheckForUpdatedWebView : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration localConfiguration:(USRVConfiguration *)localConfiguration {
+    self = [super initWithConfiguration:configuration];
+    
+    if (self) {
+        [self setLocalWebViewConfiguration:localConfiguration];
+    }
+    
+    return self;
+}
+
+- (instancetype)execute {
+    NSString *localWebViewHash = [self getHashFromFile:[USRVSdkProperties getLocalWebViewFile]];
+    if (![localWebViewHash isEqualToString:self.configuration.webViewHash]) {
+        [USRVSdkProperties setLatestConfiguration:self.configuration];
+    }
+    
+    //Prepare to load the WebView from cache.  We will first see if there is cached config to use to load with our cached webViewData
+    //If there is no cached config, or its invalid, we will next attempt to use the downloaded config to load with the cached webViewData
+    //If both of those options fail, we will attempt to clean whatever garbage is in the cache and load from web.
+    if (localWebViewHash != nil && ![localWebViewHash isEqualToString:@""]) {
+        if (_localWebViewConfiguration != NULL && [localWebViewHash isEqualToString:_localWebViewConfiguration.webViewHash] && [[USRVSdkProperties getVersionName] isEqualToString:_localWebViewConfiguration.sdkVersion]) {
+            id nextState = [[USRVInitializeStateCreate alloc] initWithConfiguration:_localWebViewConfiguration webViewData:@""];
+            return nextState;
+        } else if (self.configuration != NULL && [localWebViewHash isEqualToString:self.configuration.webViewHash]) {
+            id nextState = [[USRVInitializeStateCreate alloc] initWithConfiguration:self.configuration webViewData:@""];
+            return nextState;
+        }
+    }
+    
+    id nextState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0 retryDelay:[self.configuration retryDelay]];
+    return nextState;
+}
+
+-(NSString*)getHashFromFile:(NSString*) filepath {
+    unsigned long long fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:filepath error:nil] fileSize];
+    int fd = open([filepath UTF8String], O_RDONLY);
+    if (fd == -1) {
+        USRVLogWarning(@"Unity Ads init: unable to hash cached WebView data: Bad File Descriptor.  Initialization will continue");
+        return @"";
+    }
+    char* buffer = mmap((caddr_t)0, fileSize, PROT_READ, MAP_SHARED, fd, 0);
+    if (buffer == MAP_FAILED) {
+        USRVLogWarning(@"Unity Ads init: unable to hash cached WebView data: Failed to allocate buffer.  Initialization will continue");
+        close(fd);
+        return @"";
+    }
+    unsigned char result[CC_SHA256_DIGEST_LENGTH];
+    CC_SHA256(buffer, (CC_LONG)fileSize, result);
+    munmap(buffer, fileSize);
+    close(fd);
+    
+    NSMutableString *ret = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
+    for(int i = 0; i<CC_SHA256_DIGEST_LENGTH; i++)
+    {
+        [ret appendFormat:@"%02x",result[i]];
+    }
+    
+    NSString* localWebViewHash = ret;
+    return localWebViewHash;
+}
+
+@end
+
+// LOAD CACHE CONFIG AND WEBVIEW
+
+@implementation USRVInitializeStateLoadCacheConfigAndWebView : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration localConfig:(USRVConfiguration *)localConfig {
+    self = [super initWithConfiguration:configuration];
+    
+    if (self) {
+        [self setLocalConfig:localConfig];
+    }
+    
+    return self;
+}
+
+- (instancetype)execute {
+    @try {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:[USRVSdkProperties getLocalWebViewFile]]) {
+            id nextState = [[USRVInitializeStateCheckForUpdatedWebView alloc] initWithConfiguration:self.configuration localConfiguration:_localConfig];
+            return nextState;
+        }
+    } @catch(NSException *exception) {
+        //If we are unable to load cached webview data, then bail out, clean up whatever is in the cache, and load from the web
+    }
+    
+    id loadWebState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration:self.configuration retries:0 retryDelay:[self.configuration retryDelay]];
+    id nextState = [[USRVInitializeStateCleanCache alloc] initWithConfiguration:self.configuration nextState:loadWebState];
+    return nextState;
+}
+
+@end
+
+// DOWNLOAD LATEST WEBVIEW
+
+@implementation USRVInitializeStateDownloadLatestWebView : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration retries:(int)retries retryDelay:(long)retryDelay {
+    self = [super initWithConfiguration:configuration];
+    
+    if (self) {
+        [self setRetries:retries];
+        [self setRetryDelay:retryDelay];
+    }
+    
+    return self;
+}
+
+- (instancetype)execute {
+    NSString *urlString = [NSString stringWithFormat:@"%@", [self.configuration webViewUrl]];
+    
+    USRVLogInfo(@"Unity Ads init: loading webapp from %@", urlString);
+    
+    NSURL *candidateURL = [NSURL URLWithString:urlString];
+    bool validUrl = (candidateURL && candidateURL.scheme && candidateURL.host);
+    if (!validUrl) {
+        return NULL;
+    }    
+    
+    id<USRVWebRequest> webRequest = [USRVWebRequestFactory create:urlString requestType:@"GET" headers:NULL connectTimeout:30000];
+    NSData *responseData = [webRequest makeRequest];
+    
+    if (!webRequest.error) {
+        [responseData writeToFile:[USRVSdkProperties getLocalWebViewFile] atomically:YES];
+    }
+    else if (webRequest.error && self.retries < [self.configuration maxRetries]) {
+        self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
+        self.retries++;
+        id retryState = [[USRVInitializeStateDownloadLatestWebView alloc] initWithConfiguration:self.configuration retries:self.retries retryDelay:self.retryDelay];
+        id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration:self.configuration retryState:retryState retryDelay:self.retryDelay];
+        return nextState;
+    }
+    else if (webRequest.error) {
+        return NULL;
+    }
+    
+    NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+    
+    NSString *webViewHash = [self.configuration webViewHash];
+    if (webViewHash != nil && ![[responseString unityads_sha256] isEqualToString:webViewHash]) {
+        return NULL;
+    }
+    
+    id nextState = [[USRVInitializeStateUpdateCache alloc] initWithConfiguration:self.configuration webViewData:responseString];
+    return nextState;
+}
+
+@end
+
+// UPDATE CACHE
+
+@implementation USRVInitializeStateUpdateCache : USRVInitializeState
+
+- (instancetype)initWithConfiguration:(USRVConfiguration *)configuration webViewData:(NSString*)localWebViewData {
+    self = [super initWithConfiguration:configuration];
+    
+    if (self) {
+        [self setLocalWebViewData:localWebViewData];
+    }
+    
+    return self;
+}
+
+- (instancetype)execute {
+    if (_localWebViewData != nil && ![_localWebViewData isEqualToString:@""]) {
+        [_localWebViewData writeToFile:[USRVSdkProperties getLocalWebViewFile] atomically:YES];
+    }
+    
+    if (self.configuration != nil) {
+        [[self.configuration toJson] writeToFile:[USRVSdkProperties getLocalConfigFilepath] atomically:YES];
+    }
+    
+    return NULL;
+}
+
+@end
+
+// CHECK FOR CACHED WEBVIEW UPDATE
+
+@implementation USRVInitializeStateCheckForCachedWebViewUpdate : USRVInitializeState
+
+- (instancetype)execute {
+    //check to see if we have data in webview
+    NSData *fileData = [NSData dataWithContentsOfFile:[USRVSdkProperties getLocalWebViewFile] options:NSDataReadingUncached error:nil];
+    NSString *fileString = [[NSString alloc] initWithBytesNoCopy:(void *)[fileData bytes] length:[fileData length] encoding:NSUTF8StringEncoding freeWhenDone:NO];
+    NSString *localWebViewHash = [fileString unityads_sha256];
+    
+    if ([localWebViewHash isEqualToString:self.configuration.webViewHash]) {
+        id nextState = [[USRVInitializeStateUpdateCache alloc] initWithConfiguration:self.configuration];
+        return nextState;
+    } else {
+        id nextState = [[USRVInitializeStateDownloadLatestWebView alloc] initWithConfiguration:self.configuration];
+        return nextState;
+    }
+}
+
 @end

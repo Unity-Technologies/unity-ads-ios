@@ -7,5 +7,6 @@
 +(void)resetForTest {
     NSLog(@"resetting UnityAds for testing");
     [USRVSdkProperties setInitialized:NO];
+    [USRVSdkProperties resetInitializationDelegates];
 }
 @end

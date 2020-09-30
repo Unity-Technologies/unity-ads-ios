@@ -7,7 +7,8 @@
 @interface USRVWebViewApp : NSObject
 
 @property (nonatomic, assign) BOOL webAppLoaded;
-@property (nonatomic, assign) BOOL webAppInitialized;
+@property (nonatomic, strong) NSString* webAppFailureMessage;
+@property (nonatomic, assign) NSNumber* webAppFailureCode;
 @property (nonatomic, strong) UIView *webView;
 @property (nonatomic, strong) USRVWebViewBackgroundView *backgroundView;
 @property (nonatomic, strong) USRVConfiguration *configuration;
@@ -15,7 +16,14 @@
 
 + (USRVWebViewApp *)getCurrentApp;
 + (void)setCurrentApp:(USRVWebViewApp *)webViewApp;
-+ (void)create:(USRVConfiguration *)configuration view:(UIView*)view;
++ (BOOL)create:(USRVConfiguration *)configuration view:(UIView*)view;
+- (void)completeWebViewAppInitialization:(BOOL)initialized;
+- (void)resetWebViewAppInitialization;
+- (BOOL)isWebAppInitialized;
+- (void)setWebAppFailureMessage:(NSString *)message;
+- (void)setWebAppFailureCode:(NSNumber *) code;
+- (NSString *)getWebAppFailureMessage;
+- (NSNumber *)getWebAppFailureCode;
 
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration;
 - (BOOL)invokeCallback:(USRVInvocation *)invocation;
