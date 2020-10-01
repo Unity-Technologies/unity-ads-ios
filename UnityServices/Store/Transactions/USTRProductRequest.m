@@ -85,7 +85,7 @@ static NSMutableArray<USTRProductRequest*> *requests;
                     [productDict setObject:priceLocaleDict forKey:@"priceLocale"];
                 }
 
-                if ([product valueForKey:@"subscriptionPeriod"]) {
+                if ([product respondsToSelector: @selector(subscriptionPeriod)]) {
                     id subscriptionPeriod = [product valueForKey:@"subscriptionPeriod"];
                     NSUInteger numOfUnits = (NSUInteger)[subscriptionPeriod valueForKey:@"numberOfUnits"];
                     BOOL isSubscription = (subscriptionPeriod != nil) && (numOfUnits > 0);
