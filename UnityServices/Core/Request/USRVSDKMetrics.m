@@ -7,7 +7,7 @@
 
 @interface MetricInstance : NSObject <ISDKMetrics>
 @property(nonatomic, strong) dispatch_queue_t metricQueue;
-@property(nonatomic, assign) NSString *metricEndpoint;
+@property(nonatomic, strong) NSString *metricEndpoint;
 @end
 
 @interface NullInstance : NSObject <ISDKMetrics>

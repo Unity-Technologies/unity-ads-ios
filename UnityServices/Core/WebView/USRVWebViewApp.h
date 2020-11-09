@@ -8,7 +8,7 @@
 
 @property (nonatomic, assign) BOOL webAppLoaded;
 @property (nonatomic, strong) NSString* webAppFailureMessage;
-@property (nonatomic, assign) NSNumber* webAppFailureCode;
+@property (nonatomic, strong) NSNumber* webAppFailureCode;
 @property (nonatomic, strong) UIView *webView;
 @property (nonatomic, strong) USRVWebViewBackgroundView *backgroundView;
 @property (nonatomic, strong) USRVConfiguration *configuration;

@@ -162,16 +162,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)load:(NSString *)placementId loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate;
 
 /**
-*  This method is reserved for future use.
-*/
-+ (NSString* __nullable)getToken;
-
-/**
- *  This method is reserved for future use.
- */
-+ (void)load:(NSString *)placementId adm:(NSString *)adm loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate;
-
-/**
  *  Show an ad using the defaul placement.
  *
  *  @param viewController The `UIViewController` that is to present the ad view controller.

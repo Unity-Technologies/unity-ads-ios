@@ -6,6 +6,8 @@
 #import "USTRAppSheetEvent.h"
 #import "USRVWebViewEventCategory.h"
 
+typedef void (^AppSheetCompletion)(BOOL result, NSString * __nullable error);
+
 @interface USTRAppSheet ()
 
 @property NSMutableDictionary<NSString*, SKStoreProductViewController*>* appSheetCache;
@@ -29,8 +31,10 @@
     return self;
 }
 
+#warning Deprecate this method after SDK 3.7.0 pending no issues with prepareAppSheetImmediate
 - (void)prepareAppSheet:(NSDictionary *)parameters prepareTimeoutInSeconds:(int)timeout completionBlock:(nullable void(^)(BOOL result, NSString * __nullable error))block {
-    NSString *iTunesId = [self getItunesIdFromParameters:parameters];
+    NSDictionary *appSheetParameters = [self getSanitizedParametersFromParameters:parameters];
+    NSString *iTunesId = [self getItunesIdFromParameters:appSheetParameters];
     self.prepareTimeoutInSeconds = timeout;
     if ([self getCachedController:iTunesId]) {
         block(true, nil);
@@ -52,7 +56,7 @@
                 }
             });
             
-            [viewController loadProductWithParameters:parameters completionBlock:^(BOOL result, NSError *error) {
+            [viewController loadProductWithParameters:appSheetParameters completionBlock:^(BOOL result, NSError *error) {
                 finished = YES;
                 if (cancelled) {
                     return;
@@ -70,6 +74,48 @@
         });
     } else {
         block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorAlreadyPreparing));
+    }
+}
+
+- (void)prepareAppSheetImmediate:(NSDictionary *)parameters prepareTimeoutInSeconds:(int)timeout completionBlock:(nullable void(^)(BOOL result, NSString * __nullable error))block {
+    NSDictionary *appSheetParameters = [self getSanitizedParametersFromParameters:parameters];
+    NSString *iTunesId = [self getItunesIdFromParameters:appSheetParameters];
+    self.prepareTimeoutInSeconds = timeout;
+    if ([self getCachedController:iTunesId]) {
+        block(true, nil);
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            SKStoreProductViewController *viewController = [[SKStoreProductViewController alloc] init];
+            [viewController setDelegate:self];
+            [viewController setModalPresentationCapturesStatusBarAppearance:true];
+            
+            __block AppSheetCompletion completion = block;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.prepareTimeoutInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if (completion) {
+                    USRVLogDebug(@"Timeout. Preloading product information failed for id: %@", iTunesId);
+                    completion(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorTimeout));
+                    completion = nil;
+                }
+            });
+            
+            [viewController loadProductWithParameters:appSheetParameters completionBlock:^(BOOL result, NSError *error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!completion) {
+                        return;
+                    }
+                    
+                    if (result) {
+                        USRVLogDebug(@"Preloading product information succeeded for id: %@.", iTunesId);
+                        completion(true, nil);
+                    } else {
+                        USRVLogDebug(@"Preloading product information failed for id: %@ with error: %@", iTunesId, error);
+                        completion(false, [error description]);
+                    }
+                    completion = nil;
+                });
+            }];
+            [self.appSheetCache setValue:viewController forKey:iTunesId];
+        });
     }
 }
 
@@ -116,6 +162,16 @@
 
 - (NSString *)getItunesIdFromParameters:(NSDictionary *)parameters {
     return [parameters objectForKey:@"id"];
+}
+
+- (NSDictionary *)getSanitizedParametersFromParameters:(NSDictionary *)parameters {
+    // Convert the NSString value of adNetworkNonce to UUID in order to avoid an exeception in loadProductWithParameters
+    NSMutableDictionary *mutableParameters = [NSMutableDictionary dictionaryWithDictionary:parameters];
+    if ([[mutableParameters objectForKey:@"adNetworkNonceString"] isKindOfClass:[NSString class]]) {
+        [mutableParameters setObject:[[NSUUID alloc] initWithUUIDString:[mutableParameters objectForKey:@"adNetworkNonceString"]] forKey:@"adNetworkNonce"];
+        [mutableParameters removeObjectForKey:@"adNetworkNonceString"];
+    }
+    return [NSDictionary dictionaryWithDictionary:mutableParameters];
 }
 
 - (SKStoreProductViewController *)getCachedController:(NSString *)iTunesId {

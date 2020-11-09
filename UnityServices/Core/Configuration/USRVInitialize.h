@@ -96,8 +96,8 @@
 @interface USRVInitializeStateError : USRVInitializeState
 
 @property (nonatomic, strong) id erroredState;
-@property (nonatomic, assign) NSString *stateName;
-@property (nonatomic, assign) NSString *message;
+@property (nonatomic, strong) NSString *stateName;
+@property (nonatomic, strong) NSString *message;
 
 - (instancetype)initWithConfiguration:(USRVConfiguration *)configuration erroredState:(id)erroredState stateName:(NSString *)stateName message:(NSString *)message;
 

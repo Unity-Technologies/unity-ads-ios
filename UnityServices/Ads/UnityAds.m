@@ -73,10 +73,6 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     [[UADSLoadModule sharedInstance] load:placementId loadDelegate:loadDelegate];
 }
 
-+ (void)load:(NSString *)placementId adm:(NSString *)adm delegate:(nullable id<UnityAdsLoadDelegate>)delegate {
-    USRVLogError(@"Current version of Unity Ads SDK does not support this method");
-}
-
 + (void)show:(UIViewController *)viewController {
     if([UADSPlacement getDefaultPlacement]) {
         [UnityAds show:viewController placementId:[UADSPlacement getDefaultPlacement]];
@@ -176,11 +172,6 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     } else {
         [UnityAdsDelegateUtil unityAdsDidFinish:@"" withFinishState:kUnityAdsFinishStateError];
     }
-}
-
-+ (NSString* __nullable)getToken {
-    USRVLogError(@"Current version of Unity Ads SDK does not support this method");
-    return nil;
 }
 
 @end

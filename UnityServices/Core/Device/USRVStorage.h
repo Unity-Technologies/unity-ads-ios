@@ -7,7 +7,7 @@ typedef NS_ENUM(NSInteger, UnityServicesStorageType) {
 
 @interface USRVStorage : USRVJsonStorage
 
-@property (nonatomic, assign) NSString *targetFileName;
+@property (nonatomic, strong) NSString *targetFileName;
 @property (nonatomic, assign) UnityServicesStorageType type;
 
 - (instancetype)initWithLocation:(NSString *)fileLocation type:(UnityServicesStorageType)type;

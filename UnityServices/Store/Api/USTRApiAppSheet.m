@@ -32,6 +32,22 @@
     [callback invoke:nil];
 }
 
++ (void)WebViewExposed_prepareImmediate:(NSDictionary *)parameters prepareTimeout:(NSNumber *)timeout callback:(USRVWebViewCallback *)callback {
+    [[USTRStore appSheet] prepareAppSheetImmediate:parameters prepareTimeoutInSeconds:timeout.intValue / 1000 completionBlock:^(BOOL result, NSString * _Nullable error) {
+        id webViewApp = [USRVWebViewApp getCurrentApp];
+        if(result) {
+            if(webViewApp) {
+                [webViewApp sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetPrepared) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:parameters, nil];
+            }
+        } else {
+            if(webViewApp) {
+                [webViewApp sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetFailed) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:error, parameters, nil];
+            }
+        }
+    }];
+    [callback invoke:nil];
+}
+
 + (void)WebViewExposed_present:(NSDictionary *)parameters animated:(NSNumber *)animated callback:(USRVWebViewCallback *)callback {
     [[USTRStore appSheet] presentAppSheet:parameters animated:[animated boolValue] completionBlock:^(BOOL result, NSString * _Nullable error) {
         if(result) {

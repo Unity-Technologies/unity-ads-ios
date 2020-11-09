@@ -17,7 +17,7 @@
 @property (nonatomic, assign) int showTimeout;
 @property (nonatomic, assign) int loadTimeout;
 @property (nonatomic, assign) int noFillTimeout;
-@property (nonatomic, assign) NSString *metricsUrl;
+@property (nonatomic, strong) NSString *metricsUrl;
 @property (nonatomic, assign) double metricSamplingRate;
 @property (nonatomic, assign) long webViewAppCreateTimeout;
 @property (nonatomic, strong) NSString *sdkVersion;

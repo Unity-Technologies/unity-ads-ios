@@ -2,7 +2,7 @@
 
 @interface USRVWebViewCallback : NSObject
 
-@property (nonatomic, assign) NSString *callbackId;
+@property (nonatomic, strong) NSString *callbackId;
 @property (nonatomic, assign) int invocationId;
 @property (nonatomic, assign) BOOL invoked;
 

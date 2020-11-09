@@ -11,7 +11,7 @@
 #import "UADSWebPlayerBridge.h"
 
 @interface UADSWebPlayerView ()
-@property(nonatomic, assign) id internalWebView;
+@property(nonatomic, strong) id internalWebView;
 @property(nonatomic, retain) id wkConfiguration;
 @property(nonatomic, retain) NSDictionary *webPlayerSettings;
 @property(nonatomic, retain) NSDictionary *webPlayerEventSettings;

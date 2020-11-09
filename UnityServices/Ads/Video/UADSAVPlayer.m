@@ -3,10 +3,12 @@
 #import "USRVWebViewApp.h"
 #import "USRVWebViewEventCategory.h"
 #import "UADSAVPlayerEvent.h"
+#import "UADSWeakProxy.h"
+#import "NSObject+WeakProxy.h"
 
 @interface UADSAVPlayer ()
-    @property (nonatomic, assign) id progressTimer;
-    @property (nonatomic, assign) id prepareTimeoutTimer;
+    @property (nonatomic, strong) id progressTimer;
+    @property (nonatomic, strong) id prepareTimeoutTimer;
     @property (nonatomic, assign) BOOL isObservingCompletion;
 @end
 
@@ -113,7 +115,12 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 }
 
 - (void)startPrepareTimeoutTimer:(NSInteger)timeout {
-    self.prepareTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:timeout target:self selector:@selector(onPrepareTimeoutListener:) userInfo:nil repeats:false];
+
+    self.prepareTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval: timeout
+                                                                target: self.weakSelf
+                                                              selector: @selector(onPrepareTimeoutListener:)
+                                                              userInfo: nil
+                                                               repeats: false];
 }
 
 - (void)stopPrepareTimeoutTimer {
@@ -145,7 +152,11 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 
 - (void)startVideoProgressTimer {
     float interval = (float)self.progressInterval / 1000;
-    self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(videoProgressTimer:) userInfo:nil repeats:YES];
+    self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                          target: self.weakSelf
+                                                        selector: @selector(videoProgressTimer:)
+                                                        userInfo: nil
+                                                         repeats: YES];
 }
 
 - (void)stopVideoProgressTimer {
