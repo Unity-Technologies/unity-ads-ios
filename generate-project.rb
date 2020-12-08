@@ -91,6 +91,9 @@ def create_groups_from_dir(root_dir, parent_group, target, is_example_project = 
         /UnityAdsInitializationDelegate\.h/,
         /UnityAdsInitializationError\.h/,
         /UnityAdsLoadDelegate\.h/,
+        /UADSBaseOptions\.h/,
+        /UADSLoadOptions\.h/,
+        /UADSShowOptions\.h/,
 
         # Banners
         /UADSBanner\.h/,

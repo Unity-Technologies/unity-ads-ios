@@ -1,0 +1,2 @@
+@interface UADSApiToken : NSObject
+@end

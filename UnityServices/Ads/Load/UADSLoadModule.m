@@ -16,6 +16,7 @@ static USRVConfiguration *configuration = nil;
 @property(nonatomic, readwrite) NSString* placementId;
 @property(nonatomic, readwrite) NSString* listenerId;
 @property(nonatomic, readwrite) NSNumber* time;
+@property(nonatomic, readwrite) UADSLoadOptions* options;
 @property(nonatomic, strong) id<UnityAdsLoadDelegate> delegate;
 @end
 
@@ -67,13 +68,17 @@ static USRVConfiguration *configuration = nil;
     return self;
 }
 
--(void)load:(NSString *)placementId loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
+-(void) load:(NSString *)placementId
+     options:(UADSLoadOptions*)options
+loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
     if (placementId == nil || [placementId isEqual: @""]) {
         [loadDelegate unityAdsAdFailedToLoad:placementId];
         return;
     }
     
-    LoadEventState* loadEventState = [self createLoadEventState:placementId listener:loadDelegate];
+    LoadEventState* loadEventState = [self createLoadEventState:placementId
+                                                        options:options
+                                                       listener:loadDelegate];
     
     if ([USRVSdkProperties isInitialized]) {
         dispatch_async(_loadQueue, ^{
@@ -86,7 +91,9 @@ static USRVConfiguration *configuration = nil;
     }
 }
 
--(LoadEventState*)createLoadEventState:(NSString*)placementId listener:(id<UnityAdsLoadDelegate>)listener {
+-(LoadEventState*)createLoadEventState:(NSString*)placementId
+                               options:(UADSLoadOptions*)options
+                              listener:(id<UnityAdsLoadDelegate>)listener {
     
     NSString* listenerId = [[NSUUID UUID] UUIDString];
     
@@ -95,6 +102,7 @@ static USRVConfiguration *configuration = nil;
     state.delegate = listener;
     state.placementId = placementId;
     state.listenerId = listenerId;
+    state.options = options;
     state.time = [USRVDevice getElapsedRealtime];
     
    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)([configuration noFillTimeout] * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
@@ -187,7 +195,8 @@ static USRVConfiguration *configuration = nil;
     NSDictionary* dictionary = @{
         @"placementId" : loadEventState.placementId,
         @"listenerId" : loadEventState.listenerId,
-        @"time": loadEventState.time
+        @"time": loadEventState.time,
+        @"options": loadEventState.options.dictionary
     };
 
     lock = [[NSCondition alloc] init];

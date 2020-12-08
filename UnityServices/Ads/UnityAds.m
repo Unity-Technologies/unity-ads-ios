@@ -8,6 +8,7 @@
 #import "UADSWebViewShowOperation.h"
 #import "UnityAdsDelegateUtil.h"
 #import "UADSLoadModule.h"
+#import "UADSTokenStorage.h"
 
 @implementation UnityAds
 
@@ -69,8 +70,16 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     [self load:placementId loadDelegate:nil];
 }
 
-+ (void)load:(NSString *)placementId loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
-    [[UADSLoadModule sharedInstance] load:placementId loadDelegate:loadDelegate];
++ (void)load:(NSString *)placementId
+loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
+    [self load:placementId options:[UADSLoadOptions new] loadDelegate:loadDelegate];
+}
+
++ (void) load:(NSString *)placementId
+      options:(UADSLoadOptions *)options
+ loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate;
+ {
+    [[UADSLoadModule sharedInstance] load:placementId options:options loadDelegate:loadDelegate];
 }
 
 + (void)show:(UIViewController *)viewController {
@@ -82,6 +91,10 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
 }
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId {
+    [UnityAds show:viewController placementId:placementId options:[UADSShowOptions new]];
+}
+
++ (void)show:(UIViewController *)viewController placementId:(NSString *)placementId options:(UADSShowOptions *)options {
     [USRVClientProperties setCurrentViewController:viewController];
     if ([UnityAds isReady:placementId]) {
         USRVLogInfo(@"Unity Ads opening new ad unit for placement %@", placementId);
@@ -92,7 +105,9 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
                                                @"supportedOrientations" : [NSNumber numberWithInt:[USRVClientProperties getSupportedOrientations]],
                                                @"supportedOrientationsPlist" : [USRVClientProperties getSupportedOrientationsPlist],
                                                @"statusBarOrientation" : [NSNumber numberWithInteger:statusBarOrientation],
-                                               @"statusBarHidden" : [NSNumber numberWithBool: [UIApplication sharedApplication].isStatusBarHidden]};
+                                               @"statusBarHidden" : [NSNumber numberWithBool: [UIApplication sharedApplication].isStatusBarHidden],
+                                               @"options" : options.dictionary
+        };
 
         
         UADSWebViewShowOperation *operation = [[UADSWebViewShowOperation alloc] initWithPlacementId:placementId
@@ -172,6 +187,10 @@ enablePerPlacementLoad:(BOOL)enablePerPlacementLoad {
     } else {
         [UnityAdsDelegateUtil unityAdsDidFinish:@"" withFinishState:kUnityAdsFinishStateError];
     }
+}
+
++ (NSString* __nullable)getToken {
+    return [[UADSTokenStorage sharedInstance] getToken];
 }
 
 @end

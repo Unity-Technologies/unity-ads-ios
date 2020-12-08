@@ -2,6 +2,7 @@
 #import "UADSPlacement.h"
 #import "UADSLoadModule.h"
 #import "UADSWebViewShowOperation.H"
+#import "UADSTokenStorage.h"
 
 @implementation UADSAdsModuleConfiguration
 
@@ -14,7 +15,8 @@
              @"UADSApiPlacement",
              @"UADSApiPurchasing",
              @"UADSAdsProperties",
-             @"UADSApiLoad"
+             @"UADSApiLoad",
+             @"UADSApiToken"
              ];
 }
 
@@ -22,6 +24,7 @@
     [UADSPlacement reset];
     [UADSWebViewShowOperation setConfiguration:configuration];
     [UADSLoadModule setConfiguration:configuration];
+    [[UADSTokenStorage sharedInstance] deleteTokens];
     return true;
 }
 

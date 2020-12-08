@@ -3,6 +3,7 @@
 #import "USRVSdkProperties.h"
 #import "USRVInitializationNotificationCenter.h"
 #import "USRVWebViewApp.h"
+#import "UADSLoadOptions.h"
 
 @interface UnityAdsLoadDelegateMock : NSObject<UnityAdsLoadDelegate>
 @property (strong) NSMutableArray* adLoaded;
@@ -41,13 +42,17 @@
 }
 @property (nonatomic, strong) XCTestExpectation *loadCallExpectation;
 @property (strong) UADSLoadModule* loadModule;
+@property NSArray *params;
 
 - (void)simulateLoadCall;
 - (void)simulateFailedLoadCall;
 - (void)simulateLoadCallTimeout;
+
 @end
 
 @implementation MockLoadWebViewApp
+
+@synthesize params;
 
 - (instancetype)initWithLoadModule:(UADSLoadModule*)loadModule {
     if (self = [super init]) {
@@ -60,7 +65,7 @@
     
     self->receiverClass = receiverClass;
     self->callback = callback;
-    self->params = params;
+    self.params = params;
     
     [_loadCallExpectation fulfill];
     return YES;
@@ -83,7 +88,7 @@
     [invocation retainArguments];
     [invocation invoke];
     
-    NSDictionary* dict = self->params[0];
+    NSDictionary* dict = self.params[0];
     
     [_loadModule sendAdLoaded:[dict objectForKey:@"placementId"] listenerId:[dict objectForKey:@"listenerId"]];
 }
@@ -123,6 +128,7 @@
     [invocation retainArguments];
     [invocation invoke];
 }
+
 @end
 
 @interface UADSLoadModule (Test)
@@ -157,7 +163,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -185,7 +191,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -211,7 +217,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -239,7 +245,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -268,7 +274,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
@@ -285,6 +291,41 @@
     XCTAssertEqualObjects(@[@"test"], delegate.adFailedToLoad);
 }
 
+-(void)testLoadAfterInitialized_WithCorrectLoadOptions {
+    MockLoadWebViewApp* mock = [[MockLoadWebViewApp alloc] initWithLoadModule:_loadModule];
+    [USRVWebViewApp setCurrentApp:mock];
+    
+    [USRVSdkProperties setInitialized:YES];
+    
+    XCTestExpectation* expectation = [self expectationWithDescription:@"load call"];
+    mock.loadCallExpectation = expectation;
+    
+    UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
+    UADSLoadOptions* loadOptions = [UADSLoadOptions new];
+    [loadOptions setAdMarkup:@"MyAdMarkup"];
+    [loadOptions setObjectId:@"MyObjectID"];
+    
+    [self.loadModule load:@"test" options:loadOptions loadDelegate:delegate];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    expectation = [self expectationWithDescription:@"event call"];
+    delegate.expectation = expectation;
+    
+    [mock simulateLoadCall];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    NSDictionary *options = [[[mock params] objectAtIndex:0] objectForKey:@"options"];
+    
+    XCTAssertEqual(1, delegate.adLoaded.count);
+    XCTAssertEqualObjects(@[@"test"], delegate.adLoaded);
+    XCTAssertEqual(0, delegate.adFailedToLoad.count);
+    
+    XCTAssertEqual(@"MyAdMarkup", [options objectForKey:@"adMarkup"]);
+    XCTAssertEqual(@"MyObjectID", [options objectForKey:@"objectId"]);
+}
+
 -(void)testLoadBeforeInitialized {
     MockLoadWebViewApp* mock = [[MockLoadWebViewApp alloc] initWithLoadModule:_loadModule];
     [USRVWebViewApp setCurrentApp:mock];
@@ -296,7 +337,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     [USRVSdkProperties setInitialized:YES];
     [_loadModule sdkDidInitialize];
@@ -324,7 +365,7 @@
     
     UnityAdsLoadDelegateMock* delegate = [[UnityAdsLoadDelegateMock alloc] init];
     
-    [self.loadModule load:@"test" loadDelegate:delegate];
+    [self.loadModule load:@"test" options:[UADSLoadOptions new] loadDelegate:delegate];
     
     XCTestExpectation* expectation = [self expectationWithDescription:@"event call"];
     delegate.expectation = expectation;

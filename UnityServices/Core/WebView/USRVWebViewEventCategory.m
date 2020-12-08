@@ -18,6 +18,7 @@ static NSString * const eventCategoryAR = @"AR";
 static NSString * const eventCategoryNativeError = @"NATIVE_ERROR";
 static NSString * const eventCategoryWebAuthSession = @"WEB_AUTH_SESSION";
 static NSString * const eventCategoryLoadApi = @"LOAD_API";
+static NSString * const eventCategoryTokenApi = @"TOKEN";
 
 NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory category) {
     switch (category) {
@@ -57,5 +58,7 @@ NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory
             return eventCategoryWebAuthSession;
         case kUnityServicesWebViewEventCategoryLoadApi:
             return eventCategoryLoadApi;
+        case kUnityServicesWebViewEventCategoryTokenApi:
+            return eventCategoryTokenApi;
     }
 }

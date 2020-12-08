@@ -10,6 +10,9 @@ framework module UnityAds {
   header "UnityAdsInitializationDelegate.h"
   header "UnityAdsInitializationError.h"
   header "UnityAdsLoadDelegate.h"
+  header "UADSBaseOptions.h"
+  header "UADSLoadOptions.h"
+  header "UADSShowOptions.h"
 
   header "USRVUnityPurchasing.h"
   header "USRVUnityPurchasingDelegate.h"

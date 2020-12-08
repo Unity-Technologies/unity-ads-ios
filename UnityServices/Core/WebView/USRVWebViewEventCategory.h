@@ -18,7 +18,8 @@ typedef NS_ENUM(NSInteger, UnityServicesWebViewEventCategory) {
     kUnityServicesWebViewEventCategoryPermissions,
     kUnityServicesWebViewEventCategoryNativeError,
     kUnityServicesWebViewEventCategoryWebAuthSession,
-    kUnityServicesWebViewEventCategoryLoadApi
+    kUnityServicesWebViewEventCategoryLoadApi,
+    kUnityServicesWebViewEventCategoryTokenApi
 };
 
 NSString *USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategory);

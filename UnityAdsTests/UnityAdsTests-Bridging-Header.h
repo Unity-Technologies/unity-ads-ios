@@ -32,6 +32,7 @@
 #import "UADSVideoPlayerHandler.h"
 #import "USRVWebRequestWithUrlConnection.h"
 #import "USRVWebRequestFactory.h"
+#import "UADSTokenStorage.h"
 
 // METADATA
 #import "UADSMetaData.h"
