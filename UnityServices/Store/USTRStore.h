@@ -1,11 +1,24 @@
 #import "USTRAppSheet.h"
+#import "UADSTransactionObserver.h"
+#import "UADSAppStoreReceiptReader.h"
+#import "UADSSKProductReader.h"
 
-@interface USTRStore : NSObject
+typedef void(^USTRStoreProductsCompletion)(NSArray<NSDictionary*> *products);
 
-+ (void)startTransactionObserver;
-+ (void)stopTransactionObserver;
-+ (void)requestProductInfos:(NSArray<NSString *>*)productIds requestId:(NSNumber *)requestId;
+@interface USTRStore: NSObject<UADSAppStoreReceiptReader>
+
+
++(instancetype)newWithProductReader: (id<UADSSKProductReader>) productsReader
+                   andReceiptReader: (id<UADSAppStoreReceiptReader>)receiptReader;
++(instancetype)sharedInstance;
+
+- (void)startTransactionObserverWithCompletion: (UADSTransactionObserverCompletion) completion;
+- (void)stopTransactionObserver;
+- (void)getProductsUsingIDs: (NSArray<NSString *>*)productIDs
+                    success: (USTRStoreProductsCompletion) completion
+                    onError: (UADSSKProductReaderErrorCompletion) onError;
+
 + (USTRAppSheet *)appSheet;
-+ (NSData*)getReceipt;
+
 
 @end

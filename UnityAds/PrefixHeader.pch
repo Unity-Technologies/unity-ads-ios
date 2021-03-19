@@ -3,5 +3,6 @@
 
 #import <Foundation/Foundation.h>
 #import "USRVDeviceLog.h"
+#import "UADSTools.h"
 
 #endif /* PrefixHeader_pch */
