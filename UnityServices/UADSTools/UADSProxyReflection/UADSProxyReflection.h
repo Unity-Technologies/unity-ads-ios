@@ -108,6 +108,8 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)callInstanceMethod: (NSString *)methodName
                      args: (NSArray<id> *)arguments;
 
++(void)callClassMethod: (NSString *)methodName
+                  args: (NSArray<id> *)arguments;
 
 
 // Subclasses can override it to provide extended check for class existance

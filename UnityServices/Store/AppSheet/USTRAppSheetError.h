@@ -5,6 +5,7 @@ typedef NS_ENUM(NSInteger, UnityServicesAppSheetError) {
     kUnityServicesAppSheetErrorAlreadyPresenting,
     kUnityServicesAppSheetErrorNotFound,
     kUnityServicesAppSheetErrorNoAppSheetFound,
+    kUnityServicesAppSheetErrorNoRootViewControllerFound,
     kUnityServicesAppSheetErrorTimeout
     
 };

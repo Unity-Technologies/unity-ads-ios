@@ -18,7 +18,7 @@ NSString* const kUnityServicesConfigValueMetricsUrl = @"murl";
 NSString* const kUnityServicesConfigValueMetricSamplingRate = @"msr";
 NSString* const kUnityServicesConfigValueShowTimeout = @"sto";
 NSString* const kUnityServicesConfigValueLoadTimeout = @"lto";
-NSString* const kUnityServicesConfigValueNoFillTimeout = @"nft";
+NSString* const kUnityServicesConfigValueWebViewTimeout = @"wto";
 NSString* const kUnityServicesConfigValueWebViewAppCreateTimeout = @"wct";
 NSString* const kUnityServicesConfigValueSdkVerion = @"sdkv";
 
@@ -125,9 +125,9 @@ NSArray<NSString*>* webAppApiClassList;
     self.networkErrorTimeout = [configDictionary[kUnityServicesConfigValueNetworkErrorTimeout] longValue] ?: 60000L;
     self.metricsUrl = configDictionary[kUnityServicesConfigValueMetricsUrl] ?: nil;
     self.metricSamplingRate = [configDictionary[kUnityServicesConfigValueMetricSamplingRate] doubleValue] ?: 100;
-    self.showTimeout = [configDictionary[kUnityServicesConfigValueShowTimeout] intValue] ?: 5000;
-    self.loadTimeout = [configDictionary[kUnityServicesConfigValueLoadTimeout] intValue] ?: 5000;
-    self.noFillTimeout = [configDictionary[kUnityServicesConfigValueNoFillTimeout] intValue] ?: 30000;
+    self.showTimeout = [configDictionary[kUnityServicesConfigValueShowTimeout] intValue] ?: 10000;
+    self.loadTimeout = [configDictionary[kUnityServicesConfigValueLoadTimeout] intValue] ?: 30000;
+    self.webViewTimeout = [configDictionary[kUnityServicesConfigValueWebViewTimeout] intValue] ?: 5000;
     self.webViewAppCreateTimeout = [configDictionary[kUnityServicesConfigValueWebViewAppCreateTimeout] longValue] ?: 60000L;
     self.sdkVersion = configDictionary[kUnityServicesConfigValueSdkVerion] ?: nil;
 }
@@ -225,7 +225,7 @@ NSArray<NSString*>* webAppApiClassList;
         kUnityServicesConfigValueMetricSamplingRate : [NSNumber numberWithDouble:self.metricSamplingRate],
         kUnityServicesConfigValueShowTimeout: [NSNumber numberWithInt:self.showTimeout],
         kUnityServicesConfigValueLoadTimeout: [NSNumber numberWithInt:self.loadTimeout],
-        kUnityServicesConfigValueNoFillTimeout: [NSNumber numberWithInt:self.noFillTimeout],
+        kUnityServicesConfigValueWebViewTimeout: [NSNumber numberWithInt:self.webViewTimeout],
         kUnityServicesConfigValueWebViewAppCreateTimeout : [NSNumber numberWithLong:self.webViewAppCreateTimeout],
         kUnityServicesConfigValueSdkVerion : self.sdkVersion ?: [NSNull null]
     };

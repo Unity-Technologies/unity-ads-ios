@@ -74,9 +74,9 @@
     XCTAssertEqualObjects([NSNumber numberWithLong:[confClass networkErrorTimeout]], [NSNumber numberWithLong:60000], "Contents of networkErrorTimeout not what was expected");
     XCTAssertNil([confClass metricsUrl], "Contents of metricsUrl not what was expected");
     XCTAssertEqualObjects([NSNumber numberWithDouble:[confClass metricSamplingRate]], [NSNumber numberWithDouble:100], "Contents of metricSampleRate not what was expected");
-    XCTAssertEqualObjects([NSNumber numberWithLong:[confClass showTimeout]], [NSNumber numberWithLong:5000], "Contents of showTimeout not what was expected");
-    XCTAssertEqualObjects([NSNumber numberWithLong:[confClass loadTimeout]], [NSNumber numberWithLong:5000], "Contents of loadTimeout not what was expected");
-    XCTAssertEqualObjects([NSNumber numberWithLong:[confClass noFillTimeout]], [NSNumber numberWithLong:30000], "Contents of noFillTimeout not what was expected");
+    XCTAssertEqualObjects([NSNumber numberWithLong:[confClass showTimeout]], [NSNumber numberWithLong:10000], "Contents of showTimeout not what was expected");
+    XCTAssertEqualObjects([NSNumber numberWithLong:[confClass loadTimeout]], [NSNumber numberWithLong:30000], "Contents of loadTimeout not what was expected");
+    XCTAssertEqualObjects([NSNumber numberWithLong:[confClass webViewTimeout]], [NSNumber numberWithLong:5000], "Contents of noFillTimeout not what was expected");
     XCTAssertEqualObjects([NSNumber numberWithLong:[confClass webViewAppCreateTimeout]], [NSNumber numberWithLong:60000], "Contents of webViewAppCreateTimeout not what was expected");
     XCTAssertNil([confClass sdkVersion], "Contents of sdkVersion not what was expected");
     
@@ -161,7 +161,7 @@
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"msr"], "msr should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"sto"], "sto should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"lto"], "lto should be set");
-    XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"nft"], "nft should be set");
+    XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"wto"], "nft should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"wct"], "wct should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject:@"sdkv"], "sdkv should be set");
 }

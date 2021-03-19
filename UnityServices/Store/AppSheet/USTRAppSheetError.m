@@ -4,6 +4,7 @@ static NSString *alreadyPreparing = @"ALREADY_PREPARING";
 static NSString *alreadyPresenting = @"ALREADY_PRESENTING";
 static NSString *appSheetNotFound = @"APPSHEET_NOT_FOUND";
 static NSString *noAppSheetFound = @"NO_APPSHEET_FOUND";
+static NSString *noRootViewControllerFound = @"NO_ROOT_VIEWCONTROLLER_FOUND";
 static NSString *timeoutError = @"ERROR_TIMEOUT";
 
 NSString *USRVNSStringFromAppSheetError(UnityServicesAppSheetError error) {
@@ -16,6 +17,8 @@ NSString *USRVNSStringFromAppSheetError(UnityServicesAppSheetError error) {
             return appSheetNotFound;
         case kUnityServicesAppSheetErrorNoAppSheetFound:
             return noAppSheetFound;
+        case kUnityServicesAppSheetErrorNoRootViewControllerFound:
+            return noRootViewControllerFound;
         case kUnityServicesAppSheetErrorTimeout:
             return timeoutError;
     }

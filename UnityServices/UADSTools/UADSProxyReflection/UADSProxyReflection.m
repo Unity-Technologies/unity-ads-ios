@@ -105,6 +105,13 @@
                                      args: arguments];
 }
 
++ (void)callClassMethod:(NSString *)methodName args:(NSArray<id> *)arguments {
+    [NSInvocation  uads_invokeUsingMethod: methodName
+                                classType: [[self class] getClass]
+                                   target: nil
+                                     args: arguments];
+}
+
 - (id)forwardingTargetForSelector:(SEL)aSelector {
     if ([self.proxyObject respondsToSelector:aSelector]) {
         return self.proxyObject;

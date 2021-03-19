@@ -5,7 +5,8 @@
 - (NSArray<NSString*>*)getWebAppApiClassList {
     return @[
              @"USTRApiAppSheet",
-             @"USTRApiProducts"
+             @"USTRApiProducts",
+             @"USTRApiSKAdNetwork"
              ];
 }
 

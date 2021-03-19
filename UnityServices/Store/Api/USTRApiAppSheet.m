@@ -58,6 +58,16 @@
     }];
 }
 
++ (void)WebViewExposed_presentWithTopViewControllerSupport:(NSDictionary *)parameters animated:(NSNumber *)animated callback:(USRVWebViewCallback *)callback {
+    [[USTRStore appSheet] presentAppSheetWithTopViewControllerSupport:parameters animated:[animated boolValue] completionBlock:^(BOOL result, NSString * _Nullable error) {
+        if(result) {
+            [callback invoke:parameters, nil];
+        } else {
+            [callback error:error arg1:parameters, nil];
+        }
+    }];
+}
+
 + (void)WebViewExposed_destroy:(USRVWebViewCallback *)callback {
     [[USTRStore appSheet] destroyAppSheet];
     [callback invoke:nil];

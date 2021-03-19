@@ -9,3 +9,6 @@ _Nullable id typecast(id obj, Class class) {
     }
 }
 
+void dispatch_on_main(dispatch_block_t block) {
+    dispatch_async(dispatch_get_main_queue(), block);
+}

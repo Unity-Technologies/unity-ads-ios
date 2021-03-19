@@ -8,6 +8,7 @@
 #import "UADSWebViewShowOperation.h"
 #import "UnityAdsDelegateUtil.h"
 #import "UADSLoadModule.h"
+#import "UADSShowModule.h"
 #import "UADSTokenStorage.h"
 
 @implementation UnityAds
@@ -77,9 +78,12 @@ loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
 
 + (void) load:(NSString *)placementId
       options:(UADSLoadOptions *)options
- loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate;
- {
-    [[UADSLoadModule sharedInstance] load:placementId options:options loadDelegate:loadDelegate];
+ loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
+    
+     [UADSLoadModule.sharedInstance loadForPlacementID: placementId
+                                               options: options
+                                          loadDelegate: loadDelegate];
+
 }
 
 + (void)show:(UIViewController *)viewController {
@@ -91,39 +95,23 @@ loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
 }
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId {
-    [UnityAds show:viewController placementId:placementId options:[UADSShowOptions new]];
+    [self show:viewController placementId:placementId options:[UADSShowOptions new]];
+}
+
++ (void)show:(UIViewController *)viewController placementId:(NSString *)placementId showDelegate:(nullable id<UnityAdsShowDelegate>)showDelegate {
+    [self show:viewController placementId:placementId options:[UADSShowOptions new] showDelegate:showDelegate];
 }
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId options:(UADSShowOptions *)options {
+    [self show:viewController placementId:placementId options:options showDelegate:nil];
+}
+
++ (void)show:(UIViewController *)viewController placementId:(NSString *)placementId options:(UADSShowOptions *)options showDelegate:(nullable id<UnityAdsShowDelegate>)showDelegate {
     [USRVClientProperties setCurrentViewController:viewController];
-    if ([UnityAds isReady:placementId]) {
-        USRVLogInfo(@"Unity Ads opening new ad unit for placement %@", placementId);
-        
-        UIInterfaceOrientation statusBarOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-
-        NSDictionary *parametersDictionary = @{@"shouldAutorotate" : [NSNumber numberWithBool:viewController.shouldAutorotate],
-                                               @"supportedOrientations" : [NSNumber numberWithInt:[USRVClientProperties getSupportedOrientations]],
-                                               @"supportedOrientationsPlist" : [USRVClientProperties getSupportedOrientationsPlist],
-                                               @"statusBarOrientation" : [NSNumber numberWithInteger:statusBarOrientation],
-                                               @"statusBarHidden" : [NSNumber numberWithBool: [UIApplication sharedApplication].isStatusBarHidden],
-                                               @"options" : options.dictionary
-        };
-
-        
-        UADSWebViewShowOperation *operation = [[UADSWebViewShowOperation alloc] initWithPlacementId:placementId
-                                                                     parametersDictionary:parametersDictionary];
-        
-        [USRVWebViewMethodInvokeQueue addOperation:operation];
-    } else {
-        if (![self isSupported]) {
-            [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not supported for this device"];
-        } else if (![self isInitialized]) {
-            [self handleShowError:placementId unityAdsError:kUnityAdsErrorNotInitialized message:@"Unity Ads is not initialized"];
-        } else {
-            NSString *message = [NSString stringWithFormat:@"Placement \"%@""\" is not ready", placementId];
-            [self handleShowError:placementId unityAdsError:kUnityAdsErrorShowError message:message];
-        }
-    }
+    [UADSShowModule.sharedInstance showInViewController: viewController
+                                            placementID: placementId
+                                            withOptions: options
+                                        andShowDelegate: showDelegate];
 }
 
 + (id<UnityAdsDelegate>)getDelegate {

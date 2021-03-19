@@ -16,7 +16,7 @@
 @property (nonatomic, assign) long networkErrorTimeout;
 @property (nonatomic, assign) int showTimeout;
 @property (nonatomic, assign) int loadTimeout;
-@property (nonatomic, assign) int noFillTimeout;
+@property (nonatomic, assign) int webViewTimeout;
 @property (nonatomic, strong) NSString *metricsUrl;
 @property (nonatomic, assign) double metricSamplingRate;
 @property (nonatomic, assign) long webViewAppCreateTimeout;

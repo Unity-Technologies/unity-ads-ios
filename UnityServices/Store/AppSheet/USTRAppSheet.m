@@ -5,6 +5,7 @@
 #import "USTRAppSheetError.h"
 #import "USTRAppSheetEvent.h"
 #import "USRVWebViewEventCategory.h"
+#import "UIViewController + TopController.h"
 
 typedef void (^AppSheetCompletion)(BOOL result, NSString * __nullable error);
 
@@ -119,6 +120,7 @@ typedef void (^AppSheetCompletion)(BOOL result, NSString * __nullable error);
     }
 }
 
+#warning Deprecate this method after SDK 3.8.0 pending no issues with presentAppSheetWithTopViewControllerSupport
 - (void)presentAppSheet:(NSDictionary *)parameters animated:(BOOL)animated completionBlock:(nullable void (^)(BOOL result, NSString * __nullable error))block {
     NSString *iTunesId = [self getItunesIdFromParameters:parameters];
     SKStoreProductViewController* cachedController = [self getCachedController:iTunesId];
@@ -141,6 +143,43 @@ typedef void (^AppSheetCompletion)(BOOL result, NSString * __nullable error);
     } else {
         block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorNotFound));
     }
+}
+
+- (void)presentAppSheetWithTopViewControllerSupport:(NSDictionary *)parameters animated:(BOOL)animated completionBlock:(nullable void (^)(BOOL result, NSString * __nullable error))block {
+    NSString *iTunesId = [self getItunesIdFromParameters:parameters];
+    SKStoreProductViewController* cachedController = [self getCachedController:iTunesId];
+    if (!cachedController) {
+        block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorNotFound));
+        return;
+    }
+    
+    UIViewController *presentingController = [self getPresentingController];
+    if (!presentingController) {
+        block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorNoRootViewControllerFound));
+        return;
+    }
+    
+    if(self.presentingParameters != nil) {
+        block(false, USRVNSStringFromAppSheetError(kUnityServicesAppSheetErrorAlreadyPresenting));
+        return;
+    }
+    
+    self.presentingParameters = parameters;
+    self.presentingAnimated = animated;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [presentingController presentViewController:cachedController animated:animated completion:^{
+            if ([USRVWebViewApp getCurrentApp]) {
+                [[USRVWebViewApp getCurrentApp] sendEvent:USRVNSStringFromAppSheetEvent(kAppSheetOpened) category:USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAppSheet) param1:parameters, nil];
+            }
+        }];
+    });
+    
+    block(true, nil);
+
+}
+
+-(UIViewController *)getPresentingController {
+    return [UADSApiAdUnit getAdUnit] ?: [UIViewController uads_getTopController];
 }
 
 - (void)destroyAppSheet {
