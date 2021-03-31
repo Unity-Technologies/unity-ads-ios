@@ -270,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return If `YES`, the default placement is ready to show an ad.
  */
-+ (BOOL)isReady;
++ (BOOL)isReady __attribute__((deprecated("Please migrate to using load call with UnityAdsLoadDelegate")));
 /**
  *  Check if a particular placement is ready to show an ad.
  *
@@ -278,7 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return If `YES`, the placement is ready to show an ad.
  */
-+ (BOOL)isReady:(NSString *)placementId;
++ (BOOL)isReady:(NSString *)placementId __attribute__((deprecated("Please migrate to using load call with UnityAdsLoadDelegate")));
 /**
  *  Check the current state of the default placement.
  *

@@ -24,7 +24,7 @@ typedef id<UADSWebViewInvoker> Invoker;
     Invoker bufferDecorator = [WebViewInvokerQueueDecorator newWithDecorated: basicInvoker
                                                        andNotificationCenter: center];
     
-    return [self newWithInvoker: bufferDecorator andErrorHandler: [UADSErrorLogger newWithType: UADSErrorHandlerTypeLoadModule]];
+    return [self newWithInvoker: bufferDecorator andErrorHandler: [UADSErrorLogger newWithType: kUADSErrorHandlerTypeLoadModule]];
 }
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID:(NSString *)placementID

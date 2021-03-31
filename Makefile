@@ -3,14 +3,15 @@ release:
 	xcodebuild -project UnityAdsStaticLibrary.xcodeproj -configuration Release > /dev/null
 
 zip: release
-	cd build/Release-iphoneos && zip -9r builds.zip UnityAds.framework
-	mv build/Release-iphoneos/builds.zip ./UnityAds.framework.zip
+	cp LICENSE build/Release-iphoneos/
+	cd build/Release-iphoneos && zip -9r builds.zip UnityAds.framework LICENSE
+	mv build/Release-iphoneos/builds.zip ./UnityAds.zip
 
 verify-release-build:
-	if [[ -f "UnityAds.framework.zip" ]]; then \
-		echo 'UnityAds.framework.zip exists'; \
+	if [[ -f "UnityAds.zip" ]]; then \
+		echo 'UnityAds.zip exists'; \
 	else \
-		echo 'UnityAds.framework.zip does not exist'; \
+		echo 'UnityAds.zip does not exist'; \
 		exit 1; \
 	fi;
 

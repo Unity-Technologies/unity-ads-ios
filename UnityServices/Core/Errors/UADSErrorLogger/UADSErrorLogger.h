@@ -5,7 +5,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger,UADSErrorHandlerType) {
     kUADSErrorHandlerTypeShowModule,
-    UADSErrorHandlerTypeLoadModule,
+    kUADSErrorHandlerTypeLoadModule,
 };
 
 @protocol UADSErrorHandler <NSObject>

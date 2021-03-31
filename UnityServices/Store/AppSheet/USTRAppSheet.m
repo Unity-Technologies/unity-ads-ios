@@ -32,7 +32,7 @@ typedef void (^AppSheetCompletion)(BOOL result, NSString * __nullable error);
     return self;
 }
 
-#warning Deprecate this method after SDK 3.7.0 pending no issues with prepareAppSheetImmediate
+#warning Deprecate this method after SDK 3.7.1 pending no issues with prepareAppSheetImmediate
 - (void)prepareAppSheet:(NSDictionary *)parameters prepareTimeoutInSeconds:(int)timeout completionBlock:(nullable void(^)(BOOL result, NSString * __nullable error))block {
     NSDictionary *appSheetParameters = [self getSanitizedParametersFromParameters:parameters];
     NSString *iTunesId = [self getItunesIdFromParameters:appSheetParameters];

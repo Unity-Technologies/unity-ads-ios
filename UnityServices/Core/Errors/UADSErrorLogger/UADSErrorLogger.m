@@ -22,7 +22,19 @@ static NSString * const kUADSLoadModuleTimeoutString = @"native_load_timeout_err
 }
 
 - (void)catchError:(UADSInternalError *)error {
-    NSString *metricString = [self loadErrorMessage: error] ?: [self showErrorMessage: error] ?: error.errorMessage;
+    NSString *metricString;
+    switch (_moduleType) {
+        case kUADSErrorHandlerTypeLoadModule:
+            metricString = [self loadErrorMessage: error];
+            break;
+        case kUADSErrorHandlerTypeShowModule:
+            metricString = [self showErrorMessage: error];
+            break;
+        default:
+            metricString = error.errorMessage;
+            break;
+    }
+    metricString  = metricString ?: error.errorMessage;
     [[USRVSDKMetrics getInstance] sendEventWithTags: metricString tags: error.errorInfo];
 }
 

@@ -71,7 +71,7 @@
 
             bool is2XXResponse = (int)[request responseCode] / 100 == 2;
             if (is2XXResponse) {
-                USRVLogDebug("Metric %@ sent to %@", event, self.metricEndpoint);
+                USRVLogDebug("Metric %@ with tags: %@ sent to %@ ", event, tagString, self.metricEndpoint);
             } else {
                 USRVLogDebug("Metric %@ failed to send to %@ with response code %ld", event, self.metricEndpoint, [request responseCode]);
             }

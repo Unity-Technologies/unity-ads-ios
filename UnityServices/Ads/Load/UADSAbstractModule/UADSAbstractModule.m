@@ -139,8 +139,11 @@ static USRVConfiguration *configuration = nil;
 
 -(void)subscribeToOperationExpiration: (id<UADSAbstractModuleOperationObject>)operation {
     __weak typeof(self) weakSelf = self;
+    __weak typeof(operation) weakOperation = operation;
     [operation startListeningOperationTTLExpiration:^{
-        [weakSelf processOperationExpiration: operation];
+        if (weakOperation) {
+            [weakSelf processOperationExpiration: weakOperation];
+        }
     }];
 }
 
