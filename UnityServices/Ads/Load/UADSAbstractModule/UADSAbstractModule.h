@@ -24,13 +24,11 @@ typedef NSDictionary<NSString*, id<UADSAbstractModuleOperationObject>> UADSAbstr
 
 -(void)executeForPlacement: (NSString *_Nonnull)placementId
                withOptions: (id<UADSDictionaryConvertible>)options
-               andDelegate: (nullable id<UADSAbstractModuleDelegate>)delegate
-         forViewController: (nullable UIViewController *)viewController;
+               andDelegate: (nullable id<UADSAbstractModuleDelegate>)delegate;
 
 -(id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                        withOptions: (id<UADSDictionaryConvertible>)options
-                                                      withDelegate: (id<UADSAbstractModuleDelegate>)delegate
-                                                 andViewController: (UIViewController *)viewController;
+                                                      withDelegate: (id<UADSAbstractModuleDelegate>)delegate;
     
 -(UADSInternalError * _Nullable)executionErrorForPlacementID: (NSString *)placementID;
 -(UADSAbstractModuleStateStorage *)statesStorage;

@@ -132,8 +132,7 @@ typedef void (^VoidCompletion)(void);
 }
 
 -(void)emulateShowCallWithPlacementID: (NSString *)placementID {
-    [_moduleToTest showInViewController: [UIViewController new]
-                            placementID: placementID
+    [_moduleToTest showAdForPlacementID: placementID
                             withOptions:[UADSShowOptions new]
                         andShowDelegate:_showDelegateMock];
     

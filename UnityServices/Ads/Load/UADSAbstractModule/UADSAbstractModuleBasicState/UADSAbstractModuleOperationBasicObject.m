@@ -17,7 +17,9 @@
 
 - (nonnull NSDictionary *)dictionary {
     return @{
-        kUADSOptionsDictionaryKey: self.options.dictionary,
+        kUADSOptionsDictionaryKey: @{
+                kUADSHeaderBiddingOptionsDictionaryKey: self.options.dictionary
+        },
         kUADSTimestampKey: self.time,
         kUADSPlacementIDKey: self.placementID,
         kUADSListenerIDKey: self.id

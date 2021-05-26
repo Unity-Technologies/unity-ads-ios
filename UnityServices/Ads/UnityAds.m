@@ -10,6 +10,7 @@
 #import "UADSLoadModule.h"
 #import "UADSShowModule.h"
 #import "UADSTokenStorage.h"
+#import "UADSShowModuleOptions.h"
 
 @implementation UnityAds
 
@@ -108,9 +109,16 @@ loadDelegate:(nullable id<UnityAdsLoadDelegate>)loadDelegate {
 
 + (void)show:(UIViewController *)viewController placementId:(NSString *)placementId options:(UADSShowOptions *)options showDelegate:(nullable id<UnityAdsShowDelegate>)showDelegate {
     [USRVClientProperties setCurrentViewController:viewController];
-    [UADSShowModule.sharedInstance showInViewController: viewController
-                                            placementID: placementId
-                                            withOptions: options
+    
+    UADSShowModuleOptions *wrappedOptions = [UADSShowModuleOptions new];
+    wrappedOptions.shouldAutorotate = viewController.shouldAutorotate;
+    wrappedOptions.options = options;
+    wrappedOptions.supportedOrientations = [USRVClientProperties getSupportedOrientations];
+    wrappedOptions.supportedOrientationsPlist = [USRVClientProperties getSupportedOrientationsPlist];
+    wrappedOptions.isStatusBarHidden = UIApplication.sharedApplication.isStatusBarHidden;
+    wrappedOptions.statusBarOrientation =  UIApplication.sharedApplication.statusBarOrientation;
+    [UADSShowModule.sharedInstance showAdForPlacementID: placementId
+                                            withOptions: wrappedOptions
                                         andShowDelegate: showDelegate];
 }
 

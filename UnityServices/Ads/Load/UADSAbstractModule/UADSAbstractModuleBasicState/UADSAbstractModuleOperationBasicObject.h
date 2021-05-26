@@ -5,8 +5,8 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kUADSPlacementIDKey = @"placementId";
 static NSString *const kUADSListenerIDKey = @"listenerId";
 static NSString *const kUADSTimestampKey = @"time";
+static NSString *const kUADSHeaderBiddingOptionsDictionaryKey = @"headerBiddingOptions";
 static NSString *const kUADSOptionsDictionaryKey = @"options";
-
 
 @protocol UADSAbstractModuleOperationObject <NSObject,UADSWebViewInvokerOperation>
 -(id<UADSAbstractModuleDelegate>)delegate;
@@ -22,6 +22,7 @@ static NSString *const kUADSOptionsDictionaryKey = @"options";
 @property (nonatomic, strong) id<UADSAbstractModuleDelegate> delegate;
 @property (nonatomic, assign) NSInteger ttl;
 -(void)stopTTLObserving;
+- (nonnull NSString *)methodName;
 @end
 
 NS_ASSUME_NONNULL_END

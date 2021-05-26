@@ -172,8 +172,7 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     }
     [_moduleToTest executeForPlacement: kUADStDefaultPlacementID
                            withOptions: self.defaultOptions
-                           andDelegate: self.delegateMock
-                     forViewController: self.fakeViewController];
+                           andDelegate: self.delegateMock];
     if (wait) {
         [self waitForExpectations:@[_invokerMock.expectation] timeout:DEFAULT_TEST_WAIT_TIME];
     }

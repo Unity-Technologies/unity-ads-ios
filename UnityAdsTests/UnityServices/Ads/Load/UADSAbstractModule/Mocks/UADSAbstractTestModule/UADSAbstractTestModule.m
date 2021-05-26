@@ -40,8 +40,7 @@ static NSInteger createCalled = 0;
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID:(NSString *)placementID
                                                         withOptions:(id<UADSDictionaryConvertible>)options
-                                                       withDelegate:(id<UADSAbstractModuleDelegate>)delegate
-                                                  andViewController:(UIViewController *)viewController {
+                                                       withDelegate:(id<UADSAbstractModuleDelegate>)delegate {
     return _returnedState;
 }
 

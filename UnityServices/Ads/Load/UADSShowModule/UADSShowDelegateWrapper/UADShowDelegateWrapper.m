@@ -64,6 +64,10 @@
     
 }
 
+-(void)unityAdsDidShowConsent:(NSString *)placementId {
+    // for now this is an empty API until we decide if we want to send the event to the public API
+}
+
 - (void)unityAdsShowStart:(nonnull NSString *)placementId {
     dispatch_on_main(^{
         [self.originalDelegate unityAdsShowStart: placementId];

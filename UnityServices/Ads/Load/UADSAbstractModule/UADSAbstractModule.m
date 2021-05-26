@@ -64,8 +64,7 @@ static USRVConfiguration *configuration = nil;
 
 - (void)executeForPlacement:(NSString *)placementId
                 withOptions:(id<UADSDictionaryConvertible>)options
-                andDelegate:(id<UADSAbstractModuleDelegate>)delegate
-          forViewController:(UIViewController *)viewController {
+                andDelegate:(id<UADSAbstractModuleDelegate>)delegate {
     
     NSString *safePlacementID = placementId ?: kUADSAbstractModuleEmptyPlacementID;
     
@@ -80,8 +79,7 @@ static USRVConfiguration *configuration = nil;
     
     id<UADSAbstractModuleOperationObject> operation =  [self createEventWithPlacementID: safePlacementID
                                                                             withOptions: options
-                                                                           withDelegate: delegate
-                                                                      andViewController: viewController];
+                                                                           withDelegate: delegate];
     
     [self saveOperation: operation];
     
@@ -107,8 +105,7 @@ static USRVConfiguration *configuration = nil;
 
 -(id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                        withOptions: (id<UADSDictionaryConvertible>)options
-                                                      withDelegate: (id<UADSAbstractModuleDelegate>)delegate
-                                                 andViewController: (UIViewController *)viewController {
+                                                      withDelegate: (id<UADSAbstractModuleDelegate>)delegate {
     
     NSAssert(NO, @"Cannot use abstract class");
     return nil;

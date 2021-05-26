@@ -8,9 +8,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSShowModule: UADSAbstractModule
--(void)showInViewController:(UIViewController *)viewController
-                placementID:(NSString *)placementID
-                withOptions:(UADSShowOptions *)options
+-(void)showAdForPlacementID:(NSString *)placementID
+                withOptions:(id<UADSDictionaryConvertible>)options
             andShowDelegate:(nullable id<UnityAdsShowDelegate>)showDelegate;
 
 -(void)sendShowFailedEvent:(NSString*_Nonnull)placementID
@@ -27,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)sendShowCompleteEvent:(NSString*_Nonnull)placementID
                   listenerID:(NSString*_Nonnull)listenerId
                        state:(UnityAdsShowCompletionState)state;
+
+-(void)sendShowConsentEvent:(NSString *)placementID
+                 listenerID:(NSString *)listenerID;
 
 @end
 NS_ASSUME_NONNULL_END

@@ -67,6 +67,17 @@
      [callback invoke:nil];
  }
 
+
+
++(void)WebViewExposed_sendShowConsentEvent:(NSString*)placementId
+                                listenerId:(NSString*)listenerId
+                                  callback:(USRVWebViewCallback *)callback {
+    [self.showModule sendShowConsentEvent: placementId
+                               listenerID: listenerId];
+    [callback invoke:nil];
+}
+
+
  +(void)WebViewExposed_sendShowCompleteEvent:(NSString*)placementId
                                   listenerId:(NSString*)listenerId
                                        state:(NSString *)state

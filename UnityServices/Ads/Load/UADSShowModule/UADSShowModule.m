@@ -3,11 +3,7 @@
 #import "UADSShowModuleOperation.h"
 #import "USRVDevice.h"
 #import "UnityServices.h"
-
-static NSString *const kSupportedOrientationsKey = @"supportedOrientations";
-static NSString *const kSupportedOrientationsPlistKey = @"supportedOrientationsPlist";
-static NSString *const kStatusBarOrientationKey = @"statusBarOrientation";
-static NSString *const kStatusBarHiddenKey = @"statusBarHidden";
+#import "UADSShowModuleOptions.h"
 
 @implementation UADSShowModule
 
@@ -51,29 +47,25 @@ typedef id<UADSWebViewInvoker> Invoker;
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID:(NSString *)placementID
                                                         withOptions:(id<UADSDictionaryConvertible>)options
-                                                       withDelegate:(id<UADSAbstractModuleDelegate>)delegate
-                                                  andViewController:(UIViewController *)viewController {
+                                                       withDelegate:(id<UADSAbstractModuleDelegate>)delegate {
     UADSShowModuleOperation *operation = [UADSShowModuleOperation new];
     operation.placementID = placementID;
-    operation.options = options;
     operation.delegate = delegate;
+    operation.options = options;
     operation.time = [USRVDevice getElapsedRealtime]; //ideally this should not be as explicit dependency
-    operation.shouldAutorotate = viewController.shouldAutorotate;
-    operation.orientationState = self.orientationState;
     operation.ttl = [self operationOperationTimeoutMs];
     return operation;
 }
 
 
--(void)showInViewController:(UIViewController *)viewController
-                placementID:(NSString *)placementID
-                withOptions:(UADSShowOptions *)options
+-(void)showAdForPlacementID:(NSString *)placementID
+                withOptions:(id<UADSDictionaryConvertible>)options
             andShowDelegate:(nullable id<UnityAdsShowDelegate>)showDelegate {
     UADShowDelegateWrapper *wrappedDelegate =  [UADShowDelegateWrapper newWithOriginalDelegate:showDelegate];
     [self executeForPlacement: placementID
                   withOptions: options
                   andDelegate: wrappedDelegate
-            forViewController: viewController];
+     ];
 }
 
 
@@ -89,6 +81,13 @@ typedef id<UADSWebViewInvoker> Invoker;
     UADShowDelegateWrapper* delegate = [self getDelegateForIDAndStopObserving: listenerID];
     [delegate unityAdsShowClick: placementID];
 }
+
+-(void)sendShowConsentEvent:(NSString *)placementID
+                 listenerID:(NSString *)listenerID {
+    UADShowDelegateWrapper* delegate = [self getDelegateForIDAndStopObserving: listenerID];
+    [delegate unityAdsDidShowConsent: placementID];
+}
+
 
 -(void)sendShowCompleteEvent:(NSString *)placementID
                   listenerID:(NSString *)listenerID
@@ -118,15 +117,6 @@ typedef id<UADSWebViewInvoker> Invoker;
     UADSShowModuleOperation *operation = [self getOperationWithID: listenerID];
     [operation stopTTLObserving];
     return (UADShowDelegateWrapper *)operation.delegate;
-}
-
--(NSDictionary *)orientationState {
-    return  @{
-        kSupportedOrientationsKey : [NSNumber numberWithInt: [USRVClientProperties getSupportedOrientations]],
-        kSupportedOrientationsPlistKey : [USRVClientProperties getSupportedOrientationsPlist],
-        kStatusBarOrientationKey : [NSNumber numberWithInteger: UIApplication.sharedApplication.statusBarOrientation],
-        kStatusBarHiddenKey : [NSNumber numberWithBool: UIApplication.sharedApplication.isStatusBarHidden],
-    };
 }
 
 @end

@@ -29,8 +29,7 @@ typedef id<UADSWebViewInvoker> Invoker;
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID:(NSString *)placementID
                                                         withOptions:(id<UADSDictionaryConvertible>)options
-                                                       withDelegate:(id<UADSAbstractModuleDelegate>)delegate
-                                                  andViewController:(UIViewController *)viewController {
+                                                       withDelegate:(id<UADSAbstractModuleDelegate>)delegate {
     UADSLoadModuleOperationObject *operation = [UADSLoadModuleOperationObject new];
     operation.placementID = placementID;
     operation.options = options;
@@ -53,8 +52,7 @@ typedef id<UADSWebViewInvoker> Invoker;
     
     [self executeForPlacement: placementID
                   withOptions: options
-                  andDelegate: wrappedDelegate
-            forViewController: nil];
+                  andDelegate: wrappedDelegate];
 }
 
 -(void)sendAdLoadedForPlacementID: (NSString*)placementID

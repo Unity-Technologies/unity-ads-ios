@@ -30,6 +30,7 @@ static NSString * const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 }
 
 - (void)tearDown {
+    [self emulateInvokerSuccessResponse];
     _webAppMock = nil;
     _showDelegateMock = nil;
     [self emulateSDKInitialized: false];
@@ -168,6 +169,32 @@ static NSString * const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
                             startedPlacements: 0];
 }
 
+
+- (void)test_show_consent_doesnt_remove_delegate_from_the_storage {
+    [self initializeCommonFlowWithSDKInitialized: true withPlacementID:kUADSLoadModuleTestsPlacementID];
+    [self emulateInvokerSuccessResponse];
+
+    
+    /**
+        since we dont have public API exposed for show Consent, the only way to test that consent doesnt remove the listener is by assuming the next
+            - if the listener is not removed than we should be able to send Click event as many times as we want
+            - if the listener is removed then the test will fail with the timeout and unfulfilled expectations
+     */
+    
+    [self emulateSendShowConsentForStorageRemovingTests];
+    [self waitForTimeInterval: 1];
+    [self setExpectationInDelegate];
+    [self emulateSendClickForStorageRemovingTests];
+    [self waitForDelegateExpectationFulfill];
+    
+    [self validateDelegateHasFailedPlacements: 0
+                          completedPlacements: 0
+                            clickedPlacements: 1
+                            startedPlacements: 0];
+}
+
+
+
 - (void)test_show_failed_removes_delegate_from_the_storage {
     [self setExpectationInDelegate];
     [self initializeCommonFlowWithSDKInitialized: true withPlacementID:kUADSLoadModuleTestsPlacementID];
@@ -246,6 +273,11 @@ static NSString * const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
                                listenerID: self.lastListenerID];
 }
 
+-(void)emulateSendShowConsentForStorageRemovingTests {
+    [self.moduleToTest sendShowConsentEvent: kUADSLoadModuleTestsPlacementID
+                                 listenerID: self.lastListenerID];
+}
+
 - (void)waitForTimeInterval: (NSTimeInterval)waitTime {
     XCTestExpectation *expectation = [self expectationWithDescription: @"wait.expectations"];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, waitTime * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -255,8 +287,7 @@ static NSString * const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 }
 
 - (void)emulateShowCallWithPlacementID: (NSString*)placementID {
-    [self.moduleToTest showInViewController: [UIViewController new]
-                                placementID: placementID
+    [self.moduleToTest showAdForPlacementID: placementID
                                 withOptions: [UADSShowOptions new]
                             andShowDelegate: _showDelegateMock];
 }
