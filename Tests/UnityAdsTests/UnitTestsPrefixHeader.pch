@@ -1,0 +1,12 @@
+#ifndef UnitTestsPrefixHeader_pch
+#define UnitTestsPrefixHeader_pch
+
+#import <Foundation/Foundation.h>
+#import "USRVDeviceLog.h"
+#import "UADSTools.h"
+#import "XCTestCase+Convenience.h"
+#import "XCTestAssert+Fail.h"
+#import <XCTest/XCTest.h>
+#import "GMATestCommonConstants.h"
+
+#endif /* UnitTestsPrefixHeader_pch */

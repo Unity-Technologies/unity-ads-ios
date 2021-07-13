@@ -1,0 +1,2 @@
+@interface UADSApiGMAScar : NSObject
+@end

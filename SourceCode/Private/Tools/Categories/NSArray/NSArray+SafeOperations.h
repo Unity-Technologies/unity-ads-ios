@@ -1,0 +1,7 @@
+NS_ASSUME_NONNULL_BEGIN
+
+@interface NSArray<__covariant ObjectType>(Category)
+- (_Nullable ObjectType)uads_getItemSafelyAtIndex: (NSInteger)index;
+@end
+
+NS_ASSUME_NONNULL_END

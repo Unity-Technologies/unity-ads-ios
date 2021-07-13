@@ -1,5 +1,0 @@
-
-@interface USRVApiSensorInfo : NSObject
-
-@end
-

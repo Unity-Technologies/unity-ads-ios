@@ -1,0 +1,4 @@
+
+@interface UADSApiPlacement : NSObject
+
+@end
