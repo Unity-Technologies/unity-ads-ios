@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "UADSBannerViewDelegate.h"
+#import <UnityAds/UADSBannerViewDelegate.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

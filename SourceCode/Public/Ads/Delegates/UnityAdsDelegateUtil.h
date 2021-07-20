@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
-#import "UnityAdsDelegate.h"
-#import "UnityAdsPlacementState.h"
+#import <UnityAds/UnityAdsDelegate.h>
+#import <UnityAds/UnityAdsPlacementState.h>
 
 @interface UnityAdsDelegateUtil : NSObject
 

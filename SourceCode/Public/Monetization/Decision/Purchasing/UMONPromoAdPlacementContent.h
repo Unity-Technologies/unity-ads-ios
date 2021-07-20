@@ -1,5 +1,5 @@
-#import "UMONShowAdPlacementContent.h"
-#import "UMONPromoMetaData.h"
+#import <UnityAds/UMONShowAdPlacementContent.h>
+#import <UnityAds/UMONPromoMetaData.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

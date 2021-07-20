@@ -1,13 +1,13 @@
 #import <UIKit/UIKit.h>
 
-#import "UnityServices.h"
-#import "UnityAdsDelegate.h"
-#import "UnityAdsPlacementState.h"
-#import "UnityAdsInitializationDelegate.h"
-#import "UnityAdsLoadDelegate.h"
-#import "UnityAdsShowDelegate.h"
-#import "UADSLoadOptions.h"
-#import "UADSShowOptions.h"
+#import <UnityAds/UnityServices.h>
+#import <UnityAds/UnityAdsDelegate.h>
+#import <UnityAds/UnityAdsPlacementState.h>
+#import <UnityAds/UnityAdsInitializationDelegate.h>
+#import <UnityAds/UnityAdsLoadDelegate.h>
+#import <UnityAds/UnityAdsShowDelegate.h>
+#import <UnityAds/UADSLoadOptions.h>
+#import <UnityAds/UADSShowOptions.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

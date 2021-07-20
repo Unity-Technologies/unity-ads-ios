@@ -1,6 +1,6 @@
 #import <UIKit/UIViewController.h>
-#import "UMONRewardablePlacementContent.h"
-#import "UnityAdsFinishState.h"
+#import <UnityAds/UMONRewardablePlacementContent.h>
+#import <UnityAds/UnityAdsFinishState.h>
 
 @protocol UMONShowAdDelegate <NSObject>
 - (void)unityAdsDidStart: (NSString *)placementId;

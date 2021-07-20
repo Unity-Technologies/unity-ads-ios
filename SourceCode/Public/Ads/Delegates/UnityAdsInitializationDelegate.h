@@ -1,4 +1,4 @@
-#import "UnityAdsInitializationError.h"
+#import <UnityAds/UnityAdsInitializationError.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

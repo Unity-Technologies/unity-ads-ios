@@ -1,6 +1,5 @@
-#import "UPURTransactionDetails.h"
-#import "UMONPlacementContent.h"
-#import "UMONPromoAdPlacementContent.h"
+#import <UnityAds/UMONPlacementContent.h>
+#import <UnityAds/UMONPromoAdPlacementContent.h>
 
 typedef NS_ENUM (NSInteger, UMONNativePromoShowType) {
     kNativePromoShowTypePreview,

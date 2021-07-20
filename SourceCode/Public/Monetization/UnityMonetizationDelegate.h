@@ -1,6 +1,6 @@
-#import "UMONPlacementContent.h"
-#import "UnityMonetizationPlacementContentState.h"
-#import "UnityServices.h"
+#import <UnityAds/UMONPlacementContent.h>
+#import <UnityAds/UnityMonetizationPlacementContentState.h>
+#import <UnityAds/UnityServices.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

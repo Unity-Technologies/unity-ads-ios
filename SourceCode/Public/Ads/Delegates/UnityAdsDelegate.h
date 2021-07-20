@@ -1,5 +1,5 @@
-#import "UnityAdsFinishState.h"
-#import "UnityAdsError.h"
+#import <UnityAds/UnityAdsFinishState.h>
+#import <UnityAds/UnityAdsError.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

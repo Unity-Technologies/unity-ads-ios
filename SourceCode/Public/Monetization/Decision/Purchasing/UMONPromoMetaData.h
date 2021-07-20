@@ -1,6 +1,5 @@
-
-#import "UMONItem.h"
-#import "UPURProduct.h"
+#import <UnityAds/UMONItem.h>
+#import <UnityAds/UPURProduct.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

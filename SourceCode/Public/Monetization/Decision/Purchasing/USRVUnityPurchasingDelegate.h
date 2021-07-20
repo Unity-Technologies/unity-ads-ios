@@ -1,6 +1,6 @@
-#import "UPURProduct.h"
-#import "UPURTransactionDetails.h"
-#import "UPURTransactionErrorDetails.h"
+#import <UnityAds/UPURProduct.h>
+#import <UnityAds/UPURTransactionDetails.h>
+#import <UnityAds/UPURTransactionErrorDetails.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,10 +1,10 @@
-#import "UMONPlacementContent.h"
-#import "UMONRewardablePlacementContent.h"
-#import "UMONShowAdPlacementContent.h"
-#import "UMONPromoAdPlacementContent.h"
-#import "UMONNativePromoAdapter.h"
-#import "UnityMonetizationDelegate.h"
-#import "UnityMonetizationPlacementContentState.h"
+#import <UnityAds/UMONPlacementContent.h>
+#import <UnityAds/UMONRewardablePlacementContent.h>
+#import <UnityAds/UMONShowAdPlacementContent.h>
+#import <UnityAds/UMONPromoAdPlacementContent.h>
+#import <UnityAds/UMONNativePromoAdapter.h>
+#import <UnityAds/UnityMonetizationDelegate.h>
+#import <UnityAds/UnityMonetizationPlacementContentState.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

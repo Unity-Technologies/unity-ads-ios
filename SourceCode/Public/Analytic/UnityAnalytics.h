@@ -1,4 +1,4 @@
-#import "UnityAnalyticsAcquisitionType.h"
+#import <UnityAds/UnityAnalyticsAcquisitionType.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

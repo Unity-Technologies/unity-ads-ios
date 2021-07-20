@@ -1,4 +1,4 @@
-#import "UADSMetaData.h"
+#import <UnityAds/UADSMetaData.h>
 
 @interface UADSMediationMetaData : UADSMetaData
 

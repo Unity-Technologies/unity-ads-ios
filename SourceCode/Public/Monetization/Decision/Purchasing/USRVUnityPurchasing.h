@@ -1,4 +1,4 @@
-#import "USRVUnityPurchasingDelegate.h"
+#import <UnityAds/USRVUnityPurchasingDelegate.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

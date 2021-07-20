@@ -1,4 +1,4 @@
-#import "UADSBaseOptions.h"
+#import <UnityAds/UADSBaseOptions.h>
 
 @interface UADSShowOptions : UADSBaseOptions
 

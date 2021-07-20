@@ -8,27 +8,42 @@
 FOUNDATION_EXPORT double UnityAdsModuleVersionNumber;
 FOUNDATION_EXPORT const unsigned char UnityAdsModuleVersionString[];
 
-#import "UADSMediationMetaData.h"
-#import "UnityAdsDelegate.h"
-#import "UnityAdsInitializationDelegate.h"
-#import "UnityServices.h"
-#import "UnityAdvertisement.h"
-#import "UADSBanner.h"
-#import "UnityAdsDelegate.h"
-#import "UADSBannerView.h"
-#import "UADSBannerViewDelegate.h"
-#import "UADSBannerError.h"
-#import "UADSPlayerMetaData.h"
-#import "UADSMediationMetaData.h"
-#import "UnityAdsInitializationError.h"
-#import "UnityAdsInitializationDelegate.h"
-#import "UnityAdsLoadDelegate.h"
-#import "UnityAdsShowDelegate.h"
-#import "UADSLoadOptions.h"
-#import "UADSShowOptions.h"
-#import "UADSBannerAdRefreshViewDelegate.h"
-#import "UADSInAppPurchaseMetaData.h"
-#import "UnityAdsDelegateUtil.h"
+#import <UnityAds/UnityAdsDelegate.h>
+#import <UnityAds/UnityAdsInitializationDelegate.h>
+#import <UnityAds/UnityServices.h>
+#import <UnityAds/UnityAdvertisement.h>
+#import <UnityAds/UADSBanner.h>
+#import <UnityAds/UnityAdsDelegate.h>
+#import <UnityAds/UADSBannerView.h>
+#import <UnityAds/UADSBannerViewDelegate.h>
+#import <UnityAds/UADSBannerError.h>
+#import <UnityAds/UADSPlayerMetaData.h>
+#import <UnityAds/UADSMediationMetaData.h>
+#import <UnityAds/UnityAdsInitializationError.h>
+#import <UnityAds/UnityAdsInitializationDelegate.h>
+#import <UnityAds/UnityAdsLoadDelegate.h>
+#import <UnityAds/UnityAdsShowDelegate.h>
+#import <UnityAds/UADSLoadOptions.h>
+#import <UnityAds/UADSShowOptions.h>
+#import <UnityAds/UADSBannerAdRefreshViewDelegate.h>
+#import <UnityAds/UADSInAppPurchaseMetaData.h>
+#import <UnityAds/UnityAdsDelegateUtil.h>
 
-
+#import <UnityAds/UMONCustomEvent.h>
+#import <UnityAds/UMONItem.h>
+#import <UnityAds/UMONNativePromoAdapter.h>
+#import <UnityAds/UMONPlacementContent.h>
+#import <UnityAds/UMONPromoAdPlacementContent.h>
+#import <UnityAds/UMONPromoMetaData.h>
+#import <UnityAds/UnityAdsExtendedDelegate.h>
+#import <UnityAds/UnityAnalytics.h>
+#import <UnityAds/UnityAnalyticsAcquisitionType.h>
+#import <UnityAds/UnityMonetization.h>
+#import <UnityAds/UnityMonetizationDelegate.h>
+#import <UnityAds/UnityAdsError.h>
+#import <UnityAds/UPURTransactionDetails.h>
+#import <UnityAds/UPURTransactionErrorDetails.h>
+#import <UnityAds/USRVUnityPurchasing.h>
+#import <UnityAds/UANAApiAnalytics.h>
+#import <UnityAds/UADSPurchasing.h>
 #endif /* UnityAds_h */

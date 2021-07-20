@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "UADSBannerError.h"
+#import <UnityAds/UADSBannerError.h>
 
 @class UADSBannerView;
 

@@ -1,4 +1,4 @@
-#import "USRVJsonStorage.h"
+#import <UnityAds/USRVJsonStorage.h>
 
 @interface UADSMetaData : USRVJsonStorage
 

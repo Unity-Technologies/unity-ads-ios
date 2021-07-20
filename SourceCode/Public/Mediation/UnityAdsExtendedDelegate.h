@@ -1,5 +1,5 @@
-#import "UnityAdsPlacementState.h"
-#import "UnityAdsDelegate.h"
+#import <UnityAds/UnityAdsPlacementState.h>
+#import <UnityAds/UnityAdsDelegate.h>
 
 NS_ASSUME_NONNULL_BEGIN
 @protocol UnityAdsExtendedDelegate <UnityAdsDelegate>

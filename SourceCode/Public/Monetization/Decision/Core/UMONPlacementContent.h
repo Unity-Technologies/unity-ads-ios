@@ -1,5 +1,5 @@
-#import "UnityMonetizationPlacementContentState.h"
-#import "UMONCustomEvent.h"
+#import <UnityAds/UnityMonetizationPlacementContentState.h>
+#import <UnityAds/UMONCustomEvent.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

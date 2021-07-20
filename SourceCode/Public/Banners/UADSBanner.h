@@ -1,5 +1,5 @@
 #include <UIKit/UIKit.h>
-#include "UnityAdsBannerDelegate.h"
+#include <UnityAds/UnityAdsBannerDelegate.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
