@@ -1,5 +1,4 @@
 #import "UADSAdsModuleConfiguration.h"
-#import "UADSPlacement.h"
 #import "UADSWebViewShowOperation.H"
 #import "UADSTokenStorage.h"
 #import "UADSAbstractModule.h"
@@ -7,12 +6,9 @@
 
 - (NSArray<NSString *> *)getWebAppApiClassList {
     return @[
-        @"UADSApiListener",
         @"UADSApiAdUnit",
         @"UADSApiVideoPlayer",
         @"UADSApiWebPlayer",
-        @"UADSApiPlacement",
-        @"UADSApiPurchasing",
         @"UADSAdsProperties",
         @"UADSApiLoad",
         @"UADSApiShow",
@@ -22,7 +18,6 @@
 }
 
 - (BOOL)resetState: (USRVConfiguration *)configuration {
-    [UADSPlacement reset];
     [self setConfigurationToRequiredModules: configuration];
     [[UADSTokenStorage sharedInstance] deleteTokens];
     return true;

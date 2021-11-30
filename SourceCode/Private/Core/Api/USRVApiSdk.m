@@ -26,7 +26,7 @@
      [[[USRVWebViewApp getCurrentApp] configuration] webViewVersion] ? [[[USRVWebViewApp getCurrentApp] configuration] webViewVersion] : [NSNull null],
      [NSNumber numberWithLongLong: [USRVSdkProperties getInitializationTime]],
      [NSNumber numberWithBool: [USRVSdkProperties isReinitialized]],
-     [NSNumber numberWithBool: [USRVSdkProperties isPerPlacementLoadEnabled]],
+     [NSNumber numberWithBool: YES], // placement load enabled
      [NSNumber numberWithBool: [USRVSdkProperties getLatestConfiguration] != nil],
      [USRVDevice getElapsedRealtime],
      nil];

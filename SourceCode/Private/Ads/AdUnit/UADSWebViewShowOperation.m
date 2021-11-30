@@ -1,5 +1,4 @@
 #import "UADSWebViewShowOperation.h"
-#import "UnityAdsDelegateUtil.h"
 #import "USRVSDKMetrics.h"
 
 static USRVConfiguration *configuration = nil;
@@ -25,12 +24,7 @@ static USRVConfiguration *configuration = nil;
     [super main];
 
     if (!self.success) {
-        NSString *placementId = [self.parameters objectAtIndex: 0];
         USRVLogError(@"Unity Ads webapp timeout, shutting down Unity Ads");
-        [UnityAdsDelegateUtil unityAdsDidError: kUnityAdsErrorShowError
-                                   withMessage: @"Webapp timeout, shutting down Unity Ads"];
-        [UnityAdsDelegateUtil unityAdsDidFinish: placementId
-                                withFinishState: kUnityAdsFinishStateError];
         [[USRVSDKMetrics getInstance] sendEvent: @"native_show_callback_failed"];
     } else {
         USRVLogDebug(@"SHOW SUCCESS");

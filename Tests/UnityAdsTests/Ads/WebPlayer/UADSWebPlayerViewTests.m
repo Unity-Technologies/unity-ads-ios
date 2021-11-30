@@ -26,7 +26,7 @@
                                                                              viewId: @"testViewId"
                                                                   webPlayerSettings: [[NSDictionary alloc] init]];
         [webPlayerView layoutSubviews];
-        XCTAssertTrue(YES); // successfully did not throw
+        XCTAssertTrue(YES);         // successfully did not throw
     } @catch (NSException *e) {
         XCTFail("Should not throw");
     }
@@ -39,7 +39,7 @@
                                                                   webPlayerSettings: [[NSDictionary alloc] init]];
         [UIApplication.sharedApplication.delegate.window addSubview: webPlayerView];
         [webPlayerView layoutSubviews];
-        XCTAssertTrue(YES); // successfully did not throw
+        XCTAssertTrue(YES);         // successfully did not throw
         [webPlayerView removeFromSuperview];
     } @catch (NSException *e) {
         XCTFail(@"Should not throw");

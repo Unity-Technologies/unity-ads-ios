@@ -221,7 +221,7 @@
     NSArray *expectedParams = [NSArray new];
 
     for (id event in expectedEvents) {
-        expectedParams = [expectedParams arrayByAddingObject: @[kFakePlacementID, kGMAQueryID]]; // creating expected array since default params are the same
+        expectedParams = [expectedParams arrayByAddingObject: @[kFakePlacementID, kGMAQueryID]];         // creating expected array since default params are the same
     }
 
     XCTAssertEqualObjects(_webAppMock.params, expectedParams);

@@ -38,5 +38,5 @@ NSString * UADSNSStringFromAREvent(UnityAdsAREvent event) {
 
         case kUnityAdsARSessionInterruptionEnded:
             return unityAdsARSessionInterruptionEnded;
-    } /* switch */
+    }     /* switch */
 } /* UADSNSStringFromAREvent */

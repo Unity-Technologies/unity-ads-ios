@@ -41,7 +41,7 @@ NSString * USRVNSStringFromCacheError(UnityServicesCacheError error) {
             return @"FILE_STATE_WRONG";
 
             break;
-    } /* switch */
+    }     /* switch */
 } /* USRVNSStringFromCacheError */
 
 @implementation USRVApiCache
@@ -296,7 +296,7 @@ NSString * USRVNSStringFromCacheError(UnityServicesCacheError error) {
     NSMutableDictionary *resultDict = [[NSMutableDictionary alloc] init];
 
     if (!error) {
-        NSDate *modifiedDate = [fileAttribs objectForKey: NSFileModificationDate];    // or NSFileModificationDate
+        NSDate *modifiedDate = [fileAttribs objectForKey: NSFileModificationDate];         // or NSFileModificationDate
         NSNumber *size = [fileAttribs objectForKey: NSFileSize];
 
         [resultDict setObject: fileId

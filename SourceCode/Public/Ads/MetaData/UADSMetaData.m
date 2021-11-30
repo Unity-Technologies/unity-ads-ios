@@ -1,6 +1,19 @@
 #import "USRVStorageManager.h"
 #import "UADSMetaData.h"
-#import "NSDictionary+Merge.h"
+
+/**
+ * Uses category is a parent key for all objects. For each object saves timestamp it was added to the storage.
+ * E.g. MetaData with category = "mediation" for <name : mediation_partner> will create
+ * {
+ * mediation = {
+ *    name = {
+ *        ts = 1628799917567;
+ *        value = mediation_partner;
+ *    };
+ * };
+ *
+ * On commit, writes to a file and notifies webview about the changes.
+ */
 
 @implementation UADSMetaData
 
@@ -47,29 +60,9 @@
 }
 
 - (void)commit {
-    if ([USRVStorageManager init]) {
-        USRVStorage *storage = [USRVStorageManager getStorage: kUnityServicesStorageTypePublic];
+    NSDictionary *storageContents = [self getContents];
 
-        if (self.storageContents && storage) {
-            for (NSString *key in self.storageContents) {
-                id value = [self getValueForKey: key];
-
-                if ([storage getValueForKey: key] && [[storage getValueForKey: key] isKindOfClass: [NSDictionary class]] && [value isKindOfClass: [NSDictionary class]]) {
-                    value = [NSDictionary unityads_dictionaryByMerging: value
-                                                             secondary: [storage getValueForKey: key]];
-                }
-
-                [storage set: key
-                       value : value];
-            }
-
-            [storage writeStorage];
-            [storage sendEvent: @"SET"
-                        values: self.storageContents];
-        }
-    } else {
-        USRVLogError(@"Init storages failed!");
-    }
+    [[USRVStorageManager sharedInstance] commit: storageContents];
 } /* commit */
 
 @end

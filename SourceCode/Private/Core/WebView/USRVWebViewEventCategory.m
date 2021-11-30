@@ -82,5 +82,5 @@ NSString * USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategor
 
         case kUnityServicesWebViewEventCategorySKAdNetwork:
             return eventCategorySKAdNetworkApi;
-    } /* switch */
+    }     /* switch */
 } /* USRVNSStringFromWebViewEventCategory */

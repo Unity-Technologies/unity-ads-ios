@@ -63,4 +63,28 @@
     XCTAssertEqualObjects(@"primary", [[merged valueForKey: @"test"] valueForKey: @"override"]);
 } /* testMergeDictionary */
 
+- (void)testDeepCopy {
+    NSDictionary *innerDict = @{ @"1.1": @"one", @"1.2": @{ @"2": @"two" } };
+    NSMutableDictionary *dict = [@{ @"1": innerDict } mutableCopy];
+    NSDictionary *dict2 = [dict deepCopy];
+
+    XCTAssertEqualObjects(dict, dict2);
+
+    dict[@"1"] = @{ @"2": @"new" };
+
+    XCTAssertNotEqualObjects(dict, dict2);
+    XCTAssertEqualObjects(dict2[@"1"], innerDict);
+
+
+    NSMutableArray *original = [@[@"1", @"2", @"3"] mutableCopy];
+    NSArray *deepCopy = [original deepCopy];
+
+    XCTAssertEqualObjects(original, deepCopy);
+
+    original[0] = @"4";
+
+    XCTAssertNotEqualObjects(original, deepCopy);
+    XCTAssertEqualObjects(deepCopy[0], @"1");
+}
+
 @end

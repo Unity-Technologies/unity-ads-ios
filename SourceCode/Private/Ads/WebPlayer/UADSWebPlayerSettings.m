@@ -50,5 +50,5 @@ NSString * UADSNSStringFromWebPlayerWebSetting(UnityAdsWebPlayerWebSettings sett
 
         case kUnityAdsWebPlayerWebSettingsScrollEnabled:
             return unityAdsWebPlayerWebSettingsScrollEnabled;
-    } /* switch */
+    }     /* switch */
 } /* UADSNSStringFromWebPlayerWebSetting */

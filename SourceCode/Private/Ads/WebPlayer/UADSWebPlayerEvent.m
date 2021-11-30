@@ -34,5 +34,5 @@ NSString * UADSNSStringFromWebPlayerEvent(UnityAdsWebPlayerEvent event) {
 
         case kUnityAdsWebPlayerGetFrameResponse:
             return unityAdsWebPlayerGetFrameResponse;
-    } /* switch */
+    }     /* switch */
 } /* UADSNSStringFromWebPlayerEvent */

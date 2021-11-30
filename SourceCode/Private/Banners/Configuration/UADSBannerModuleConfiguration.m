@@ -1,5 +1,4 @@
 #import "UADSBannerModuleConfiguration.h"
-#import "UADSPlacement.h"
 
 @implementation UADSBannerModuleConfiguration
 

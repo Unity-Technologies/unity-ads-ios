@@ -144,7 +144,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
         default:
             break;
-    } /* switch */
+    }     /* switch */
 } /* sendToWebview */
 
 @end

@@ -1,5 +1,4 @@
 #import <UIKit/UIKit.h>
-#import "UADSBanner.h"
 
 @interface USRVClientProperties : NSObject
 + (void)setGameId: (NSString *)gid;

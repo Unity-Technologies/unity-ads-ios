@@ -2,11 +2,9 @@
 
 @interface USRVStorageManager : NSObject
 
-+ (BOOL)init;
-+ (void)initStorage: (UnityServicesStorageType)storageType;
++ (instancetype) sharedInstance;
 + (USRVStorage *)getStorage: (UnityServicesStorageType)storageType;
-+ (BOOL)hasStorage: (UnityServicesStorageType)storageType;
-+ (void)addStorageLocation: (NSString *)location forStorageType: (UnityServicesStorageType)storageType;
 + (void)removeStorage: (UnityServicesStorageType)storageType;
+- (void)commit: (NSDictionary *)storageContents;
 
 @end

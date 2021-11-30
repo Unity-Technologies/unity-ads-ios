@@ -1,6 +1,5 @@
 #import <UIKit/UIKit.h>
 #import "UADSWebPlayerView.h"
-#import "UADSBanner.h"
 
 @interface UADSBannerWebPlayerContainer : UIView
 

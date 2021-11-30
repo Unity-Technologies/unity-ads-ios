@@ -1,65 +1,69 @@
 #import "USRVStorageManager.h"
 #import "USRVSdkProperties.h"
+#import "NSDictionary+Merge.h"
+
+@interface USRVStorageManager ()
+
+@property (nonatomic, strong) NSMutableDictionary *storageLocations;
+@property (nonatomic, strong) NSMutableDictionary *storages;
+@property (nonatomic, strong) dispatch_queue_t syncQueue;
+
+@end
 
 @implementation USRVStorageManager
 
-static NSMutableDictionary *storageLocations;
-static NSMutableDictionary *storages;
++ (USRVStorage *)getStorage: (UnityServicesStorageType)storageType {
+    return [[USRVStorageManager sharedInstance] getStorage: storageType];
+}
 
-+ (BOOL)init {
-    if (!storages) {
-        storages = [[NSMutableDictionary alloc] init];
-    }
++ (void)removeStorage: (UnityServicesStorageType)storageType {
+    [[USRVStorageManager sharedInstance] removeStorage: storageType];
+}
 
+_uads_custom_singleton_imp(USRVStorageManager, ^{
+    return [self new];
+})
+
+- (instancetype)init {
+    SUPER_INIT
+
+        _syncQueue = dispatch_queue_create("com.unity.storage.manager", DISPATCH_QUEUE_SERIAL);
+
+    _storages = [[NSMutableDictionary alloc] init];
+
+    _storageLocations = [[NSMutableDictionary alloc] init];
+
+    [self setupStorages];
+
+    return self;
+}
+
+- (void)setupStorages {
     NSString *cacheDir = [USRVSdkProperties getCacheDirectory];
     NSString *localStorageFilePrefix = [USRVSdkProperties getLocalStorageFilePrefix];
 
-    [self addStorageLocation: [NSString stringWithFormat: @"%@/%@%@", cacheDir, localStorageFilePrefix, @"public-data.json"]
-              forStorageType: kUnityServicesStorageTypePublic];
-    [self addStorageLocation: [NSString stringWithFormat: @"%@/%@%@", cacheDir, localStorageFilePrefix, @"private-data.json"]
-              forStorageType: kUnityServicesStorageTypePrivate];
+    dispatch_sync(_syncQueue, ^{
+        [self addStorageLocation: [NSString stringWithFormat: @"%@/%@%@", cacheDir, localStorageFilePrefix, @"public-data.json"]
+                  forStorageType: kUnityServicesStorageTypePublic];
+        [self addStorageLocation: [NSString stringWithFormat: @"%@/%@%@", cacheDir, localStorageFilePrefix, @"private-data.json"]
+                  forStorageType: kUnityServicesStorageTypePrivate];
 
-    if (![USRVStorageManager setupStorage: kUnityServicesStorageTypePublic]) {
-        return false;
-    }
-
-    if (![USRVStorageManager setupStorage: kUnityServicesStorageTypePrivate]) {
-        return false;
-    }
-
-    return true;
-} /* init */
-
-+ (dispatch_queue_t)getSynchronize {
-    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        [self setupStorage: kUnityServicesStorageTypePublic];
+        [self setupStorage: kUnityServicesStorageTypePrivate];
+    });
 }
 
-+ (void)initStorage: (UnityServicesStorageType)storageType {
-    if (!storages) {
-        storages = [[NSMutableDictionary alloc] init];
+- (void)addStorageLocation: (NSString *)location forStorageType: (UnityServicesStorageType)storageType {
+    if (![_storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]) {
+        [_storageLocations setObject: location
+                              forKey: [NSNumber numberWithInteger: storageType]];
     }
+}
 
-    if ([self hasStorage: storageType]) {
-        USRVStorage *storage = [USRVStorageManager getStorage: storageType];
-
-        if (storage) {
-            [storage initStorage];
-        }
-    } else if ([storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]) {
-        USRVStorage *storage = [[USRVStorage alloc] initWithLocation: [storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]
-                                                                type: storageType];
-        [storage initStorage];
-        dispatch_sync([self getSynchronize], ^{
-            [storages setObject: storage
-                         forKey: [NSNumber numberWithInteger: storageType]];
-        });
-    }
-} /* initStorage */
-
-+ (BOOL)setupStorage: (UnityServicesStorageType)storageType {
-    if (![USRVStorageManager hasStorage: storageType]) {
-        [USRVStorageManager initStorage: storageType];
-        USRVStorage *storage = [USRVStorageManager getStorage: storageType];
+- (BOOL)setupStorage: (UnityServicesStorageType)storageType {
+    if (![self hasStorage: storageType]) {
+        [self initStorage: storageType];
+        USRVStorage *storage = [_storages objectForKey: [NSNumber numberWithInteger: storageType]];
 
         if (storage && ![storage storageFileExists]) {
             [storage writeStorage];
@@ -73,49 +77,67 @@ static NSMutableDictionary *storages;
     return true;
 }
 
-+ (void)addStorageLocation: (NSString *)location forStorageType: (UnityServicesStorageType)storageType {
-    if (!storageLocations) {
-        storageLocations = [[NSMutableDictionary alloc] init];
+- (BOOL)hasStorage: (UnityServicesStorageType)storageType {
+    return [self.storages objectForKey: [NSNumber numberWithInteger: storageType]] != nil;
+}
+
+- (void)initStorage: (UnityServicesStorageType)storageType {
+    if ([self hasStorage: storageType]) {
+        USRVStorage *storage =  [_storages objectForKey: [NSNumber numberWithInteger: storageType]];
+
+        if (storage) {
+            [storage initStorage];
+        }
+    } else if ([_storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]) {
+        USRVStorage *storage = [[USRVStorage alloc] initWithLocation: [_storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]
+                                                                type: storageType];
+        [storage initStorage];
+        [_storages setObject: storage
+                      forKey: [NSNumber numberWithInteger: storageType]];
     }
+} /* initStorage */
 
-    dispatch_sync([self getSynchronize], ^{
-        if (![storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]) {
-            [storageLocations setObject: location
-                                 forKey: [NSNumber numberWithInteger: storageType]];
-        }
+- (void)removeStorage: (UnityServicesStorageType)storageType {
+    dispatch_sync(_syncQueue, ^{
+        [_storageLocations removeObjectForKey: [NSNumber numberWithInteger: storageType]];
+        [_storages removeObjectForKey: [NSNumber numberWithInteger: storageType]];
     });
 }
 
-+ (void)removeStorage: (UnityServicesStorageType)storageType {
-    dispatch_sync([self getSynchronize], ^{
-        if ([storageLocations objectForKey: [NSNumber numberWithInteger: storageType]]) {
-            [storageLocations removeObjectForKey: [NSNumber numberWithInteger: storageType]];
-        }
-    });
-
-    dispatch_sync([self getSynchronize], ^{
-        if ([storages objectForKey: [NSNumber numberWithInteger: storageType]]) {
-            [storages removeObjectForKey: [NSNumber numberWithInteger: storageType]];
-        }
-    });
-}
-
-+ (USRVStorage *)getStorage: (UnityServicesStorageType)storageType {
+- (USRVStorage *)getStorage: (UnityServicesStorageType)storageType {
     __block USRVStorage *result = NULL;
 
-    dispatch_sync([self getSynchronize], ^{
-        result = [storages objectForKey: [NSNumber numberWithInteger: storageType]];
+    dispatch_sync(_syncQueue, ^{
+        result = [_storages objectForKey: [NSNumber numberWithInteger: storageType]];
     });
     return result;
 }
 
-+ (BOOL)hasStorage: (UnityServicesStorageType)storageType {
-    __block BOOL result = false;
+- (void)commit: (NSDictionary *)storageContents {
+    USRVStorage *storage = [USRVStorageManager getStorage: kUnityServicesStorageTypePublic];
 
-    dispatch_sync([self getSynchronize], ^{
-        result = [storages objectForKey: [NSNumber numberWithInteger: storageType]];
+    if (!storage || !storageContents) {
+        return;
+    }
+
+    dispatch_sync(_syncQueue, ^{
+        for (NSString *key in storageContents) {
+            id value = [storageContents valueForKey: key];
+            id storageValue = [storage getValueForKey: key];
+
+            if (storageValue && [storageValue isKindOfClass: [NSDictionary class]] && [value isKindOfClass: [NSDictionary class]]) {
+                value = [NSDictionary unityads_dictionaryByMerging: value
+                                                         secondary: storageValue];
+            }
+
+            [storage set: key
+                   value : value];
+        }
+
+        [storage writeStorage];
+        [storage sendEvent: @"SET"
+                    values: storageContents];
     });
-    return result;
 }
 
 @end

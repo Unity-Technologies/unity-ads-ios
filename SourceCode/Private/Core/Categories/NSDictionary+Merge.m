@@ -14,9 +14,11 @@
     NSMutableDictionary *newDictionary = [[NSMutableDictionary alloc] initWithDictionary: secondary];
 
     [primary enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop) {
-        if ([newDictionary valueForKey: key] && [[newDictionary valueForKey: key] isKindOfClass: [NSDictionary class]] && [obj isKindOfClass: [NSDictionary class]]) {
+        id newValue = [newDictionary valueForKey: key];
+
+        if (newValue && [newValue isKindOfClass: [NSDictionary class]] && [obj isKindOfClass: [NSDictionary class]]) {
             [newDictionary setValue: [NSDictionary unityads_dictionaryByMerging: obj
-                                                                      secondary: [newDictionary valueForKey: key]]
+                                                                      secondary: newValue]
                              forKey: key];
         } else {
             [newDictionary setValue: obj

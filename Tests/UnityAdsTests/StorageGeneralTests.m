@@ -8,11 +8,6 @@
 
 - (void)setUp {
     [super setUp];
-    NSString *cacheDir = [USRVSdkProperties getCacheDirectory];
-
-    [USRVStorageManager addStorageLocation: [NSString stringWithFormat: @"%@/test.data", cacheDir]
-                            forStorageType: kUnityServicesStorageTypePublic];
-    [USRVStorageManager initStorage: kUnityServicesStorageTypePublic];
 
     USRVStorage *storage = [USRVStorageManager getStorage: kUnityServicesStorageTypePublic];
 

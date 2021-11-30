@@ -105,7 +105,7 @@
 
         case kUnityAdsBannerPositionNone:
             break;
-    } /* switch */
+    }     /* switch */
     // position vertically
     switch (bannerPosition) {
         case kUnityAdsBannerPositionCenter:
@@ -148,7 +148,7 @@
 
         case kUnityAdsBannerPositionNone:
             break;
-    } /* switch */
+    }     /* switch */
     return constraints;
 } /* getBannerConstraints */
 

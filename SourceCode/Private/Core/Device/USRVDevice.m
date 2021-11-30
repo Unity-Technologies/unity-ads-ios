@@ -339,7 +339,7 @@ static NSNumber *uadsBootTime = nil;
         if (!(basic_info_th->flags & TH_FLAGS_IDLE)) {
             tot_cpu = tot_cpu + basic_info_th->cpu_usage / (float)TH_USAGE_SCALE * 100.0;
         }
-    } // for each thread
+    }     // for each thread
 
     kr = vm_deallocate(mach_task_self(), (vm_offset_t)thread_list, thread_count * sizeof(thread_t));
     assert(kr == KERN_SUCCESS);

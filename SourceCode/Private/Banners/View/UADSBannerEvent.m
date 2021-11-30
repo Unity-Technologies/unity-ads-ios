@@ -34,6 +34,6 @@ NSString * UADSNSStringFromBannerEvent(UADSBannerEvent event) {
 
         case UADSBannerEventDestroyBanner:
             return bannerDestroyBanner;
-    } /* switch */
+    }     /* switch */
     return nil;
 } /* UADSNSStringFromBannerEvent */

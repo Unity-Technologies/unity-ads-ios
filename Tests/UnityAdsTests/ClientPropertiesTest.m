@@ -1,19 +1,10 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
 
-@interface ClientPropertiesTest : XCTestCase <UnityAdsDelegate>
+@interface ClientPropertiesTest : XCTestCase
 @end
 
 @implementation ClientPropertiesTest
-
-- (void)setUp {
-    [super setUp];
-}
-
-- (void)tearDown {
-    [super tearDown];
-    [UADSProperties removeDelegate: self];
-}
 
 - (void)testGetSupportedOrientations {
     NSNumber *numberOfSupportedOrientations = [NSNumber numberWithUnsignedLong: [[USRVClientProperties getSupportedOrientationsPlist] count]];
@@ -37,11 +28,6 @@
     XCTAssertEqualObjects(controller, [USRVClientProperties getCurrentViewController]);
 }
 
-- (void)testAddDelegate {
-    [UADSProperties addDelegate: self];
-    XCTAssertTrue([[UADSProperties getDelegates] containsObject: self]);
-}
-
 - (void)testIsAppDebuggable {
     XCTAssertFalse([USRVClientProperties isAppDebuggable], "App should not be debuggable");
 }
@@ -56,20 +42,6 @@
     NSArray *expected = @[@"4DZT52R2T5.skadnetwork", @"example.skadnetwork"];
 
     XCTAssertTrue([expected isEqualToArray: ids], @"Both arrays should be equal: %@ %@", ids, expected);
-}
-
-/* TEST DELEGATE */
-
-- (void)unityAdsReady: (NSString *)placementId {
-}
-
-- (void)unityAdsDidStart: (NSString *)placementId {
-}
-
-- (void)unityAdsDidError: (UnityAdsError)error withMessage: (NSString *)message {
-}
-
-- (void)unityAdsDidFinish: (NSString *)placementId withFinishState: (UnityAdsFinishState)state {
 }
 
 @end

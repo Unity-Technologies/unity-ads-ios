@@ -36,7 +36,7 @@ typedef id<UADSWebViewInvoker> Invoker;
     operation.options = options;
     operation.delegate = delegate;
     operation.ttl = [self operationOperationTimeoutMs];
-    operation.time = [USRVDevice getElapsedRealtime]; // ideally this should not be as explicit dependency
+    operation.time = [USRVDevice getElapsedRealtime];     // ideally this should not be as explicit dependency
     return operation;
 }
 

@@ -2,6 +2,10 @@
 #import "USRVWebViewApp.h"
 #import "USRVJsonUtilities.h"
 
+/**
+ * Writes/reads storageContents to/from a file.
+ */
+
 @implementation USRVStorage
 
 - (instancetype)initWithLocation: (NSString *)fileLocation type: (UnityServicesStorageType)type {
@@ -55,8 +59,8 @@
                                                                  options: NSJSONReadingMutableContainers
                                                                    error: &jsonError];
 
-        if (!error && fileContents) {
-            [self setStorageContents: [NSMutableDictionary dictionaryWithDictionary: jsonDict]];
+        if (!jsonError && fileContents) {
+            [self setContents: [NSMutableDictionary dictionaryWithDictionary: jsonDict]];
             return true;
         }
     }
@@ -65,8 +69,8 @@
 }
 
 - (BOOL)writeStorage {
-    if (self.storageContents) {
-        NSData *jsonData = [USRVJsonUtilities dataWithJSONObject: self.storageContents
+    if (self.hasData) {
+        NSData *jsonData = [USRVJsonUtilities dataWithJSONObject: [self getContents]
                                                          options: 0
                                                            error: nil];
 

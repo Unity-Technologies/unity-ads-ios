@@ -22,13 +22,7 @@ typedef NS_ENUM (NSInteger, UnityAdsBannerPosition) {
  */
 
 @interface UnityAdsBanner : NSObject
-
-/**
- * Loads a banner with the default banner placement.
- */
-+ (void)loadBanner __attribute__((deprecated));
-
-/**
+/*
  * Loads the banner with the given placement.
  * @param placementId The placement ID, as defined in the Unity Ads admin tools.
  */

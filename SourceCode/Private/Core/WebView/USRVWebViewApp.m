@@ -8,6 +8,7 @@
 #import "USRVWKWebViewUtilities.h"
 #import "USRVJsonUtilities.h"
 #import "USRVSDKMetrics.h"
+#import "UADSWebKitLoader.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
 
@@ -71,33 +72,9 @@ static NSCondition *blockCondition = nil;
 
 + (BOOL)create: (USRVConfiguration *)configuration view: (UIView *)view {
     USRVLogDebug(@"CREATING WKWEBVIEWAPP");
-    NSString *frameworkLocation;
+    [UADSWebKitLoader loadFrameworkIfNotLoaded];
+
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] initWithConfiguration: configuration];
-
-    if (![USRVWKWebViewUtilities isFrameworkPresent]) {
-        USRVLogDebug(@"WebKit framework not present, trying to load it");
-
-        if ([USRVDevice isSimulator]) {
-            NSString *frameworkPath = [[NSProcessInfo processInfo] environment][@"DYLD_FALLBACK_FRAMEWORK_PATH"];
-
-            if (frameworkPath) {
-                frameworkLocation = [NSString pathWithComponents: @[frameworkPath, @"WebKit.framework", @"WebKit"]];
-            }
-        } else {
-            frameworkLocation = [NSString stringWithFormat: @"/System/Library/Frameworks/WebKit.framework/WebKit"];
-        }
-
-        dlopen([frameworkLocation cStringUsingEncoding: NSUTF8StringEncoding], RTLD_LAZY);
-
-        if (![USRVWKWebViewUtilities isFrameworkPresent]) {
-            USRVLogError(@"WKWebKit still not present!");
-            return NO;
-        } else {
-            USRVLogDebug(@"Succesfully loaded WKWebKit framework");
-        }
-    } else {
-        USRVLogDebug(@"WebKit framework already present");
-    }
 
     dispatch_sync(dispatch_get_main_queue(), ^(void) {
         id wkConfiguration = [USRVWKWebViewUtilities getObjectFromClass: "WKWebViewConfiguration"];
@@ -259,7 +236,7 @@ static NSCondition *blockCondition = nil;
         [[USRVSDKMetrics getInstance] sendEventWithTags: @"native_webview_creation_failed"
                                                    tags: @{
              @"wto": [NSString stringWithFormat: @"%d", !webViewCreateDidNotTimeout],
-             @"wad": @"true", // Will always be true here on iOS, but aligned with Android metrics
+             @"wad": @"true",             // Will always be true here on iOS, but aligned with Android metrics
              @"wai": [NSString stringWithFormat: @"%d", [webViewApp isWebAppInitialized]],
         }];
     }

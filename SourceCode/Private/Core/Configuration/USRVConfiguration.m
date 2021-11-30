@@ -2,6 +2,7 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebRequest.h"
 #import "USRVWebRequestFactory.h"
+#import "USRVConfigurationStorage.h"
 
 NSString *const kUnityServicesConfigValueHash = @"hash";
 NSString *const kUnityServicesConfigValueUrl = @"url";
@@ -22,10 +23,6 @@ NSString *const kUnityServicesConfigValueWebViewTimeout = @"wto";
 NSString *const kUnityServicesConfigValueWebViewAppCreateTimeout = @"wct";
 NSString *const kUnityServicesConfigValueSdkVerion = @"sdkv";
 
-NSArray<NSString *> *moduleConfigurationList;
-NSMutableDictionary<NSString *, USRVModuleConfiguration *> *moduleConfigurations;
-NSArray<NSString *> *webAppApiClassList;
-
 @implementation USRVConfiguration
 
 - (instancetype)initWithConfigUrl: (NSString *)url {
@@ -42,7 +39,6 @@ NSArray<NSString *> *webAppApiClassList;
     self = [super init];
 
     if (self) {
-        [self createModuleConfigurationList];
         [self handleConfigurationData: configJsonData];
     }
 
@@ -53,7 +49,6 @@ NSArray<NSString *> *webAppApiClassList;
     self = [super init];
 
     if (self) {
-        [self createModuleConfigurationList];
         [self setOptionalFields: [[NSDictionary alloc] init]];
     }
 
@@ -141,77 +136,15 @@ NSArray<NSString *> *webAppApiClassList;
 }
 
 - (NSArray<NSString *> *)getWebAppApiClassList {
-    if (!webAppApiClassList) {
-        [self createWebAppApiClassList];
-    }
-
-    return webAppApiClassList;
+    return [USRVConfigurationStorage.sharedInstance getWebAppApiClassList];
 }
 
 - (NSArray<NSString *> *)getModuleConfigurationList {
-    return moduleConfigurationList;
+    return [USRVConfigurationStorage.sharedInstance getModuleConfigurationList];
 }
 
 - (USRVModuleConfiguration *)getModuleConfiguration: (NSString *)moduleName {
-    if (moduleConfigurations && [moduleConfigurations objectForKey: moduleName]) {
-        return [moduleConfigurations objectForKey: moduleName];
-    } else {
-        if (!moduleConfigurations) {
-            moduleConfigurations = [[NSMutableDictionary alloc] init];
-        }
-
-        id clz = NSClassFromString(moduleName);
-
-        if (clz) {
-            id obj = [[NSClassFromString(moduleName) alloc] init];
-
-            if (obj) {
-                if ([obj respondsToSelector: @selector(getWebAppApiClassList)]) {
-                    USRVLogDebug(@"Responds to selector");
-                    [moduleConfigurations setObject: obj
-                                             forKey: moduleName];
-                    return obj;
-                }
-            } else {
-                USRVLogDebug(@"Object not created");
-                return NULL;
-            }
-        } else {
-            USRVLogDebug(@"Class not found");
-            return NULL;
-        }
-    }
-
-    return NULL;
-} /* getModuleConfiguration */
-
-- (void)createWebAppApiClassList {
-    NSMutableArray *tmpArray = [[NSMutableArray alloc] init];
-
-    for (NSString *moduleConfigClass in [self getModuleConfigurationList]) {
-        id moduleConfiguration = [self getModuleConfiguration: moduleConfigClass];
-
-        if (moduleConfiguration) {
-            if ([moduleConfiguration getWebAppApiClassList]) {
-                [tmpArray addObjectsFromArray: [moduleConfiguration getWebAppApiClassList]];
-            }
-        }
-    }
-
-    webAppApiClassList = [[NSArray alloc] initWithArray: tmpArray];
-}
-
-- (void)createModuleConfigurationList {
-    moduleConfigurationList = @[
-        @"USRVCoreModuleConfiguration",
-        @"UADSAdsModuleConfiguration",
-        @"UANAAnalyticsModuleConfiguration",
-        @"UMONMonetizationModuleConfiguration",
-        @"UPURPurchasingModuleConfiguration",
-        @"UADSBannerModuleConfiguration",
-        @"UADSARModuleConfiguration",
-        @"USTRStoreModuleConfiguration"
-    ];
+    return [USRVConfigurationStorage.sharedInstance getModuleConfiguration: moduleName];
 }
 
 - (NSData *)toJson {

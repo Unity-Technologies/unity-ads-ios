@@ -1,4 +1,3 @@
-#import "UADSPlacement.h"
 #import "UADSBannerAdRefreshView.h"
 #import "USRVClientProperties.h"
 #import "UADSBannerWrapperView.h"
@@ -11,10 +10,10 @@ const CGFloat UADSBannerSizeStandardWidth = 320.0f;
 const CGFloat UADSBannerSizeStandardHeight = 50.0f;
 
 typedef NS_ENUM (NSInteger, UADSBannerSize) {
-    UADSBannerSizeStandard, // width: 320.0f, height: 50.0f
-    UADSBannerSizeLeaderboard, // width: 728.0f, height: 90.0f
-    UADSBannerSizeIABStandard, // width: 468.0f, height: 60.0f
-    UADSBannerSizeDynamic // the best fitting size from above will be used
+    UADSBannerSizeStandard,     // width: 320.0f, height: 50.0f
+    UADSBannerSizeLeaderboard,     // width: 728.0f, height: 90.0f
+    UADSBannerSizeIABStandard,     // width: 468.0f, height: 60.0f
+    UADSBannerSizeDynamic     // the best fitting size from above will be used
 };
 
 
@@ -203,11 +202,6 @@ typedef NS_ENUM (NSInteger, UADSBannerSize) {
 }
 
 // MARK Public Methods
-
-+ (void)loadBanner {
-    [UnityAdsBanner loadBanner: [UADSPlacement getDefaultBannerPlacement]];
-}
-
 + (void)loadBanner: (nonnull NSString *)placementId {
     [[UnityAdsBanner sharedInstance] loadBanner: placementId];
 }

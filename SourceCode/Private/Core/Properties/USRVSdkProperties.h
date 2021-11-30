@@ -24,8 +24,6 @@ typedef NS_ENUM (NSInteger, InitializationState) {
 + (void)setInitialized: (BOOL)initialized;
 + (BOOL)                                                 isTestMode;
 + (void)setTestMode: (BOOL)testmode;
-+ (void)setPerPlacementLoadEnabled: (BOOL)perPlacementLoadEnabled;
-+ (BOOL)                                                 isPerPlacementLoadEnabled;
 + (int)                                                  getVersionCode;
 + (void)setInitializationState: (InitializationState)initializationState;
 + (InitializationState)                                  getCurrentInitializationState;
@@ -49,8 +47,6 @@ typedef NS_ENUM (NSInteger, InitializationState) {
 + (BOOL)                                                 isReinitialized;
 + (void)setDebugMode: (BOOL)enableDebugMode;
 + (BOOL)                                                 getDebugMode;
-+ (id<UnityServicesDelegate>)                            getDelegate;
-+ (void)setDelegate: (id<UnityServicesDelegate>)delegate;
 + (void)addInitializationDelegate: (id<UnityAdsInitializationDelegate>)delegate;
 + (NSMutableArray<id<UnityAdsInitializationDelegate> > *)getInitializationDelegates;
 + (void)                                                 resetInitializationDelegates;

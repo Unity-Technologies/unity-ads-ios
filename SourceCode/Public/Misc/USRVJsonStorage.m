@@ -1,9 +1,40 @@
 #import "USRVJsonStorage.h"
+#import "NSObject+DeepCopy.h"
+
+/**
+ * Stores objects for dot-separated keys in a json-like format. For each key component will create an entity with dictionary value, next key component will be stored in that parent dictionary. Object is saved to the final dictionary with key = "value".
+ * E.g. storing <mediation.name : mediation_partner> will create
+ * {
+ * mediation = {
+ *    name = {
+ *        value = mediation_partner;
+ *    };
+ * };
+ */
+
+@interface USRVJsonStorage ()
+
+@property (nonatomic, strong) dispatch_queue_t synchronizedQueue;
+
+@end
 
 @implementation USRVJsonStorage
 
+- (instancetype)init {
+    SUPER_INIT;
+    _synchronizedQueue = dispatch_queue_create("com.unity.jsonstorage", DISPATCH_QUEUE_SERIAL);
+
+    return self;
+}
+
 - (BOOL)set: (NSString *)key value: (id)value {
-    if (self.storageContents && key && [key length] > 0 && value) {
+    if (!self.storageContents || !key || [key length] == 0 || !value) {
+        return NO;
+    }
+
+    __block BOOL success = NO;
+
+    dispatch_sync(self.synchronizedQueue, ^{
         [self createObjectTree: [self getParentObjectTreeForTree: key]];
 
         if ([[self findObjectForKey: [self getParentObjectTreeForTree: key]] isKindOfClass: [NSDictionary class]]) {
@@ -15,39 +46,63 @@
                 [parentObject setObject: value
                                  forKey: lastKey];
 
-                return true;
+                success = YES;
             }
         }
-    }
+    });
 
-    return false;
+    return success;
 }
 
 - (id)getValueForKey: (NSString *)key {
-    if (self.storageContents && [[self findObjectForKey: [self getParentObjectTreeForTree: key]] isKindOfClass: [NSDictionary class]]) {
-        NSArray<NSString *> *keySplit = [key componentsSeparatedByString: @"."];
-        NSMutableDictionary *parentObject = (NSMutableDictionary *)[self findObjectForKey: [self getParentObjectTreeForTree: key]];
+    __block id value = NULL;
 
-        if (parentObject) {
-            return [parentObject objectForKey: [keySplit objectAtIndex: [keySplit count] - 1]];
+    dispatch_sync(self.synchronizedQueue, ^{
+        if (self.storageContents && [[self findObjectForKey: [self getParentObjectTreeForTree: key]] isKindOfClass: [NSDictionary class]]) {
+            NSArray<NSString *> *keySplit = [key componentsSeparatedByString: @"."];
+            NSMutableDictionary *parentObject = (NSMutableDictionary *)[self findObjectForKey: [self getParentObjectTreeForTree: key]];
+
+            if (parentObject) {
+                value = [parentObject objectForKey: [keySplit objectAtIndex: [keySplit count] - 1]];
+            }
         }
-    }
+    });
 
-    return NULL;
+    return value;
 }
 
 - (BOOL)deleteKey: (NSString *)key {
-    if (self.storageContents && [[self findObjectForKey: [self getParentObjectTreeForTree: key]] isKindOfClass: [NSDictionary class]]) {
-        NSArray<NSString *> *keySplit = [key componentsSeparatedByString: @"."];
-        NSMutableDictionary *parentObject = (NSMutableDictionary *)[self findObjectForKey: [self getParentObjectTreeForTree: key]];
+    __block BOOL success = NO;
 
-        if (parentObject) {
-            [parentObject removeObjectForKey: [keySplit objectAtIndex: [keySplit count] - 1]];
-            return true;
+    dispatch_sync(self.synchronizedQueue, ^{
+        if (self.storageContents && [[self findObjectForKey: [self getParentObjectTreeForTree: key]] isKindOfClass: [NSDictionary class]]) {
+            NSArray<NSString *> *keySplit = [key componentsSeparatedByString: @"."];
+            NSMutableDictionary *parentObject = (NSMutableDictionary *)[self findObjectForKey: [self getParentObjectTreeForTree: key]];
+
+            if (parentObject) {
+                [parentObject removeObjectForKey: [keySplit objectAtIndex: [keySplit count] - 1]];
+                success = true;
+            }
         }
-    }
+    });
 
-    return false;
+    return success;
+}
+
+- (void)setContents: (NSDictionary *)contents {
+    dispatch_sync(self.synchronizedQueue, ^{
+        self.storageContents = [NSMutableDictionary dictionaryWithDictionary: contents];
+    });
+}
+
+- (NSDictionary *)getContents {
+    __block NSDictionary *contents = NULL;
+
+    dispatch_sync(self.synchronizedQueue, ^{
+        contents = [self.storageContents deepCopy];
+    });
+
+    return contents;
 }
 
 - (NSArray *)getKeys: (NSString *)key recursive: (BOOL)recursive {
@@ -128,24 +183,32 @@
 }
 
 - (BOOL)hasData {
-    if (self.storageContents && [[self.storageContents allKeys] count] > 0) {
-        return true;
-    }
+    __block BOOL hasData = NO;
 
-    return false;
+    dispatch_sync(self.synchronizedQueue, ^{
+        if (self.storageContents && [[self.storageContents allKeys] count] > 0) {
+            hasData = YES;
+        }
+    });
+    return hasData;
 }
 
 - (void)clearData {
-    self.storageContents = NULL;
+    dispatch_sync(self.synchronizedQueue, ^{
+        self.storageContents = NULL;
+    });
 }
 
 - (BOOL)initData {
-    if (!self.storageContents) {
-        self.storageContents = [[NSMutableDictionary alloc] init];
-        return true;
-    }
+    __block BOOL initialized = NO;
 
-    return false;
+    dispatch_sync(self.synchronizedQueue, ^{
+        if (!self.storageContents) {
+            self.storageContents = [[NSMutableDictionary alloc] init];
+            initialized = YES;
+        }
+    });
+    return initialized;
 }
 
 @end

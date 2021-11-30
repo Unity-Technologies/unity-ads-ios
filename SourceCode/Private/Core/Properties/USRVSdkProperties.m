@@ -7,12 +7,12 @@ NSString *const kUnityServicesLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString *const kUnityServicesLocalStorageFilePrefix = @"UnityAdsStorage-";
 NSString *const kUnityServicesWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
 NSString *const kUnityServicesWebviewConfigInfoDictionaryKey = @"UADSWebviewConfig";
-NSString *const kUnityServicesVersionName = @"3.7.5";
+NSString *const kUnityServicesVersionName = @"4.0.0";
 NSString *const kUnityServicesFlavorDebug = @"debug";
 NSString *const kUnityServicesFlavorRelease = @"release";
 NSString *const kChinaIsoAlpha2Code = @"CN";
 NSString *const kChinaIsoAlpha3Code = @"CHN";
-int const kUnityServicesVersionCode = 3750;
+int const kUnityServicesVersionCode = 4000;
 
 @implementation USRVSdkProperties
 
@@ -24,8 +24,6 @@ static NSString *configUrl = NULL;
 static NSString *cacheDirectory = NULL;
 static BOOL debug = true;
 static BOOL debugMode = NO;
-static BOOL usePerPlacementLoad = NO;
-static id<UnityServicesDelegate> unityServicesDelegate = NULL;
 static NSMutableOrderedSet<id<UnityAdsInitializationDelegate> > *initializationDelegates;
 static USRVConfiguration *latestConfiguration;
 static InitializationState currentInitializeState = NOT_INITIALIZED;
@@ -206,14 +204,6 @@ static dispatch_queue_t queue;
     return debugMode;
 }
 
-+ (id<UnityServicesDelegate>)getDelegate {
-    return unityServicesDelegate;
-}
-
-+ (void)setDelegate: (id<UnityServicesDelegate>)delegate {
-    unityServicesDelegate = delegate;
-}
-
 + (void)addInitializationDelegate: (id<UnityAdsInitializationDelegate>)delegate {
     if (delegate == nil) {
         return;
@@ -251,14 +241,6 @@ static dispatch_queue_t queue;
     } else {
         return false;
     }
-}
-
-+ (void)setPerPlacementLoadEnabled: (BOOL)perPlacementLoadEnabled {
-    usePerPlacementLoad = perPlacementLoadEnabled;
-}
-
-+ (BOOL)isPerPlacementLoadEnabled {
-    return usePerPlacementLoad;
 }
 
 + (void)initialize {

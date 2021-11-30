@@ -6,8 +6,10 @@
 - (id)getValueForKey: (NSString *)key;
 - (BOOL)deleteKey: (NSString *)key;
 - (NSArray *)getKeys: (NSString *)key recursive: (BOOL)recursive;
-- (void)     clearData;
-- (BOOL)     initData;
-- (BOOL)     hasData;
+- (void)          clearData;
+- (BOOL)          initData;
+- (BOOL)          hasData;
+- (void)setContents: (NSDictionary *)contents;
+- (NSDictionary *)getContents;
 
 @end

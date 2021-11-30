@@ -2,15 +2,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM (NSInteger, UnityServicesError) {
-    kUnityServicesErrorInvalidArgument,
-    kUnityServicesErrorInitSanityCheckFail
-};
-
-@protocol UnityServicesDelegate <NSObject>
-- (void)unityServicesDidError: (UnityServicesError)error withMessage: (NSString *)message;
-@end
-
 @interface UnityServices : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -19,15 +10,11 @@ typedef NS_ENUM (NSInteger, UnityServicesError) {
  *  Initializes UnityAds. UnityAds should be initialized when app starts.
  *
  *  @param gameId   Unique identifier for a game, given by Unity Ads admin tools or Unity editor.
- *  @param delegate delegate for UnityAdsDelegate callbacks
  *  @param testMode Set this flag to `YES` to indicate test mode and show only test ads.
- *  @param usePerPlacementLoad If true, disables automatic requests, and allows the load() function to request placements instead
  *  @param initializationDelegate Delegate for UnityAdsInitializationDelegate callbacks
  */
 + (void)        initialize: (NSString *)gameId
-                  delegate: (nullable id<UnityServicesDelegate>)delegate
                   testMode: (BOOL)testMode
-       usePerPlacementLoad: (BOOL)usePerPlacementLoad
     initializationDelegate: (nullable id<UnityAdsInitializationDelegate>)initializationDelegate;
 
 /**

@@ -8,7 +8,6 @@
 #import "USRVStorageManager.h"
 #import "USRVStorage.h"
 #import "USRVSdkProperties.h"
-#import "UADSPlacement.h"
 #import "USRVWebRequestQueue.h"
 #import "USRVWebRequest.h"
 #import "USRVWebViewApp.h"
@@ -24,24 +23,18 @@
 #import "USRVClientProperties.h"
 #import "NSString+Hash.h"
 #import "NSDictionary+Merge.h"
+#import "NSObject+DeepCopy.h"
 #import "USRVURLProtocol.h"
 #import "USRVInitialize.h"
 #import "USRVWebViewMethodInvokeHandler.h"
 #import "USRVVolumeChange.h"
 #import "USRVMuteSwitch.h"
-#import "UADSProperties.h"
 #import "UADSVideoPlayerHandler.h"
 #import "USRVWebRequestWithUrlConnection.h"
 #import "USRVWebRequestFactory.h"
 #import "UADSProxyReflection.h"
 #import "UADSTokenStorage.h"
 #import "NSInvocation+Convenience.h"
-//
-//// METADATA
-// #import "UADSMetaData.h"
-// #import "UADSPlayerMetaData.h"
-// #import "UADSMediationMetaData.h"
-// #import "UADSInAppPurchaseMetaData.h"
 
 // TESTING SPECIFIC
 #import "UnityAds+Testability.h"

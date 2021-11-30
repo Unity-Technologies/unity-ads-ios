@@ -2,121 +2,54 @@
 
 static NSString *const kDefaultGameId = @"14850";
 static NSString *const kGameIdKey = @"adsExampleAppGameId";
-static int kMediationOrdinal = 1;
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet UIButton *interstitialButton;
-@property (weak, nonatomic) IBOutlet UIButton *incentivizedButton;
+@property (weak, nonatomic) IBOutlet UIButton *interstitialLoadButton;
+@property (weak, nonatomic) IBOutlet UIButton *interstitialShowButton;
+@property (weak, nonatomic) IBOutlet UIButton *rewardedLoadButton;
+@property (weak, nonatomic) IBOutlet UIButton *rewardedShowButton;
 @property (weak, nonatomic) IBOutlet UIButton *bannerButton;
 @property (weak, nonatomic) IBOutlet UIButton *initializeButton;
 @property (weak, nonatomic) IBOutlet UITextField *gameIdTextField;
-@property (weak, nonatomic) IBOutlet UIButton *testModeButton;
-@property (nonatomic, strong) UIView *bannerView;
-
+@property (weak, nonatomic) IBOutlet UIView *gameIdView;
+@property (weak, nonatomic) IBOutlet UIView *testModeView;
+@property (weak, nonatomic) IBOutlet UISwitch *testModeSwitch;
 
 @property (weak, nonatomic) NSString *defaultGameId;
 @property (assign, nonatomic) BOOL testMode;
 @property (copy, nonatomic) NSString *interstitialPlacementId;
-@property (copy, nonatomic) NSString *incentivizedPlacementId;
-@end
+@property (copy, nonatomic) NSString *rewardedPlacementId;
 
+@property (copy, nonatomic) NSString *bannerId;
+@property (strong, nonatomic) UADSBannerView *bannerView;
+@end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    [self setupUI];
 
-    if (![UnityAds isReady]) {
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
-        if ([defaults stringForKey: kGameIdKey]) {
-            self.gameIdTextField.text = [defaults stringForKey: kGameIdKey];
-        } else {
-            self.gameIdTextField.text = kDefaultGameId;
-        }
+    if ([defaults stringForKey: kGameIdKey]) {
+        self.gameIdTextField.text = [defaults stringForKey: kGameIdKey];
+    } else {
+        self.gameIdTextField.text = kDefaultGameId;
     }
 
-    self.interstitialButton.enabled = NO;
-    self.interstitialButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                              green: 0.17
-                                                               blue: 0.22
-                                                              alpha: 0.8];
-    self.incentivizedButton.enabled = NO;
-    self.incentivizedButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                              green: 0.17
-                                                               blue: 0.22
-                                                              alpha: 0.8];
-    self.initializeButton.enabled = YES;
-    self.bannerButton.enabled = NO;
-    self.bannerButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                        green: 0.17
-                                                         blue: 0.22
-                                                        alpha: 0.8];
+    self.interstitialPlacementId = @"video";
+    self.rewardedPlacementId = @"rewardedVideo";
+    self.bannerId = @"bannerads";
     self.testMode = YES;
 } /* viewDidLoad */
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 - (IBAction)doneEditingGameId: (id)sender {
     [self.gameIdTextField resignFirstResponder];
 }
 
 - (IBAction)toggleTestMode: (id)sender {
-    self.testMode = !self.testMode;
-    [self.testModeButton setTitle: self.testMode ? @"ON" : @"OFF"
-                         forState: UIControlStateNormal];
-}
-
-- (IBAction)incentivizedButtonTapped: (id)sender {
-    if ([UnityAds isReady: self.incentivizedPlacementId]) {
-        self.incentivizedButton.enabled = NO;
-        UADSPlayerMetaData *playerMetaData = [[UADSPlayerMetaData alloc] init];
-        [playerMetaData setServerId: @"rikshot"];
-        [playerMetaData commit];
-
-        UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
-        [mediationMetaData setOrdinal: kMediationOrdinal++];
-        [mediationMetaData commit];
-
-        [UnityAds  show: self
-            placementId: self.incentivizedPlacementId];
-    }
-}
-
-- (IBAction)interstitialButtonTapped: (id)sender {
-    if ([UnityAds isReady: self.interstitialPlacementId]) {
-        self.interstitialButton.enabled = NO;
-        UADSPlayerMetaData *playerMetaData = [[UADSPlayerMetaData alloc] init];
-        [playerMetaData setServerId: @"rikshot"];
-        [playerMetaData commit];
-        UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
-        [mediationMetaData setOrdinal: kMediationOrdinal++];
-        [mediationMetaData commit];
-
-        [UnityAds  show: self
-            placementId: self.interstitialPlacementId];
-    }
-}
-
-- (IBAction)bannerButtonTapped: (id)sender {
-    if ([self.bannerButton.titleLabel.text isEqualToString: @"Hide Banner"]) {
-        // close banner
-        [UnityAdsBanner destroy];
-        self.bannerView = nil;
-        [self.bannerButton setTitle: @"Show Banner"
-                           forState: UIControlStateNormal];
-    } else {
-        // load banner
-        [self.bannerButton setTitle: @"Hide Banner"
-                           forState: UIControlStateNormal];
-        [UnityAdsBanner setDelegate: self];
-        [UnityAdsBanner setBannerPosition: kUnityAdsBannerPositionBottomCenter];
-        [UnityAdsBanner loadBanner: @"bannerads"];
-    }
+    self.testMode = self.testModeSwitch.on;
 }
 
 - (IBAction)initializeButtonTapped: (id)sender {
@@ -127,147 +60,194 @@ static int kMediationOrdinal = 1;
     [defaults setObject: gameId
                  forKey: kGameIdKey];
 
-    // mediation
-    UADSMediationMetaData *mediationMetaData = [[UADSMediationMetaData alloc] init];
+    [self toggleButtons: @[self.initializeButton]
+                enabled: NO];
 
-    [mediationMetaData setName: @"mediationPartner"];
-    [mediationMetaData setVersion: @"v12345"];
-    [mediationMetaData commit];
-
-    UADSMetaData *debugMetaData = [[UADSMetaData alloc] init];
-
-    [debugMetaData set: @"test.debugOverlayEnabled"
-                 value : @YES];
-    [debugMetaData commit];
-
-    self.initializeButton.enabled = NO;
-    self.initializeButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                            green: 0.17
-                                                             blue: 0.22
-                                                            alpha: 0.8];
     self.gameIdTextField.enabled = NO;
-    self.testModeButton.enabled = NO;
-    self.bannerButton.enabled = YES;
-    self.bannerButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                        green: 0.59
-                                                         blue: 0.95
-                                                        alpha: 1.0];
+    self.testModeSwitch.enabled = NO;
 
     [UnityAds setDebugMode: true];
 
-    [UnityAds addDelegate: self];
     [UnityAds initialize: gameId
                       testMode: self.testMode
         initializationDelegate: self];
 } /* initializeButtonTapped */
 
+- (IBAction)interstitialLoadButtonTapped: (id)sender {
+    [UnityAds   load: self.interstitialPlacementId
+        loadDelegate: self];
+}
+
+- (IBAction)rewardedLoadButtonTapped: (id)sender {
+    [UnityAds   load: self.rewardedPlacementId
+        loadDelegate: self];
+}
+
+- (IBAction)interstitialShowButtonTapped: (id)sender {
+    [UnityAds   show: self
+         placementId: self.interstitialPlacementId
+        showDelegate: self];
+}
+
+- (IBAction)rewardedShowButtonTapped: (id)sender {
+    [UnityAds   show: self
+         placementId: self.rewardedPlacementId
+        showDelegate: self];
+}
+
+- (IBAction)bannerButtonTapped: (id)sender {
+    if ([self.bannerButton.titleLabel.text isEqualToString: @"Hide Banner"]) {
+        // close banner
+        [self.bannerButton setTitle: @"Show Banner"
+                           forState: UIControlStateNormal];
+
+        [self.bannerView removeFromSuperview];
+        self.bannerView = nil;
+    } else {
+        // load banner
+        [self.bannerButton setTitle: @"Hide Banner"
+                           forState: UIControlStateNormal];
+
+        self.bannerView = [[UADSBannerView alloc] initWithPlacementId: self.bannerId
+                                                                 size: CGSizeMake(320, 50)];
+        self.bannerView.delegate = self;
+        [self addBannerViewToBottomView: self.bannerView];
+        [self.bannerView load];
+    }
+}
+
+#pragma mark UnityAdsInitializationDelegate
+
 - (void)initializationComplete {
     NSLog(@"UnityAds initializationComplete");
+
+    [self toggleButtons: @[self.interstitialLoadButton, self.rewardedLoadButton, self.bannerButton]
+                enabled: YES];
 }
 
 - (void)initializationFailed: (UnityAdsInitializationError)error
                  withMessage: (NSString *)message {
     NSLog(@"UnityAds initializationFailed: %ld - %@", (long)error, message);
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle: @"UnityAds Error"
-                                                                   message: [NSString stringWithFormat: @"%ld - %@", (long)error, message]
-                                                            preferredStyle: UIAlertControllerStyleAlert];
-    UIAlertAction *action = [UIAlertAction actionWithTitle: @"OK"
-                                                     style: UIAlertActionStyleDefault
-                                                   handler: ^(UIAlertAction *_Nonnull action) {
-                                                   }];
-
-    [alert addAction: action];
-    [self presentViewController: alert
-                       animated: YES
-                     completion: nil];
 }
 
-- (void)unityAdsReady: (NSString *)placementId {
-    NSLog(@"UADS Ready");
+#pragma mark UnityAdsLoadDelegate
 
-    if ([placementId isEqualToString: @"video"] || [placementId isEqualToString: @"defaultZone"] || [placementId isEqualToString: @"defaultVideoAndPictureZone"]) {
-        self.interstitialPlacementId = placementId;
-        self.interstitialButton.enabled = YES;
-        self.interstitialButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                                  green: 0.59
-                                                                   blue: 0.95
-                                                                  alpha: 1.0];
-    }
+- (void)unityAdsAdLoaded: (NSString *)placementId {
+    NSLog(@"UnityAds adLoaded");
 
-    if ([placementId isEqualToString: @"rewardedVideo"] || [placementId isEqualToString: @"rewardedVideoZone"] || [placementId isEqualToString: @"incentivizedZone"]) {
-        self.incentivizedPlacementId = placementId;
-        self.incentivizedButton.enabled = YES;
-        self.incentivizedButton.backgroundColor = [UIColor colorWithRed: 0.13
-                                                                  green: 0.59
-                                                                   blue: 0.95
-                                                                  alpha: 1.0];
-    }
-} /* unityAdsReady */
-
-- (void)unityAdsDidError: (UnityAdsError)error withMessage: (NSString *)message {
-    NSLog(@"UnityAds ERROR: %ld - %@", (long)error, message);
-
-    if (floor(NSFoundationVersionNumber) >= NSFoundationVersionNumber_iOS_8_0) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle: @"UnityAds Error"
-                                                                       message: [NSString stringWithFormat: @"%ld - %@", (long)error, message]
-                                                                preferredStyle: UIAlertControllerStyleAlert];
-        UIAlertAction *action = [UIAlertAction actionWithTitle: @"OK"
-                                                         style: UIAlertActionStyleDefault
-                                                       handler: ^(UIAlertAction *_Nonnull action) {
-                                                       }];
-        [alert addAction: action];
-        [self presentViewController: alert
-                           animated: YES
-                         completion: nil];
+    if ([placementId isEqualToString: self.interstitialPlacementId]) {
+        [self toggleButtons: @[self.interstitialShowButton]
+                    enabled: YES];
+        [self toggleButtons: @[self.interstitialLoadButton]
+                    enabled: NO];
+    } else if ([placementId isEqualToString: self.rewardedPlacementId]) {
+        [self toggleButtons: @[self.rewardedShowButton]
+                    enabled: YES];
+        [self toggleButtons: @[self.rewardedLoadButton]
+                    enabled: NO];
     }
 }
 
-- (void)unityAdsDidStart: (NSString *)placementId {
-    NSLog(@"UADS Start");
+- (void)unityAdsAdFailedToLoad: (NSString *)placementId withError: (UnityAdsLoadError)error withMessage: (NSString *)message {
+    NSLog(@"UnityAds adFailedToLoad: %ld - %@", (long)error, message);
 }
 
-- (void)unityAdsDidFinish: (NSString *)placementId withFinishState: (UnityAdsFinishState)state {
-    NSString *stateString = @"UNKNOWN";
+#pragma mark UnityAdsShowDelegate
+- (void)unityAdsShowComplete: (NSString *)placementId withFinishState: (UnityAdsShowCompletionState)state {
+    NSLog(@"UnityAds showComplete %@ %ld", placementId, state);
 
-    switch (state) {
-        case kUnityAdsFinishStateError:
-            stateString = @"ERROR";
-            break;
-
-        case kUnityAdsFinishStateSkipped:
-            stateString = @"SKIPPED";
-            break;
-
-        case kUnityAdsFinishStateCompleted:
-            stateString = @"COMPLETED";
-            break;
-
-        default:
-            break;
-    }
-    NSLog(@"UnityAds FINISH: %@ - %@", stateString, placementId);
-} /* unityAdsDidFinish */
-
-#pragma mark : UnityAdsBannerDelegate
-
-- (void)unityAdsBannerDidClick: (NSString *)placementId {
-}
-
-- (void)unityAdsBannerDidError: (NSString *)message {
-}
-
-- (void)unityAdsBannerDidHide: (NSString *)placementId {
-}
-
-- (void)unityAdsBannerDidLoad: (NSString *)placementId view: (UIView *)bannerView {
-    ViewController *weakSelf = self;
-
-    if (weakSelf) {
-        [weakSelf.view addSubview: bannerView];
+    if ([placementId isEqualToString: self.interstitialPlacementId]) {
+        [self toggleButtons: @[self.interstitialShowButton]
+                    enabled: NO];
+        [self toggleButtons: @[self.interstitialLoadButton]
+                    enabled: YES];
+    } else if ([placementId isEqualToString: self.rewardedPlacementId]) {
+        [self toggleButtons: @[self.rewardedShowButton]
+                    enabled: NO];
+        [self toggleButtons: @[self.rewardedLoadButton]
+                    enabled: YES];
     }
 }
 
-- (void)unityAdsBannerDidShow: (NSString *)placementId {
+- (void)unityAdsShowFailed: (NSString *)adUnitId withError: (UnityAdsShowError)error withMessage: (NSString *)message {
+    NSLog(@"UnityAds showFailed %@ %ld", message, error);
+}
+
+- (void)unityAdsShowStart: (NSString *)adUnitId {
+    NSLog(@"UnityAds showStart %@", adUnitId);
+}
+
+- (void)unityAdsShowClick: (NSString *)adUnitId {
+    NSLog(@"UnityAds showClick %@", adUnitId);
+}
+
+#pragma mark : UADSBannerViewDelegate
+
+- (void)bannerViewDidLoad: (UADSBannerView *)bannerView {
+    // Called when the banner view object finishes loading an ad.
+    NSLog(@"UnityAds Banner loaded for placement: %@", bannerView.placementId);
+}
+
+- (void)bannerViewDidClick: (UADSBannerView *)bannerView {
+    // Called when the banner is clicked.
+    NSLog(@"UnityAds Banner was clicked for placement: %@", bannerView.placementId);
+}
+
+- (void)bannerViewDidLeaveApplication: (UADSBannerView *)bannerView {
+    // Called when the banner links out of the application.
+}
+
+- (void)bannerViewDidError: (UADSBannerView *)bannerView error: (UADSBannerError *)error {
+    NSLog(@"UnityAds Banner encountered an error for placement: %@ with error message %@", bannerView.placementId, [error localizedDescription]);
+}
+
+#pragma mark Helpers
+
+- (void)setupUI {
+    [self addBorder: self.gameIdView];
+    [self addBorder: self.testModeView];
+
+    [self toggleButtons: @[self.interstitialLoadButton, self.interstitialShowButton, self.rewardedLoadButton, self.rewardedShowButton, self.bannerButton]
+                enabled: false];
+}
+
+- (void)addBorder: (UIView *)subview {
+    subview.layer.borderWidth = 2.0;
+    subview.layer.borderColor = [[UIColor darkGrayColor] CGColor];
+}
+
+- (void)toggleButtons: (NSArray *)buttons enabled: (BOOL)enabled {
+    for (UIButton *button in buttons) {
+        button.enabled = enabled;
+        button.backgroundColor = enabled ? [UIColor colorWithRed: 0.13
+                                                           green: 0.59
+                                                            blue: 0.95
+                                                           alpha: 1.0] : [UIColor colorWithRed: 0.13
+                                                                                         green: 0.17
+                                                                                          blue: 0.22
+                                                                                         alpha: 0.8];
+    }
+}
+
+- (void)addBannerViewToBottomView: (UIView *)bannerView {
+    bannerView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview: bannerView];
+    [self.view addConstraints: @[
+         [NSLayoutConstraint constraintWithItem: bannerView
+                                      attribute: NSLayoutAttributeBottom
+                                      relatedBy: NSLayoutRelationEqual
+                                         toItem: self.bottomLayoutGuide
+                                      attribute: NSLayoutAttributeTop
+                                     multiplier: 1
+                                       constant: 0],
+         [NSLayoutConstraint constraintWithItem: bannerView
+                                      attribute: NSLayoutAttributeCenterX
+                                      relatedBy: NSLayoutRelationEqual
+                                         toItem: self.view
+                                      attribute: NSLayoutAttributeCenterX
+                                     multiplier: 1
+                                       constant: 0]
+    ]];
 }
 
 @end

@@ -1,5 +1,4 @@
 #import <XCTest/XCTest.h>
-#import "UADSInAppPurchaseMetaData.h"
 #import "UADSMediationMetaData.h"
 #import "UADSPlayerMetaData.h"
 #import "UnityAdsTests-Bridging-Header.h"
@@ -7,9 +6,20 @@
 @interface MetaDataMockWebViewApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
 @property (nonatomic, strong) NSMutableArray *params;
+@property (nonatomic, strong) dispatch_queue_t syncQueue;
 @end
 
 @implementation MetaDataMockWebViewApp
+
+- (instancetype)init {
+    self = [super init];
+
+    if (self) {
+        _syncQueue = dispatch_queue_create("com.unity.webview.mock", DISPATCH_QUEUE_SERIAL);
+    }
+
+    return self;
+}
 
 - (BOOL)sendEvent: (NSString *)eventId category: (NSString *)category param1: (id)param1, ... {
     va_list args;
@@ -36,7 +46,9 @@
 
 - (BOOL)sendEvent: (NSString *)eventId category: (NSString *)category params: (NSArray *)params {
     if (eventId && [eventId isEqualToString: @"SET"] && category && [category isEqualToString: @"STORAGE"]) {
-        self.params = [[NSMutableArray alloc] initWithArray: params];
+        dispatch_sync(self.syncQueue, ^{
+            self.params = [[NSMutableArray alloc] initWithArray: params];
+        });
 
         if (self.expectation) {
             [self.expectation fulfill];
@@ -84,17 +96,17 @@
     NSDictionary *nameObject = [mediationObject objectForKey: @"name"];
 
     XCTAssertNotNil([nameObject objectForKey: @"ts"]);
-    XCTAssertEqual([nameObject objectForKey: @"value"], @"MediationNetwork", @"Name is not what was expected");
+    XCTAssertEqualObjects([nameObject objectForKey: @"value"], @"MediationNetwork", @"Name is not what was expected");
 
     NSDictionary *ordinalObject = [mediationObject objectForKey: @"ordinal"];
 
     XCTAssertNotNil([ordinalObject objectForKey: @"ts"]);
-    XCTAssertEqual([ordinalObject objectForKey: @"value"], [NSNumber numberWithInt: 1], @"Ordinal is not what was expected");
+    XCTAssertEqualObjects([ordinalObject objectForKey: @"value"], [NSNumber numberWithInt: 1], @"Ordinal is not what was expected");
 
     NSDictionary *versionObject = [mediationObject objectForKey: @"version"];
 
     XCTAssertNotNil([versionObject objectForKey: @"ts"]);
-    XCTAssertEqual([versionObject objectForKey: @"value"], @"1.1", @"Version not what was expected");
+    XCTAssertEqualObjects([versionObject objectForKey: @"value"], @"1.1", @"Version not what was expected");
 } /* testMediationMetaData */
 
 - (void)testPlayerMetaData {
@@ -111,7 +123,7 @@
     NSDictionary *serverIdObject = [playerObject objectForKey: @"server_id"];
 
     XCTAssertNotNil([serverIdObject objectForKey: @"ts"]);
-    XCTAssertEqual([serverIdObject objectForKey: @"value"], @"bulbasaur", @"server_id not what was expected");
+    XCTAssertEqualObjects([serverIdObject objectForKey: @"value"], @"bulbasaur", @"server_id not what was expected");
 }
 
 - (void)testMetadataBaseClassNoCategory {
@@ -203,60 +215,18 @@
     NSDictionary *oneObject = [testObject objectForKey: @"one"];
 
     XCTAssertNotNil([oneObject objectForKey: @"ts"]);
-    XCTAssertEqual([oneObject objectForKey: @"value"], [NSNumber numberWithInt: 1], "'one' value not what was expected");
+    XCTAssertEqualObjects([oneObject objectForKey: @"value"], [NSNumber numberWithInt: 1], "'one' value not what was expected");
 
     NSDictionary *twoObject = [testObject objectForKey: @"two"];
 
     XCTAssertNotNil([twoObject objectForKey: @"ts"]);
-    XCTAssertEqual([twoObject objectForKey: @"value"], @"2", "'two' value not what was expected");
+    XCTAssertEqualObjects([twoObject objectForKey: @"value"], @"2", "'two' value not what was expected");
 
     NSDictionary *threeObject = [testObject objectForKey: @"three"];
 
     XCTAssertNotNil([threeObject objectForKey: @"ts"]);
     XCTAssertEqualObjects([threeObject objectForKey: @"value"], [NSNumber numberWithFloat: 3.333], "'three' value not what was expected");
 } /* testMetadataBaseClassWithCategory */
-
-- (void)testInAppPurchaseMetaData {
-    MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
-
-    [USRVWebViewApp setCurrentApp: webApp];
-
-    UADSInAppPurchaseMetaData *metadata = [[UADSInAppPurchaseMetaData alloc] init];
-
-    [metadata setCurrency: @"EUR"];
-    [metadata setPrice: [NSNumber numberWithDouble: 1.25]];
-    [metadata setProductId: @"testProductId1"];
-    [metadata setReceiptPurchaseData: @"testReceiptPurchaseData1"];
-    [metadata setSignature: @"testSignature1"];
-    [metadata commit];
-
-    UADSInAppPurchaseMetaData *metadata2 = [[UADSInAppPurchaseMetaData alloc] init];
-
-    [metadata2 setCurrency: @"USD"];
-    [metadata2 setPrice: [NSNumber numberWithDouble: 2.25]];
-    [metadata2 setProductId: @"testProductId2"];
-    [metadata2 setReceiptPurchaseData: @"testReceiptPurchaseData2"];
-    [metadata2 setSignature: @"testSignature2"];
-    [metadata2 commit];
-
-    NSArray *webAppMetaDataEntries = [[NSArray alloc] initWithArray: [webApp.params objectAtIndex: 1]];
-
-    NSDictionary *purchase1 = [webAppMetaDataEntries objectAtIndex: 0];
-
-    XCTAssertEqual(@"EUR", [purchase1 objectForKey: @"currency"], "Purchase1 currency not what was expected");
-    XCTAssertEqualObjects([NSNumber numberWithDouble: 1.25], [purchase1 objectForKey: @"price"], "Purchase1 price not what was expected");
-    XCTAssertEqual(@"testProductId1", [purchase1 objectForKey: @"productId"], "Purchase1 productId not what was expected");
-    XCTAssertEqual(@"testReceiptPurchaseData1", [purchase1 objectForKey: @"receiptPurchaseData"], "Purchase1 receiptPurchaseData not what was expected");
-    XCTAssertEqual(@"testSignature1", [purchase1 objectForKey: @"signature"], "Purchase1 signature not what was expected");
-
-    NSDictionary *purchase2 = [webAppMetaDataEntries objectAtIndex: 1];
-
-    XCTAssertEqual(@"USD", [purchase2 objectForKey: @"currency"], "Purchase2 currency not what was expected");
-    XCTAssertEqualObjects([NSNumber numberWithDouble: 2.25], [purchase2 objectForKey: @"price"], "Purchase2 price not what was expected");
-    XCTAssertEqual(@"testProductId2", [purchase2 objectForKey: @"productId"], "Purchase2 productId not what was expected");
-    XCTAssertEqual(@"testReceiptPurchaseData2", [purchase2 objectForKey: @"receiptPurchaseData"], "Purchase2 receiptPurchaseData not what was expected");
-    XCTAssertEqual(@"testSignature2", [purchase2 objectForKey: @"signature"], "Purchase2 signature not what was expected");
-} /* testInAppPurchaseMetaData */
 
 - (void)testCommitWithoutMetaDataSet {
     MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
@@ -268,6 +238,31 @@
     [metadata commit];
 
     XCTAssertNil([metadata storageContents], "Entries should still be NULL");
+}
+
+- (void)testCommitFromDifferentThreadsDoNotCrash {
+    MetaDataMockWebViewApp *webApp = [[MetaDataMockWebViewApp alloc] init];
+
+    [USRVWebViewApp setCurrentApp: webApp];
+
+    UADSMetaData *metadata = [[UADSMetaData alloc] initWithCategory: @"test"];
+
+    int count = 1000;
+    XCTestExpectation *exp = [[XCTestExpectation alloc] init];
+
+    exp.expectedFulfillmentCount = count;
+
+    for (int i = 0; i < count; i++) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [metadata set: [NSString stringWithFormat: @"key%d", i]
+                    value : [NSString stringWithFormat: @"value%d", i]];
+            [metadata commit];
+            [exp fulfill];
+        });
+    }
+
+    [self waitForExpectations: @[exp]
+                      timeout: 25.0];
 }
 
 @end

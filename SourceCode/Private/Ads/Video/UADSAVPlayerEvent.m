@@ -48,7 +48,7 @@ NSString * UADSNSStringFromAVPlayerEvent(UnityAdsAVPlayerEvent event) {
 
         case kUnityAdsAVPlayerEventStop:
             return eventStop;
-    } /* switch */
+    }     /* switch */
 } /* UADSNSStringFromAVPlayerEvent */
 
 NSString * UADSNSStringFromAVPlayerError(UnityAdsAVPlayerError error) {

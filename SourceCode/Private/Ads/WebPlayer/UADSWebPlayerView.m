@@ -9,6 +9,7 @@
 #import <dlfcn.h>
 #import <objc/runtime.h>
 #import "UADSWebPlayerBridge.h"
+#import "UADSWebKitLoader.h"
 
 @interface UADSWebPlayerView ()
 @property (nonatomic, strong) id internalWebView;
@@ -139,32 +140,7 @@
 
 - (void)createWKWebPlayer {
     USRVLogDebug(@"CREATING WKWEBVIEWAPP");
-    NSString *frameworkLocation;
-
-    if (![USRVWKWebViewUtilities isFrameworkPresent]) {
-        USRVLogDebug(@"WebKit framework not present, trying to load it");
-
-        if ([USRVDevice isSimulator]) {
-            NSString *frameworkPath = [[NSProcessInfo processInfo] environment][@"DYLD_FALLBACK_FRAMEWORK_PATH"];
-
-            if (frameworkPath) {
-                frameworkLocation = [NSString pathWithComponents: @[frameworkPath, @"WebKit.framework", @"WebKit"]];
-            }
-        } else {
-            frameworkLocation = [NSString stringWithFormat: @"/System/Library/Frameworks/WebKit.framework/WebKit"];
-        }
-
-        dlopen([frameworkLocation cStringUsingEncoding: NSUTF8StringEncoding], RTLD_LAZY);
-
-        if (![USRVWKWebViewUtilities isFrameworkPresent]) {
-            USRVLogError(@"WKWebKit still not present!");
-            return;
-        } else {
-            USRVLogDebug(@"Succesfully loaded WKWebKit framework");
-        }
-    } else {
-        USRVLogDebug(@"WebKit framework already present");
-    }
+    [UADSWebKitLoader loadFrameworkIfNotLoaded];
 
     id wkConfiguration = [USRVWKWebViewUtilities getObjectFromClass: "WKWebViewConfiguration"];
 

@@ -88,10 +88,10 @@
     GMAAdMetaData *meta = [GMAAdMetaData new];
 
 
-    meta.placementID = (NSString *)@1; // to compare with the result
+    meta.placementID = (NSString *)@1;     // to compare with the result
     meta.type = GADQueryInfoAdTypeInterstitial;
     meta.adString = @"";
-    meta.queryID = (NSString *)@0; // to compare with the result
+    meta.queryID = (NSString *)@0;     // to compare with the result
     meta.adUnitID = @"";
     meta.videoLength = @1;
     GMAError *error = [GMAError newNonSupportedLoader: meta];

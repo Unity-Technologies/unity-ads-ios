@@ -21,7 +21,6 @@
 + (void)setUp {
     [super setUp];
     [UnityAds initialize: @"14850"
-                delegate: nil
                 testMode: YES];
 }
 

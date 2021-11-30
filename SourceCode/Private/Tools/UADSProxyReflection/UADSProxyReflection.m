@@ -85,7 +85,7 @@
         // and run UADSProxyReflectionTests
     #ifndef __clang_analyzer__
         id target = [class alloc];
-        CFBridgingRetain(target); // <- Manually insert retain to avoid unbalanced release due to separation of alloc and init
+        CFBridgingRetain(target);         // <- Manually insert retain to avoid unbalanced release due to separation of alloc and init
         obj = [NSInvocation uads_invokeWithReturnedUsingMethod: methodName
                                                      classType: class
                                                         target: target

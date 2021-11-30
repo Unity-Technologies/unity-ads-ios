@@ -46,7 +46,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [USRVConnectivityMonitor stopAll];
     });
-    [USRVStorageManager init];
+    [USRVStorageManager sharedInstance];
     [USRVNotificationObserver unregisterNotificationObserver];
     [USRVVolumeChange clearAllDelegates];
 

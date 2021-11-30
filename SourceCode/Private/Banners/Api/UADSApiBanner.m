@@ -55,7 +55,7 @@
         case UADSBannerWebPlayerContainerTypeUnknown:
             // do nothing
             break;
-    } /* switch */
+    }     /* switch */
 
     [callback invoke: nil];
 } /* WebViewExposed_load */

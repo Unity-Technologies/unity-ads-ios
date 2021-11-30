@@ -24,7 +24,7 @@
     NSDictionary *jsonObject = @{
         @"type": @"analytics.custom.v1",
         @"msg": @{
-            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],            // needs to be in milliseconds
+            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],             // needs to be in milliseconds
             @"name": @"item_acquired",
             @"custom_params": @{
                 @"currency_type": NSStringFromUnityAnalyticsAcquisitionType(acquisitionType),
@@ -46,7 +46,7 @@
     NSDictionary *jsonObject = @{
         @"type": @"analytics.custom.v1",
         @"msg": @{
-            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],            // needs to be in milliseconds
+            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],             // needs to be in milliseconds
             @"name": @"item_spent",
             @"custom_params": @{
                 @"currency_type": NSStringFromUnityAnalyticsAcquisitionType(acquisitionType),
@@ -68,7 +68,7 @@
     NSDictionary *jsonObject = @{
         @"type": @"analytics.custom.v1",
         @"msg": @{
-            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],            // needs to be in milliseconds
+            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],             // needs to be in milliseconds
             @"name": @"level_fail",
             @"custom_params": @{
                 @"level_index": levelIndex ? levelIndex : [NSNull null]
@@ -83,7 +83,7 @@
     NSDictionary *jsonObject = @{
         @"type": @"analytics.custom.v1",
         @"msg": @{
-            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],            // needs to be in milliseconds
+            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],             // needs to be in milliseconds
             @"name": @"level_up",
             @"custom_params": @{
                 @"new_level_index": theNewLevelIndex ? theNewLevelIndex : [NSNull null]
@@ -98,7 +98,7 @@
     NSDictionary *jsonObject = @{
         @"type": @"analytics.custom.v1",
         @"msg": @{
-            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],            // needs to be in milliseconds
+            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],             // needs to be in milliseconds
             @"name": @"ad_complete",
             @"custom_params": @{
                 @"rewarded": [NSNumber numberWithBool: rewarded],
@@ -115,7 +115,7 @@
     NSDictionary *jsonObject = @{
         @"type": @"analytics.transaction.v1",
         @"msg": @{
-            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],            // needs to be in milliseconds
+            @"ts": [NSNumber numberWithLong: ((long)[[NSDate date] timeIntervalSince1970]) * 1000],             // needs to be in milliseconds
             @"productid": productId ? productId : [NSNull null],
             @"amount": [NSNumber numberWithFloat: amount],
             @"currency": currency ? currency : [NSNull null],
@@ -156,7 +156,7 @@
 
         if (!jsonData) {
             USRVLogError(@"UnityAnalytics postEvent failed to convert queue for posting");
-            self.eventQueue = [[NSMutableArray alloc] init]; // clear the queue so that new events can be sent
+            self.eventQueue = [[NSMutableArray alloc] init];             // clear the queue so that new events can be sent
         } else {
             NSString *jsonString = [[NSString alloc] initWithData: jsonData
                                                          encoding: NSUTF8StringEncoding];

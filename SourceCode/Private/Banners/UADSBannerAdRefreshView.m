@@ -54,7 +54,7 @@
         _size = size;
         _isLoadCalled = NO;
         _viewId = [NSUUID UUID].UUIDString;
-        _refreshRate = 30; // default refresh time is 30s
+        _refreshRate = 30;         // default refresh time is 30s
         _bannerView = [[UADSBannerView alloc] initWithPlacementId: placementId
                                                              size: size];
         _bannerView.delegate = self;
@@ -192,7 +192,7 @@
         if (self.timerFireDate && currentDate.timeIntervalSince1970 < self.timerFireDate.timeIntervalSince1970) {
             [self createNewTimer: self.timerFireDate];
         } else {
-            [self reload]; // if we are past the date do a reload and start the timer new
+            [self reload];             // if we are past the date do a reload and start the timer new
             [self createNewRefreshTimer];
         }
     }

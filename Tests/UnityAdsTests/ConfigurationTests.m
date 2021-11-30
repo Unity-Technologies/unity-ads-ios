@@ -1,5 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
+#import "XCTestCase+Convenience.h"
+#import "USRVModuleConfiguration.h"
 
 @interface ConfigurationTests : XCTestCase
 @end
@@ -179,5 +181,23 @@
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject: @"wct"], "wct should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject: @"sdkv"], "sdkv should be set");
 } /* testToJson */
+
+- (void)testMultithreadAccessToConfig {
+    for (int i = 0; i < 300; i++) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+            USRVConfiguration *configuration = [[USRVConfiguration alloc] init];
+
+            for (NSString *moduleName in [configuration getModuleConfigurationList]) {
+                USRVModuleConfiguration *moduleConfiguration = [configuration getModuleConfiguration: moduleName];
+
+                if (moduleConfiguration) {
+                    XCTAssertNotEqual([moduleConfiguration getWebAppApiClassList].count, 0);
+                }
+            }
+        });
+    }
+
+    [self waitForTimeInterval: 3.0];
+}
 
 @end
