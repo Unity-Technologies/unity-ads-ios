@@ -18,7 +18,7 @@
     } else {
         NSException *exception = [NSException
                                   exceptionWithName: @"NullPointerException"
-                                             reason: @"NativeCallback was NULL"
+                                             reason: [NSString stringWithFormat: @"NativeCallback %@ was NULL", callbackId]
                                            userInfo: nil];
         @throw exception;
     }

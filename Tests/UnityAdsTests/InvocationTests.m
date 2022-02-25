@@ -236,4 +236,26 @@ static NSMutableArray *CALLBACKS;
     XCTAssertTrue([(InvocationTestsWebView *)[[USRVWebViewApp getCurrentApp] webView] jsInvoked], @"WebView invokeJavascript should've been invoked but was not");
 } /* testBatchInvocationOneInvalidMethod */
 
+- (void)test_invocations_have_unique_ids {
+    int count = 1000;
+    NSMutableArray *invocationIds = [NSMutableArray array];
+    XCTestExpectation *exp = [self expectationWithDescription: @"Wait for invocations creation"];
+
+    exp.expectedFulfillmentCount = count;
+
+    for (int i = 0; i < count; i++) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            USRVInvocation *nativeCallback = [[USRVInvocation alloc] init];
+            @synchronized (invocationIds) {
+                [invocationIds addObject: @(nativeCallback.invocationId)];
+            }
+            [exp fulfill];
+        });
+    }
+
+    [self waitForExpectations: @[exp]
+                      timeout: 20.0];
+    XCTAssertEqual(invocationIds.count, [NSSet setWithArray: invocationIds].count);
+}
+
 @end

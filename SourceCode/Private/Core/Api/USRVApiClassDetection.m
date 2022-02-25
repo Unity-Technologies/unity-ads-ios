@@ -1,10 +1,11 @@
 #import "USRVApiClassDetection.h"
 #import "USRVWebViewApp.h"
-#import "USRVClientProperties.h"
+#import "USRVMadeWithUnityDetector.h"
 
 @implementation USRVApiClassDetection
-+ (void)WebViewExposed_areClassesPresent: (NSArray *)classNames callback: (USRVWebViewCallback *)callback {
-    [callback invoke: [USRVClientProperties areClassesPresent: classNames], nil];
+
++ (void)WebViewExposed_isMadeWithUnity: (USRVWebViewCallback *)callback {
+    [callback invoke: [NSNumber numberWithBool: [USRVMadeWithUnityDetector isMadeWithUnity]], nil];
 }
 
 @end

@@ -10,6 +10,7 @@ static NSNumber *idCount = 0;
 static NSMutableDictionary *invocationSets;
 static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, NSMutableDictionary<NSNumber *, NSArray *> *> *> *selectorTable;
 static NSMutableDictionary<NSString *, Class> *classTable;
+static NSString *lockObject = @"lock";
 
 + (void)setClassTable: (NSArray<NSString *> *)allowedClasses {
     if (!selectorTable) {
@@ -72,17 +73,17 @@ static NSMutableDictionary<NSString *, Class> *classTable;
     self = [super init];
 
     if (self) {
-        @synchronized (idCount) {
+        @synchronized (lockObject) {
             idCount = [NSNumber numberWithInt: [idCount intValue] + 1];
             [self setInvocationId: [idCount intValue]];
-        }
 
-        if (!invocationSets) {
-            invocationSets = [[NSMutableDictionary alloc] init];
-        }
+            if (!invocationSets) {
+                invocationSets = [[NSMutableDictionary alloc] init];
+            }
 
-        [invocationSets setObject: self
-                           forKey: [NSNumber numberWithInt: [self invocationId]]];
+            [invocationSets setObject: self
+                               forKey: [NSNumber numberWithInt: [self invocationId]]];
+        }
     }
 
     return self;
@@ -190,12 +191,19 @@ static NSMutableDictionary<NSString *, Class> *classTable;
 }
 
 - (void)sendInvocationCallback {
-    [invocationSets removeObjectForKey: [NSNumber numberWithInt: self.invocationId]];
+    @synchronized (lockObject) {
+        [invocationSets removeObjectForKey: [NSNumber numberWithInt: self.invocationId]];
+    }
     [[USRVWebViewApp getCurrentApp] invokeCallback: self];
 }
 
 + (USRVInvocation *)getInvocationWithId: (int)invocationId {
-    return [invocationSets objectForKey: [NSNumber numberWithInt: invocationId]];
+    USRVInvocation *invocation;
+
+    @synchronized (lockObject) {
+        invocation = [invocationSets objectForKey: [NSNumber numberWithInt: invocationId]];
+    }
+    return invocation;
 }
 
 @end

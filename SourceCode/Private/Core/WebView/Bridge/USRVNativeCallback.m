@@ -24,7 +24,8 @@ NSString * NSStringFromUSRVNativeCallbackStatus(USRVNativeCallbackStatus status)
 
 @implementation USRVNativeCallback
 
-static NSNumber *callbackCount = 0;
+static long callbackCount = 0;
+static NSString *lockObject = @"lock";
 
 - (instancetype)initWithCallback: (USRVNativeCallbackBlock)callback context: (NSString *)context {
     self = [super init];
@@ -38,12 +39,12 @@ static NSNumber *callbackCount = 0;
             @throw exception;
         }
 
-        @synchronized (callbackCount) {
-            callbackCount = [NSNumber numberWithLong: [callbackCount longValue] + 1];
-        }
+        @synchronized (lockObject) {
+            callbackCount = callbackCount + 1;
 
-        [self setCallback: callback];
-        [self setCallbackId: [NSString stringWithFormat: @"%@_%lu", context, [callbackCount longValue]]];
+            [self setCallback: callback];
+            [self setCallbackId: [NSString stringWithFormat: @"%@_%lu", context, callbackCount]];
+        }
     }
 
     return self;

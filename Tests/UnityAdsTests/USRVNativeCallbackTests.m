@@ -145,4 +145,27 @@ static NSArray *nativeCallbackParams = NULL;
     XCTAssertEqualObjects([nativeCallbackParams objectAtIndex: 1], @"We are broken", @"Value should be 'We are broken'");
 }
 
+- (void)test_native_callbacks_have_unique_ids {
+    int count = 1000;
+    NSMutableArray *callbackIds = [NSMutableArray array];
+    XCTestExpectation *exp = [self expectationWithDescription: @"Wait for callbacks creation"];
+
+    exp.expectedFulfillmentCount = count;
+
+    for (int i = 0; i < count; i++) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod: @"validResponseMethod:"
+                                                                              receiverClass: @"USRVNativeCallbackTestsCallbacks"];
+            @synchronized (callbackIds) {
+                [callbackIds addObject: nativeCallback.callbackId];
+            }
+            [exp fulfill];
+        });
+    }
+
+    [self waitForExpectations: @[exp]
+                      timeout: 20.0];
+    XCTAssertEqual(callbackIds.count, [NSSet setWithArray: callbackIds].count);
+}
+
 @end

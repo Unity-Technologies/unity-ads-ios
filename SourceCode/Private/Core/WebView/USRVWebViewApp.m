@@ -257,18 +257,22 @@ static NSCondition *blockCondition = nil;
     id body = [message valueForKey: @"body"];
     NSData *data = NULL;
 
-    if ([body isKindOfClass: [NSString class]]) {
-        data = [body dataUsingEncoding: NSUTF8StringEncoding];
-    } else if ([body isKindOfClass: [NSDictionary class]]) {
-        data = [USRVJsonUtilities dataWithJSONObject: body
-                                             options: 0
-                                               error: nil];
-    }
+    @try {
+        if ([body isKindOfClass: [NSString class]]) {
+            data = [body dataUsingEncoding: NSUTF8StringEncoding];
+        } else if ([body isKindOfClass: [NSDictionary class]]) {
+            data = [USRVJsonUtilities dataWithJSONObject: body
+                                                 options: 0
+                                                   error: nil];
+        }
 
-    if (data) {
-        USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
-        [handler handleData: data
-             invocationType: name];
+        if (data) {
+            USRVWebViewMethodInvokeHandler *handler = [[USRVWebViewMethodInvokeHandler alloc] init];
+            [handler handleData: data
+                 invocationType: name];
+        }
+    } @catch (NSException *exception) {
+        USRVLogError(@"Couldn't invoke callback with data %@", body);
     }
 }
 

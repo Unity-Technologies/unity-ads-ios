@@ -59,28 +59,6 @@ __weak static UIViewController *_currentViewController = nil;
     return NO;
 }
 
-+ (NSArray *)areClassesPresent: (NSArray *)classNames {
-    if (classNames == nil) {
-        return @[];
-    }
-
-    NSMutableArray *arr = [[NSMutableArray alloc] init];
-
-    for (NSUInteger index = 0; index < classNames.count; index++) {
-        Class class = NSClassFromString(classNames[index]);
-
-        if (class == nil) {
-            NSDictionary *item = [NSDictionary dictionaryWithObjectsAndKeys: classNames[index], @"class", @NO, @"found", nil];
-            [arr addObject: item];
-        } else {
-            NSDictionary *item = [NSDictionary dictionaryWithObjectsAndKeys: classNames[index], @"class", @YES, @"found", nil];
-            [arr addObject: item];
-        }
-    }
-
-    return [NSArray arrayWithArray: arr];
-} /* areClassesPresent */
-
 + (void)setCurrentViewController: (UIViewController *)viewController {
     _currentViewController = viewController;
 }
