@@ -31,6 +31,10 @@
     return self;
 }
 
+- (BOOL)is2XXResponse {
+    return (int)[self responseCode] / 100 == 2;
+}
+
 - (nullable NSURLConnection *)createConnection: (NSURLRequest *)request delegate: (nullable id)delegate startImmediately: (BOOL)startImmediately {
     return [[NSURLConnection alloc] initWithRequest: request
                                            delegate: delegate
@@ -48,13 +52,20 @@
     [request setCachePolicy: NSURLRequestReloadIgnoringLocalCacheData];
 
     if ([self.requestType isEqualToString: @"POST"]) {
-        NSString *post = self.body;
+        NSData *postData;
 
-        if (!post) {
-            post = @"";
+        if (self.bodyData) {
+            postData = self.bodyData;
+        } else {
+            NSString *post = self.body;
+
+            if (!post) {
+                post = @"";
+            }
+
+            postData = [post dataUsingEncoding: NSUTF8StringEncoding];
         }
 
-        NSData *postData = [post dataUsingEncoding: NSUTF8StringEncoding];
         NSString *postLength = [NSString stringWithFormat: @"%lu", (unsigned long)[postData length]];
         [request setValue: postLength
                    forHTTPHeaderField: @"Content-Length"];

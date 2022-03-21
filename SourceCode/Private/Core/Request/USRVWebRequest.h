@@ -1,4 +1,4 @@
-
+#import <Foundation/Foundation.h>
 
 typedef void (^UnityServicesWebRequestProgress)(NSString *url, long long bytes, long long totalBytes);
 typedef void (^UnityServicesWebRequestStart)(NSString *url, long long totalBytes);
@@ -8,6 +8,7 @@ typedef void (^UnityServicesWebRequestStart)(NSString *url, long long totalBytes
 @property (nonatomic, strong) NSString *url;
 @property (nonatomic, strong) NSString *requestType;
 @property (nonatomic, strong) NSString *body;
+@property (nonatomic, strong) NSData *bodyData;
 @property (nonatomic, strong) NSDictionary<NSString *, NSArray *> *headers;
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *responseHeaders;
 @property (nonatomic, strong) NSMutableData *receivedData;
@@ -28,5 +29,6 @@ typedef void (^UnityServicesWebRequestStart)(NSString *url, long long totalBytes
 - (instancetype)initWithUrl: (NSString *)url requestType: (NSString *)requestType headers: (NSDictionary<NSString *, NSArray<NSString *> *> *)headers connectTimeout: (int)connectTimeout;
 - (NSData *)    makeRequest;
 - (void)        cancel;
+- (BOOL)        is2XXResponse;
 
 @end

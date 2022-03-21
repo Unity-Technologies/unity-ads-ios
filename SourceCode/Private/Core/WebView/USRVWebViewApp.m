@@ -11,6 +11,7 @@
 #import "UADSWebKitLoader.h"
 #import <dlfcn.h>
 #import <objc/runtime.h>
+#import "UADSWebViewURLBuilder.h"
 
 @interface USRVWebViewApp ()
 
@@ -167,26 +168,36 @@ static NSCondition *blockCondition = nil;
 
         NSString *const localWebViewUrl = [USRVSdkProperties getLocalWebViewFile];
         NSURL *url = [NSURL fileURLWithPath: localWebViewUrl];
-        NSURLComponents *components = [NSURLComponents componentsWithURL: url
-                                                 resolvingAgainstBaseURL     : NO];
-        NSMutableArray *queryItems = [components.queryItems mutableCopy];
 
-        if (!queryItems) {
-            queryItems = [[NSMutableArray alloc] init];
+        id<UADSBaseURLBuilder> urlBuilder = [UADSWebViewURLBuilder newWithBaseURL: [url absoluteString]
+                                                                 andConfiguration : configuration];
+        NSString *builtURL = urlBuilder.baseURL;
+        url = [NSURL URLWithString: builtURL];
+
+        if (!url) {
+            //falback to old way
+            url = [NSURL fileURLWithPath: localWebViewUrl];
+            NSURLComponents *components = [NSURLComponents componentsWithURL: url
+                                                     resolvingAgainstBaseURL     : NO];
+            NSMutableArray *queryItems = [components.queryItems mutableCopy];
+
+            if (!queryItems) {
+                queryItems = [[NSMutableArray alloc] init];
+            }
+
+            [queryItems addObject: [NSURLQueryItem queryItemWithName: @"platform"
+                                                               value: @"ios"]];
+            [queryItems addObject: [NSURLQueryItem queryItemWithName: @"origin"
+                                                               value: [configuration webViewUrl]]];
+
+            if (configuration.webViewVersion) {
+                [queryItems addObject: [NSURLQueryItem queryItemWithName: @"version"
+                                                                   value: configuration.webViewVersion]];
+            }
+
+            components.queryItems = queryItems;
+            url = components.URL;
         }
-
-        [queryItems addObject: [NSURLQueryItem queryItemWithName: @"platform"
-                                                           value: @"ios"]];
-        [queryItems addObject: [NSURLQueryItem queryItemWithName: @"origin"
-                                                           value: [configuration webViewUrl]]];
-
-        if (configuration.webViewVersion) {
-            [queryItems addObject: [NSURLQueryItem queryItemWithName: @"version"
-                                                               value: configuration.webViewVersion]];
-        }
-
-        components.queryItems = queryItems;
-        url = components.URL;
 
         webViewApp.evaluateJavaScriptSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
 

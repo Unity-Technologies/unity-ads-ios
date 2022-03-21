@@ -6,6 +6,7 @@ typedef void (^ErrorCompletion)(id<UADSError>);
 - (void)waitForTimeInterval: (NSTimeInterval)waitTime;
 - (XCTestExpectation *)defaultExpectation;
 - (ErrorCompletion)    failIfError;
+
 @end
 
 NS_ASSUME_NONNULL_END

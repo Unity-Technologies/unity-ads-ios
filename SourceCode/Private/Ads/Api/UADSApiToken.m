@@ -1,27 +1,32 @@
 #import "UADSApiToken.h"
 #import "USRVWebViewCallback.h"
 #import "UADSTokenStorage.h"
+#import "UADSHeaderBiddingTokenReaderBuilder.h"
 
 @implementation UADSApiToken
 
 + (void)WebViewExposed_createTokens: (NSArray *)tokens callback: (USRVWebViewCallback *)callback {
-    [[UADSTokenStorage sharedInstance] createTokens: tokens];
+    [self.tokenStorage createTokens: tokens];
     [callback invoke: nil];
 }
 
 + (void)WebViewExposed_appendTokens: (NSArray *)tokens callback: (USRVWebViewCallback *)callback {
-    [[UADSTokenStorage sharedInstance] appendTokens: tokens];
+    [self.tokenStorage appendTokens: tokens];
     [callback invoke: nil];
 }
 
 + (void)WebViewExposed_deleteTokens: (USRVWebViewCallback *)callback {
-    [[UADSTokenStorage sharedInstance] deleteTokens];
+    [self.tokenStorage deleteTokens];
     [callback invoke: nil];
 }
 
 + (void)WebViewExposed_setPeekMode: (NSNumber *)value callback: (USRVWebViewCallback *)callback {
-    [[UADSTokenStorage sharedInstance] setPeekMode: [value boolValue]];
+    [self.tokenStorage setPeekMode: [value boolValue]];
     [callback invoke: nil];
+}
+
++ (id<UADSHeaderBiddingTokenCRUD>)tokenStorage {
+    return UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader;
 }
 
 @end

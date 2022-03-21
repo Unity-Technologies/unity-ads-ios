@@ -16,6 +16,10 @@ static CTTelephonyNetworkInfo *netinfo;
     });
 }
 
++ (NSString *)networkTypeAsString {
+    return netinfo.currentRadioAccessTechnology ? : @"";
+}
+
 + (NSInteger)getNetworkType {
     if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyGPRS]) {
         NSLog(@"GPRS");
@@ -105,5 +109,24 @@ static CTTelephonyNetworkInfo *netinfo;
 
     return retValue;
 } /* getNetworkStatus */
+
++ (NSString *)getNetworkStatusString {
+    NSString *type = nil;
+
+    switch ([self getNetworkStatus]) {
+        case ReachableViaWiFi:
+            type = @"wifi";
+            break;
+
+        case ReachableViaWWAN:
+            type = @"cellular";
+            break;
+
+        default:
+            type = @"none";
+            break;
+    }
+    return type;
+}
 
 @end

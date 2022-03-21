@@ -2,6 +2,7 @@
 #import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 #import "UnityAdsInitializationDelegateMock.h"
+#import "UADSTokenStorage.h"
 
 @interface InitializeTests : XCTestCase
 @end
@@ -55,37 +56,6 @@
 
     XCTAssertNotNil([[state configuration] webViewUrl], @"Webview URL should be non-nil");
 } /* testInitializeStateLoadConfigFile */
-
-- (void)testInitializeStateLoadConfigFileWrongSdkVersion {
-    USRVConfiguration *localConfiguration = [[USRVConfiguration alloc] init];
-
-    [localConfiguration setWebViewUrl: @"fake-url"];
-    [localConfiguration setSdkVersion: @"fake-sdkv"];
-    [[localConfiguration toJson] writeToFile: [USRVSdkProperties getLocalConfigFilepath]
-                                  atomically: YES];
-    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath: [USRVSdkProperties getLocalConfigFilepath]], @"Local Configuration file does not exist at path");
-
-    USRVConfiguration *config = [[USRVConfiguration alloc] init];
-    USRVInitializeStateLoadConfigFile *loadConfigFileState = [[USRVInitializeStateLoadConfigFile alloc] initWithConfiguration: config];
-    __block id nextState = NULL;
-
-    XCTestExpectation *expectation = [self expectationWithDescription: @"expectation"];
-    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-    dispatch_async(queue, ^{
-        nextState = [loadConfigFileState execute];
-        [expectation fulfill];
-    });
-
-    [self waitForExpectationsWithTimeout: 1
-                                 handler: ^(NSError *_Nullable error) {
-                                 }];
-
-    XCTAssertTrue([nextState isKindOfClass: [USRVInitializeStateReset class]], @"Next state should be 'Reset'");
-    USRVInitializeStateReset *state = (USRVInitializeStateReset *)nextState;
-
-    XCTAssertNil([[state configuration] webViewUrl], @"Webview URL should be nil");
-} /* testInitializeStateLoadConfigFileWrongSdkVersion */
 
 - (void)testInitializeStateLoadConfigFileNoConfigExists {
     XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath: [USRVSdkProperties getLocalConfigFilepath]], @"Local Configuration file does not exist at path");
@@ -458,6 +428,8 @@
 } /* testInitializeStateCompleteTriggerInitializeComplete */
 
 - (void)testInitializeStateErrorTriggerInitializeFailed {
+    [[UADSTokenStorage sharedInstance] setInitToken: @"token_from_tsi_config_call"];
+    XCTAssertNotNil([[UADSTokenStorage sharedInstance] getToken]);
     UnityAdsInitializationDelegateMock *initializationDelegate = [[UnityAdsInitializationDelegateMock alloc] init];
 
     [USRVSdkProperties addInitializationDelegate: initializationDelegate];
@@ -485,6 +457,7 @@
     XCTAssertEqual(1, initializationDelegate.didInitializeFailedErrorMessage.count);
     XCTAssertEqual(kUnityInitializationErrorInternalError, initializationDelegate.didInitializeFailedError);
     XCTAssertEqualObjects(@[@"Unity Ads failed to initialize due to internal error"], initializationDelegate.didInitializeFailedErrorMessage);
+    XCTAssertNil([[UADSTokenStorage sharedInstance] getToken], @"Token should be nil if initialization fails");
 } /* testInitializeStateErrorTriggerInitializeFailed */
 
 - (void)testInitializeStateCreateFailedAndTriggerCorrectErrorMessageFromWebView {

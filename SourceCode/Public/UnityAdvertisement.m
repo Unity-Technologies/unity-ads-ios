@@ -8,6 +8,7 @@
 #import "UADSShowModule.h"
 #import "UADSTokenStorage.h"
 #import "UADSShowModuleOptions.h"
+#import "UADSHeaderBiddingTokenReaderBuilder.h"
 
 @implementation UnityAds
 
@@ -99,7 +100,19 @@
 }
 
 + (NSString *__nullable)getToken {
-    return [[UADSTokenStorage sharedInstance] getToken];
+    return [self.tokenReader getToken];
+}
+
++ (void)getToken: (void (^)(NSString *_Nullable))completion {
+    [self.tokenReader getToken:^(NSString *_Nullable token, UADSTokenType type) {
+        dispatch_on_main(^{
+                             completion(token);
+                         });
+    }];
+}
+
++ (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)tokenReader {
+    return UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader;
 }
 
 @end

@@ -6,7 +6,8 @@
     return @[
         @"USTRApiAppSheet",
         @"USTRApiProducts",
-        @"USTRApiSKAdNetwork"
+        @"USTRApiSKAdNetwork",
+        @"UADSApiOverlay"
     ];
 }
 

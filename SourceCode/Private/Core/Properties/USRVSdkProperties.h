@@ -8,6 +8,7 @@
 FOUNDATION_EXPORT NSString *const kUnityServicesLocalCacheFilePrefix;
 FOUNDATION_EXPORT NSString *const kUnityServicesLocalStorageFilePrefix;
 FOUNDATION_EXPORT NSString *const kUnityServicesWebviewBranchInfoDictionaryKey;
+FOUNDATION_EXPORT NSString *const kUnityServicesWebviewConfigInfoDictionaryKey;
 FOUNDATION_EXPORT NSString *const kUnityServicesVersionName;
 FOUNDATION_EXPORT int const kUnityServicesVersionCode;
 FOUNDATION_EXPORT NSString *const kUnityServicesFlavorDebug;

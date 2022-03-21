@@ -1,5 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
+#import "UADSMediationMetaData.h"
 
 @interface NSDictionaryMergeTests : XCTestCase
 @end
@@ -85,6 +86,99 @@
 
     XCTAssertNotEqualObjects(original, deepCopy);
     XCTAssertEqualObjects(deepCopy[0], @"1");
+}
+
+- (void)test_flat_nested_dictionary_nothing_excluded {
+    NSDictionary *result = [self.testDataSet uads_flatUsingSeparator: @"."
+                                                 includeTopLevelKeys: @[]
+                                                       andReduceKeys: @[]
+                                                         andSkipKeys: @[]];
+
+    XCTAssertEqualObjects(result, self.expectedFlattenDataSet);
+}
+
+- (void)test_flat_nested_dictionary_nothing_excludes_keys {
+    NSDictionary *result = [self.testDataSet uads_flatUsingSeparator: @"."
+                                                 includeTopLevelKeys: @[]
+                                                       andReduceKeys: @[]
+                                                         andSkipKeys: @[@"ts"]];
+
+    XCTAssertEqualObjects(result, self.expectedFlattenDataSetExcludeTS);
+}
+
+- (void)test_flat_nested_dictionary_nothing_excludes_keys_and_reduce_and_filters {
+    NSDictionary *result = [self.testDataSet uads_flatUsingSeparator: @"."
+                                                 includeTopLevelKeys: @[@"mediation"]
+                                                       andReduceKeys: @[@"value"]
+                                                         andSkipKeys: @[@"ts"]];
+
+    XCTAssertEqualObjects(result, self.expectedFlattenDataSetReduced);
+}
+
+- (NSDictionary *)expectedFlattenDataSetExcludeTS {
+    return @{
+        @"mediation.adapterVersion.value": @"adapter_version",
+        @"mediation.name.value": @"Mediation name",
+        @"mediation.version.value": @"version",
+
+        @"framework.name.value": @"name",
+        @"framework.version.value": @"version",
+    };
+}
+
+- (NSDictionary *)expectedFlattenDataSetReduced {
+    return @{
+        @"mediation.adapterVersion": @"adapter_version",
+        @"mediation.name": @"Mediation name",
+        @"mediation.version": @"version",
+    };
+}
+
+- (NSDictionary *)expectedFlattenDataSet {
+    return @{
+        @"mediation.adapterVersion.value": @"adapter_version",
+        @"mediation.name.value": @"Mediation name",
+        @"mediation.version.value": @"version",
+
+        @"mediation.adapterVersion.ts": @(1642615489109),
+        @"mediation.name.ts": @(1642615489109),
+        @"mediation.version.ts": @(1642615489109),
+
+        @"framework.name.ts": @(1642615489109),
+        @"framework.name.value": @"name",
+        @"framework.version.ts": @(1642615489109),
+        @"framework.version.value": @"version",
+    };
+}
+
+- (NSDictionary *)testDataSet {
+    return @{
+        @"mediation": @{
+            @"adapterVersion": @{
+                @"ts": @(1642615489109),
+                @"value": @"adapter_version"
+            },
+
+            @"name": @{
+                @"ts":  @(1642615489109),
+                @"value": @"Mediation name"
+            },
+            @"version": @{
+                @"ts": @(1642615489109),
+                @"value": @"version"
+            }
+        },
+        @"framework": @{
+            @"name": @{
+                @"ts":  @(1642615489109),
+                @"value": @"name"
+            },
+            @"version": @{
+                @"ts": @(1642615489109),
+                @"value": @"version"
+            }
+        },
+    };
 }
 
 @end

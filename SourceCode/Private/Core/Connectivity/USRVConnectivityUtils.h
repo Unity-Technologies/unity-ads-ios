@@ -39,4 +39,5 @@ typedef enum : NSInteger {
 
 + (NetworkStatus)networkStatusForFlags: (SCNetworkReachabilityFlags)flags;
 
++ (NSString *)   getNetworkStatusString;
 @end

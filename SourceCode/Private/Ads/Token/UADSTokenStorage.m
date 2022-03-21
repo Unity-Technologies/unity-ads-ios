@@ -1,5 +1,6 @@
 #import "UADSTokenStorage.h"
 #import "UADSTokenStorageEventHandler.h"
+#import "UADSInitializeEventsMetricSender.h"
 
 @interface UADSTokenStorage ()
 
@@ -8,7 +9,7 @@
 @property int accessCounter;
 @property (nonatomic) BOOL peekMode;
 @property dispatch_queue_t dispatchQueue;
-
+@property (nonatomic, copy) NSString *firstToken;
 @property NSObject *lockObject;
 
 @end
@@ -42,6 +43,7 @@
         self.accessCounter = 0;
         self.queue = [[NSMutableArray alloc] initWithCapacity: tokens.count];
         [self.queue addObjectsFromArray: tokens];
+        [self sendWebViewTokenAvailabilityMetricsIfRequired];
     }
 }
 
@@ -50,6 +52,7 @@
         if (self.queue == nil) {
             self.accessCounter = 0;
             self.queue = [[NSMutableArray alloc] initWithCapacity: tokens.count];
+            [self sendWebViewTokenAvailabilityMetricsIfRequired];
         }
 
         [self.queue addObjectsFromArray: tokens];
@@ -65,12 +68,12 @@
 - (NSString *)getToken {
     @synchronized (_lockObject) {
         if (self.queue == nil) {
-            return nil;
+            return self.firstToken;
         }
 
         if (self.queue.count == 0) {
             [self.eventHandler sendQueueEmpty];
-            return nil;
+            return self.firstToken;
         }
 
         [self.eventHandler sendTokenAccessIndex: [NSNumber numberWithInt: self.accessCounter++]];
@@ -90,6 +93,29 @@
         self.queue = nil;
         self.accessCounter = 0;
     }
+}
+
+- (void)setInitToken: (NSString *)token {
+    @synchronized (_lockObject) {
+        self.firstToken = token;
+    }
+    [self sendFirstInitTokenAvailabilityMetricsIfRequired];
+}
+
+- (void)sendFirstInitTokenAvailabilityMetricsIfRequired {
+    if (_firstToken) {
+        [self.metricsSender sendTokenAvailabilityLatencyOnceOfType: kUADSTokenAvailabilityTypeFirstToken];
+    }
+}
+
+- (void)sendWebViewTokenAvailabilityMetricsIfRequired {
+    if (_queue.count > 0) {
+        [self.metricsSender sendTokenAvailabilityLatencyOnceOfType: kUADSTokenAvailabilityTypeWeb];
+    }
+}
+
+- (UADSInitializeEventsMetricSender *)metricsSender {
+    return UADSInitializeEventsMetricSender.sharedInstance;
 }
 
 @end

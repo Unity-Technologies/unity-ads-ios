@@ -139,6 +139,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSString *__nullable)getToken;
 
+/**
+ * Get request token.
+ *
+ * @param completion Active token or null if no active token is available.
+ */
++ (void)getToken: (void (^)(NSString *_Nullable))completion;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -10,6 +10,7 @@ static NSString *const eventCategoryVideoPlayer = @"VIDEOPLAYER";
 static NSString *const eventCategoryWebViewApp = @"WEBVIEWAPP";
 static NSString *const eventCategoryNotification = @"NOTIFICATION";
 static NSString *const eventCategoryAppSheet = @"APPSHEET";
+static NSString *const eventCategorySKOverlay = @"SKOVERLAY";
 static NSString *const eventCategoryDeviceInfo = @"DEVICEINFO";
 static NSString *const eventCategoryWebPlayer = @"WEBPLAYER";
 static NSString *const eventCategoryBanner = @"BANNER";
@@ -52,6 +53,9 @@ NSString * USRVNSStringFromWebViewEventCategory(UnityServicesWebViewEventCategor
 
         case kUnityServicesWebViewEventCategoryAppSheet:
             return eventCategoryAppSheet;
+
+        case kUnityServicesWebViewEventCategorySKOverlay:
+            return eventCategorySKOverlay;
 
         case kUnityServicesWebViewEventCategoryDeviceInfo:
             return eventCategoryDeviceInfo;

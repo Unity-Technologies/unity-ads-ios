@@ -21,4 +21,14 @@ static USRVWebRequestType s_ImplementationType = kUnityAdsWebRequestUrlConnectio
                                                  connectTimeout: connectTimeout];
 }
 
+- (id<USRVWebRequest>)create: (NSString *)url
+                 requestType: (NSString *)requestType
+                     headers: (NSDictionary<NSString *, NSArray<NSString *> *> *)headers
+              connectTimeout: (int)connectTimeout {
+    return [[self class] create: url
+                    requestType: requestType
+                        headers: headers
+                 connectTimeout: connectTimeout];
+}
+
 @end

@@ -1,4 +1,5 @@
 #import "USRVInitializationNotificationCenter.h"
+#import "UADSInitializeEventsMetricSender.h"
 
 @interface USRVInitializationDelegateWrapper : NSObject
 
@@ -88,13 +89,14 @@
         NSDictionary *delegates = [NSDictionary dictionaryWithDictionary: self.sdkDelegates];
         __weak USRVInitializationNotificationCenter *weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
+            NSError *error = [[NSError alloc] initWithDomain: @"USRVInitializationNotificationCenter"
+                                                        code: code.integerValue
+                                                    userInfo: @{ @"message": message }];
+
             for (NSNumber *key in delegates) {
                 USRVInitializationDelegateWrapper *delegateWrapper = [delegates objectForKey: key];
                 @try {
                     if (delegateWrapper.delegate) {
-                        NSError *error = [[NSError alloc] initWithDomain: @"USRVInitializationNotificationCenter"
-                                                                    code: code.integerValue
-                                                                userInfo: @{ @"message": message }];
                         [delegateWrapper.delegate sdkInitializeFailed: error];
                     } else {
                         // clean up empty wrapper

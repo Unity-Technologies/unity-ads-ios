@@ -7,10 +7,11 @@
 #import <mach/mach.h>
 #import <objc/runtime.h>
 #import <sys/sysctl.h>
-
+#import "UADSCurrentTimestampBase.h"
 #import "USRVDevice.h"
 #import "USRVConnectivityUtils.h"
 #import "NSString+Hash.h"
+#import "WKWebView + UserAgent.h"
 
 #ifndef MSEC_PER_SEC
 #define MSEC_PER_SEC 1000ull
@@ -121,11 +122,19 @@ static NSNumber *uadsBootTime = nil;
 + (NSString *)getNetworkCountryISO {
     NSString *isoCode = uadsTelephonyInfo.subscriberCellularProvider.isoCountryCode;
 
-    if (isoCode == nil) {
-        return @"";
+    return isoCode ? : @"";
+}
+
++ (NSString *)getNetworkCountryISOWithLocaleFallback {
+    NSString *isoCode = [self getNetworkCountryISO];
+
+    if ([isoCode isEqualToString: @""]) {
+        if (@available(iOS 10.0, *)) {
+            isoCode = [[NSLocale currentLocale] countryCode];
+        }
     }
 
-    return isoCode;
+    return isoCode ? : @"";
 }
 
 + (float)getScreenScale {
@@ -531,6 +540,26 @@ static NSNumber *uadsBootTime = nil;
     }
 
     return [NSNumber numberWithInt: 1];
+}
+
++ (NSString *)getWebViewUserAgent {
+    return [WKWebView getUserAgentSync];
+}
+
++ (BOOL)isAppInForeground {
+    return UIApplication.sharedApplication.applicationState == UIApplicationStateActive;
+}
+
++ (NSNumber *)currentTimeStamp {
+    double timestamp = [UADSCurrentTimestampBase new].currentTimestamp;
+
+    return @(round(timestamp * 1000));
+}
+
++ (NSNumber *)currentTimeStampInSeconds {
+    double timestamp = [UADSCurrentTimestampBase new].currentTimestamp;
+
+    return @(round(timestamp));
 }
 
 @end

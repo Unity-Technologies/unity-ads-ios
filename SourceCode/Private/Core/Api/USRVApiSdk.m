@@ -29,6 +29,7 @@
      [NSNumber numberWithBool: YES], // placement load enabled
      [NSNumber numberWithBool: [USRVSdkProperties getLatestConfiguration] != nil],
      [USRVDevice getElapsedRealtime],
+     [[[USRVWebViewApp getCurrentApp] configuration] stateId] ? : @"",
      nil];
 } /* WebViewExposed_loadComplete */
 

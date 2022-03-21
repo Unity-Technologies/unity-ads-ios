@@ -77,6 +77,7 @@ _Nullable id typecast(id obj, Class class);
 typedef void (^UADSNSErrorCompletion)(NSError *_Nullable error);
 
 void dispatch_on_main(dispatch_block_t block);
+void dispatch_on_main_sync(dispatch_block_t block);
 
 typedef void (^UADSVoidClosure)(void);
 

@@ -11,6 +11,7 @@ typedef NS_ENUM (NSInteger, UnityServicesWebViewEventCategory) {
     kUnityServicesWebViewEventCategoryWebViewApp,
     kUnityServicesWebViewEventCategoryNotification,
     kUnityServicesWebViewEventCategoryAppSheet,
+    kUnityServicesWebViewEventCategorySKOverlay,
     kUnityServicesWebViewEventCategoryDeviceInfo,
     kUnityServicesWebViewEventCategoryWebPlayer,
     kUnityServicesWebViewEventCategoryBanner,

@@ -1,18 +1,21 @@
 #import "USRVSdkProperties.h"
 #import "USRVDevice.h"
 #import "UnityAdsInitializationDelegate.h"
+#import "UADSBaseURLBuilder.h"
+#import "USRVClientProperties.h"
+#import "UADSConfigurationEndpointProvider.h"
 
 NSString *const kUnityServicesCacheDirName = @"UnityAdsCache";
 NSString *const kUnityServicesLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString *const kUnityServicesLocalStorageFilePrefix = @"UnityAdsStorage-";
 NSString *const kUnityServicesWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
 NSString *const kUnityServicesWebviewConfigInfoDictionaryKey = @"UADSWebviewConfig";
-NSString *const kUnityServicesVersionName = @"4.0.1";
+NSString *const kUnityServicesVersionName = @"4.1.0";
 NSString *const kUnityServicesFlavorDebug = @"debug";
 NSString *const kUnityServicesFlavorRelease = @"release";
 NSString *const kChinaIsoAlpha2Code = @"CN";
 NSString *const kChinaIsoAlpha3Code = @"CHN";
-int const kUnityServicesVersionCode = 4010;
+int const kUnityServicesVersionCode = 4100;
 
 @implementation USRVSdkProperties
 
@@ -117,7 +120,8 @@ static dispatch_queue_t queue;
 }
 
 + (NSString *)getDefaultConfigUrl: (NSString *)flavor {
-    NSString *baseURI = @"https://config.unityads.unity3d.com/webview/";
+    UADSConfigurationEndpointProvider *endpointProvider = UADSConfigurationEndpointProvider.defaultProvider;
+    NSString *baseURI = [@"https://" stringByAppendingFormat: @"%@/webview/", endpointProvider.hostname];
     NSString *versionString = [USRVSdkProperties getVersionName];
 
     // If there is a string object for the key UADSWebviewBranch in the Info.plist of the hosting application,
@@ -130,11 +134,7 @@ static dispatch_queue_t queue;
         versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey: kUnityServicesWebviewBranchInfoDictionaryKey];
     }
 
-    if ([USRVSdkProperties isChinaLocale: [USRVDevice getNetworkCountryISO]]) {
-        baseURI = @"https://config.unityads.unitychina.cn/webview/";
-    }
-
-    return [baseURI stringByAppendingFormat: @"%@/%@/config.json", versionString, flavor];
+    return [baseURI stringByAppendingFormat: @"%@/%@/config.json?gameId=%@", versionString, flavor, [USRVClientProperties getGameId]];
 }
 
 + (NSString *)getLocalWebViewFile {

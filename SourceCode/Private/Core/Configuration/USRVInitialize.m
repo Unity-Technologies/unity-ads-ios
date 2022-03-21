@@ -10,9 +10,12 @@
 #import "USRVCacheQueue.h"
 #import "USRVWebRequestFactory.h"
 #import "USRVSDKMetrics.h"
-
+#import "UADSConfigurationLoaderBuilder.h"
+#import "UADSInitializeEventsMetricSender.h"
+#import "UADSTokenStorage.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <sys/mman.h>
+#import "UADSHeaderBiddingTokenReaderBuilder.h"
 
 @implementation USRVInitialize
 
@@ -30,6 +33,7 @@ static dispatch_once_t onceToken;
 
     if (initializeQueue && initializeQueue.operationCount == 0) {
         currentConfiguration = configuration;
+        [[UADSInitializeEventsMetricSender sharedInstance] didInitStart];
         id state = [[USRVInitializeStateLoadConfigFile alloc] initWithConfiguration: currentConfiguration];
         [initializeQueue addOperation: state];
     }
@@ -107,10 +111,8 @@ static dispatch_once_t onceToken;
                                                           error: nil];
             localConfig = [[USRVConfiguration alloc] initWithConfigJsonData: configData];
 
-            if ([[USRVSdkProperties getVersionName] isEqualToString: [localConfig sdkVersion]]) {
-                self.configuration = localConfig;
-                USRVLogDebug(@"Unity Ads init: Using cached configuration parameters");
-            }
+            self.configuration = localConfig;
+            USRVLogDebug(@"Unity Ads init: Using cached configuration parameters");
         }
     } @catch (NSException *exception) {
         USRVLogDebug(@"Unity Ads init: Using default configuration parameters");
@@ -215,14 +217,22 @@ static dispatch_once_t onceToken;
 
 // CONFIG
 
+@interface USRVInitializeStateConfig ()
+@property (nonatomic, strong) id<UADSConfigurationLoader> configLoader;
+@end
+
 @implementation USRVInitializeStateConfig : USRVInitializeState
 
 - (instancetype)initWithConfiguration: (USRVConfiguration *)configuration retries: (int)retries retryDelay: (long)retryDelay {
     self = [super initWithConfiguration: configuration];
-    self.localConfig = configuration;
-    self.configuration = [[USRVConfiguration alloc] initWithConfigUrl: [USRVSdkProperties getConfigUrl]];
 
     if (self) {
+        self.localConfig = configuration;
+        //read from local config
+        self.configuration = [[USRVConfiguration alloc] initWithConfigUrl: [USRVSdkProperties getConfigUrl]];
+        UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: configuration.experiments];
+        UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config];
+        self.configLoader = builder.loader;
         [self setRetries: retries];
         [self setRetryDelay: retryDelay];
     }
@@ -231,11 +241,25 @@ static dispatch_once_t onceToken;
 }
 
 - (instancetype)execute {
-    USRVLogInfo(@"Unity Ads init: load configuration from %@", [USRVSdkProperties getConfigUrl]);
+    USRVLogInfo(@"\n=============== %@ ============= \n", NSStringFromClass([self class]));
+    return self.localConfig.experiments.isTwoStageInitializationEnabled ? [self executeWithLoader] : [self executeLegacy];
+} /* execute */
+
+- (instancetype)executeLegacy {
+    USRVLogInfo(@"\n=============== %@ LEGACY FLOW ============= \n", NSStringFromClass([self class]));
+    USRVLogInfo(@"Loading Configuration %@", [USRVSdkProperties getConfigUrl]);
 
     [self.configuration makeRequest];
 
     if (!self.configuration.error) {
+        if (self.configuration.headerBiddingToken) {
+            USRVLogInfo(@"Found token in the response. Will Attempt to save");
+            [UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader setInitToken: self.configuration.headerBiddingToken];
+        }
+
+        USRVLogInfo(@"Saving Configuration To Disk");
+        [self.configuration saveToDisk];
+
         if (self.configuration.delayWebViewUpdate) {
             id nextState = [[USRVInitializeStateLoadCacheConfigAndWebView alloc] initWithConfiguration: self.configuration
                                                                                            localConfig: self.localConfig];
@@ -264,7 +288,56 @@ static dispatch_once_t onceToken;
                                                                               message: @"Network error occured init SDK initialization, waiting for connection"];
         return nextState;
     }
-} /* execute */
+}
+
+- (instancetype)executeWithLoader {
+    USRVLogInfo(@"\n=============== %@ TSI FLOW/ USING LOADER ============= \n", NSStringFromClass([self class]));
+
+
+    __block NSError *configError;
+    id success = ^(USRVConfiguration *config) {
+        self.configuration = config;
+        USRVLogInfo(@"Config received");
+    };
+
+    id error = ^(NSError *error) {
+        configError = error;
+    };
+
+    [[UADSInitializeEventsMetricSender sharedInstance] didConfigRequestStart];
+    [self.configLoader loadConfigurationWithSuccess: success
+                                 andErrorCompletion: error];
+
+    if (!configError) {
+        if (self.configuration.delayWebViewUpdate) {
+            id nextState = [[USRVInitializeStateLoadCacheConfigAndWebView alloc] initWithConfiguration: self.configuration
+                                                                                           localConfig: self.localConfig];
+            return nextState;
+        } else {
+            id nextState = [[USRVInitializeStateLoadCache alloc] initWithConfiguration: self.configuration];
+            return nextState;
+        }
+    } else if (configError && self.retries < [self.configuration maxRetries]) {
+        self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
+        self.retries++;
+        id retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig
+                                                                         retries: self.retries
+                                                                      retryDelay: self.retryDelay];
+        id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration: self.localConfig
+                                                                    retryState: retryState
+                                                                    retryDelay: self.retryDelay];
+        return nextState;
+    } else {
+        id erroredState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig
+                                                                           retries: self.retries
+                                                                        retryDelay: self.retryDelay];
+        id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration: self.localConfig
+                                                                         erroredState: erroredState
+                                                                            stateName: @"network config request"
+                                                                              message: @"Network error occured init SDK initialization, waiting for connection"];
+        return nextState;
+    }
+}
 
 @end
 

@@ -24,6 +24,7 @@
 + (NSString *)getNetworkOperatorName;
 
 + (NSString *)getNetworkCountryISO;
++ (NSString *)getNetworkCountryISOWithLocaleFallback;
 
 + (float)     getScreenScale;
 
@@ -88,4 +89,10 @@
 + (NSArray<NSString *> *)getLocaleList;
 
 + (NSNumber *)           getCurrentUITheme;
+
++ (NSString *)           getWebViewUserAgent;
+
++ (NSNumber *)           currentTimeStamp;
++ (NSNumber *)           currentTimeStampInSeconds;
++ (BOOL)                 isAppInForeground;
 @end

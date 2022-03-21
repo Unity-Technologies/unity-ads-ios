@@ -73,6 +73,7 @@
         [USRVSdkProperties notifyInitializationFailed: kUnityInitializationErrorInternalError
                                      withErrorMessage: errorMessage];
     });
+
     return true;
 }
 

@@ -336,4 +336,24 @@
     XCTAssertTrue(data.length == 0, "Data length should be zero");
 } /* testInvalidPostUrl */
 
+- (void)testIs2xxResponse {
+    USRVWebRequestWithUrlConnection *request = [[USRVWebRequestWithUrlConnection alloc] initWithUrl: @""
+                                                                                        requestType: @"POST"
+                                                                                            headers: NULL
+                                                                                     connectTimeout: 30000];
+    NSArray *validCodes = @[@(200), @(204), @(260), @(299)];
+
+    for (NSNumber *code in validCodes) {
+        request.responseCode = [code intValue];
+        XCTAssertTrue(request.is2XXResponse);
+    }
+
+    NSArray *invalidCodes = @[@(170), @(302), @(404), @(500)];
+
+    for (NSNumber *code in invalidCodes) {
+        request.responseCode = [code intValue];
+        XCTAssertFalse(request.is2XXResponse);
+    }
+}
+
 @end
