@@ -16,10 +16,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface USRVSDKMetrics : NSObject
-+ (void)setConfiguration: (nullable USRVConfiguration *)configuration;
-+ (void)setConfiguration: (nullable USRVConfiguration *)configuration requestFactory: (id<IUSRVWebRequestFactoryStatic>)factory;
+//+ (void)setConfiguration: (nullable USRVConfiguration *)configuration;
+//+ (void)setConfiguration: (nullable USRVConfiguration *)configuration requestFactory: (id<IUSRVWebRequestFactoryStatic>)factory;
 + (id <ISDKMetrics>)getInstance;
-+ (void)            reset;
+//+ (void)            reset;
 @end
 
 @interface UADSMetricsNullInstance : NSObject <ISDKMetrics>

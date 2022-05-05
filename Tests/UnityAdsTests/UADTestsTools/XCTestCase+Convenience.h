@@ -6,6 +6,7 @@ typedef void (^ErrorCompletion)(id<UADSError>);
 - (void)waitForTimeInterval: (NSTimeInterval)waitTime;
 - (XCTestExpectation *)defaultExpectation;
 - (ErrorCompletion)    failIfError;
+- (void)asyncExecuteTimes: (int)count block: (void (^)(XCTestExpectation *expectation, int index))block;
 
 @end
 

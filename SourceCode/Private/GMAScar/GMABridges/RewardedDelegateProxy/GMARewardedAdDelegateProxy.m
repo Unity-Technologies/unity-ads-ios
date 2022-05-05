@@ -22,11 +22,6 @@
 
 - (void)willPresentAd: (id)ad {
     [super willPresentAd: ad];
-
-    if (!self.hasRewarded) {
-        [self.eventSender sendEvent: [GMAWebViewEvent newAdEarnRewardWithMeta: self.meta]];
-        self.hasRewarded = true;
-    }
 }
 
 /// GMA callback which "tells the delegate that the rewarded ad was presented"
@@ -43,6 +38,18 @@
 /// GMA callback which "tells the delegate that the rewarded ad was dismissed"
 - (void)rewardedAdDidDismiss: (id)rewardedAd {
     [self didDismissAd: rewardedAd];
+}
+
+- (void)adDidDismissFullScreenContent: (nonnull id)ad {
+    [self didDismissAd: ad];
+}
+
+- (void)didDismissAd: (id)ad {
+    if (!self.hasRewarded) {
+        [self.eventSender sendEvent: [GMAWebViewEvent newAdSkippedWithMeta: self.meta]];
+    }
+
+    [super didDismissAd: ad];
 }
 
 - (void)didEarnReward: (id)rewardedAd {

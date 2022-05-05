@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)newAdStartedWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newFirstQuartileWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newMidPointWithMeta: (GMAAdMetaData *)meta;
++ (instancetype)newThirdQuartileWithMeta: (GMAAdMetaData *)meta;
++ (instancetype)newLastQuartileWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newAdSkippedWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newAdClosedWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newAdClickedWithMeta: (GMAAdMetaData *)meta;

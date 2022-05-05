@@ -1,8 +1,9 @@
 #import "UADSInitializeEventsMetricSender.h"
 #import "UADSTsiMetric.h"
-#import "UADSConfigurationReader.h"
+#import "UADSConfigurationCRUDBase.h"
 #import "UADSCurrentTimestampBase.h"
 #import "USRVInitializationNotificationCenter.h"
+#import "UADSServiceProvider.h"
 
 @interface UADSInitializeEventsMetricSender ()<USRVInitializationDelegate>
 @property (nonatomic, assign) CFTimeInterval startTime;
@@ -18,8 +19,8 @@
 @implementation UADSInitializeEventsMetricSender
 
 _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
-    return [[UADSInitializeEventsMetricSender alloc] initWithMetricSender: [USRVSDKMetrics getInstance]
-                                                               tagsReader: [UADSConfigurationReaderBase new]
+    return [[UADSInitializeEventsMetricSender alloc] initWithMetricSender: UADSServiceProvider.sharedInstance.metricSender
+                                                               tagsReader: [UADSConfigurationCRUDBase new]
                                                          currentTimestamp: [UADSCurrentTimestampBase new]
                                                               initSubject: USRVInitializationNotificationCenter.sharedInstance];
 })

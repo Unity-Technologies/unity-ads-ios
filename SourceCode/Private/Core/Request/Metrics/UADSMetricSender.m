@@ -11,25 +11,23 @@
 @property (nonatomic, strong) dispatch_queue_t metricQueue;
 @property (nonatomic, strong) NSObject<IUSRVWebRequestFactoryStatic> *requestFactory;
 @property (nonatomic, strong) UADSMetricCommonTags *commonTags;
-
+@property (nonatomic, strong) id<UADSConfigurationReader> configurationReader;
 @end
 
 @implementation UADSMetricSender
 
-- (instancetype)init: (NSString *)url requestFactory: (id<IUSRVWebRequestFactoryStatic>)factory {
-    self = [super init];
++ (instancetype)newWithConfigurationReader: (id<UADSConfigurationReader>)configReader
+                         andRequestFactory: (id<IUSRVWebRequestFactoryStatic>)factory {
+    UADSMetricSender *sender = [UADSMetricSender new];
 
-    if (self) {
-        self.metricEndpoint = url;
-        self.metricQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        self.requestFactory = factory;
-        self.commonTags = [[UADSMetricCommonTags alloc] initWithCountryISO: [USRVDevice getNetworkCountryISOWithLocaleFallback]
-                                                                  platform: @"ios"
-                                                                sdkVersion: [USRVSdkProperties getVersionName]
-                                                             systemVersion: [USRVDevice getOsVersion]];
-    }
-
-    return self;
+    sender.configurationReader = configReader;
+    sender.requestFactory = factory;
+    sender.metricQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    sender.commonTags = [[UADSMetricCommonTags alloc] initWithCountryISO: [USRVDevice getNetworkCountryISOWithLocaleFallback]
+                                                                platform: @"ios"
+                                                              sdkVersion: [USRVSdkProperties getVersionName]
+                                                           systemVersion: [USRVDevice getOsVersion]];
+    return sender;
 }
 
 - (void)sendEvent: (NSString *)event {
@@ -98,6 +96,10 @@
             USRVLogDebug("Metrics %@ failed to send from exception: %@", metrics, [exception name]);
         }
     });
+}
+
+- (NSString *)metricEndpoint {
+    return [_configurationReader getCurrentConfiguration].metricsUrl;
 }
 
 @end

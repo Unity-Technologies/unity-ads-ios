@@ -51,4 +51,8 @@
     [self interstitialWillPresentScreen: ad];
 }
 
+- (void)adWillPresentFullScreenContent: (nonnull id)ad {
+    [self interstitialWillPresentScreen: ad];
+}
+
 @end

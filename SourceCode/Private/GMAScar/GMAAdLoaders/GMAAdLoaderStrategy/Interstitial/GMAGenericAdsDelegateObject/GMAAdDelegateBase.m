@@ -2,18 +2,22 @@
 #import "NSError+UADSError.h"
 #import "GMAWebViewEvent.h"
 #import "GMAError.h"
+#import "UADSArrayScheduledStream.h"
 
 @interface GMAAdDelegateBase ()
 @property (nonatomic, strong) UADSAnyCompletion *completion;
-@property (strong, nonatomic) NSTimer *timer;
-@property bool hasSentQuartiles;
+@property (strong, nonatomic) UADSArrayScheduledStream *quartileEventsStream;
+@property (nonatomic, strong) NSArray *quartileEvents;
+@property (nonatomic, assign) BOOL hasScheduledQuartileEvents;
+@property (nonatomic, strong) id<UADSRepeatableTimer> timer;
 @end
 
 @implementation GMAAdDelegateBase
 + (instancetype)newWithMetaData: (GMAAdMetaData *)meta
                 andErrorHandler: (id<UADSErrorHandler>)errorHandler
                       andSender: (id<UADSWebViewEventSender>)eventSender
-                  andCompletion: (UADSAnyCompletion *)completion; {
+                  andCompletion: (UADSAnyCompletion *)completion
+                       andTimer: (id<UADSRepeatableTimer>)timer {
     GMAAdDelegateBase *base = [[self alloc] init];
 
     base.eventSender = eventSender;
@@ -21,6 +25,13 @@
     base.completion = completion;
     base.hasSentQuartiles = false;
     base.errorHandler = errorHandler;
+    base.quartileEvents = @[
+        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
+        [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta]
+    ];
+    base.timer = timer;
     return base;
 }
 
@@ -37,37 +48,17 @@
 }
 
 - (void)willPresentAd: (id)ad {
-    double inSeconds = ([_meta.videoLength intValue] % 1000 == 0) ? [_meta.videoLength doubleValue] / 1000 : [_meta.videoLength doubleValue];
-
-    self.timer = [NSTimer scheduledTimerWithTimeInterval: inSeconds
-                                                  target: self
-                                                selector: @selector(timesUp:)
-                                                userInfo: nil
-                                                 repeats: NO];
+    [self scheduleQuartileEvents: [_meta videoLengthInSeconds]];
 
     [_eventSender sendEvent: [GMAWebViewEvent newAdStartedWithMeta: _meta]];
-
-    if (!self.hasSentQuartiles) {
-        [_eventSender sendEvent: [GMAWebViewEvent newFirstQuartileWithMeta: _meta]];
-        [_eventSender sendEvent: [GMAWebViewEvent newMidPointWithMeta: _meta]];
-        self.hasSentQuartiles = true;
-    }
-}
-
-- (void)timesUp: (NSTimer *)timer {
-    USRVLogDebug(@"User finished watching ad.");
-    [_timer invalidate];
-    _timer = nil;
 }
 
 - (void)willDismissAd: (id)ad {
 }
 
 - (void)didDismissAd: (id)ad {
-    if (_timer) {
-        [_eventSender sendEvent: [GMAWebViewEvent newAdSkippedWithMeta: _meta]];
-    }
-
+    [_quartileEventsStream invalidate];
+    _quartileEventsStream = nil;
     [_eventSender sendEvent: [GMAWebViewEvent newAdClosedWithMeta: _meta]];
 }
 
@@ -88,8 +79,32 @@
     [self willPresentAd: ad];
 }
 
+- (void)adWillPresentFullScreenContent: (nonnull id)ad {
+    [self willPresentAd: ad];
+}
+
 - (void)adDidRecordImpression: (nonnull id)ad {
     [_eventSender sendEvent: [GMAWebViewEvent newImpressionRecordedWithMeta: _meta]];
+}
+
+- (void)scheduleQuartileEvents: (NSTimeInterval)totalTime {
+    if (self.hasScheduledQuartileEvents) {
+        return;
+    }
+
+    self.hasScheduledQuartileEvents = true;
+    __weak typeof(self) weakSelf = self;
+
+    self.quartileEventsStream = [UADSArrayScheduledStream scheduledStreamWithArray: self.quartileEvents
+                                                                         totalTime: totalTime
+                                                                             timer: self.timer
+                                                                             block:^(id _Nonnull event, NSInteger index) {
+                                                                                 [weakSelf.eventSender sendEvent: event];
+
+                                                                                 if (index == self.quartileEvents.count - 1) {
+                                                                                     weakSelf.hasSentQuartiles = true;
+                                                                                 }
+                                                                             }];
 }
 
 @end

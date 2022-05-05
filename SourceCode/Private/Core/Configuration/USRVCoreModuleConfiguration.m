@@ -11,7 +11,7 @@
 #import "USRVInitialize.h"
 #import "USRVInitializationNotificationCenter.h"
 #import "USRVSDKMetrics.h"
-
+#import "UADSServiceProvider.h"
 @implementation USRVCoreModuleConfiguration
 
 - (NSArray<NSString *> *)getWebAppApiClassList {
@@ -37,7 +37,6 @@
 } /* getWebAppApiClassList */
 
 - (BOOL)resetState: (USRVConfiguration *)configuration {
-    [USRVSDKMetrics setConfiguration: configuration];
     [USRVDevice initCarrierUpdates];
     [USRVConnectivityUtils initCarrierInfo];
     [USRVSdkProperties setInitialized: NO];
@@ -54,12 +53,11 @@
 }
 
 - (BOOL)initModuleState: (USRVConfiguration *)configuration {
-    [USRVSDKMetrics setConfiguration: configuration];
     return true;
 }
 
 - (BOOL)initErrorState: (USRVConfiguration *)configuration state: (NSString *)state message: (NSString *)message {
-    [USRVSDKMetrics setConfiguration: configuration];
+    [UADSServiceProvider.sharedInstance.configurationSaver saveConfiguration: configuration];
     [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail: @"Unity Ads SDK failed to initialize"
                                                                                   code: 0];
 
@@ -78,7 +76,6 @@
 }
 
 - (BOOL)initCompleteState: (USRVConfiguration *)configuration {
-    [USRVSDKMetrics setConfiguration: configuration];
     [[USRVInitializationNotificationCenter sharedInstance] triggerSdkDidInitialize];
 
     dispatch_async(dispatch_get_main_queue(), ^{

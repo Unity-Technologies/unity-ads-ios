@@ -20,6 +20,7 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
     _factoryMock.rewardedDelegate = _rewardedDelegate;
     _sut =  [GMAAdLoaderStrategy newWithRequestFactory: [GADRequestFactoryMock new]
                                     andDelegateFactory: self.delegatesFactory];
+    [self setUpUI];
 }
 
 - (void)tearDown {
@@ -27,6 +28,12 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
     _factoryMock = nil;
     _interstitialDelegate = nil;
     _rewardedDelegate = nil;
+}
+
+- (void)setUpUI {
+    [self.rootViewController.presentedViewController dismissViewControllerAnimated: false
+                                                                        completion: nil];
+    [self waitForTimeInterval: 1];
 }
 
 - (UIWindow *)rootWindow {
@@ -113,7 +120,6 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
 
     [self.rootViewController showViewController: vc
                                          sender: nil];
-
     [self runShowAdSuccessFlowForType: GADQueryInfoAdTypeInterstitial
                      inViewController: vc];
     XCTAssertEqual(self.interstitialDelegate.willPresentCalled, 1);
@@ -129,6 +135,7 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
     [self runShowAdSuccessFlowForType: GADQueryInfoAdTypeRewarded
                      inViewController: vc];
     XCTAssertEqual(self.rewardedDelegate.didPresentCalled, 1);
+    XCTAssertNil(self.rewardedDelegate.failedError);
 }
 
 - (void)test_no_ad_error_on_show {

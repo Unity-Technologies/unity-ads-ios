@@ -212,8 +212,10 @@ NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
 } /* toJson */
 
 - (void)saveToDisk {
-    [[self toJson] writeToFile: [USRVSdkProperties getLocalConfigFilepath]
-                    atomically: YES];
+    if (self.hasValidWebViewURL) {
+        [[self toJson] writeToFile: [USRVSdkProperties getLocalConfigFilepath]
+                        atomically: YES];
+    }
 }
 
 - (BOOL)hasValidWebViewURL {

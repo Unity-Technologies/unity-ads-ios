@@ -1,6 +1,7 @@
 #import <XCTest/XCTest.h>
 #import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
+#import "XCTestCase+Convenience.h"
 
 @interface InvocationTestsWebView : WKWebView
 @property (nonatomic, assign) BOOL jsInvoked;
@@ -237,24 +238,17 @@ static NSMutableArray *CALLBACKS;
 } /* testBatchInvocationOneInvalidMethod */
 
 - (void)test_invocations_have_unique_ids {
-    int count = 1000;
     NSMutableArray *invocationIds = [NSMutableArray array];
-    XCTestExpectation *exp = [self expectationWithDescription: @"Wait for invocations creation"];
 
-    exp.expectedFulfillmentCount = count;
+    [self asyncExecuteTimes: 1000
+                      block:^(XCTestExpectation *_Nonnull expectation, int index) {
+                          USRVInvocation *nativeCallback = [[USRVInvocation alloc] init];
+                          @synchronized (invocationIds) {
+                              [invocationIds addObject: @(nativeCallback.invocationId)];
+                          }
+                          [expectation fulfill];
+                      }];
 
-    for (int i = 0; i < count; i++) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            USRVInvocation *nativeCallback = [[USRVInvocation alloc] init];
-            @synchronized (invocationIds) {
-                [invocationIds addObject: @(nativeCallback.invocationId)];
-            }
-            [exp fulfill];
-        });
-    }
-
-    [self waitForExpectations: @[exp]
-                      timeout: 20.0];
     XCTAssertEqual(invocationIds.count, [NSSet setWithArray: invocationIds].count);
 }
 

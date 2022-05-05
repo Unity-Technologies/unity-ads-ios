@@ -9,6 +9,7 @@
 
 - (void)rewardedAd: (id)rewardedAd didFailToPresentWithError: (id)error {
     self.ad = rewardedAd;
+    self.failedError = error;
     _didFailCalled += 1;
     [self fulfillExpectation];
 }
@@ -44,6 +45,10 @@
 }
 
 - (void)adDidPresentFullScreenContent: (nonnull id)ad {
+    [self rewardedAdDidPresent: ad];
+}
+
+- (void)adWillPresentFullScreenContent: (nonnull id)ad {
     [self rewardedAdDidPresent: ad];
 }
 

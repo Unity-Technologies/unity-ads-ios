@@ -1,17 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "USRVWebViewApp.h"
 #import "UnityAnalytics.h"
-
-@interface NSDate (Mock)
-+ (instancetype)                    date;
-@end
-
-@implementation NSDate (Mock)
-+ (instancetype)date {
-    return [NSDate dateWithTimeIntervalSince1970: 12345];
-}
-
-@end
+#import "NSDate+Mock.h"
 
 @interface UnityAnalytics (Mock)
 @property (strong, nonatomic) NSMutableArray<NSDictionary *> *eventQueue;

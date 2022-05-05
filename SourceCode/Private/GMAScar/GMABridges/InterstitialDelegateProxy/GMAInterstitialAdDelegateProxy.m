@@ -36,6 +36,18 @@
     [self didDismissAd: ad];
 }
 
+- (void)adDidDismissFullScreenContent: (nonnull id)ad {
+    [self didDismissAd: ad];
+}
+
+- (void)didDismissAd: (id)ad {
+    if (!self.hasSentQuartiles) {
+        [self.eventSender sendEvent: [GMAWebViewEvent newAdSkippedWithMeta: self.meta]];
+    }
+
+    [super didDismissAd: ad];
+}
+
 /// GMA callback which "tells the delegate that a user click will open another app (such as the App Store), backgrounding the current app"
 - (void)interstitialWillLeaveApplication: (id)ad {
     [self willLeaveApplication: ad];

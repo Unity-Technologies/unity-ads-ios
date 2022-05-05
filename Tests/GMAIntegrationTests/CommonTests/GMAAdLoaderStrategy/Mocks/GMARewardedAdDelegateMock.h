@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) int didFailCalled;
 @property (nonatomic) int didPresentCalled;
 @property (nonatomic) int didDismissCalled;
+@property (nonatomic) NSError *failedError;
 @property (nonatomic, strong) XCTestExpectation *exp;
 @property (nonatomic, strong) GADBaseAd *_Nullable ad;
 @property (nonatomic, strong) UADSAnyCompletion *completion;

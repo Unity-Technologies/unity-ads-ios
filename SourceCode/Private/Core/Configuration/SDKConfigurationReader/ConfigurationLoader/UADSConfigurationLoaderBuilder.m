@@ -1,10 +1,12 @@
 #import "UADSConfigurationLoaderBuilder.h"
 #import "USRVWebRequestFactory.h"
 #import "USRVSDKMetrics.h"
-#import "UADSConfigurationReader.h"
+#import "UADSConfigurationCRUDBase.h"
 #import "USRVConfigurationRequestFactoryWithLogs.h"
 #import "UADSHeaderBiddingTokenReaderBuilder.h"
 #import "UADSConfigurationLegacyLoader.h"
+
+#import "UADSServiceProvider.h"
 
 @interface UADSConfigurationLoaderBuilder ()
 @property (nonatomic, strong) UADSConfigurationLoaderBuilderConfig config;
@@ -17,14 +19,12 @@
          andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory {
     UADSConfigurationLoaderBuilder *builder = [self new];
 
-    builder.tagsReader = [UADSConfigurationReaderBase new];
+    builder.tagsReader = [UADSConfigurationCRUDBase new];
     builder.metricsSender = [USRVSDKMetrics getInstance];
     builder.config = config;
     builder.webRequestFactory = webRequestFactory;
 
-    id<UADSHeaderBiddingTokenCRUD> crud = UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader;
-
-    builder.configurationSaver = [UADSConfigurationPersistence newWithTokenCRUD: crud];
+    builder.configurationSaver = UADSServiceProvider.sharedInstance.configurationSaver;
     return builder;
 }
 

@@ -9,6 +9,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *adUnitID;
 @property (nonatomic, copy) NSString *queryID;
 @property (nonatomic, strong) NSNumber *videoLength;
+
+- (NSTimeInterval)videoLengthInSeconds;
 @end
 
 NS_ASSUME_NONNULL_END

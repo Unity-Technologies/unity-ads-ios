@@ -1,6 +1,6 @@
 #import "UADSConfigurationLoader.h"
 #import <Foundation/Foundation.h>
-#import "UADSConfigurationPersistence.h"
+#import "UADSConfigurationSaverWithTokenStorage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

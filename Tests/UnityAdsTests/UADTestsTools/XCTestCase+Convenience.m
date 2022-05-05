@@ -22,4 +22,19 @@
                       timeout: waitTime + 2];
 }
 
+- (void)asyncExecuteTimes: (int)count block: (void (^)(XCTestExpectation *expectation, int index))block {
+    XCTestExpectation *expectation = [self expectationWithDescription: @"test"];
+
+    expectation.expectedFulfillmentCount = count;
+
+    for (int i = 0; i < count; i++) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            block(expectation, i);
+        });
+    }
+
+    [self waitForExpectations: @[expectation]
+                      timeout: 30];
+}
+
 @end

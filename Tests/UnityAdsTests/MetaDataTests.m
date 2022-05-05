@@ -2,6 +2,7 @@
 #import "UADSMediationMetaData.h"
 #import "UADSPlayerMetaData.h"
 #import "UnityAdsTests-Bridging-Header.h"
+#import "XCTestCase+Convenience.h"
 
 @interface MetaDataMockWebViewApp : USRVWebViewApp
 @property (nonatomic, strong) XCTestExpectation *expectation;
@@ -247,22 +248,13 @@
 
     UADSMetaData *metadata = [[UADSMetaData alloc] initWithCategory: @"test"];
 
-    int count = 1000;
-    XCTestExpectation *exp = [[XCTestExpectation alloc] init];
-
-    exp.expectedFulfillmentCount = count;
-
-    for (int i = 0; i < count; i++) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [metadata set: [NSString stringWithFormat: @"key%d", i]
-                    value : [NSString stringWithFormat: @"value%d", i]];
-            [metadata commit];
-            [exp fulfill];
-        });
-    }
-
-    [self waitForExpectations: @[exp]
-                      timeout: 25.0];
+    [self asyncExecuteTimes: 1000
+                      block:^(XCTestExpectation *_Nonnull expectation, int index) {
+                          [metadata set: [NSString stringWithFormat: @"key%d", index]
+                                  value : [NSString stringWithFormat: @"value%d", index]];
+                          [metadata commit];
+                          [expectation fulfill];
+                      }];
 }
 
 @end

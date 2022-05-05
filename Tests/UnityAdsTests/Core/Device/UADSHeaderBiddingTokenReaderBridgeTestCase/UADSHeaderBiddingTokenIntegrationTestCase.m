@@ -5,6 +5,8 @@
 #import "SDKMetricsSenderMock.h"
 #import "UADSTsiMetric.h"
 #import "UADSConfigurationReaderMock.h"
+#import "UnityAds.h"
+#import "XCTestCase+Convenience.h"
 
 @interface UADSHeaderBiddingTokenIntegrationTestCase : UADSHeaderBiddingTokenReaderBridgeTestCase
 @property (nonatomic, strong) UADSHeaderBiddingTokenReaderBuilder *builder;
@@ -199,6 +201,30 @@
 
 - (NSDictionary *)tags {
     return @{ @"1": @"tag" };
+}
+
+- (void)test_multithread_native_generation_does_not_crash {
+    [self mockSuccessInitWithNativeGenerationOn: true];
+
+
+    [self asyncExecuteTimes: 1000
+                      block:^(XCTestExpectation *_Nonnull expectation, int index) {
+                          [UnityAds getToken:^(NSString *_Nullable token) {
+                              XCTAssertTrue([token hasPrefix: @"1:"]);
+                              [expectation fulfill];
+                          }];
+                      }];
+}
+
+- (void)mockSuccessInitWithNativeGenerationOn: (BOOL)ntOn {
+    [USRVSdkProperties setInitializationState: INITIALIZED_SUCCESSFULLY];
+    USRVConfiguration *config =  [USRVConfiguration new];
+
+    config.webViewUrl = @"url";
+    config.experiments = [UADSConfigurationExperiments newWithJSON: @{
+                              @"tsi_nt": @(ntOn).stringValue
+    }];
+    [config saveToDisk];
 }
 
 @end

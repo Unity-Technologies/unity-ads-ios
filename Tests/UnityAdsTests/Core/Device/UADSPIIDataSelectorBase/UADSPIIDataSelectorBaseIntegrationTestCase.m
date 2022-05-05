@@ -1,6 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "UADSPIIDataSelectorBaseTestCase.h"
-#import <USRVJsonStorageAggregator.h>
+#import "USRVJsonStorageAggregator.h"
 #import "UADSDeviceTestsHelper.h"
 #import "NSDictionary+Merge.h"
 #import "UADSJsonStorageKeyNames.h"

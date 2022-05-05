@@ -1,6 +1,6 @@
 
 #import <Foundation/Foundation.h>
-#import "UADSConfigurationReader.h"
+#import "UADSConfigurationCRUDBase.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

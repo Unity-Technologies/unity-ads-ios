@@ -16,6 +16,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <sys/mman.h>
 #import "UADSHeaderBiddingTokenReaderBuilder.h"
+#import "UADSServiceProvider.h"
 
 @implementation USRVInitialize
 
@@ -258,7 +259,8 @@ static dispatch_once_t onceToken;
         }
 
         USRVLogInfo(@"Saving Configuration To Disk");
-        [self.configuration saveToDisk];
+
+        [UADSServiceProvider.sharedInstance.configurationSaver saveConfiguration: self.configuration];
 
         if (self.configuration.delayWebViewUpdate) {
             id nextState = [[USRVInitializeStateLoadCacheConfigAndWebView alloc] initWithConfiguration: self.configuration

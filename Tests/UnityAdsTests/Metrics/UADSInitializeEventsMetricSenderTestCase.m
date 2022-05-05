@@ -2,7 +2,7 @@
 #import "SDKMetricsSenderMock.h"
 #import "UADSInitializeEventsMetricSender.h"
 #import "UADSTsiMetric.h"
-#import "UADSConfigurationReader.h"
+#import "UADSConfigurationCRUDBase.h"
 #import "NSDictionary+JSONString.h"
 #import "UADSCurrentTimestamp.h"
 #import "UADSConfigurationReaderMock.h"

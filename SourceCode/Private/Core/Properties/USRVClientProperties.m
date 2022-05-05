@@ -44,7 +44,18 @@ __weak static UIViewController *_currentViewController = nil;
 }
 
 + (int)getSupportedOrientations {
-    return (int)[[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow: [[UIApplication sharedApplication] keyWindow]];
+    UIApplication *app = [UIApplication sharedApplication];
+
+    // check orientation in the project settings
+    UIInterfaceOrientationMask supportedOrientation = [app supportedInterfaceOrientationsForWindow: app.keyWindow];
+
+    // check if it's overriden by the AppDelegate
+    if ([app.delegate respondsToSelector: @selector(application:supportedInterfaceOrientationsForWindow:)]) {
+        supportedOrientation = [app.delegate application: app
+                                                                 supportedInterfaceOrientationsForWindow: app.keyWindow];
+    }
+
+    return (int)supportedOrientation;
 }
 
 + (NSString *)getAppName {

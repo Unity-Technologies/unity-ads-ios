@@ -10,15 +10,17 @@
 #import "UADSWebViewErrorHandler.h"
 #import "GMAError.h"
 #import "GMATestCommonConstants.h"
-
+#import "UADSRepeatableTimerMock.h"
 
 @interface GMARewardedAdDelegateProxyTests : XCTestCase
 @property (nonatomic, strong) USRVWebViewAppMock *webAppMock;
+@property (nonatomic, strong) UADSRepeatableTimerMock *timerMock;
 @end
 
 @implementation GMARewardedAdDelegateProxyTests
 
 - (void)setUp {
+    _timerMock = [UADSRepeatableTimerMock new];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
 }
@@ -28,16 +30,13 @@
     [USRVWebViewApp setCurrentApp: _webAppMock];
 }
 
-- (void)test_will_present_for_the_first_time_triggers_events {
+- (void)test_will_present_for_the_first_time_triggers_only_ad_started_event {
     GMARewardedAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest rewardedAdDidPresent:  self.fakeAdObject];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
-        [GMAWebViewEvent newAdStartedWithMeta: meta],
-        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
-        [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdEarnRewardWithMeta: meta]
+        [GMAWebViewEvent newAdStartedWithMeta: meta]
     ];
 
     [self validateExpectedEvents: expectedEvents];
@@ -49,10 +48,7 @@
     [delegateToTest adDidPresentFullScreenContent:  self.fakeAdObject];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
-        [GMAWebViewEvent newAdStartedWithMeta: meta],
-        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
-        [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdEarnRewardWithMeta: meta]
+        [GMAWebViewEvent newAdStartedWithMeta: meta]
     ];
 
     [self validateExpectedEvents: expectedEvents];
@@ -66,12 +62,14 @@
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdEarnRewardWithMeta: meta],
-        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta]
     ];
 
+    [self simulateQuartilesPlayed: 4];
     [self validateExpectedEvents: expectedEvents];
 }
 
@@ -83,12 +81,14 @@
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdEarnRewardWithMeta: meta],
-        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta]
     ];
 
+    [self simulateQuartilesPlayed: 4];
     [self validateExpectedEvents: expectedEvents];
 }
 
@@ -100,9 +100,6 @@
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
-        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
-        [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdEarnRewardWithMeta: meta],
         [GMAWebViewEvent newAdSkippedWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
@@ -110,19 +107,43 @@
     [self validateExpectedEvents: expectedEvents];
 }
 
-- (void)test_did_dismiss_doesnt_send_ad_skipped_when_finished {
+- (void)test_did_dismiss_doesnt_send_ad_skipped_when_got_rewarded_callback_and_finished {
     GMARewardedAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest rewardedAdDidPresent:  self.fakeAdObject];
-
-    [self waitForTimeInterval: 2];
+    [self simulateQuartilesPlayed: 4];
+    [delegateToTest didEarnReward: self.fakeAdObject];
     [delegateToTest rewardedAdDidDismiss: self.fakeAdObject];
+
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
         [GMAWebViewEvent newAdEarnRewardWithMeta: meta],
+        [GMAWebViewEvent newAdClosedWithMeta: meta],
+    ];
+
+    [self validateExpectedEvents: expectedEvents];
+}
+
+- (void)test_did_dismiss_sends_quartile_and_ad_skipped_and_closed {
+    GMARewardedAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
+
+    [delegateToTest rewardedAdDidPresent:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 4];
+    [delegateToTest rewardedAdDidDismiss: self.fakeAdObject];
+
+    GMAAdMetaData *meta = self.defaultMeta;
+    NSArray<GMAWebViewEvent *> *expectedEvents = @[
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
+        [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
+        [GMAWebViewEvent newAdSkippedWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
 
@@ -133,13 +154,15 @@
     GMARewardedAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest rewardedAdDidPresent:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 4];
     [delegateToTest adDidDismissFullScreenContent: self.fakeAdObject];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdEarnRewardWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
         [GMAWebViewEvent newAdSkippedWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
@@ -147,17 +170,20 @@
     [self validateExpectedEvents: expectedEvents];
 }
 
-- (void)test_ad_did_dismiss_full_screen_doesnt_send_ad_skipped_when_finished  {
+- (void)test_ad_did_dismiss_full_screen_doesnt_send_ad_skipped_after_rewarded  {
     GMARewardedAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest rewardedAdDidPresent:  self.fakeAdObject];
-    [self waitForTimeInterval: 2];
+    [self simulateQuartilesPlayed: 4];
+    [delegateToTest didEarnReward: self.fakeAdObject];
     [delegateToTest adDidDismissFullScreenContent: self.fakeAdObject];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
         [GMAWebViewEvent newAdEarnRewardWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
@@ -190,6 +216,10 @@
     XCTAssertEqualObjects(receivedParams[1], kGMAQueryID);
     XCTAssertEqualObjects(receivedParams[2], fakeError.errorString);
     XCTAssertEqualObjects(receivedParams[3], fakeError.errorCode);
+}
+
+- (void)simulateQuartilesPlayed: (NSInteger)count {
+    [_timerMock fire: count];
 }
 
 - (void)validateExpectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents {
@@ -230,7 +260,8 @@
     id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
 
     return [GMADelegatesBaseFactory newWithEventSender: eventSender
-                                          errorHandler: errorHandler];
+                                          errorHandler: errorHandler
+                                                 timer: _timerMock];
 }
 
 @end

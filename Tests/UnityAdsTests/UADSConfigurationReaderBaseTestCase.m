@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "UADSConfigurationReader.h"
+#import "UADSConfigurationCRUDBase.h"
 #import "USRVWebViewApp.h"
 #import "UADSConfigurationExperiments.h"
 #import "USRVSdkProperties.h"
@@ -21,7 +21,7 @@
 }
 
 - (void)test_returns_nil_when_no_config {
-    UADSConfigurationReaderBase *sut = [UADSConfigurationReaderBase new];
+    UADSConfigurationCRUDBase *sut = [UADSConfigurationCRUDBase new];
     USRVConfiguration *config = [sut getCurrentConfiguration];
 
     XCTAssertNil(config);
@@ -29,7 +29,7 @@
 }
 
 - (void)test_returns_correct_config {
-    UADSConfigurationReaderBase *sut = [UADSConfigurationReaderBase new];
+    UADSConfigurationCRUDBase *sut = [UADSConfigurationCRUDBase new];
 
     [self saveLocalConfig];
     USRVConfiguration *config = [sut getCurrentConfiguration];

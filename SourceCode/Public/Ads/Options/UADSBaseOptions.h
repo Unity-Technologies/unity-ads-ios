@@ -1,4 +1,4 @@
-#import "UADSDictionaryConvertible.h"
+#import <UnityAds/UADSDictionaryConvertible.h>
 
 @interface UADSBaseOptions : NSObject<UADSDictionaryConvertible>
 

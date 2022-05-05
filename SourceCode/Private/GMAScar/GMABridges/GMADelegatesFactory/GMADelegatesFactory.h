@@ -14,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)newWithEventSender: (id<UADSWebViewEventSender>)eventSender
                       errorHandler: (id<UADSErrorHandler>)errorHandler;
+
++ (instancetype)newWithEventSender: (id<UADSWebViewEventSender>)eventSender
+                      errorHandler: (id<UADSErrorHandler>)errorHandler
+                             timer: (id<UADSRepeatableTimer>)timer;
+
 @end
 
 NS_ASSUME_NONNULL_END

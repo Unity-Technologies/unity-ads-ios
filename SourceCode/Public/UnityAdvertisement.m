@@ -9,7 +9,7 @@
 #import "UADSTokenStorage.h"
 #import "UADSShowModuleOptions.h"
 #import "UADSHeaderBiddingTokenReaderBuilder.h"
-
+#import "UADSServiceProvider.h"
 @implementation UnityAds
 
 #pragma mark Public Selectors
@@ -112,7 +112,7 @@
 }
 
 + (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)tokenReader {
-    return UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader;
+    return UADSServiceProvider.sharedInstance.hbTokenReader;
 }
 
 @end

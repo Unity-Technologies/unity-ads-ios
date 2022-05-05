@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import <USRVJsonStorage.h>
+#import <UnityAds/USRVJsonStorage.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

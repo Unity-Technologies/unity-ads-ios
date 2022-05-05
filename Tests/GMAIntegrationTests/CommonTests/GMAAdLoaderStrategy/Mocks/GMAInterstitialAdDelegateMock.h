@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) int didReceivedCalled;
 @property (nonatomic) int didFailCalled;
 @property (nonatomic) int willPresentCalled;
+@property (nonatomic) int didPresentCalled;
 @property (nonatomic) int willDismissCalled;
 @property (nonatomic) int didDismissCalled;
 @property (nonatomic) int failedToPresent;

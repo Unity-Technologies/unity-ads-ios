@@ -57,6 +57,16 @@
                           andMeta: meta];
 }
 
++ (instancetype)newThirdQuartileWithMeta: (GMAAdMetaData *)meta  {
+    return [self newWithEventName: @"THIRD_QUARTILE"
+                          andMeta: meta];
+}
+
++ (instancetype)newLastQuartileWithMeta: (GMAAdMetaData *)meta  {
+    return [self newWithEventName: @"LAST_QUARTILE"
+                          andMeta: meta];
+}
+
 + (instancetype)newAdSkippedWithMeta: (GMAAdMetaData *)meta  {
     return [self newWithEventName: @"AD_SKIPPED"
                           andMeta: meta];

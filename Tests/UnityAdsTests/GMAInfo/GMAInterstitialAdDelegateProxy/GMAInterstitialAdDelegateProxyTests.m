@@ -10,14 +10,17 @@
 #import "UADSWebViewErrorHandler.h"
 #import "GMAError.h"
 #import "GMATestCommonConstants.h"
+#import "UADSRepeatableTimerMock.h"
 
 @interface GMAInterstitialAdDelegateProxyTests : XCTestCase
 @property (nonatomic, strong) USRVWebViewAppMock *webAppMock;
+@property (nonatomic, strong) UADSRepeatableTimerMock *timerMock;
 @end
 
 @implementation GMAInterstitialAdDelegateProxyTests
 
 - (void)setUp {
+    _timerMock = [UADSRepeatableTimerMock new];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
 }
@@ -31,11 +34,14 @@
     GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 4];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
     ];
 
     [self validateExpectedEvents: expectedEvents];
@@ -46,11 +52,14 @@
     GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest adDidPresentFullScreenContent:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 4];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
     ];
 
     [self validateExpectedEvents: expectedEvents];
@@ -62,12 +71,15 @@
 
     [delegateToTest adDidPresentFullScreenContent:  self.fakeAdObject];
     [delegateToTest adDidPresentFullScreenContent:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 4];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
     ];
 
     [self validateExpectedEvents: expectedEvents];
@@ -79,12 +91,15 @@
 
     [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
     [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 4];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
-        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
     ];
 
     [self validateExpectedEvents: expectedEvents];
@@ -96,6 +111,44 @@
 
     [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
     [delegateToTest interstitialDidDismissScreen: self.fakeAdObject];
+    GMAAdMetaData *meta = self.defaultMeta;
+    NSArray<GMAWebViewEvent *> *expectedEvents = @[
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newAdSkippedWithMeta: meta],
+        [GMAWebViewEvent newAdClosedWithMeta: meta],
+    ];
+
+    [self validateExpectedEvents: expectedEvents];
+    [self validateExpectedDefaultParamsInEvents: expectedEvents];
+}
+
+- (void)test_did_dismiss_sends_ad_skipped_and_closed_if_only_3_quartiles_reached {
+    GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
+
+    [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 3];
+    [delegateToTest interstitialDidDismissScreen: self.fakeAdObject];
+    GMAAdMetaData *meta = self.defaultMeta;
+    NSArray<GMAWebViewEvent *> *expectedEvents = @[
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
+        [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newAdSkippedWithMeta: meta],
+        [GMAWebViewEvent newAdClosedWithMeta: meta],
+    ];
+
+    [self validateExpectedEvents: expectedEvents];
+    [self validateExpectedDefaultParamsInEvents: expectedEvents];
+}
+
+- (void)test_no_quarlites_events_after_did_dismiss {
+    GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
+
+    [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
+    [self simulateQuartilesPlayed: 2];
+    [delegateToTest interstitialDidDismissScreen: self.fakeAdObject];
+    XCTAssertTrue(_timerMock.invalidateCalled);
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
@@ -113,14 +166,16 @@
     GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
-
-    [self waitForTimeInterval: 2];
+    [self simulateQuartilesPlayed: 4];
     [delegateToTest interstitialDidDismissScreen: self.fakeAdObject];
+
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
 
@@ -136,8 +191,6 @@
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
-        [GMAWebViewEvent newFirstQuartileWithMeta: meta],
-        [GMAWebViewEvent newMidPointWithMeta: meta],
         [GMAWebViewEvent newAdSkippedWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
@@ -150,13 +203,15 @@
     GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
 
     [delegateToTest interstitialWillPresentScreen:  self.fakeAdObject];
-    [self waitForTimeInterval: 2];
+    [self simulateQuartilesPlayed: 4];
     [delegateToTest adDidDismissFullScreenContent: self.fakeAdObject];
     GMAAdMetaData *meta = self.defaultMeta;
     NSArray<GMAWebViewEvent *> *expectedEvents = @[
         [GMAWebViewEvent newAdStartedWithMeta: meta],
         [GMAWebViewEvent newFirstQuartileWithMeta: meta],
         [GMAWebViewEvent newMidPointWithMeta: meta],
+        [GMAWebViewEvent newThirdQuartileWithMeta: meta],
+        [GMAWebViewEvent newLastQuartileWithMeta: meta],
         [GMAWebViewEvent newAdClosedWithMeta: meta],
     ];
 
@@ -202,6 +257,10 @@
     XCTAssertEqualObjects(receivedParams[1], kGMAQueryID);
     XCTAssertEqualObjects(receivedParams[2], fakeError.errorString);
     XCTAssertEqualObjects(receivedParams[3], fakeError.errorCode);
+}
+
+- (void)simulateQuartilesPlayed: (NSInteger)count {
+    [_timerMock fire: count];
 }
 
 - (void)validateExpectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents {
@@ -253,7 +312,8 @@
     id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
 
     return [GMADelegatesBaseFactory newWithEventSender: eventSender
-                                          errorHandler: errorHandler];
+                                          errorHandler: errorHandler
+                                                 timer: _timerMock];
 }
 
 @end

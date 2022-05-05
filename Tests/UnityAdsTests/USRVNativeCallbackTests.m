@@ -1,5 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "UnityAdsTests-Bridging-Header.h"
+#import "XCTestCase+Convenience.h"
 
 @interface USRVNativeCallbackTestsCallbacks : NSObject
 @end
@@ -148,23 +149,17 @@ static NSArray *nativeCallbackParams = NULL;
 - (void)test_native_callbacks_have_unique_ids {
     int count = 1000;
     NSMutableArray *callbackIds = [NSMutableArray array];
-    XCTestExpectation *exp = [self expectationWithDescription: @"Wait for callbacks creation"];
 
-    exp.expectedFulfillmentCount = count;
+    [self asyncExecuteTimes: count
+                      block:^(XCTestExpectation *_Nonnull expectation, int index) {
+                          USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod: @"validResponseMethod:"
+                                                                                            receiverClass: @"USRVNativeCallbackTestsCallbacks"];
+                          @synchronized (callbackIds) {
+                              [callbackIds addObject: nativeCallback.callbackId];
+                          }
+                          [expectation fulfill];
+                      }];
 
-    for (int i = 0; i < count; i++) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            USRVNativeCallback *nativeCallback = [[USRVNativeCallback alloc] initWithMethod: @"validResponseMethod:"
-                                                                              receiverClass: @"USRVNativeCallbackTestsCallbacks"];
-            @synchronized (callbackIds) {
-                [callbackIds addObject: nativeCallback.callbackId];
-            }
-            [exp fulfill];
-        });
-    }
-
-    [self waitForExpectations: @[exp]
-                      timeout: 20.0];
     XCTAssertEqual(callbackIds.count, [NSSet setWithArray: callbackIds].count);
 }
 

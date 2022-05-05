@@ -7,7 +7,7 @@
 #import "UADSTools.h"
 #import "UADSHeaderBiddingTokenReaderWithMetrics.h"
 #import "USRVDataGzipCompressor.h"
-
+#import "UADSServiceProvider.h"
 
 @interface UADSHeaderBiddingTokenReaderBuilder ()
 @property (nonatomic, strong) id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>tokenReader;
@@ -19,25 +19,27 @@
 _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)defaultReader {
-    if (_tokenReader) {
-        return _tokenReader;
+    @synchronized (self) {
+        if (_tokenReader) {
+            return _tokenReader;
+        }
+
+        id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> reader;
+
+        reader = [UADSHeaderBiddingTokenReaderBridge newWithNativeTokenGenerator: self.tokenGenerator
+                                                                    andTokenCRUD: self.tokenCRUD
+                                                          andConfigurationReader: self.sdkConfigReader];
+
+        reader = [UADSHeaderBiddingTokenReaderWithSerialQueue newWithOriginalReader: reader
+                                                                    andStatusReader: self.sdkInitializationStatusReader];
+
+        reader = [UADSHeaderBiddingTokenReaderWithMetrics decorateOriginal: reader
+                                                           andStatusReader: self.sdkInitializationStatusReader
+                                                             metricsSender: self.metricsSender
+                                                                tagsReader: self.sdkConfigReader];
+
+        _tokenReader = reader;
     }
-
-    id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> reader;
-
-    reader = [UADSHeaderBiddingTokenReaderBridge newWithNativeTokenGenerator: self.tokenGenerator
-                                                                andTokenCRUD: self.tokenCRUD
-                                                      andConfigurationReader: self.sdkConfigReader];
-
-    reader = [UADSHeaderBiddingTokenReaderWithSerialQueue newWithOriginalReader: reader
-                                                                andStatusReader: self.sdkInitializationStatusReader];
-
-    reader = [UADSHeaderBiddingTokenReaderWithMetrics decorateOriginal: reader
-                                                       andStatusReader: self.sdkInitializationStatusReader
-                                                         metricsSender: self.metricsSender
-                                                            tagsReader: self.sdkConfigReader];
-
-    _tokenReader = reader;
     return _tokenReader;
 }
 
@@ -60,7 +62,7 @@ _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
         return _metricsSender;
     }
 
-    _metricsSender = [USRVSDKMetrics getInstance];
+    _metricsSender = UADSServiceProvider.sharedInstance.metricSender;
     return _metricsSender;
 }
 
@@ -84,7 +86,7 @@ _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
         return _sdkConfigReader;
     }
 
-    _sdkConfigReader = [UADSConfigurationReaderBase new];
+    _sdkConfigReader = [UADSConfigurationCRUDBase new];
     return _sdkConfigReader;
 }
 
