@@ -37,4 +37,14 @@
                       timeout: 30];
 }
 
+- (void)postDidBecomeActive {
+    [[NSNotificationCenter defaultCenter] postNotificationName: UIApplicationDidBecomeActiveNotification
+                                                        object: nil];
+}
+
+- (void)postDidEnterBackground {
+    [[NSNotificationCenter defaultCenter] postNotificationName: UIApplicationDidEnterBackgroundNotification
+                                                        object: nil];
+}
+
 @end

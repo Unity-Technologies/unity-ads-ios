@@ -5,7 +5,7 @@
 @interface GMADelegatesBaseFactory ()
 @property (nonatomic, strong) id<UADSWebViewEventSender> eventSender;
 @property (nonatomic, strong) id<UADSErrorHandler> errorHandler;
-@property (nonatomic, strong) id<UADSRepeatableTimer> timer;
+@property (nonatomic, strong) id<UADSTimerFactory> timerFactory;
 @end
 
 @implementation GMADelegatesBaseFactory
@@ -14,17 +14,17 @@
                       errorHandler: (id<UADSErrorHandler>)errorHandler {
     return [GMADelegatesBaseFactory newWithEventSender: eventSender
                                           errorHandler: errorHandler
-                                                 timer: [UADSTimerWithAppLifeCycle defaultTimer]];
+                                          timerFactory: [UADSTimerFactoryBase new]];
 }
 
 + (instancetype)newWithEventSender: (id<UADSWebViewEventSender>)eventSender
                       errorHandler: (id<UADSErrorHandler>)errorHandler
-                             timer: (id<UADSRepeatableTimer>)timer {
+                      timerFactory: (id<UADSTimerFactory>)timerFactory {
     GMADelegatesBaseFactory *factory = [GMADelegatesBaseFactory new];
 
     factory.eventSender = eventSender;
     factory.errorHandler = errorHandler;
-    factory.timer = timer;
+    factory.timerFactory = timerFactory;
     return factory;
 }
 
@@ -34,7 +34,7 @@
                                            andErrorHandler: _errorHandler
                                                  andSender: _eventSender
                                              andCompletion: completion
-                                                  andTimer: _timer];
+                                                  andTimer: [_timerFactory timerWithAppLifeCycle]];
 }
 
 - (nonnull GMARewardedAdDelegateProxy *)rewardedDelegate: (nonnull GMAAdMetaData *)meta {
@@ -42,7 +42,7 @@
                                        andErrorHandler: _errorHandler
                                              andSender: _eventSender
                                          andCompletion: [UADSAnyCompletion new]
-                                              andTimer: _timer];
+                                              andTimer: [_timerFactory timerWithAppLifeCycle]];
 }
 
 @end

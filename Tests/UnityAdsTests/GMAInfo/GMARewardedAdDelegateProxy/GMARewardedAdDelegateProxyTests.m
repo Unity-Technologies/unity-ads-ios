@@ -11,16 +11,18 @@
 #import "GMAError.h"
 #import "GMATestCommonConstants.h"
 #import "UADSRepeatableTimerMock.h"
+#import "UADSTimerFactoryMock.h"
+#import "XCTestCase+Convenience.h"
 
 @interface GMARewardedAdDelegateProxyTests : XCTestCase
 @property (nonatomic, strong) USRVWebViewAppMock *webAppMock;
-@property (nonatomic, strong) UADSRepeatableTimerMock *timerMock;
+@property (nonatomic, strong) UADSTimerFactoryMock *timerFactoryMock;
 @end
 
 @implementation GMARewardedAdDelegateProxyTests
 
 - (void)setUp {
-    _timerMock = [UADSRepeatableTimerMock new];
+    _timerFactoryMock = [UADSTimerFactoryMock new];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
 }
@@ -219,7 +221,7 @@
 }
 
 - (void)simulateQuartilesPlayed: (NSInteger)count {
-    [_timerMock fire: count];
+    [self.timerFactoryMock.lastTimerMock fire: count];
 }
 
 - (void)validateExpectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents {
@@ -261,7 +263,47 @@
 
     return [GMADelegatesBaseFactory newWithEventSender: eventSender
                                           errorHandler: errorHandler
-                                                 timer: _timerMock];
+                                          timerFactory: self.timerFactoryMock];
+}
+
+- (void)test_rewarded_delegate_not_crash_if_ad_not_started_before_background {
+    id<UADSWebViewEventSender>eventSender = [UADSWebViewEventSenderBase new];
+    id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
+
+    GMADelegatesBaseFactory *factory = [GMADelegatesBaseFactory newWithEventSender: eventSender
+                                                                      errorHandler: errorHandler];
+
+    [factory rewardedDelegate: self.defaultMeta];
+
+    [self postDidEnterBackground];
+    [self postDidBecomeActive];
+}
+
+- (void)test_no_quartile_events_sent_after_dismiss_ad {
+    id<UADSWebViewEventSender>eventSender = [UADSWebViewEventSenderBase new];
+    id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
+
+    GMADelegatesBaseFactory *factory = [GMADelegatesBaseFactory newWithEventSender: eventSender
+                                                                      errorHandler: errorHandler];
+
+    @autoreleasepool {
+        GMARewardedAdDelegateProxy *delegateToTest = [factory rewardedDelegate: self.defaultMeta];
+
+        [delegateToTest rewardedAdDidPresent:  self.fakeAdObject];
+        [delegateToTest adDidDismissFullScreenContent: self.fakeAdObject];
+    }
+
+    [self postDidEnterBackground];
+    [self postDidBecomeActive];
+    GMAAdMetaData *meta = self.defaultMeta;
+    NSArray<GMAWebViewEvent *> *expectedEvents = @[
+        [GMAWebViewEvent newAdStartedWithMeta: meta],
+        [GMAWebViewEvent newAdSkippedWithMeta: meta],
+        [GMAWebViewEvent newAdClosedWithMeta: meta],
+    ];
+
+    [self waitForTimeInterval: 0.5];
+    [self validateExpectedEvents: expectedEvents];
 }
 
 @end

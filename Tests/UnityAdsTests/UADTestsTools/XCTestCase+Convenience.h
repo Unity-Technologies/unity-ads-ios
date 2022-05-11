@@ -7,7 +7,8 @@ typedef void (^ErrorCompletion)(id<UADSError>);
 - (XCTestExpectation *)defaultExpectation;
 - (ErrorCompletion)    failIfError;
 - (void)asyncExecuteTimes: (int)count block: (void (^)(XCTestExpectation *expectation, int index))block;
-
+- (void)               postDidBecomeActive;
+- (void)               postDidEnterBackground;
 @end
 
 NS_ASSUME_NONNULL_END

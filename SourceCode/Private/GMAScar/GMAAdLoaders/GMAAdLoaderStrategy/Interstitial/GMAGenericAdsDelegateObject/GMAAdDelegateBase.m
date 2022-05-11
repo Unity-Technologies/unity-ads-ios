@@ -59,6 +59,7 @@
 - (void)didDismissAd: (id)ad {
     [_quartileEventsStream invalidate];
     _quartileEventsStream = nil;
+    _timer = nil;
     [_eventSender sendEvent: [GMAWebViewEvent newAdClosedWithMeta: _meta]];
 }
 

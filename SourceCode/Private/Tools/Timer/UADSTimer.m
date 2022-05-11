@@ -69,20 +69,24 @@
 }
 
 - (void)pause {
-    if (self.isValid) {
+    if (self.isValid && self.wasInitialized) {
         self.remainingTime = [self.timer.fireDate timeIntervalSinceNow];
         [self invalidate];
     }
 }
 
 - (void)resume {
-    if (!self.isValid) {
+    if (!self.isValid && self.wasInitialized) {
         [self scheduleTimerWithTimeInterval: self.remainingTime];
     }
 }
 
 - (BOOL)isValid {
     return self.timer && self.timer.isValid;
+}
+
+- (BOOL)wasInitialized {
+    return self.timeIntervals && self.timerBlock;
 }
 
 @end

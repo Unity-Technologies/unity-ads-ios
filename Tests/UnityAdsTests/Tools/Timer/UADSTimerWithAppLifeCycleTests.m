@@ -59,4 +59,17 @@
     XCTAssertEqual(originalMock.resumeCalled, 1);
 }
 
+- (void)test_timer_does_not_crash_if_not_scheduled {
+    UADSTimer *original = [UADSTimer new];
+    UADSAppLifeCycleNotificationCenterMock *notificationCenterMock = [[UADSAppLifeCycleNotificationCenterMock alloc] init];
+
+    UADSTimerWithAppLifeCycle *timer = [UADSTimerWithAppLifeCycle timerWithOriginal: original
+                                                        lifeCycleNotificationCenter         : notificationCenterMock];
+
+    [notificationCenterMock triggerDidEnterBackground];
+    [notificationCenterMock triggerDidBecomeActive];
+    [NSThread sleepForTimeInterval: 1.0];
+    XCTAssertNotNil(timer);
+}
+
 @end

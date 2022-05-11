@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "GMAInterstitialAdDelegateProxy.h"
 #import "GMARewardedAdDelegateProxy.h"
+#import "UADSTimerFactory.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol GMADelegatesFactory <NSObject>
@@ -17,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)newWithEventSender: (id<UADSWebViewEventSender>)eventSender
                       errorHandler: (id<UADSErrorHandler>)errorHandler
-                             timer: (id<UADSRepeatableTimer>)timer;
+                      timerFactory: (id<UADSTimerFactory>)timerFactory;
 
 @end
 
