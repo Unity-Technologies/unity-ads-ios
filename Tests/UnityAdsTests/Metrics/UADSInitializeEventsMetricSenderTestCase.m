@@ -4,34 +4,17 @@
 #import "UADSTsiMetric.h"
 #import "UADSConfigurationCRUDBase.h"
 #import "NSDictionary+JSONString.h"
-#import "UADSCurrentTimestamp.h"
+#import "UADSCurrentTimestampMock.h"
 #import "UADSConfigurationReaderMock.h"
 #import "XCTestCase+Convenience.h"
 
-
-@interface UADSCurrentTimestampMock : NSObject <UADSCurrentTimestamp>
-@property (nonatomic, assign) CFTimeInterval currentTime;
-@end
-
-@implementation UADSCurrentTimestampMock
-
-- (CFTimeInterval)currentTimestamp {
-    self.currentTime += 1.2345;
-    return self.currentTime;
-}
-
-- (NSNumber *)msDurationFrom: (CFTimeInterval)time {
-    CFTimeInterval duration = self.currentTimestamp - time;
-
-    return [NSNumber numberWithInt: round(duration * 1000)];
-}
-
-@end
 
 @interface UADSInitializeEventsMetricSenderTestCase : XCTestCase
 @property (nonatomic, strong) SDKMetricsSenderMock *metricsMock;
 @property (nonatomic, strong) UADSInitializeEventsMetricSender *sut;
 @property (nonatomic, strong) USRVInitializationNotificationCenter *initializationSubject;
+@property (nonatomic, assign) NSInteger configRetryCount;
+@property (nonatomic, assign) NSInteger webviewRetryCount;
 @end
 
 @implementation UADSInitializeEventsMetricSenderTestCase
@@ -40,17 +23,20 @@
     self.initializationSubject = [USRVInitializationNotificationCenter new];
     self.metricsMock = [SDKMetricsSenderMock new];
     self.sut = [[UADSInitializeEventsMetricSender alloc] initWithMetricSender: self.metricsMock
-                                                                   tagsReader: [UADSConfigurationReaderMock newWithExperiments: [self tags]]
                                                              currentTimestamp: [UADSCurrentTimestampMock new]
                                                                   initSubject: self.initializationSubject];
+    self.configRetryCount = 0;
+    self.webviewRetryCount = 0;
 }
 
 - (void)test_sends_metric_when_init_successful_only_once {
     [self.sut didInitStart];
+    [self mockConfigRetry];
+    [self mockWebviewRetry];
     [self emulateInitializationSucceed];
-    NSArray *expected = @[ [UADSTsiMetric newInitStartedWithTags: self.tags],
-                           [UADSTsiMetric newInitTimeSuccess: @(1235)
-                                                    withTags: self.tags] ];
+    NSArray *expected = @[ [UADSTsiMetric newInitStarted],
+                           [UADSTsiMetric newInitTimeSuccess: UADSCurrentTimestampMock.mockedDuration
+                                                        tags: self.retryTags] ];
 
     [self waitForTimeInterval: 1];
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expected);
@@ -62,29 +48,35 @@
 
 - (void)test_sends_metric_when_init_fails_only_once {
     [self.sut didInitStart];
-    [self emulateInitializationFailure];
-    NSArray *expected = @[ [UADSTsiMetric newInitStartedWithTags: self.tags],
-                           [UADSTsiMetric newInitTimeFailure: @(1235)
-                                                    withTags: self.tags] ];
+    [self mockConfigRetry];
+    [self mockConfigRetry];
+    [self mockWebviewRetry];
+    [self emulateInitializationFailureWithCode: kUADSErrorStateInvalidHash];
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{ @"stt": @"invalid_hash" }];
+
+    [tags addEntriesFromDictionary: self.retryTags];
+    NSArray *expected = @[ [UADSTsiMetric newInitStarted],
+                           [UADSTsiMetric newInitTimeFailure: UADSCurrentTimestampMock.mockedDuration
+                                                        tags: tags]];
 
     [self waitForTimeInterval: 1];
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expected);
 
-    [self emulateInitializationFailure];
+    [self emulateInitializationFailureWithCode: kUADSErrorStateInvalidHash];
     [self waitForTimeInterval: 1];
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expected);
 }
 
 - (void)test_sends_metric_when_gets_token_only_once {
     [self.sut didInitStart];
-    [self.sut didConfigRequestStart];
+    [self mockConfigRetry];
+    [self mockWebviewRetry];
+    [self mockWebviewRetry];
     [self.sut sendTokenAvailabilityLatencyOnceOfType: YES];
 
-    NSArray *expected = @[ [UADSTsiMetric newInitStartedWithTags: self.tags],
-                           [UADSTsiMetric newTokenAvailabilityLatencyConfig: @(2469)
-                                                                   withTags: self.tags],
-                           [UADSTsiMetric newTokenResolutionRequestLatency: @(2469)
-                                                                  withTags: self.tags]];
+    NSArray *expected = @[ [UADSTsiMetric newInitStarted],
+                           [UADSTsiMetric newTokenAvailabilityLatencyConfig: UADSCurrentTimestampMock.mockedDuration
+                                                                       tags: self.retryTags]];
 
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expected);
 
@@ -94,14 +86,14 @@
 
 - (void)test_sends_metric_when_gets_token_with_webview {
     [self.sut didInitStart];
-    [self.sut didConfigRequestStart];
+    [self mockConfigRetry];
+    [self mockWebviewRetry];
+    [self mockWebviewRetry];
     [self.sut sendTokenAvailabilityLatencyOnceOfType: NO];
 
-    NSArray *expected = @[ [UADSTsiMetric newInitStartedWithTags: self.tags],
-                           [UADSTsiMetric newTokenAvailabilityLatencyWebview: @(2469)
-                                                                    withTags: self.tags],
-                           [UADSTsiMetric newTokenResolutionRequestLatency: @(2469)
-                                                                  withTags: self.tags]];
+    NSArray *expected = @[ [UADSTsiMetric newInitStarted],
+                           [UADSTsiMetric newTokenAvailabilityLatencyWebview: UADSCurrentTimestampMock.mockedDuration
+                                                                        tags: self.retryTags]];
 
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expected);
 
@@ -112,9 +104,9 @@
 - (void)test_does_not_send_latency_metric_when_start_config_not_called {
     [self.sut didInitStart];
     [self.sut sendTokenAvailabilityLatencyOnceOfType: YES];
-    NSArray *expected = @[ [UADSTsiMetric newInitStartedWithTags: self.tags],
-                           [UADSTsiMetric newTokenAvailabilityLatencyConfig: @(1235)
-                                                                   withTags: self.tags]];
+    NSArray *expected = @[ [UADSTsiMetric newInitStarted],
+                           [UADSTsiMetric newTokenAvailabilityLatencyConfig: UADSCurrentTimestampMock.mockedDuration
+                                                                       tags: self.retryTags]];
 
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expected);
 }
@@ -124,13 +116,9 @@
     [self waitForTimeInterval: 1];
     XCTAssertEqual(self.metricsMock.sentMetrics.count, 0);
 
-    [self emulateInitializationFailure];
+    [self emulateInitializationFailureWithCode: kUADSErrorStateNetworkConfigRequest];
     [self waitForTimeInterval: 1];
     XCTAssertEqual(self.metricsMock.sentMetrics.count, 0);
-}
-
-- (NSDictionary *)tags {
-    return @{ @"tag": @"1" };
 }
 
 - (NSError *)mockedError {
@@ -139,13 +127,30 @@
                            userInfo: nil];
 }
 
-- (void)emulateInitializationFailure {
+- (void)emulateInitializationFailureWithCode: (UADSErrorState)code {
     [_initializationSubject triggerSdkInitializeDidFail: @"InitFailed"
-                                                   code: 0];
+                                                   code: code];
 }
 
 - (void)emulateInitializationSucceed {
     [_initializationSubject triggerSdkDidInitialize];
+}
+
+- (void)mockConfigRetry {
+    [_sut didRetryConfig];
+    self.configRetryCount += 1;
+}
+
+- (void)mockWebviewRetry {
+    [_sut didRetryWebview];
+    self.webviewRetryCount += 1;
+}
+
+- (NSDictionary *)retryTags {
+    return @{
+        @"c_retry": @(self.configRetryCount).stringValue,
+        @"wv_retry": @(self.webviewRetryCount).stringValue
+    };
 }
 
 @end

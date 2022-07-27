@@ -82,6 +82,18 @@
                           andMeta: meta];
 }
 
++ (instancetype)newScarPresent  {
+    return [self newWithEvent: @"SCAR_PRESENT"];
+}
+
++ (instancetype)newScarNotPresent {
+    return [self newWithEvent: @"SCAR_NOT_PRESENT"];
+}
+
++ (instancetype)newScarUnsupported  {
+    return [self newWithEvent: @"SCAR_UNSUPPORTED"];
+}
+
 + (instancetype)newImpressionRecordedWithMeta: (GMAAdMetaData *)meta {
     NSString *event = meta.type == GADQueryInfoAdTypeRewarded ? @"REWARDED_IMPRESSION_RECORDED" : @"INTERSTITIAL_IMPRESSION_RECORDED";
 

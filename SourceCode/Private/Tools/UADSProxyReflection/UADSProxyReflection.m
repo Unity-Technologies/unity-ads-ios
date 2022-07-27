@@ -28,11 +28,11 @@
 }
 
 + (bool)respondToRequiredSelectors {
-    return [[self getClass] containsMethods: self.requiredSelectors];
+    return [[self getClass] uads_containsMethods: self.requiredSelectors];
 }
 
 + (bool)respondToRequiredKeys {
-    return [[self getClass] containsMethods: self.requiredKeysForKVO];
+    return [[self getClass] uads_containsMethods: self.requiredKeysForKVO];
 }
 
 + (instancetype)getProxyWithObject: (id)object {

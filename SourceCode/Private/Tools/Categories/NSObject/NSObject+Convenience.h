@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NSObject (Category)
-+ (bool)containsMethods: (NSArray<NSString *> *)names;
++ (bool)uads_containsMethods: (NSArray<NSString *> *)names;
 @end
 
 NS_ASSUME_NONNULL_END

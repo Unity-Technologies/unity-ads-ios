@@ -27,6 +27,11 @@
         return;
     }
 
+    if (configuration.error) {
+        error(configuration.error);
+        return;
+    }
+
     success(configuration);
 }
 

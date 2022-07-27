@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "UADSBaseURLBuilder.h"
 #import "USRVSdkProperties.h"
-#import "NSBundle + TypecastGet.h"
+#import "NSBundle+TypecastGet.h"
 #import "UADSConfigurationEndpointProviderMock.h"
 
 @interface UADSBaseURLBuilderBaseTestCase : XCTestCase
@@ -36,7 +36,7 @@
 
 - (void)runTestWithExpectedHostName: (NSString *)expectedHostname
                              forSut: (id<UADSBaseURLBuilder>)sut {
-    NSString *version = [NSBundle getFromMainBundleValueForKey: kUnityServicesWebviewBranchInfoDictionaryKey];
+    NSString *version = [NSBundle uads_getFromMainBundleValueForKey: kUnityServicesWebviewBranchInfoDictionaryKey];
 
     version = version ? : [USRVSdkProperties getVersionName];
     NSString *expectedURL = [@"https://" stringByAppendingFormat: @"%@/webview/%@/release/config.json", expectedHostname, version];

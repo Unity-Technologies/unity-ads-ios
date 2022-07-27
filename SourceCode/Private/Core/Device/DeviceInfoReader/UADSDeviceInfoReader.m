@@ -3,191 +3,330 @@
 #import "USRVDevice.h"
 #import "USRVSdkProperties.h"
 #import "USRVConnectivityUtils.h"
-#import "NSMutableDictionary + SafeOperations.h"
-#import "USRVTrackingManagerProxy.h"
+#import "NSMutableDictionary+SafeOperations.h"
 #import "UADSTools.h"
 #import "UADSDeviceInfoReaderKeys.h"
-#import "NSBundle + TypecastGet.h"
+#import "NSBundle+TypecastGet.h"
 #import "UADSJsonStorageKeyNames.h"
+#import "UADSUserAgentStorage.h"
 
-@interface UADSDeviceInfoReaderBase ()
-@property (nonatomic, strong) id<UADSDeviceIDFIReader, UADSAnalyticValuesReader, UADSInitializationTimeStampReader>userDefaultsReader;
+@interface UADSDeviceInfoReaderExtended ()
+@property (nonatomic, strong) id<UADSAnalyticValuesReader, UADSInitializationTimeStampReader>userDefaultsReader;
+@property (nonatomic, strong) id<UADSDeviceInfoReader>original;
+@property (nonatomic, strong) id<UADSLogger> logger;
+@property (nonatomic, strong) UADSUserAgentStorage *userAgentReader;
 @end
 
-@implementation UADSDeviceInfoReaderBase
-+ (id<UADSDeviceInfoReader>)newWithIDFIReader: (id<UADSDeviceIDFIReader, UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)idfiReader {
-    UADSDeviceInfoReaderBase *base = [UADSDeviceInfoReaderBase new];
+@implementation UADSDeviceInfoReaderExtended
++ (id<UADSDeviceInfoReader>)newWithIDFIReader: (id<UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)idfiReader
+                                  andOriginal: (id<UADSDeviceInfoReader>)orignal
+                                    andLogger: (id<UADSLogger>)logger {
+    UADSDeviceInfoReaderExtended *base = [UADSDeviceInfoReaderExtended new];
+
+    base.original = orignal;
 
     base.userDefaultsReader = idfiReader;
+    base.logger = logger;
+    base.userAgentReader = [UADSUserAgentStorage new];
     return base;
 }
 
 - (nonnull NSDictionary *)getDeviceInfoForGameMode: (UADSGameMode)mode {
-    NSMutableDictionary *mDictionary = [NSMutableDictionary dictionaryWithDictionary: self.defaultInfo];
+    NSDictionary *baseInfo = [_original getDeviceInfoForGameMode: mode];
 
-    return mDictionary;
+    return [self extendInfo: baseInfo];
 }
 
-- (NSDictionary *)defaultInfo {
-    NSMutableDictionary *info = [NSMutableDictionary new];
-
-    [info uads_setValueIfNotNil: [USRVClientProperties getAppName]
-                         forKey: kUADSDeviceInfoReaderBundleIDKey];
-
-    [info uads_setValueIfNotNil: [USRVConnectivityUtils getNetworkStatusString]
-                         forKey: kUADSDeviceInfoReaderConnectionTypeKey];
-
-    [info uads_setValueIfNotNil: @([USRVConnectivityUtils getNetworkType])
-                         forKey: kUADSDeviceInfoReaderNetworkTypeKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getScreenHeight]
-                         forKey: kUADSDeviceInfoReaderScreenHeightKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getScreenWidth]
-                         forKey: kUADSDeviceInfoReaderScreenWidthKey];
-
-    [info uads_setValueIfNotNil: @([USRVClientProperties isAppDebuggable])
-                         forKey: kUADSDeviceInfoReaderEncryptedKey];
-
-    [info uads_setValueIfNotNil: @"ios"
-                         forKey: kUADSDeviceInfoReaderPlatformKey];
-
-    [info uads_setValueIfNotNil: @([USRVDevice isRooted])
-                         forKey: kUADSDeviceInfoReaderRootedKey];
-
-    [info uads_setValueIfNotNil: @([USRVSdkProperties getVersionCode])
-                         forKey: kUADSDeviceInfoReaderSDKVersionKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getOsVersion]
-                         forKey: kUADSDeviceInfoReaderOSVersionKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getModel]
-                         forKey: kUADSDeviceInfoReaderDeviceModelKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getPreferredLocalization]
-                         forKey: kUADSDeviceInfoReaderLanguageKey];
-
-    [info uads_setValueIfNotNil:  @([USRVSdkProperties isTestMode])
-                         forKey: kUADSDeviceInfoReaderIsTestModeKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getFreeMemoryInKilobytes]
-                         forKey: kUADSDeviceInfoReaderFreeMemoryKey];
-
-    [info uads_setValueIfNotNil: @([USRVDevice getBatteryStatus])
-                         forKey: kUADSDeviceInfoReaderBatteryStatusKey];
-
-    [info uads_setValueIfNotNil: @([USRVDevice getBatteryLevel])
-                         forKey: kUADSDeviceInfoReaderBatteryLevelKey];
-
-    [info uads_setValueIfNotNil: @([USRVDevice getScreenBrightness])
-                         forKey: kUADSDeviceInfoReaderScreenBrightnessKey];
-
-    [info uads_setValueIfNotNil: @([USRVDevice  getOutputVolume])
-                         forKey: kUADSDeviceInfoReaderVolumeKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice  getFreeSpaceInKilobytes]
-                         forKey: kUADSDeviceInfoDeviceFreeSpaceKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice  getTotalSpaceInKilobytes]
-                         forKey: kUADSDeviceInfoDeviceTotalSpaceKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice  getTotalMemoryInKilobytes]
-                         forKey: kUADSDeviceInfoDeviceTotalMemoryKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getDeviceName]
-                         forKey: kUADSDeviceInfoDeviceDeviceNameKey];
-
-    [info uads_setValueIfNotNil: [[USRVDevice getLocaleList] componentsJoinedByString: @","]
-                         forKey: kUADSDeviceInfoDeviceLocaleListKey];
-
-    [info uads_setValueIfNotNil: [USRVDevice getCurrentUITheme]
-                         forKey: kUADSDeviceInfoDeviceCurrentUiThemeKey];
-
-    [info uads_setValueIfNotNil: [[USRVClientProperties getAdNetworkIdsPlist] componentsJoinedByString: @","]
-                         forKey: kUADSDeviceInfoDeviceAdNetworkPlistKey];
-
-    [info uads_setValueIfNotNil: [USRVClientProperties getAppVersion]
-                         forKey: kUADSDeviceInfoReaderBundleVersionKey];
-
-    [info uads_setValueIfNotNil: @([USRVDevice isWiredHeadsetOn])
-                         forKey: kUADSDeviceInfoDeviceIsWiredHeadsetOnKey];
+- (NSDictionary *)extendInfo: (NSDictionary *)baseInfo {
+    NSMutableDictionary *info = [[NSMutableDictionary alloc] initWithDictionary: baseInfo];
 
 
-    [info uads_setValueIfNotNil: [USRVDevice getSystemBootTime]
-                         forKey: kUADSDeviceInfoDeviceSystemBootTimeKey];
 
-    [info uads_setValueIfNotNil: self.authTrackingStatus
-                         forKey: kUADSDeviceInfoDeviceTrackingAuthStatusKey];
+    [self measurePerformanceAndLog: @"getAppName"
+                             using:^{
+                                 [info uads_setValueIfNotNil: [USRVClientProperties getAppName]
+                                                      forKey: kUADSDeviceInfoReaderBundleIDKey];
+                             }];
 
-    [info uads_setValueIfNotNil: [USRVDevice getNetworkOperator]
-                         forKey: kUADSDeviceInfoDeviceNetworkOperatorKey];
 
-    [info uads_setValueIfNotNil: [USRVDevice getNetworkOperatorName]
-                         forKey: kUADSDeviceInfoDeviceNetworkOperatorNameKey];
+    [self measurePerformanceAndLog: @"getNetworkStatusString"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVConnectivityUtils getNetworkStatusString]
+                                                      forKey: kUADSDeviceInfoReaderConnectionTypeKey];
+                             }];
 
-    [info uads_setValueIfNotNil: @([USRVDevice getScreenScale])
-                         forKey: kUADSDeviceInfoDeviceScreenScaleKey];
 
-    [info uads_setValueIfNotNil: @([USRVDevice isSimulator])
-                         forKey: kUADSDeviceInfoIsSimulatorKey];
+    [self measurePerformanceAndLog: @"getNetworkType"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVConnectivityUtils getNetworkType])
+                                                      forKey: kUADSDeviceInfoReaderNetworkTypeKey];
+                             }];
 
-    [info uads_setValueIfNotNil: @([USRVDevice isLimitTrackingEnabled])
-                         forKey: kUADSDeviceInfoLimitAdTrackingKey];
 
-    [info uads_setValueIfNotNil: [USRVDevice getTimeZone: false]
-                         forKey: kUADSDeviceInfoLimitTimeZoneKey];
+
+    [self measurePerformanceAndLog: @"getScreenHeight"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getScreenHeight]
+                                                      forKey: kUADSDeviceInfoReaderScreenHeightKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getScreenWidth"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getScreenWidth]
+                                                      forKey: kUADSDeviceInfoReaderScreenWidthKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"isAppDebuggable"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVClientProperties isAppDebuggable])
+                                                      forKey: kUADSDeviceInfoReaderEncryptedKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"isRooted"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice isRooted])
+                                                      forKey: kUADSDeviceInfoReaderRootedKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getVersionCode"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVSdkProperties getVersionCode])
+                                                      forKey: kUADSDeviceInfoReaderSDKVersionKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getOsVersion"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getOsVersion]
+                                                      forKey: kUADSDeviceInfoReaderOSVersionKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getModel"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getModel]
+                                                      forKey: kUADSDeviceInfoReaderDeviceModelKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getPreferredLocalization"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getPreferredLocalization]
+                                                      forKey: kUADSDeviceInfoReaderLanguageKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"isTestMode"
+                             using: ^{
+                                 [info uads_setValueIfNotNil:  @([USRVSdkProperties isTestMode])
+                                                      forKey: kUADSDeviceInfoReaderIsTestModeKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"isTestMode"
+                             using: ^{
+                                 [info uads_setValueIfNotNil:  @([USRVSdkProperties isTestMode])
+                                                      forKey: kUADSDeviceInfoReaderIsTestModeKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getFreeMemoryInKilobytes"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getFreeMemoryInKilobytes]
+                                                      forKey: kUADSDeviceInfoReaderFreeMemoryKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getBatteryStatus"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice getBatteryStatus])
+                                                      forKey: kUADSDeviceInfoReaderBatteryStatusKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getBatteryLevel"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice getBatteryLevel])
+                                                      forKey: kUADSDeviceInfoReaderBatteryLevelKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getScreenBrightness"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice getScreenBrightness])
+                                                      forKey: kUADSDeviceInfoReaderScreenBrightnessKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getOutputVolume"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice  getOutputVolume])
+                                                      forKey: kUADSDeviceInfoReaderVolumeKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getFreeSpaceInKilobytes"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice  getFreeSpaceInKilobytes]
+                                                      forKey: kUADSDeviceInfoDeviceFreeSpaceKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getTotalSpaceInKilobytes"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice  getTotalSpaceInKilobytes]
+                                                      forKey: kUADSDeviceInfoDeviceTotalSpaceKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getTotalMemoryInKilobytes"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice  getTotalMemoryInKilobytes]
+                                                      forKey: kUADSDeviceInfoDeviceTotalMemoryKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getDeviceName"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getDeviceName]
+                                                      forKey: kUADSDeviceInfoDeviceDeviceNameKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getLocaleList"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [[USRVDevice getLocaleList] componentsJoinedByString: @","]
+                                                      forKey: kUADSDeviceInfoDeviceLocaleListKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getCurrentUITheme"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getCurrentUITheme]
+                                                      forKey: kUADSDeviceInfoDeviceCurrentUiThemeKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getAdNetworkIdsPlist"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [[USRVClientProperties getAdNetworkIdsPlist] componentsJoinedByString: @","]
+                                                      forKey: kUADSDeviceInfoDeviceAdNetworkPlistKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getAppVersion"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVClientProperties getAppVersion]
+                                                      forKey: kUADSDeviceInfoReaderBundleVersionKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"isWiredHeadsetOn"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice isWiredHeadsetOn])
+                                                      forKey: kUADSDeviceInfoDeviceIsWiredHeadsetOnKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getSystemBootTime"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getSystemBootTime]
+                                                      forKey: kUADSDeviceInfoDeviceSystemBootTimeKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getNetworkOperator"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getNetworkOperator]
+                                                      forKey: kUADSDeviceInfoDeviceNetworkOperatorKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getNetworkOperatorName"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getNetworkOperatorName]
+                                                      forKey: kUADSDeviceInfoDeviceNetworkOperatorNameKey];
+                             }];
+
+
+    [self measurePerformanceAndLog: @"getScreenScale"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice getScreenScale])
+                                                      forKey: kUADSDeviceInfoDeviceScreenScaleKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"isSimulator"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice isSimulator])
+                                                      forKey: kUADSDeviceInfoIsSimulatorKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getTimeZone"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice getTimeZone: false]
+                                                      forKey: kUADSDeviceInfoLimitTimeZoneKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getCPUCount"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice getCPUCount])
+                                                      forKey: kUADSDeviceInfoCPUCountKey];
+                             }];
+
 
     [info uads_setValueIfNotNil: @"apple"
                          forKey: kUADSDeviceInfoLimitStoresKey];
 
-    [info uads_setValueIfNotNil: @([USRVDevice getCPUCount])
-                         forKey: kUADSDeviceInfoCPUCountKey];
 
-    [info uads_setValueIfNotNil: self.userDefaultsReader.idfi
-                         forKey: kUADSDeviceInfoIDFIKey];
+    [self measurePerformanceAndLog: @"sessionID"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: self.userDefaultsReader.sessionID
+                                                      forKey: kUADSDeviceInfoAnalyticSessionIDKey];
+                             }];
 
-    [info uads_setValueIfNotNil: self.userDefaultsReader.sessionID
-                         forKey: kUADSDeviceInfoAnalyticSessionIDKey];
+    [self measurePerformanceAndLog: @"userID"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: self.userDefaultsReader.userID
+                                                      forKey: kUADSDeviceInfoAnalyticUserIDKey];
+                             }];
 
-    [info uads_setValueIfNotNil: self.userDefaultsReader.userID
-                         forKey: kUADSDeviceInfoAnalyticUserIDKey];
+    [self measurePerformanceAndLog: @"getTimeZoneOffset"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: @([USRVDevice getTimeZoneOffset])
+                                                      forKey: kUADSDeviceInfoTimeZoneOffsetKey];
+                             }];
 
-    [info uads_setValueIfNotNil: @([USRVDevice getTimeZoneOffset])
-                         forKey: kUADSDeviceInfoTimeZoneOffsetKey];
-    dispatch_on_main_sync(^{
-        [info uads_setValueIfNotNil: @([USRVDevice isAppInForeground])
-                             forKey: kUADSDeviceInfoAppInForegroundKey];
-    });
-
-    [info uads_setValueIfNotNil: [USRVDevice currentTimeStampInSeconds]
-                         forKey: kUADSDeviceInfoCurrentTimestampKey];
-
-    [info uads_setValueIfNotNil: self.initializeTimestamp
-                         forKey: kUADSDeviceInfoAppStartTimestampKey];
-
-
-    [info uads_setValueIfNotNil: [NSBundle getBuiltSDKVersion]
-                         forKey: kUADSDeviceInfoBuiltSDKVersionKey];
+    [self measurePerformanceAndLog: @"isAppInForeground"
+                             using: ^{
+                                 dispatch_on_main_sync(^{
+                                                           [info uads_setValueIfNotNil: @([USRVDevice isAppInForeground])
+                                                                                forKey: kUADSDeviceInfoAppInForegroundKey];
+                                                       });
+                             }];
 
 
-    //for now webview doesnt set those values. need the next set to be able to
-    // get proper configuration from the service
+    [self measurePerformanceAndLog: @"currentTimeStampInSeconds"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [USRVDevice currentTimeStampInSeconds]
+                                                      forKey: kUADSDeviceInfoCurrentTimestampKey];
+                             }];
 
-//    info[@"unifiedconfig.data.gameSessionId"] = @(1);
-//    info[@"user.clickCount"] = @(1);
-//    info[@"user.requestCount"] = @(1);
-//    info[@"user.requestToReadyTime"] = @(10);
+    [self measurePerformanceAndLog: @"initializeTimestamp"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: self.initializeTimestamp
+                                                      forKey: kUADSDeviceInfoAppStartTimestampKey];
+                             }];
 
-    dispatch_on_main_sync(^{
-        [info uads_setValueIfNotNil: [USRVDevice getWebViewUserAgent]
-                             forKey: kUADSDeviceInfoWebViewAgentKey];
-    });
+    [self measurePerformanceAndLog: @"getBuiltSDKVersion"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: [NSBundle uads_getBuiltSDKVersion]
+                                                      forKey: kUADSDeviceInfoBuiltSDKVersionKey];
+                             }];
+
+    [self measurePerformanceAndLog: @"getWebViewUserAgent"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: self.userAgentReader.userAgent
+                                                      forKey: kUADSDeviceInfoWebViewAgentKey];
+                             }];
+
 
     return info;
 }
 
-- (NSNumber *)authTrackingStatus {
-    return @([[USRVTrackingManagerProxy sharedInstance] trackingAuthorizationStatus]);
+- (void)measurePerformanceAndLog: (NSString *)eventName
+                           using: (UADSVoidClosure)blockToMeasure {
+    CFTimeInterval duration = uads_measure_duration_sync(blockToMeasure);
+    id<UADSLogRecord> record =  [UADSDurationLogRecord newWith: eventName
+                                                        system: @"DEVICE INFO PERF"
+                                                      duration: duration];
+
+    [_logger logRecord: record];
 }
 
 - (NSNumber *)initializeTimestamp {

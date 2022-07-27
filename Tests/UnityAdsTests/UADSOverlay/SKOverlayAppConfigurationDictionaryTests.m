@@ -14,6 +14,8 @@
         @"userDismissible": @"1",
         @"campaignToken": @"token1",
         @"providerToken": @"token2",
+        @"latestReleaseID": @"releaseID",
+        @"customProductPageIdentifier": @"customID",
         @"additional": @{
             @"additionalKey1": @"additionalValue1",
             @"additionalKey2": @"additionalValue2"
@@ -21,13 +23,19 @@
     };
 
     if (@available(iOS 14.0, *)) {
-        SKOverlayAppConfiguration *config = [SKOverlayAppConfiguration overlayAppConfigurationFrom: parameters];
+        SKOverlayAppConfiguration *config = [SKOverlayAppConfiguration uads_overlayAppConfigurationFrom: parameters];
 
         XCTAssertEqual(config.appIdentifier,  [parameters valueForKey: @"appIdentifier"]);
         XCTAssertEqual(config.position, [[parameters valueForKey: @"position"] intValue]);
         XCTAssertEqual(config.userDismissible, [[parameters valueForKey: @"userDismissible"] boolValue]);
         XCTAssertEqual(config.campaignToken,  [parameters valueForKey: @"campaignToken"]);
         XCTAssertEqual(config.providerToken,  [parameters valueForKey: @"providerToken"]);
+
+        if (@available(iOS 15.0, *)) {
+            XCTAssertEqual(config.latestReleaseID,  [parameters valueForKey: @"latestReleaseID"]);
+            XCTAssertEqual(config.customProductPageIdentifier,  [parameters valueForKey: @"customProductPageIdentifier"]);
+        }
+
         [[parameters valueForKey: @"additional"] enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
             XCTAssertEqual([config additionalValueForKey: key],  obj);
         }];
@@ -41,7 +49,7 @@
     };
 
     if (@available(iOS 14.0, *)) {
-        SKOverlayAppConfiguration *config = [SKOverlayAppConfiguration overlayAppConfigurationFrom: parameters];
+        SKOverlayAppConfiguration *config = [SKOverlayAppConfiguration uads_overlayAppConfigurationFrom: parameters];
         XCTAssertNil(config);
     }
 }

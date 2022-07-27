@@ -3,7 +3,7 @@
 #import "USRVWebViewApp.h"
 #import "GMARewardedAdDelegateProxy.h"
 #import "GMAWebViewEvent.h"
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 #import "XCTestCase+Convenience.h"
 #import "NSError+UADSError.h"
 #import "GMADelegatesFactory.h"

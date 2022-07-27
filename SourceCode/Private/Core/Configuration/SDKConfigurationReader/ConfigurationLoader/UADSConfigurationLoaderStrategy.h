@@ -6,8 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (id<UADSConfigurationLoader>)newWithMainLoader: (id<UADSConfigurationLoader>)mainLoader
                                andFallbackLoader: (id<UADSConfigurationLoader>)fallbackLoader
-                                    metricSender: (id<ISDKMetrics>)metricSender
-                                metricTagsReader: (id<UADSConfigurationMetricTagsReader>)tagsReader;
+                                    metricSender: (id<ISDKMetrics>)metricSender;
 @end
 
 NS_ASSUME_NONNULL_END

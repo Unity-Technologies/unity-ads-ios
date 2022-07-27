@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "NSDate + NSNumber.h"
+#import "NSDate+NSNumber.h"
 
 @interface NSDate_NSNumberTests : XCTestCase
 

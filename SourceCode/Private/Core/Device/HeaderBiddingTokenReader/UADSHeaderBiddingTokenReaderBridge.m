@@ -1,12 +1,11 @@
 #import "UADSHeaderBiddingTokenReaderBridge.h"
-#import "UADSClosureWithTimeout.h"
 #import "NSArray+Convenience.h"
 
 @interface UADSHeaderBiddingTokenReaderBridge ()
 @property (nonatomic, strong) id<UADSHeaderBiddingAsyncTokenReader> nativeTokenGenerator;
 @property (nonatomic, strong) id<UADSHeaderBiddingTokenCRUD> tokenCRUD;
 @property (nonatomic, strong) id<UADSConfigurationReader>configurationReader;
-@property (nonatomic, strong) NSArray<UADSClosureWithTimeout *> *observers;
+@property (nonatomic, strong) UADSGenericMediator<UADSHeaderBiddingToken *> *mediator;
 @property (nonatomic) BOOL tokenQueueIsCreated;
 @end
 
@@ -20,30 +19,18 @@
     base.nativeTokenGenerator = nativeTokenGenerator;
     base.tokenCRUD = tokenCRUD;
     base.configurationReader = configurationReader;
-    base.observers = @[];
     base.tokenQueueIsCreated = false;
+    base.mediator = [UADSGenericMediator new];
+    base.mediator.timeoutInSeconds = configurationReader.getCurrentConfiguration.hbTokenTimeout / 1000;
     return base;
 }
 
 - (void)getToken: (nonnull UADSHeaderBiddingTokenCompletion)completion {
-    if (self.shouldGenerateToken) {
-        [self generateNativeToken: completion];
-        return;
-    }
-
-    NSString *tokenFromStorage = [self getToken];
-
-    if ([self isValidToken: tokenFromStorage]) {
-        completion(tokenFromStorage, kUADSTokenRemote);
-        return;
-    }
+    UADSTokenType tokenType = self.shouldGenerateToken ? kUADSTokenNative : kUADSTokenRemote;
 
     [self saveAsObserver: completion
-                    type: kUADSTokenRemote];
-}
-
-- (BOOL)isValidToken: (NSString *)token {
-    return token != nil && ![token isEqualToString: @""];
+                    type: tokenType];
+    [self notifyIfThereIsValidToken];
 }
 
 - (BOOL)shouldGenerateToken {
@@ -54,47 +41,15 @@
     return _configurationReader.getCurrentConfiguration.experiments ? : [UADSConfigurationExperiments newWithJSON: @{}];
 }
 
-- (void)generateNativeToken: (nonnull UADSHeaderBiddingTokenCompletion)completion {
-    NSUUID *observerId = [self saveAsObserver: completion
-                                         type: kUADSTokenNative];
-
-    __weak typeof(self) weakSelf = self;
-    [_nativeTokenGenerator getToken:^(NSString *_Nullable token, UADSTokenType type) {
-        [weakSelf notifyAndRemoveObserverWithID: observerId
-                                          token: token];
-    }];
-}
-
-- (NSUUID *)saveAsObserver: (nonnull UADSHeaderBiddingTokenCompletion)completion type: (UADSTokenType)type {
-    NSInteger timeout = _configurationReader.getCurrentConfiguration.hbTokenTimeout / 1000;
-
-    __weak typeof(self) weakSelf = self;
-    id timeoutHandler = ^(NSUUID *id) {
-        [weakSelf notifyAndRemoveObserverWithID: id
-                                          token: nil];
-    };
-    UADSClosureWithTimeout *observer = [UADSClosureWithTimeout newWithType: type
-                                                          timeoutInSeconds: timeout
-                                                         andTimeoutClosure: timeoutHandler
-                                                                  andBlock: completion];
-
-    @synchronized (self) {
-        _observers = [_observers arrayByAddingObject: observer];
+- (void)saveAsObserver: (nonnull UADSHeaderBiddingTokenCompletion)completion type: (UADSTokenType)type {
+    [_mediator subscribe:^(UADSHeaderBiddingToken *_Nonnull token) {
+        completion(token);
     }
-    return observer.id;
-}
-
-- (void)notifyAndRemoveObserverWithID: (NSUUID *)id token: (NSString *)token {
-    @synchronized (self) {
-        _observers = [_observers uads_removingFirstWhere:^bool (UADSClosureWithTimeout *_Nonnull observer) {
-            if ([observer.id.UUIDString isEqualToString: id.UUIDString]) {
-                [observer callClosureWith: token];
-                return true;
-            } else {
-                return false;
-            }
-        }];
-    }
+              andTimeout:^{
+         UADSHeaderBiddingToken *token = [UADSHeaderBiddingToken new];
+         token.type = type;
+         completion(token);
+     }];
 }
 
 - (void)appendTokens: (nonnull NSArray<NSString *> *)tokens {
@@ -116,20 +71,27 @@
 - (void)notifyObserversAndCleanQueue {
     @synchronized (self) {
         self.tokenQueueIsCreated = true;
-        _observers = [_observers uads_removingFirstWhere:^bool (UADSClosureWithTimeout *_Nonnull observer) {
-            return [self notifyObserverWithValidToken: observer];
-        }];
+        NSInteger count = _mediator.count;
+
+        for (int i = 0; i < count; i++) {
+            [self notifyIfThereIsValidToken];
+        }
     }
 }
 
-- (BOOL)notifyObserverWithValidToken: (UADSClosureWithTimeout *)observer {
-    NSString *token = [_tokenCRUD getToken];
+- (void)notifyIfThereIsValidToken {
+    if (self.shouldGenerateToken) {
+        UADSGenericMediator *cMediator = self.mediator;
+        [_nativeTokenGenerator getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+            [cMediator notifyObserversSeparatelyWithObjectsAndRemove: @[token]];
+        }];
+        return;
+    }
 
-    if ([self isValidToken: token]) {
-        [observer callClosureWith: token];
-        return true;
-    } else {
-        return false;
+    UADSHeaderBiddingToken *token = [UADSHeaderBiddingToken newWebToken: [self getToken]];
+
+    if (token.isValid) {
+        [_mediator notifyObserversSeparatelyWithObjectsAndRemove: @[token]];
     }
 }
 

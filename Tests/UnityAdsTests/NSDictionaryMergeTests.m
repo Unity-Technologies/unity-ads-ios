@@ -48,8 +48,8 @@
     [objectTwo setValue: objectTwoSub
                  forKey: @"test"];
 
-    NSDictionary *merged = [NSDictionary unityads_dictionaryByMerging: objectOne
-                                                            secondary: objectTwo];
+    NSDictionary *merged = [NSDictionary uads_dictionaryByMerging: objectOne
+                                                        secondary: objectTwo];
 
     NSLog(@"%@", merged);
 
@@ -67,7 +67,7 @@
 - (void)testDeepCopy {
     NSDictionary *innerDict = @{ @"1.1": @"one", @"1.2": @{ @"2": @"two" } };
     NSMutableDictionary *dict = [@{ @"1": innerDict } mutableCopy];
-    NSDictionary *dict2 = [dict deepCopy];
+    NSDictionary *dict2 = [dict uads_deepCopy];
 
     XCTAssertEqualObjects(dict, dict2);
 
@@ -78,7 +78,7 @@
 
 
     NSMutableArray *original = [@[@"1", @"2", @"3"] mutableCopy];
-    NSArray *deepCopy = [original deepCopy];
+    NSArray *deepCopy = [original uads_deepCopy];
 
     XCTAssertEqualObjects(original, deepCopy);
 

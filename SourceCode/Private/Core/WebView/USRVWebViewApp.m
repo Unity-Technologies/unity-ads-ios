@@ -12,6 +12,8 @@
 #import <dlfcn.h>
 #import <objc/runtime.h>
 #import "UADSWebViewURLBuilder.h"
+#import "UADSErrorState.h"
+#import "UADSWebViewNavigationDelegate.h"
 
 @interface USRVWebViewApp ()
 
@@ -71,7 +73,25 @@ static NSCondition *blockCondition = nil;
     return _webAppFailureCode;
 }
 
-+ (BOOL)create: (USRVConfiguration *)configuration view: (UIView *)view {
+- (NSNumber *)getErrorStateFromWebAppCode {
+    NSInteger code = [[self getWebAppFailureCode] intValue];
+
+    if (code == 1) {
+        return @(kUADSErrorStateCreateWebviewGameIdDisabled);
+    }
+
+    if (code == 2) {
+        return @(kUADSErrorStateCreateWebviewConfigError);
+    }
+
+    if (code == 3) {
+        return @(kUADSErrorStateCreateWebviewInvalidArgument);
+    }
+
+    return @(kUADSErrorStateCreateWebview); //unknown
+}
+
++ (NSNumber *)create: (USRVConfiguration *)configuration view: (UIView *)view {
     USRVLogDebug(@"CREATING WKWEBVIEWAPP");
     [UADSWebKitLoader loadFrameworkIfNotLoaded];
 
@@ -164,6 +184,7 @@ static NSCondition *blockCondition = nil;
         [webView setValue: @NO
                forKeyPath : @"scrollView.bounces"];
 
+        [webView setValue: [UADSWebViewNavigationDelegate sharedInstance] forKey: @"navigationDelegate"];
         [webViewApp setWebView: webView];
 
         NSString *const localWebViewUrl = [USRVSdkProperties getLocalWebViewFile];
@@ -229,7 +250,7 @@ static NSCondition *blockCondition = nil;
     });
 
     if (blockCondition == nil) {
-        return NO;
+        return @(kUADSErrorStateCreateWebview);
     }
 
     BOOL webViewCreateDidNotTimeout = NO;
@@ -244,15 +265,14 @@ static NSCondition *blockCondition = nil;
     bool createdSuccessfully = webViewCreateDidNotTimeout && [webViewApp isWebAppInitialized];
 
     if (!createdSuccessfully) {
-        [[USRVSDKMetrics getInstance] sendEventWithTags: @"native_webview_creation_failed"
-                                                   tags: @{
-             @"wto": [NSString stringWithFormat: @"%d", !webViewCreateDidNotTimeout],
-             @"wad": @"true",             // Will always be true here on iOS, but aligned with Android metrics
-             @"wai": [NSString stringWithFormat: @"%d", [webViewApp isWebAppInitialized]],
-        }];
+        if (!webViewCreateDidNotTimeout) {
+            return @(kUADSErrorStateCreateWebviewTimeout);
+        }
+
+        return [webViewApp getErrorStateFromWebAppCode];
     }
 
-    return createdSuccessfully;
+    return nil;
 } /* create */
 
 - (void)invokeJavascriptString: (NSString *)javaScriptString {

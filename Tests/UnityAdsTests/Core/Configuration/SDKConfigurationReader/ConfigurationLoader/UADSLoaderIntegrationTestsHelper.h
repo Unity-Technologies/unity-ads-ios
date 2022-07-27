@@ -6,9 +6,9 @@ NS_ASSUME_NONNULL_BEGIN
         withExpectedHostHame: (NSString *)hostName
           andExpectedQueries: (NSDictionary *)queryAttributes;
 - (NSDictionary *)successPayload;
+- (NSDictionary *)successPayloadPrivacy;
 - (NSDictionary *)successPayloadMissedData;
 - (NSDictionary *)legacyFlowQueries;
-- (NSDictionary *)tsiFlowQueries;
 - (void)validateURLOfRequest: (NSString *)urlString withExpectedCompressedKeys: (NSArray *)expectedKeys;
 @end
 

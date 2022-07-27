@@ -34,7 +34,7 @@ NSString *const kDefaultConfigHostNameBase = @"unityads.unity3d.com";
 }
 
 - (NSString *)configVersion {
-    return [_plistReader getStringValueForKey: kUnityServicesConfigVersionKey];
+    return [_plistReader uads_getStringValueForKey: kUnityServicesConfigVersionKey];
 }
 
 - (NSString *)finalNameWithConfigName: (NSString *)config {

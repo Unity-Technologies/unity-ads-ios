@@ -3,6 +3,13 @@
 
 @implementation UADSConfigurationReaderMock
 
++ (instancetype)newWithMetricURL: (NSString *)metricURL {
+    UADSConfigurationReaderMock *mock = [UADSConfigurationReaderMock new];
+
+    mock.metricURL = metricURL;
+    return mock;
+}
+
 + (instancetype)newWithExperiments: (NSDictionary *)experiments {
     UADSConfigurationReaderMock *mock = [UADSConfigurationReaderMock new];
 
@@ -20,8 +27,9 @@
 
 
     configDictionary[@"exp"] = self.experiments;
+    configDictionary[@"murl"] = self.metricURL;
 
-    return [[USRVConfiguration alloc] initWithConfigJsonData: configDictionary.jsonData];
+    return [[USRVConfiguration alloc] initWithConfigJsonData: configDictionary.uads_jsonData];
 }
 
 - (NSDictionary *)metricTags {

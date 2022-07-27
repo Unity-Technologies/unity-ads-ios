@@ -2,6 +2,7 @@
 #import "UADSHeaderBiddingTokenReaderBridge.h"
 #import "UADSInitializationStatusReader.h"
 #import "UADSTokenStorage.h"
+#import "UADSPrivacyStorage.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSHeaderBiddingTokenReaderBuilder : NSObject
@@ -12,11 +13,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<UADSDeviceInfoReader>deviceInfoReader;
 @property (nonatomic, strong) id<UADSHeaderBiddingTokenCRUD>tokenCRUD;
 @property (nonatomic, strong) id<UADSHeaderBiddingAsyncTokenReader>tokenGenerator;
+@property (nonatomic, strong) NSString *nativeTokenPrefix;
+@property (nonatomic, strong) id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader, UADSPrivacyResponseSubject> privacyStorage;
 
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)defaultReader;
 
-
-+ (instancetype)                                                     sharedInstance;
 @end
 NS_ASSUME_NONNULL_END

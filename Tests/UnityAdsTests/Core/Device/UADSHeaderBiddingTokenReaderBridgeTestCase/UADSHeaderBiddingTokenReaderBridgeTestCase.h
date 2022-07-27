@@ -18,5 +18,11 @@ typedef void (^SUTAdditionalBlock)(id<UADSHeaderBiddingAsyncTokenReader, UADSHea
                                                                      expectedGenerationCalled: (NSInteger)generateCalled
                                                                                     hbTimeout: (NSInteger)timeout
                                                                               additionalBlock: (SUTAdditionalBlock)block;
+- (void)runTestUsingCreatedSut: (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sut
+            withExpectedTokens: (NSArray<NSString *> *)expectedTokens
+      expectedGenerationCalled: (NSInteger)generateCalled
+                     hbTimeout: (NSInteger)timeout
+              waitForHBTimeout: (BOOL)waitForHBTimeout
+               additionalBlock: (SUTAdditionalBlock)block;
 
 @end

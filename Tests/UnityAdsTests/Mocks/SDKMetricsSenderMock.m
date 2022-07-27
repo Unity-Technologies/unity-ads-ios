@@ -38,4 +38,12 @@
     [self.exp fulfill];
 }
 
+- (void)measureDurationAndSend: (UADSMetricsMeasureBlock)measureBlock {
+    UADSCompleteMeasureBlock complete = ^(UADSMetric *metric) {
+        [self sendMetric: metric];
+    };
+
+    measureBlock(complete);
+}
+
 @end

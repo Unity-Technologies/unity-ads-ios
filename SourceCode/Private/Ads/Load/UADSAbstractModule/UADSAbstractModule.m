@@ -1,6 +1,6 @@
 #import "UADSAbstractModule.h"
 #import "USRVConfiguration.h"
-#import "NSMutableDictionary + SafeRemoval.h"
+#import "NSMutableDictionary+SafeRemoval.h"
 
 static NSString *const kUADSOperationExpirationMessage = @"%@ method timeout after %li for listener ID %@";
 static NSString *const kUADSAbstractModuleErrorMessage = @"UADSAbstractModule cannot continue with the empty placement ID";
@@ -13,17 +13,20 @@ static USRVConfiguration *configuration = nil;
 @property (nonatomic, strong) dispatch_queue_t synchronizedQueue;
 @property (nonatomic, strong) dispatch_queue_t invokeQueue;
 @property (nonatomic, strong) id<UADSWebViewInvoker> invoker;
-@property (nonatomic, strong) id<UADSInternalErrorHandler> errorHandler;
+@property (nonatomic, strong) id<UADSTimerFactory> timerFactory;
+@property (nonatomic, strong) id<UADSEventHandler> eventHandler;
 @end
 
 @implementation UADSAbstractModule
 
 + (instancetype)newWithInvoker: (id<UADSWebViewInvoker>)invoker
-               andErrorHandler: (id<UADSInternalErrorHandler>)errorHandler {
+               andEventHandler: (id<UADSEventHandler>)eventHandler
+                  timerFactory: (id<UADSTimerFactory>)timerFactory {
     UADSAbstractModule *module = [self new];
 
     module.invoker = invoker;
-    module.errorHandler = errorHandler;
+    module.eventHandler = eventHandler;
+    module.timerFactory = timerFactory;
     return module;
 }
 
@@ -79,8 +82,10 @@ static USRVConfiguration *configuration = nil;
 
     id<UADSAbstractModuleOperationObject> operation =  [self createEventWithPlacementID: safePlacementID
                                                                             withOptions: options
+                                                                                  timer: [self.timerFactory timerWithAppLifeCycle]
                                                                            withDelegate: delegate];
 
+    [_eventHandler eventStarted: operation.id];
     [self saveOperation: operation];
 
 
@@ -105,15 +110,31 @@ static USRVConfiguration *configuration = nil;
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                         withOptions: (id<UADSDictionaryConvertible>)options
+                                                              timer: (id<UADSRepeatableTimer>)timer
                                                        withDelegate: (id<UADSAbstractModuleDelegate>)delegate {
     NSAssert(NO, @"Cannot use abstract class");
     return nil;
 }
 
+- (void)handleSuccess: (NSString *)operationID {
+    [self.eventHandler onSuccess: operationID];
+}
+
+- (void)catchError: (UADSInternalError *)error forId: (nonnull NSString *)operationID {
+    [self.eventHandler catchError: error
+                            forId: operationID];
+}
+
 - (void)logErrorAndNotifyDelegate: (id<UADSAbstractModuleDelegate>)delegate
                       errorParams: (UADSInternalError *)error
                    forPlacementID: (NSString *)placementID {
-    [_errorHandler catchError: error];
+    // Send both start and failure metrics to align total number of calls.
+    NSString *failedId = [NSUUID UUID].UUIDString;
+
+    [_eventHandler eventStarted: failedId];
+    [self catchError: error
+               forId: failedId];
+
     [delegate didFailWithError: error
                 forPlacementID: placementID];
 }
@@ -179,7 +200,8 @@ static USRVConfiguration *configuration = nil;
     id<UADSAbstractModuleOperationObject> operation = [self getOperationWithID: operationID];
 
     GUARD(operation);
-    [_errorHandler catchError: error];
+    [self catchError: error
+               forId: operationID];
     [operation.delegate didFailWithError: error
                           forPlacementID: operation.placementID];
 }

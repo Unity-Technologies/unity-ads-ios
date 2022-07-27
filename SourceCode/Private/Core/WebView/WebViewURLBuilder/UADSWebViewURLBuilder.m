@@ -1,7 +1,8 @@
 #import "UADSWebViewURLBuilder.h"
 #import "USRVBodyJSONCompressor.h"
-#import "NSMutableDictionary + SafeOperations.h"
+#import "NSMutableDictionary+SafeOperations.h"
 #import "NSDictionary+JSONString.h"
+#import "UADSTools.h"
 
 @interface UADSWebViewURLBuilder ()
 @property (nonatomic, copy) NSString *baseURLString;
@@ -32,6 +33,9 @@
                                     forKey: @"origin"];
     [queryAttributes uads_setValueIfNotNil: config.webViewVersion
                                     forKey: @"version"];
+    
+    [queryAttributes uads_setValueIfNotNil: uads_bool_to_string(config.enableNativeMetrics)
+                                    forKey: @"isNativeCollectingMetrics"];
 
     NSDictionary *experiments = config.experiments.isForwardExperimentsToWebViewEnabled ? config.experiments.json : @{};
 
@@ -41,13 +45,13 @@
 }
 
 - (nonnull NSString *)baseURL {
-    return [_baseURLString stringByAppendingString: self.combinedAttributes.queryString];
+    return [_baseURLString stringByAppendingString: self.combinedAttributes.uads_queryString];
 }
 
 - (NSDictionary *)combinedAttributes {
     NSMutableDictionary *mAttributes = [NSMutableDictionary dictionaryWithDictionary: self.queryAttributes];
 
-    if (!self.experiments.isEmpty) {
+    if (!self.experiments.uads_isEmpty) {
         NSString *query = [self.compressor compressedIntoString: self.experiments];
 
         [mAttributes uads_setValueIfNotNil: query

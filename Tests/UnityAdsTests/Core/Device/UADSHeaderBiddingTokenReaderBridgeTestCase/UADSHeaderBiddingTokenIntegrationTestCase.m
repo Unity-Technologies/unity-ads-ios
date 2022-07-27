@@ -7,11 +7,14 @@
 #import "UADSConfigurationReaderMock.h"
 #import "UnityAds.h"
 #import "XCTestCase+Convenience.h"
+#import "UADSPrivacyStorageMock.h"
+#import "UADSServiceProvider.h"
 
 @interface UADSHeaderBiddingTokenIntegrationTestCase : UADSHeaderBiddingTokenReaderBridgeTestCase
 @property (nonatomic, strong) UADSHeaderBiddingTokenReaderBuilder *builder;
 @property (nonatomic, strong) UADSDeviceReaderMock *readerMock;
 @property (nonatomic, strong) SDKMetricsSenderMock *metricSenderMock;
+@property (nonatomic, strong) UADSPrivacyStorage *privacyMock;
 @end
 
 @implementation UADSHeaderBiddingTokenIntegrationTestCase
@@ -23,12 +26,12 @@
     self.readerMock = [UADSDeviceReaderMock new];
     self.readerMock.expectedInfo = @{ @"test": @"info" };
     self.metricSenderMock = [SDKMetricsSenderMock new];
+    self.privacyMock = [UADSPrivacyStorage new];
     _builder.metricsSender = self.metricSenderMock;
-    self.configReaderMock.experiments = [self tags];
     [self setInitState: INITIALIZED_SUCCESSFULLY];
-    [[UADSTokenStorage sharedInstance] deleteTokens];
-    [[UADSTokenStorage sharedInstance] setInitToken: nil];
     _builder.sdkConfigReader = self.configReaderMock;
+    _builder.privacyStorage = self.privacyMock;
+    _builder.tokenCRUD = [UADSTokenStorage new];
 }
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)createBridge {
@@ -50,7 +53,8 @@
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: INITIALIZED_FAILED
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseAllowed];
 }
 
 - (void)test_if_state_is_failed_return_null_token_even_if_queue_is_not_empty {
@@ -63,7 +67,8 @@
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: INITIALIZED_FAILED
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseDenied];
     [self validateMetricsSent: @[[self nullTokenMetricWithState: INITIALIZED_FAILED
                                                            type: kUADSTokenRemote]]];
 }
@@ -78,7 +83,8 @@
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: NOT_INITIALIZED
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseUnknown];
 }
 
 - (void)test_if_state_is_not_initialized_return_null_token_even_if_queue_is_not_empty {
@@ -91,7 +97,8 @@
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: NOT_INITIALIZED
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseDenied];
     [self validateMetricsSent: @[[self nullTokenMetricWithState: NOT_INITIALIZED
                                                            type: kUADSTokenRemote]]];
 }
@@ -107,7 +114,8 @@
              expectedGenerationCalled: 0
                             hbTimeout: 1
                             initState: INITIALIZED_SUCCESSFULLY
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseAllowed];
     [self validateMetricsSent: @[self.infoCompressionLatencyMetrics,
                                  [self nativeTokenGeneratedMetricWithState: INITIALIZED_SUCCESSFULLY]]];
 }
@@ -121,22 +129,24 @@
              expectedGenerationCalled: 0
                             hbTimeout: 1
                             initState: INITIALIZING
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseUnknown];
     [self validateMetricsSent: @[[self nullTokenMetricWithState: INITIALIZING
                                                            type: kUADSTokenRemote]]];
 }
 
-- (void)test_no_metric_send_when_return_valid_token {
+- (void)test_available_async_token_sent_when_return_valid_token {
     NSArray *expected = @[@"token"];
-
+    UADSMetric *expectedMetric = [UADSTsiMetric newAsyncTokenTokenAvailableWithTags: [self metricTagsWithState: INITIALIZED_SUCCESSFULLY]];
     [self.tokenCRUD createTokens: expected];
     [self runTestWithNativeGeneration: false
                    withExpectedTokens: expected
              expectedGenerationCalled: 0
                             hbTimeout: 1
                             initState: INITIALIZED_SUCCESSFULLY
-                      additionalBlock: nil];
-    [self validateMetricsSent: @[]];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseUnknown];
+    [self validateMetricsSent: @[expectedMetric]];
 }
 
 - (void)test_calls_timeout_completion_if_native_generation_is_too_long {
@@ -150,9 +160,157 @@
              expectedGenerationCalled: 1
                             hbTimeout: 1
                             initState: INITIALIZED_SUCCESSFULLY
-                      additionalBlock: nil];
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseAllowed];
     [self validateMetricsSent: @[[self nullTokenMetricWithState: INITIALIZED_SUCCESSFULLY
                                                            type: kUADSTokenNative]]];
+}
+
+- (void)test_native_token_generation_timeout_when_privacy_is_not_resolved {
+    id sut = [self sutWithNativeGeneration: true
+                            andPrivacyWait: true
+                                andTimeout: 4];
+
+    NSString *expectedToken = @"expectedToken";
+
+    self.nativeGeneratorMock.expectedToken = expectedToken;
+    [self setInitState: INITIALIZED_SUCCESSFULLY];
+
+    [self runTestUsingCreatedSut: sut
+              withExpectedTokens: @[expectedToken]
+        expectedGenerationCalled: 1
+                       hbTimeout: 5
+                waitForHBTimeout: true
+                 additionalBlock: nil];
+
+    UADSMetric *expectedMetric = [self nativeTokenGeneratedMetricWithState: INITIALIZED_SUCCESSFULLY];
+
+    [self validateMetricsSent: @[expectedMetric]];
+}
+
+- (void)test_native_token_generation_timeout_removes_observers {
+    id sut = [self sutWithNativeGeneration: true
+                            andPrivacyWait: true
+                                andTimeout: 4];
+
+    NSString *expectedToken = @"expectedToken";
+
+    self.nativeGeneratorMock.expectedToken = expectedToken;
+    [self setInitState: INITIALIZED_SUCCESSFULLY];
+
+    [self runTestUsingCreatedSut: sut
+              withExpectedTokens: @[expectedToken]
+        expectedGenerationCalled: 1
+                       hbTimeout: 5
+                waitForHBTimeout: true
+                 additionalBlock: nil];
+
+    // trigger save after timeout to validate that a subscriber is removed
+    [self.builder.privacyStorage saveResponse: [UADSInitializationResponse new]];
+    [self waitForTimeInterval: 1];
+
+    UADSMetric *expectedMetric = [self nativeTokenGeneratedMetricWithState: INITIALIZED_SUCCESSFULLY];
+
+    XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, 1);
+    [self validateMetricsSent: @[expectedMetric]];
+}
+
+- (void)test_native_token_generation_returns_token_when_privacy_is_denied {
+    id sut = [self sutWithNativeGeneration: true
+                            andPrivacyWait: true
+                                andTimeout: 4];
+
+    NSString *expectedToken = @"expectedToken";
+
+    self.nativeGeneratorMock.expectedToken = expectedToken;
+    [self setInitState: INITIALIZED_SUCCESSFULLY];
+    [self setPrivacyState: kUADSPrivacyResponseDenied];
+
+    [self runTestUsingCreatedSut: sut
+              withExpectedTokens: @[expectedToken]
+        expectedGenerationCalled: 1
+                       hbTimeout: 5
+                waitForHBTimeout: true
+                 additionalBlock: nil];
+
+
+    UADSMetric *expectedMetric = [self nativeTokenGeneratedMetricWithState: INITIALIZED_SUCCESSFULLY];
+
+    [self validateMetricsSent: @[expectedMetric]];
+}
+
+- (void)test_native_token_generation_returns_token_when_privacy_is_resolved_after_token_requested {
+    NSInteger waitForPrivacy = 4;
+    id sut = [self sutWithNativeGeneration: true
+                            andPrivacyWait: true
+                                andTimeout: waitForPrivacy];
+
+    NSString *expectedToken = @"expectedToken";
+
+    self.nativeGeneratorMock.expectedToken = expectedToken;
+    [self setInitState: INITIALIZED_SUCCESSFULLY];
+
+
+    XCTestExpectation *expectation = self.defaultExpectation;
+
+    [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+        NSString *tokenToCompare = [expectedToken isEqual: [NSNull null]] ? nil : expectedToken;
+        XCTAssertEqualObjects(token.value, tokenToCompare);
+        XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, 1);
+        [expectation fulfill];
+    }];
+
+    UADSInitializationResponse *response = [UADSInitializationResponse new];
+
+    response.allowTracking = true;
+    [self.builder.privacyStorage saveResponse: response];
+
+    [self waitForExpectations: @[expectation]
+                      timeout: waitForPrivacy];
+
+
+    UADSMetric *expectedMetric = [self nativeTokenGeneratedMetricWithState: INITIALIZED_SUCCESSFULLY];
+
+    [self validateMetricsSent: @[expectedMetric]];
+}
+
+- (void)test_native_token_generation_returns_token_when_privacy_is_allowed {
+    id sut = [self sutWithNativeGeneration: true
+                            andPrivacyWait: true
+                                andTimeout: 4];
+
+    NSString *expectedToken = @"expectedToken";
+
+    self.nativeGeneratorMock.expectedToken = expectedToken;
+    [self setInitState: INITIALIZED_SUCCESSFULLY];
+    [self setPrivacyState: kUADSPrivacyResponseAllowed];
+
+    [self runTestUsingCreatedSut: sut
+              withExpectedTokens: @[expectedToken]
+        expectedGenerationCalled: 1
+                       hbTimeout: 5
+                waitForHBTimeout: true
+                 additionalBlock: nil];
+
+
+    UADSMetric *expectedMetric = [self nativeTokenGeneratedMetricWithState: INITIALIZED_SUCCESSFULLY];
+
+    [self validateMetricsSent: @[expectedMetric]];
+}
+
+- (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sutWithNativeGeneration: (BOOL)tsi_nt
+                                                                              andPrivacyWait: (BOOL)tsi_prw
+                                                                                  andTimeout: (NSInteger)privacyTimeout {
+    USRVConfiguration *config =  [USRVConfiguration new];
+
+    config.experiments = [UADSConfigurationExperiments newWithJSON: @{
+                              @"tsi_nt": @(tsi_nt).stringValue,
+                              @"tsi_prw": @(tsi_prw).stringValue
+    }];
+    config.privacyWaitTimeout = privacyTimeout * 1000;
+    self.configReaderMock.expectedConfiguration = config;
+
+    return [self createBridge];
 }
 
 - (void)runTestWithNativeGeneration: (BOOL)nativeGeneration
@@ -160,8 +318,10 @@
            expectedGenerationCalled: (NSInteger)generateCalled
                           hbTimeout: (NSInteger)timeout
                           initState: (InitializationState)state
-                    additionalBlock: (SUTAdditionalBlock)block {
+                    additionalBlock: (SUTAdditionalBlock)block
+                       privacyState: (UADSPrivacyResponseState)privacyState {
     [self setInitState: state];
+    [self setPrivacyState: privacyState];
     [self runTestWithNativeGeneration: nativeGeneration
                    withExpectedTokens: expectedTokens
              expectedGenerationCalled: generateCalled
@@ -173,6 +333,25 @@
     [USRVSdkProperties setInitializationState: state];
 }
 
+- (void)setPrivacyState: (UADSPrivacyResponseState)state {
+    UADSInitializationResponse *response = nil;
+
+    switch (state) {
+        case kUADSPrivacyResponseUnknown:
+            break;
+
+        case kUADSPrivacyResponseAllowed:
+            response = [UADSInitializationResponse newFromDictionary: @{ @"pas": @(true) }];
+            response.responseCode = 200;
+            break;
+
+        case kUADSPrivacyResponseDenied:
+            response = [UADSInitializationResponse newFromDictionary: @{ @"pas": @(false) }];
+            break;
+    }
+    [self.privacyMock saveResponse: response];
+}
+
 - (void)validateMetricsSent: (NSArray *)expected {
     XCTAssertEqualObjects(self.metricSenderMock.sentMetrics, expected);
 }
@@ -182,25 +361,20 @@
 }
 
 - (UADSMetric *)infoCompressionLatencyMetrics {
-    return [UADSTsiMetric newDeviceInfoCompressionLatency: @(0)
-                                                 withTags: self.tags];
+    return [UADSTsiMetric newDeviceInfoCompressionLatency: @(0)];
 }
 
-- (UADSMetric *)nullTokenMetricWithState: (InitializationState)state type: (UADSTokenType)type {
+- (UADSMetric *)nullTokenMetricWithState: (InitializationState)state type: (UADSTokenType)type  {
     NSDictionary *tags = [self metricTagsWithState: state];
 
     return type == kUADSTokenRemote ? [UADSTsiMetric newAsyncTokenNullWithTags: tags] : [UADSTsiMetric newNativeGeneratedTokenNullWithTags: tags];
 }
 
 - (NSDictionary *)metricTagsWithState: (InitializationState)state {
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: self.tags];
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
 
     tags[@"state"] = UADSStringFromInitializationState(state);
     return tags;
-}
-
-- (NSDictionary *)tags {
-    return @{ @"1": @"tag" };
 }
 
 - (void)test_multithread_native_generation_does_not_crash {
@@ -224,7 +398,12 @@
     config.experiments = [UADSConfigurationExperiments newWithJSON: @{
                               @"tsi_nt": @(ntOn).stringValue
     }];
-    [config saveToDisk];
+    config.sdkVersion = @"123";
+    config.webViewHash = @"hash";
+    config.webViewVersion = @"123";
+    config.metricsUrl = @"url";
+
+    [[[UADSServiceProvider sharedInstance] configurationSaver] saveConfiguration: config];
 }
 
 @end

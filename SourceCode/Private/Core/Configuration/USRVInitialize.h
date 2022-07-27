@@ -1,6 +1,7 @@
 #import "USRVConfiguration.h"
 #import "USRVConnectivityMonitor.h"
 #import "USRVApiSdk.h"
+#import "UADSErrorState.h"
 
 @interface USRVInitialize : NSObject
 
@@ -76,7 +77,6 @@
 @end
 
 // CREATE
-#define InitializeStateCreateStateName @"create webapp"
 @interface USRVInitializeStateCreate : USRVInitializeState
 
 @property (atomic, strong) NSString *webViewData;
@@ -96,10 +96,10 @@
 @interface USRVInitializeStateError : USRVInitializeState
 
 @property (nonatomic, strong) id erroredState;
-@property (nonatomic, strong) NSString *stateName;
+@property (nonatomic, assign) UADSErrorState stateCode;
 @property (nonatomic, strong) NSString *message;
 
-- (instancetype)initWithConfiguration: (USRVConfiguration *)configuration erroredState: (id)erroredState stateName: (NSString *)stateName message: (NSString *)message;
+- (instancetype)initWithConfiguration: (USRVConfiguration *)configuration erroredState: (id)erroredState code: (UADSErrorState)stateCode message: (NSString *)message;
 
 @end
 

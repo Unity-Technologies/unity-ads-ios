@@ -16,7 +16,7 @@
 
 + (USRVWebViewApp *)getCurrentApp;
 + (void)            setCurrentApp: (USRVWebViewApp *)webViewApp;
-+ (BOOL)create: (USRVConfiguration *)configuration view: (UIView *)view;
++ (NSNumber *)create: (USRVConfiguration *)configuration view: (UIView *)view;
 - (void)completeWebViewAppInitialization: (BOOL)initialized;
 - (void)                resetWebViewAppInitialization;
 - (BOOL)                isWebAppInitialized;

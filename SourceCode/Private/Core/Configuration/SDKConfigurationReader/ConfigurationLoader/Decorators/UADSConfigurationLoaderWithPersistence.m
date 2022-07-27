@@ -23,8 +23,12 @@
         success(config);
     };
 
+    id errorDecorated = ^(id<UADSError> loaderError) {
+        error(loaderError);
+    };
+
     [self.original loadConfigurationWithSuccess: successDecorated
-                             andErrorCompletion: error];
+                             andErrorCompletion: errorDecorated];
 }
 
 @end

@@ -1,7 +1,7 @@
 #import "UADSPlistReaderMock.h"
 
 @implementation UADSPlistReaderMock
-- (NSString *)getStringValueForKey: (NSString *)key {
+- (NSString *)uads_getStringValueForKey: (NSString *)key {
     return _expectedValue;
 }
 

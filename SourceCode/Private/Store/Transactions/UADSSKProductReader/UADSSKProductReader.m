@@ -49,15 +49,15 @@
 - (void)storeRequest: (SKProductsRequest *)request
          andDelegate: (UADSProducRequestDelegateAdapter *)delegate {
     dispatch_sync(_synchronizeQueue, ^{
-        self.storage[request.uniqueID] = request;
-        self.delegateStorage[request.uniqueID] = delegate;
+        self.storage[request.uads_uniqueID] = request;
+        self.delegateStorage[request.uads_uniqueID] = delegate;
     });
 }
 
 - (void)removeRequest: (SKProductsRequest *)request {
     dispatch_sync(_synchronizeQueue, ^{
-        [self.storage removeObjectForKey: request.uniqueID];
-        [self.delegateStorage removeObjectForKey: request.uniqueID];
+        [self.storage removeObjectForKey: request.uads_uniqueID];
+        [self.delegateStorage removeObjectForKey: request.uads_uniqueID];
     });
 }
 

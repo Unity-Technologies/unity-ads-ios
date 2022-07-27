@@ -37,5 +37,10 @@ typedef NS_ENUM (NSInteger, UnityAdsShowError) {
     /**
      * Error related to environment or internal services
      */
-    kUnityShowErrorInternalError
+    kUnityShowErrorInternalError,
+
+    /**
+     * Error related to an Ad being unable to show within a specified time frame
+     */
+    kUnityShowErrorTimeout
 };

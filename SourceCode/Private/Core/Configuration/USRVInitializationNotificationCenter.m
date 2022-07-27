@@ -84,13 +84,13 @@
     }
 } /* triggerSdkDidInitialize */
 
-- (void)triggerSdkInitializeDidFail: (NSString *)message code: (NSNumber *)code {
+- (void)triggerSdkInitializeDidFail: (NSString *)message code: (UADSErrorState)code {
     @synchronized (self) {
         NSDictionary *delegates = [NSDictionary dictionaryWithDictionary: self.sdkDelegates];
         __weak USRVInitializationNotificationCenter *weakSelf = self;
         dispatch_async(dispatch_get_main_queue(), ^{
             NSError *error = [[NSError alloc] initWithDomain: @"USRVInitializationNotificationCenter"
-                                                        code: code.integerValue
+                                                        code: code
                                                     userInfo: @{ @"message": message }];
 
             for (NSNumber *key in delegates) {

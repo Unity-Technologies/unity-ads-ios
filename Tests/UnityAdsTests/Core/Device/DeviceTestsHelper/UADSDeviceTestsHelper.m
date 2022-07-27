@@ -9,6 +9,9 @@
 #import "NSDictionary+Merge.h"
 #import "UADSTsiMetric.h"
 #import <XCTest/XCTest.h>
+#import "UADSPrivacyMetrics.h"
+#import "NSArray+SafeOperations.h"
+#import "UADSCurrentTimestampMock.h"
 
 @implementation UADSDeviceTestsHelper
 
@@ -188,27 +191,36 @@
 }
 
 - (NSDictionary *)expectedMergedDataRealStorage {
+    return [self.expectedMinimumDataRealStorage uads_newdictionaryByMergingWith: @{
+                @"mediation.adapter_version": @"0.3.0",
+                @"mediation.name": @"UnityOpenMediation",
+                @"mediation.version": @"1.0",
+                @"framework.version": @"1.0",
+                @"framework.name": @"Unity",
+                @"adapter.version": @"1.0",
+                @"adapter.name": @"Packman",
+                @"configuration.hasInitialized": @NO,
+                [self webViewDataKeyFor: @"sessionID"]: @"sessionID",
+                [self webViewDataKeyFor: @"gameSessionId"]: @"gameSessionId",
+                [self userDataKeyFor: @"requestToReadyTime"]: @"requestToReadyTime",
+                [self userDataKeyFor: @"clickCount"]: @(10),
+                [self userDataKeyFor: @"requestCount"]: @(10),
+    }];
+}
+
+- (NSArray *)allExpectedKeysFromMinInfo {
+    return [self.expectedKeysFromDefaultMinInfo arrayByAddingObjectsFromArray: self.expectedMinimumDataRealStorage.allKeys];
+}
+
+- (NSDictionary *)expectedMinimumDataRealStorage {
     return @{
         @"gdpr.consent": @NO,
         @"pipl.consent": @YES,
         @"privacy.consent": @YES,
         @"privacy.useroveragelimit": @YES,
-        @"mediation.adapter_version": @"0.3.0",
-        @"mediation.name": @"UnityOpenMediation",
-        @"mediation.version": @"1.0",
-        @"framework.version": @"1.0",
-        @"framework.name": @"Unity",
-        @"adapter.version": @"1.0",
-        @"adapter.name": @"Packman",
         @"unity.privacy.permissions.ads": @YES,
         @"unity.privacy.permissions.external": @YES,
         @"unity.privacy.permissions.gameExp": @NO,
-        @"configuration.hasInitialized": @NO,
-        [self webViewDataKeyFor: @"sessionID"]: @"sessionID",
-        [self webViewDataKeyFor: @"gameSessionId"]: @"gameSessionId",
-        [self userDataKeyFor: @"requestToReadyTime"]: @"requestToReadyTime",
-        [self userDataKeyFor: @"clickCount"]: @(10),
-        [self userDataKeyFor: @"requestCount"]: @(10),
     };
 }
 
@@ -287,55 +299,61 @@
     }
 }
 
-- (NSArray *)expectedKeysFromDefaultInfo {
+- (NSArray *)expectedKeysFromDefaultMinInfo {
     return @[
-        kUADSDeviceInfoReaderBundleIDKey,
-        kUADSDeviceInfoReaderBundleVersionKey,
-        kUADSDeviceInfoReaderConnectionTypeKey,
-        kUADSDeviceInfoReaderNetworkTypeKey,
-        kUADSDeviceInfoReaderScreenHeightKey,
-        kUADSDeviceInfoReaderScreenWidthKey,
-        kUADSDeviceInfoReaderEncryptedKey,
-        kUADSDeviceInfoReaderPlatformKey,
-        kUADSDeviceInfoReaderRootedKey,
-        kUADSDeviceInfoReaderSDKVersionKey,
-        kUADSDeviceInfoReaderOSVersionKey,
-        kUADSDeviceInfoReaderDeviceModelKey,
-        kUADSDeviceInfoReaderLanguageKey,
-        kUADSDeviceInfoReaderIsTestModeKey,
-        kUADSDeviceInfoReaderFreeMemoryKey,
-        kUADSDeviceInfoReaderBatteryStatusKey,
-        kUADSDeviceInfoReaderBatteryLevelKey,
-        kUADSDeviceInfoReaderScreenBrightnessKey,
-        kUADSDeviceInfoReaderVolumeKey,
-        kUADSDeviceInfoDeviceFreeSpaceKey,
-        kUADSDeviceInfoDeviceTotalSpaceKey,
-        kUADSDeviceInfoDeviceTotalMemoryKey,
-        kUADSDeviceInfoDeviceDeviceNameKey,
-        kUADSDeviceInfoDeviceLocaleListKey,
-        kUADSDeviceInfoDeviceCurrentUiThemeKey,
-        kUADSDeviceInfoDeviceAdNetworkPlistKey,
-        kUADSDeviceInfoDeviceIsWiredHeadsetOnKey,
-        kUADSDeviceInfoDeviceSystemBootTimeKey,
-        kUADSDeviceInfoDeviceTrackingAuthStatusKey,
-        kUADSDeviceInfoDeviceNetworkOperatorKey,
-        kUADSDeviceInfoDeviceNetworkOperatorNameKey,
-        kUADSDeviceInfoDeviceScreenScaleKey,
-        kUADSDeviceInfoIsSimulatorKey,
-        kUADSDeviceInfoLimitAdTrackingKey,
-        kUADSDeviceInfoLimitTimeZoneKey,
-        kUADSDeviceInfoLimitStoresKey,
-        kUADSDeviceInfoCPUCountKey,
-        kUADSDeviceInfoWebViewAgentKey,
         kUADSDeviceInfoIDFIKey,
-        kUADSDeviceInfoAppStartTimestampKey,
-        kUADSDeviceInfoAppInForegroundKey,
-        kUADSDeviceInfoCurrentTimestampKey,
-        kUADSDeviceInfoTimeZoneOffsetKey,
-        kUADSDeviceInfoBuiltSDKVersionKey,
-        kUADSDeviceInfoAnalyticSessionIDKey,
-        kUADSDeviceInfoAnalyticUserIDKey
+        kUADSDeviceInfoReaderPlatformKey,
+        kUADSDeviceInfoLimitAdTrackingKey,
+        kUADSDeviceInfoDeviceTrackingAuthStatusKey,
+        kUADSDeviceInfoGameIDKey
     ];
+}
+
+- (NSArray *)expectedKeysFromDefaultInfo {
+    return [self.expectedKeysFromDefaultMinInfo arrayByAddingObjectsFromArray: @[
+                kUADSDeviceInfoReaderBundleIDKey,
+                kUADSDeviceInfoReaderBundleVersionKey,
+                kUADSDeviceInfoReaderConnectionTypeKey,
+                kUADSDeviceInfoReaderNetworkTypeKey,
+                kUADSDeviceInfoReaderScreenHeightKey,
+                kUADSDeviceInfoReaderScreenWidthKey,
+                kUADSDeviceInfoReaderEncryptedKey,
+                kUADSDeviceInfoReaderRootedKey,
+                kUADSDeviceInfoReaderSDKVersionKey,
+                kUADSDeviceInfoReaderOSVersionKey,
+                kUADSDeviceInfoReaderDeviceModelKey,
+                kUADSDeviceInfoReaderLanguageKey,
+                kUADSDeviceInfoReaderIsTestModeKey,
+                kUADSDeviceInfoReaderFreeMemoryKey,
+                kUADSDeviceInfoReaderBatteryStatusKey,
+                kUADSDeviceInfoReaderBatteryLevelKey,
+                kUADSDeviceInfoReaderScreenBrightnessKey,
+                kUADSDeviceInfoReaderVolumeKey,
+                kUADSDeviceInfoDeviceFreeSpaceKey,
+                kUADSDeviceInfoDeviceTotalSpaceKey,
+                kUADSDeviceInfoDeviceTotalMemoryKey,
+                kUADSDeviceInfoDeviceDeviceNameKey,
+                kUADSDeviceInfoDeviceLocaleListKey,
+                kUADSDeviceInfoDeviceCurrentUiThemeKey,
+                kUADSDeviceInfoDeviceAdNetworkPlistKey,
+                kUADSDeviceInfoDeviceIsWiredHeadsetOnKey,
+                kUADSDeviceInfoDeviceSystemBootTimeKey,
+                kUADSDeviceInfoDeviceNetworkOperatorKey,
+                kUADSDeviceInfoDeviceNetworkOperatorNameKey,
+                kUADSDeviceInfoDeviceScreenScaleKey,
+                kUADSDeviceInfoIsSimulatorKey,
+                kUADSDeviceInfoLimitTimeZoneKey,
+                kUADSDeviceInfoLimitStoresKey,
+                kUADSDeviceInfoCPUCountKey,
+                kUADSDeviceInfoWebViewAgentKey,
+                kUADSDeviceInfoAppStartTimestampKey,
+                kUADSDeviceInfoAppInForegroundKey,
+                kUADSDeviceInfoCurrentTimestampKey,
+                kUADSDeviceInfoTimeZoneOffsetKey,
+                kUADSDeviceInfoBuiltSDKVersionKey,
+                kUADSDeviceInfoAnalyticSessionIDKey,
+                kUADSDeviceInfoAnalyticUserIDKey
+    ]];
 }
 
 - (NSArray *)allExpectedKeys {
@@ -348,9 +366,13 @@
     NSArray *expected = keys.defaultSorted;
 
     for (int i = 0; i < counter; i++) {
-        XCTAssertEqualObjects(inputSorted[i], expected[i], @"Expect %@ to be equal to %@ at index: %i", inputSorted[i], expected[i], i);
+        id receivedElement = [inputSorted uads_getItemSafelyAtIndex: i];
+        id expectedElement = [expected uads_getItemSafelyAtIndex: i];
+        XCTAssertEqualObjects(receivedElement,
+                              expectedElement,
+                              @"Expect %@ to be equal to %@ at index: %i", receivedElement, expectedElement, i);
 
-        if (![inputSorted[i] isEqual: expected[i]]) {
+        if (![receivedElement isEqual: expectedElement]) {
             break;
         }
     }
@@ -368,32 +390,56 @@
 
 - (NSArray <UADSMetric *> *)missedDataMetrics {
     return @[
-        [UADSTsiMetric newMissingTokenWithTags: self.expectedTags],
-        [UADSTsiMetric newMissingStateIdWithTags: self.expectedTags],
+        [UADSTsiMetric newMissingToken],
+        [UADSTsiMetric newMissingStateId],
     ];
 }
 
 - (UADSMetric *)tsiNoSessionIDMetrics {
-    return [UADSTsiMetric newMissingGameSessionIdWithTags: self.expectedTags];
+    return [UADSTsiMetric newMissingGameSessionId];
 }
 
 - (UADSMetric *)emergencyOffMetrics {
-    return [UADSTsiMetric newEmergencySwitchOffWithTags: self.expectedTags];
+    return [UADSTsiMetric newEmergencySwitchOff];
 }
 
 - (UADSMetric *)infoCollectionLatencyMetrics {
-    return [UADSTsiMetric newDeviceInfoCollectionLatency: @(0)
-                                                withTags: self.expectedTags];
+    return [UADSTsiMetric newDeviceInfoCollectionLatency: UADSCurrentTimestampMock.mockedDuration];
+}
+
+- (UADSMetric *)privacyRequestLatencyMetrics {
+    return [UADSPrivacyMetrics newPrivacyRequestSuccessLatency: self.retryTags];
+}
+
+- (UADSMetric *)privacyRequestFailureWithReason: (UADSPrivacyLoaderError)reason {
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
+
+    tags[@"reason"] = uads_privacyErrorTypeToString(reason);
+    [tags addEntriesFromDictionary: self.retryTags];
+    return [UADSPrivacyMetrics newPrivacyRequestErrorLatency: tags];
+}
+
+- (UADSMetric *)configLatencySuccessMetric {
+    return [UADSTsiMetric newTokenResolutionRequestLatency: nil
+                                                      tags: self.retryTags];
+}
+
+- (UADSMetric *)configLatencyFailureMetricWithReason: (UADSConfigurationLoaderError)reason {
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
+
+    tags[@"reason"] = uads_configurationErrorTypeToString(reason);
+    [tags addEntriesFromDictionary: self.retryTags];
+    return [UADSTsiMetric newTokenResolutionRequestFailureLatency: tags];
 }
 
 - (UADSMetric *)infoCompressionLatencyMetrics {
-    return [UADSTsiMetric newDeviceInfoCompressionLatency: @(0)
-                                                 withTags: self.expectedTags];
+    return [UADSTsiMetric newDeviceInfoCompressionLatency: UADSCurrentTimestampMock.mockedDuration];
 }
 
-- (NSDictionary *)expectedTags {
+- (NSDictionary *)retryTags {
     return @{
-        @"tag1": @"value1"
+        @"c_retry": @"1",
+        @"wv_retry": @"2"
     };
 }
 

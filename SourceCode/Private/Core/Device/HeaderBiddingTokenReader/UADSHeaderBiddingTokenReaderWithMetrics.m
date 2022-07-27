@@ -1,11 +1,12 @@
 #import "UADSHeaderBiddingTokenReaderWithMetrics.h"
 #import "UADSTsiMetric.h"
+#import "UADSHeaderBiddingToken.h"
 
 @interface UADSHeaderBiddingTokenReaderWithMetrics ()
 @property (nonatomic, strong) id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> original;
 @property (nonatomic, strong) id<ISDKMetrics> metricsSender;
-@property (nonatomic, strong) id<UADSConfigurationMetricTagsReader> tagsReader;
 @property (nonatomic, strong) id<UADSInitializationStatusReader> statusReader;
+@property (nonatomic, strong) id<UADSPrivacyResponseReader> privacyResponseReader;
 @end
 
 @implementation UADSHeaderBiddingTokenReaderWithMetrics
@@ -13,27 +14,26 @@
 + (instancetype)decorateOriginal: (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)original
                  andStatusReader: (id<UADSInitializationStatusReader>)statusReader
                    metricsSender: (id<ISDKMetrics>)metricsSender
-                      tagsReader: (id<UADSConfigurationMetricTagsReader>)tagsReader {
+           privacyResponseReader: (id<UADSPrivacyResponseReader>)privacyResponseReader {
     UADSHeaderBiddingTokenReaderWithMetrics *decorator = [UADSHeaderBiddingTokenReaderWithMetrics new];
 
     decorator.original = original;
     decorator.statusReader = statusReader;
     decorator.metricsSender = metricsSender;
-    decorator.tagsReader = tagsReader;
+    decorator.privacyResponseReader = privacyResponseReader;
     return decorator;
 }
 
 - (void)getToken: (nonnull UADSHeaderBiddingTokenCompletion)completion {
     __weak typeof(self) weakSelf = self;
-    [self.original getToken:^(NSString *_Nullable token, UADSTokenType type) {
-        [weakSelf sendMetricsWithToken: token
-                                  type: type];
-        completion(token, type);
+    [self.original getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+        [weakSelf sendMetricsWithToken: token];
+        completion(token);
     }];
 }
 
-- (void)sendMetricsWithToken: (NSString *)token type: (UADSTokenType)type {
-    switch (type) {
+- (void)sendMetricsWithToken: (UADSHeaderBiddingToken *)token {
+    switch (token.type) {
         case kUADSTokenRemote:
             [self sendRemoteTokenMetricsIfNeeded: token];
             break;
@@ -44,22 +44,25 @@
     }
 }
 
-- (void)sendRemoteTokenMetricsIfNeeded: (NSString *)token {
-    if (token == nil) {
-        [self.metricsSender sendMetric: [UADSTsiMetric newAsyncTokenNullWithTags: self.metricTags]];
+- (void)sendRemoteTokenMetricsIfNeeded: (UADSHeaderBiddingToken *)token  {
+    
+    if (!token.isValid) {
+        [self.metricsSender sendMetric: [UADSTsiMetric newAsyncTokenNullWithTags: [self metricTags]]];
+    } else {
+        [self.metricsSender sendMetric: [UADSTsiMetric newAsyncTokenTokenAvailableWithTags: self.metricTags]];
     }
 }
 
-- (void)sendNativeTokenMetricsIfNeeded: (NSString *)token {
-    if (token == nil) {
-        [self.metricsSender sendMetric: [UADSTsiMetric newNativeGeneratedTokenNullWithTags: self.metricTags]];
+- (void)sendNativeTokenMetricsIfNeeded: (UADSHeaderBiddingToken *)token {
+    if (!token.isValid) {
+        [self.metricsSender sendMetric: [UADSTsiMetric newNativeGeneratedTokenNullWithTags: [self metricTags]]];
     } else {
-        [self.metricsSender sendMetric: [UADSTsiMetric newNativeGeneratedTokenAvailableWithTags: self.metricTags]];
+        [self.metricsSender sendMetric: [UADSTsiMetric newNativeGeneratedTokenAvailableWithTags: [self metricTags]]];
     }
 }
 
 - (NSDictionary *)metricTags {
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: [self.tagsReader metricTags]];
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
 
     tags[@"state"] = UADSStringFromInitializationState(self.statusReader.currentState);
     return tags;

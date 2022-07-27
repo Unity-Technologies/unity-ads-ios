@@ -2,7 +2,6 @@
 #import "NSDictionary+JSONString.h"
 #import "UADSConfigurationLoader.h"
 #import "UADSConfigurationExperiments.h"
-#import "UADSConfigurationMetricTagsReader.h"
 #import "UADSTsiMetric.h"
 #import "USRVSDKMetrics.h"
 
@@ -10,7 +9,6 @@
 @property (nonatomic, strong) id<UADSConfigurationLoader> mainLoader;
 @property (nonatomic, strong) id<UADSConfigurationLoader> fallbackLoader;
 @property (nonatomic, strong) id<ISDKMetrics> metricSender;
-@property (nonatomic, strong) id<UADSConfigurationMetricTagsReader> tagsReader;
 @end
 
 @implementation UADSConfigurationLoaderStrategy
@@ -18,14 +16,12 @@
 
 + (id<UADSConfigurationLoader>)newWithMainLoader: (id<UADSConfigurationLoader>)mainLoader
                                andFallbackLoader: (id<UADSConfigurationLoader>)fallbackLoader
-                                    metricSender: (id<ISDKMetrics>)metricSender
-                                metricTagsReader: (id<UADSConfigurationMetricTagsReader>)tagsReader {
+                                    metricSender: (id<ISDKMetrics>)metricSender {
     UADSConfigurationLoaderStrategy *strategy = [UADSConfigurationLoaderStrategy new];
 
     strategy.mainLoader = mainLoader;
     strategy.fallbackLoader = fallbackLoader;
     strategy.metricSender = metricSender;
-    strategy.tagsReader = tagsReader;
     return strategy;
 }
 
@@ -67,19 +63,17 @@
 }
 
 - (void)sendConfigMetrics: (USRVConfiguration *)config {
-    NSDictionary *tags = self.tagsReader.metricTags;
-
     if (!config.headerBiddingToken) {
-        [self.metricSender sendMetric: [UADSTsiMetric newMissingTokenWithTags: tags]];
+        [self.metricSender sendMetric: [UADSTsiMetric newMissingToken]];
     }
 
     if (!config.stateId) {
-        [self.metricSender sendMetric: [UADSTsiMetric newMissingStateIdWithTags: tags]];
+        [self.metricSender sendMetric: [UADSTsiMetric newMissingStateId]];
     }
 }
 
 - (void)sendFallbackMetric {
-    [self.metricSender sendMetric: [UADSTsiMetric newEmergencySwitchOffWithTags: self.tagsReader.metricTags]];
+    [self.metricSender sendMetric: [UADSTsiMetric newEmergencySwitchOff]];
 }
 
 @end

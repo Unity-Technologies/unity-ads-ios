@@ -6,8 +6,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSConfigurationReaderMock : NSObject <UADSConfigurationReader, UADSConfigurationMetricTagsReader>
 
-@property (nonatomic, strong) USRVConfiguration *expectedConfiguration;
 + (instancetype)newWithExperiments: (NSDictionary *)experiments;
++ (instancetype)newWithMetricURL: (NSString *)metricURL;
+@property (nonatomic, strong) USRVConfiguration *expectedConfiguration;
 @property (nonatomic, strong) NSDictionary *experiments;
+@property (nonatomic, strong) NSString *metricURL;
 @end
 NS_ASSUME_NONNULL_END

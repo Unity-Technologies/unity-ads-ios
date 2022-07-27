@@ -1,4 +1,8 @@
 #import "UADSConfigurationExperiments.h"
+#import "NSDictionary+Filter.h"
+
+#define NEXT_SESSION_FLAGS     @[@"tsi", @"tsi_upii", @"tsi_p", @"tsi_nt", @"tsi_prr", @"tsi_prw"]
+#define NEXT_SESSION_FLAGS_SET [NSSet setWithArray: NEXT_SESSION_FLAGS]
 
 
 @interface UADSConfigurationExperiments ()
@@ -12,16 +16,6 @@
     obj.json = json;
     return obj;
 }
-
-/**
-        "tsi": true,
-        "tsi_p" : true,
-        "fff": false,
-        "tsi_upii": true,
-        "tsi_dc": false,
-        "tsi_epii": true,
-        "tsi_rec": true
- */
 
 - (BOOL)isTwoStageInitializationEnabled {
     return [_json[@"tsi"] boolValue] ? : false;
@@ -41,6 +35,26 @@
 
 - (BOOL)isHeaderBiddingTokenGenerationEnabled {
     return [_json[@"tsi_nt"] boolValue] ? : false;
+}
+
+- (BOOL)isPrivacyRequestEnabled {
+    return [_json[@"tsi_prr"] boolValue] ? : false;
+}
+
+- (BOOL)isPrivacyWaitEnabled {
+    return [_json[@"tsi_prw"] boolValue] ? : false;
+}
+
+- (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
+    return [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSString *_Nonnull obj) {
+        return [NEXT_SESSION_FLAGS_SET containsObject: key];
+    }];
+}
+
+- (NSDictionary<NSString *, NSString *> *)currentSessionFlags {
+    return [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSString *_Nonnull obj) {
+        return ![NEXT_SESSION_FLAGS_SET containsObject: key];
+    }];
 }
 
 @end

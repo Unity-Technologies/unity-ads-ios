@@ -20,12 +20,17 @@
 }
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sutWithNativeGeneration: (BOOL)tsi_nt {
+    return [self sutWithNativeGeneration: tsi_nt
+                         andTimeoutValue: 5];
+}
+
+- (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sutWithNativeGeneration: (BOOL)tsi_nt andTimeoutValue: (NSInteger)hbTimeout {
     USRVConfiguration *config =  [USRVConfiguration new];
 
     config.experiments = [UADSConfigurationExperiments newWithJSON: @{
                               @"tsi_nt": @(tsi_nt).stringValue
     }];
-
+    config.hbTokenTimeout = hbTimeout * 1000;
     self.configReaderMock.expectedConfiguration = config;
 
     return [self createBridge];
@@ -61,31 +66,30 @@
 }
 
 - (void)test_timeout_should_remove_a_listener {
-    id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: false];
+    id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: false
+                                                                                          andTimeoutValue: 2];
     XCTestExpectation *expectation = self.defaultExpectation;
     NSString *expectedToken = @"token";
 
     expectation.expectedFulfillmentCount = 2;
-    self.configReaderMock.expectedConfiguration.hbTokenTimeout = 1 * 1000;
 
-    [sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
+    [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
         [expectation fulfill];
     }];
 
-    [self waitForTimeInterval: 0.5];
+    [self waitForTimeInterval: 1];
 
 
-    self.configReaderMock.expectedConfiguration.hbTokenTimeout = 5 * 1000;
 
-    [sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
+    [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
         [expectation fulfill];
 
-        XCTAssertEqualObjects(token, expectedToken);
+        XCTAssertEqualObjects(token.value, expectedToken);
         XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, 0);
     }];
 
 
-    [self waitForTimeInterval: 2];
+    [self waitForTimeInterval: 1];
 
     [sut createTokens: @[expectedToken]];
     [self waitForExpectations: @[expectation]
@@ -100,7 +104,7 @@
     NSInteger expectedTimeout = 5 * 1000;
 
     self.configReaderMock.expectedConfiguration.hbTokenTimeout = expectedTimeout;
-    [sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
+    [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
         [expectation fulfill];
     }];
     [self waitForExpectations: @[expectation]
@@ -286,8 +290,8 @@
     XCTestExpectation *expectation = self.defaultExpectation;
 
     [self.tokenCRUD createTokens: @[expectedToken]];
-    [sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
-        XCTAssertEqualObjects(token, expectedToken);
+    [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+        XCTAssertEqualObjects(token.value, expectedToken);
         XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, 0);
         [expectation fulfill];
     }];
@@ -300,7 +304,8 @@
            expectedGenerationCalled: (NSInteger)generateCalled
                           hbTimeout: (NSInteger)timeout
                     additionalBlock: (SUTAdditionalBlock)block {
-    id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: nativeGeneration];
+    id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: nativeGeneration
+                                                                                          andTimeoutValue: timeout];
 
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: expectedTokens
@@ -323,9 +328,9 @@
     expectation.expectedFulfillmentCount = expectedTokens.count;
 
     for (NSString *expectedToken in expectedTokens) {
-        [sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
+        [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
             NSString *tokenToCompare = [expectedToken isEqual: [NSNull null]] ? nil : expectedToken;
-            XCTAssertEqualObjects(token, tokenToCompare);
+            XCTAssertEqualObjects(token.value, tokenToCompare);
             XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, generateCalled);
             [expectation fulfill];
         }];

@@ -1,10 +1,3 @@
-//
-//  UADSWeakProxyTests.m
-//  UnityAdsTests
-//
-//  Created by Alex Crowe on 2020-10-13.
-//
-
 #import <XCTest/XCTest.h>
 #import "UADSWeakProxy.h"
 

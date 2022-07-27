@@ -12,6 +12,12 @@
 
 - (NSData *)makeRequest {
     self.makeRequestCount += 1;
+    [_exp fulfill];
+
+    if (_sleepTime && !NSThread.isMainThread) {
+        [NSThread sleepForTimeInterval: _sleepTime];
+    }
+
     return _expectedData;
 }
 

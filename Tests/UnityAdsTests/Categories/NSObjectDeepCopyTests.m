@@ -10,7 +10,7 @@
 - (void)testDeepCopyDictionary {
     NSDictionary *innerDict = @{ @"1.1": @"one", @"1.2": @{ @"2": @"two" } };
     NSMutableDictionary *original = [@{ @"1": innerDict } mutableCopy];
-    NSDictionary *deepCopy = [original deepCopy];
+    NSDictionary *deepCopy = [original uads_deepCopy];
 
     XCTAssertEqualObjects(original, deepCopy);
 
@@ -23,7 +23,7 @@
 - (void)testDeepCopyArray {
     NSArray *innerArray = @[@"0", @"1"];
     NSMutableArray *original = [@[innerArray, @[@"2"], @[@"3"]] mutableCopy];
-    NSArray *deepCopy = [original deepCopy];
+    NSArray *deepCopy = [original uads_deepCopy];
 
     XCTAssertEqualObjects(original, deepCopy);
 

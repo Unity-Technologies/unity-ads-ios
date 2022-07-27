@@ -5,7 +5,7 @@
 #import "USRVWebViewCallback.h"
 #import "USRVInitialize.h"
 #import "USRVDevice.h"
-
+#import "UADSServiceProvider.h"
 @implementation USRVApiSdk
 
 + (void)WebViewExposed_loadComplete: (USRVWebViewCallback *)callback {
@@ -30,6 +30,7 @@
      [NSNumber numberWithBool: [USRVSdkProperties getLatestConfiguration] != nil],
      [USRVDevice getElapsedRealtime],
      [[[USRVWebViewApp getCurrentApp] configuration] stateId] ? : @"",
+     [self privacyState],
      nil];
 } /* WebViewExposed_loadComplete */
 
@@ -94,6 +95,12 @@
     USRVDownloadLatestWebViewStatus status = [USRVInitialize downloadLatestWebView];
 
     [callback invoke: [NSNumber numberWithInt: status], nil];
+}
+
++ (NSString *)privacyState {
+    UADSPrivacyResponseState state = UADSServiceProvider.sharedInstance.privacyStorage.responseState;
+
+    return uads_privacyResponseStateToString(state);
 }
 
 @end

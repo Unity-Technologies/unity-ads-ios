@@ -7,9 +7,9 @@
 
 @implementation NSData (GZIP)
 
-- (NSData *)gzippedDataWithCompressionLevel: (float)level
+- (NSData *)uads_gzippedDataWithCompressionLevel: (float)level
 {
-    if (self.length == 0 || [self isGzippedData]) {
+    if (self.length == 0 || [self uads_isGzippedData]) {
         return self;
     }
 
@@ -47,14 +47,14 @@
     return output;
 }
 
-- (NSData *)gzippedData
+- (NSData *)uads_gzippedData
 {
-    return [self gzippedDataWithCompressionLevel: -1.0f];
+    return [self uads_gzippedDataWithCompressionLevel: -1.0f];
 }
 
-- (NSData *)gunzippedData
+- (NSData *)uads_gunzippedData
 {
-    if (self.length == 0 || ![self isGzippedData]) {
+    if (self.length == 0 || ![self uads_isGzippedData]) {
         return self;
     }
 
@@ -93,7 +93,7 @@
     return output;
 }
 
-- (BOOL)isGzippedData
+- (BOOL)uads_isGzippedData
 {
     const UInt8 *bytes = (const UInt8 *)self.bytes;
 

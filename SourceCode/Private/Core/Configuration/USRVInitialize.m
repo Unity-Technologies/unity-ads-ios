@@ -75,7 +75,20 @@ static dispatch_once_t onceToken;
 @implementation USRVInitializeState
 
 - (void)main {
+    NSString *metricName = [self metricName];
+
+    if (![self isRetryState]) {
+        [UADSServiceProvider.sharedInstance.performanceMeasurer startMeasureForSystemIfNeeded: metricName];
+    }
+
     id nextState = [self execute];
+
+    if (![self isRetryState] && ![nextState isRetryState]) {
+        NSNumber *duration = [UADSServiceProvider.sharedInstance.performanceMeasurer endMeasureForSystem: metricName];
+        [UADSServiceProvider.sharedInstance.metricSender sendMetric: [UADSMetric newWithName: metricName
+                                                                                       value: duration
+                                                                                        tags: UADSInitializeEventsMetricSender.sharedInstance.retryTags]];
+    }
 
     if (nextState && initializeQueue) {
         [initializeQueue addOperation: nextState];
@@ -94,6 +107,18 @@ static dispatch_once_t onceToken;
     }
 
     return self;
+}
+
+- (NSString *)metricName {
+    NSString *className = NSStringFromClass(self.class);
+    NSString *metricName = [[className stringByReplacingOccurrencesOfString: @"USRVInitializeState"
+                                                                 withString: @""] lowercaseString];
+
+    return [NSString stringWithFormat: @"native_%@_state", metricName];
+}
+
+- (BOOL)isRetryState {
+    return [self isKindOfClass: USRVInitializeStateRetry.class];
 }
 
 @end
@@ -160,7 +185,7 @@ static dispatch_once_t onceToken;
             USRVLogError(@"Unity Ads init: dispatch async did not run through while resetting SDK");
             id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
                                                                       erroredState: self
-                                                                         stateName: @"create webapp"
+                                                                              code: kUADSErrorStateCreateWebview
                                                                            message: @"Failure to reset the webapp"];
             return nextState;
         }
@@ -231,9 +256,9 @@ static dispatch_once_t onceToken;
         self.localConfig = configuration;
         //read from local config
         self.configuration = [[USRVConfiguration alloc] initWithConfigUrl: [USRVSdkProperties getConfigUrl]];
-        UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: configuration.experiments];
-        UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config];
-        self.configLoader = builder.loader;
+        self.configLoader = [UADSServiceProvider.sharedInstance configurationLoaderUsing: configuration
+                                                                         retryInfoReader: UADSInitializeEventsMetricSender.sharedInstance];
+
         [self setRetries: retries];
         [self setRetryDelay: retryDelay];
     }
@@ -255,7 +280,7 @@ static dispatch_once_t onceToken;
     if (!self.configuration.error) {
         if (self.configuration.headerBiddingToken) {
             USRVLogInfo(@"Found token in the response. Will Attempt to save");
-            [UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader setInitToken: self.configuration.headerBiddingToken];
+            [UADSServiceProvider.sharedInstance.hbTokenReader setInitToken: self.configuration.headerBiddingToken];
         }
 
         USRVLogInfo(@"Saving Configuration To Disk");
@@ -273,6 +298,7 @@ static dispatch_once_t onceToken;
     } else if (self.configuration.error && self.retries < [self.configuration maxRetries]) {
         self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
         self.retries++;
+        [[UADSInitializeEventsMetricSender sharedInstance] didRetryConfig];
         id retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig
                                                                          retries: self.retries
                                                                       retryDelay: self.retryDelay];
@@ -286,7 +312,7 @@ static dispatch_once_t onceToken;
                                                                         retryDelay: self.retryDelay];
         id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration: self.localConfig
                                                                          erroredState: erroredState
-                                                                            stateName: @"network config request"
+                                                                                 code: kUADSErrorStateNetworkConfigRequest
                                                                               message: @"Network error occured init SDK initialization, waiting for connection"];
         return nextState;
     }
@@ -306,7 +332,6 @@ static dispatch_once_t onceToken;
         configError = error;
     };
 
-    [[UADSInitializeEventsMetricSender sharedInstance] didConfigRequestStart];
     [self.configLoader loadConfigurationWithSuccess: success
                                  andErrorCompletion: error];
 
@@ -322,6 +347,7 @@ static dispatch_once_t onceToken;
     } else if (configError && self.retries < [self.configuration maxRetries]) {
         self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
         self.retries++;
+        [[UADSInitializeEventsMetricSender sharedInstance] didRetryConfig];
         id retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig
                                                                          retries: self.retries
                                                                       retryDelay: self.retryDelay];
@@ -335,7 +361,7 @@ static dispatch_once_t onceToken;
                                                                         retryDelay: self.retryDelay];
         id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration: self.localConfig
                                                                          erroredState: erroredState
-                                                                            stateName: @"network config request"
+                                                                                 code: kUADSErrorStateNetworkConfigRequest
                                                                               message: @"Network error occured init SDK initialization, waiting for connection"];
         return nextState;
     }
@@ -358,7 +384,7 @@ static dispatch_once_t onceToken;
                                                               length: [fileData length]
                                                             encoding: NSUTF8StringEncoding
                                                         freeWhenDone: NO];
-        NSString *localWebViewHash = [fileString unityads_sha256];
+        NSString *localWebViewHash = [fileString uads_sha256];
 
         if (localWebViewHash && [localWebViewHash isEqualToString: self.configuration.webViewHash]) {
             USRVLogInfo(@"Unity Ads init: webapp loaded from local cache");
@@ -403,7 +429,7 @@ static dispatch_once_t onceToken;
     if (!validUrl) {
         id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
                                                                   erroredState: self
-                                                                     stateName: @"malformed webview request"
+                                                                          code: kUADSErrorStateMalformedWebviewRequest
                                                                        message: @"Malformed URL when attempting to obtain the webview html"];
         return nextState;
     }
@@ -420,6 +446,7 @@ static dispatch_once_t onceToken;
     } else if (webRequest.error && self.retries < [self.configuration maxRetries]) {
         self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
         self.retries++;
+        [[UADSInitializeEventsMetricSender sharedInstance] didRetryWebview];
         id retryState = [[USRVInitializeStateLoadWeb alloc] initWithConfiguration: self.configuration
                                                                           retries: self.retries
                                                                        retryDelay: self.retryDelay];
@@ -433,7 +460,7 @@ static dispatch_once_t onceToken;
                                                                          retryDelay: self.retryDelay];
         id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration: self.configuration
                                                                          erroredState: erroredState
-                                                                            stateName: @"network webview request"
+                                                                                 code: kUADSErrorStateNetworkWebviewRequest
                                                                               message: @"Network error while loading WebApp from internet, waiting for connection"];
         return nextState;
     }
@@ -442,10 +469,10 @@ static dispatch_once_t onceToken;
                                                      encoding: NSUTF8StringEncoding];
     NSString *webViewHash = [self.configuration webViewHash];
 
-    if (webViewHash != nil && ![[responseString unityads_sha256] isEqualToString: webViewHash]) {
+    if (webViewHash != nil && ![[responseString uads_sha256] isEqualToString: webViewHash]) {
         id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
                                                                   erroredState: self
-                                                                     stateName: @"invalid hash"
+                                                                          code: kUADSErrorStateInvalidHash
                                                                        message: @"Webview hash did not match returned hash in configuration"];
         return nextState;
     }
@@ -465,9 +492,10 @@ static dispatch_once_t onceToken;
     USRVLogDebug(@"Unity Ads init: creating webapp");
 
     [self.configuration setWebViewData: [self webViewData]];
+    NSNumber *errorState = [USRVWebViewApp create: self.configuration
+                                             view: nil];
 
-    if ([USRVWebViewApp create: self.configuration
-                          view: nil]) {
+    if (!errorState) {
         id nextState = [[USRVInitializeStateComplete alloc] initWithConfiguration: self.configuration];
         return nextState;
     } else {
@@ -480,7 +508,7 @@ static dispatch_once_t onceToken;
 
         id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
                                                                   erroredState: erroredState
-                                                                     stateName: InitializeStateCreateStateName
+                                                                          code: [errorState intValue]
                                                                        message: errorMessage];
         return nextState;
     }
@@ -519,12 +547,12 @@ static dispatch_once_t onceToken;
 
 @implementation USRVInitializeStateError : USRVInitializeState
 
-- (instancetype)initWithConfiguration: (USRVConfiguration *)configuration erroredState: (id)erroredState stateName: (NSString *)stateName message: (NSString *)message {
+- (instancetype)initWithConfiguration: (USRVConfiguration *)configuration erroredState: (id)erroredState code: (UADSErrorState)stateCode message: (NSString *)message {
     self = [super initWithConfiguration: configuration];
 
     if (self) {
         [self setErroredState: erroredState];
-        [self setStateName: stateName];
+        [self setStateCode: stateCode];
         [self setMessage: message];
     }
 
@@ -537,17 +565,10 @@ static dispatch_once_t onceToken;
 
         if (moduleConfiguration) {
             [moduleConfiguration initErrorState: self.configuration
-                                          state: self.stateName
+                                           code: self.stateCode
                                         message: self.message];
         }
     }
-
-    // TODO: Fix _state.replaceAll... with Enum values to ensure future compatibility with tag values - This works for now
-    [[USRVSDKMetrics getInstance] sendEventWithTags: @"native_initialization_failed"
-                                               tags: @{
-         @"stt": [self.stateName stringByReplacingOccurrencesOfString: @" "
-                                                           withString: @"_"]
-    }];
 
     return NULL;
 }
@@ -605,7 +626,7 @@ static dispatch_once_t onceToken;
     [self.blockCondition unlock];
     id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
                                                               erroredState: self.erroredState
-                                                                 stateName: self.stateName
+                                                                      code: self.stateCode
                                                                    message: self.message];
 
     return nextState;
@@ -868,7 +889,7 @@ static dispatch_once_t onceToken;
 
     NSString *webViewHash = [self.configuration webViewHash];
 
-    if (webViewHash != nil && ![[responseString unityads_sha256] isEqualToString: webViewHash]) {
+    if (webViewHash != nil && ![[responseString uads_sha256] isEqualToString: webViewHash]) {
         return NULL;
     }
 
@@ -923,7 +944,7 @@ static dispatch_once_t onceToken;
                                                           length: [fileData length]
                                                         encoding: NSUTF8StringEncoding
                                                     freeWhenDone: NO];
-    NSString *localWebViewHash = [fileString unityads_sha256];
+    NSString *localWebViewHash = [fileString uads_sha256];
 
     if ([localWebViewHash isEqualToString: self.configuration.webViewHash]) {
         id nextState = [[USRVInitializeStateUpdateCache alloc] initWithConfiguration: self.configuration];

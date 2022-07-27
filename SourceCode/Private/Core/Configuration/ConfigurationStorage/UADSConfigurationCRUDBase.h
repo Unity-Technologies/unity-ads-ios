@@ -15,7 +15,8 @@ typedef void (^UADSConfigurationObserver)(USRVConfiguration *);
 
 @protocol UADSConfigurationReader <NSObject>
 
-- (USRVConfiguration *)getCurrentConfiguration;
+- (USRVConfiguration *)           getCurrentConfiguration;
+- (UADSConfigurationExperiments *)currentSessionExperiments;
 
 @end
 

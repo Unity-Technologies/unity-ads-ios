@@ -2,8 +2,8 @@
 #import "UADSTokenStorage.h"
 #import "UADSHeaderBiddingTokenReaderBase.h"
 #import "USRVSDKMetrics.h"
-#import "UADSConfigurationMetricTagsReader.h"
 #import "UADSInitializationStatusReader.h"
+#import "UADSPrivacyStorage.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)decorateOriginal: (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)original
                  andStatusReader: (id<UADSInitializationStatusReader>)statusReader
                    metricsSender: (id<ISDKMetrics>)metricsSender
-                      tagsReader: (id<UADSConfigurationMetricTagsReader>)tagsReader;
+           privacyResponseReader: (id<UADSPrivacyResponseReader>)privacyResponseReader;
 
 @end
 

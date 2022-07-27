@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "NSBundle + TypecastGet.h"
+#import "NSBundle+TypecastGet.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

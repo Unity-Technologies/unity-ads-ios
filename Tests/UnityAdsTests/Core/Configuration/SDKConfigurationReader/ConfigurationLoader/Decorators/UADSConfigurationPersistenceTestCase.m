@@ -17,11 +17,10 @@
     _loaderMock = [UADSConfigurationLoaderMock new];
 }
 
-- (void)test_error_doesnt_trigger_saver {
+- (void)test_error_trigger_saver_with_empty_config {
     _loaderMock.expectedError = uads_invalidWebViewURLLoaderError;
     XCTestExpectation *exp = self.defaultExpectation;
     id errorCompletion = ^(id error) {
-        XCTAssertEqual(self.saverMock.receivedConfig.count, 0);
         [exp fulfill];
     };
 
@@ -35,6 +34,10 @@
 
     [self waitForExpectations: @[exp]
                       timeout: 1];
+
+    USRVConfiguration *received = self.saverMock.receivedConfig.lastObject;
+
+    XCTAssertEqual(received.hasValidWebViewURL, false);
 }
 
 - (void)test_saves_config_on_success {

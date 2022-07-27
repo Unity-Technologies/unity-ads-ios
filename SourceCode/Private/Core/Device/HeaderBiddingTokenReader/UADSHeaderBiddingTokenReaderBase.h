@@ -2,9 +2,11 @@
 #import "UADSDeviceInfoReader.h"
 #import "USRVBodyBase64GzipCompressor.h"
 #import "UADSTokenType.h"
+#import "UADSHeaderBiddingToken.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^UADSHeaderBiddingTokenCompletion)(NSString *_Nullable token, UADSTokenType type);
+typedef void (^UADSHeaderBiddingTokenCompletion)(UADSHeaderBiddingToken *_Nullable token);
 
 @protocol UADSHeaderBiddingAsyncTokenReader <NSObject>
 
@@ -15,7 +17,8 @@ typedef void (^UADSHeaderBiddingTokenCompletion)(NSString *_Nullable token, UADS
 @interface UADSHeaderBiddingTokenReaderBase : NSObject<UADSHeaderBiddingAsyncTokenReader>
 
 + (instancetype)newWithDeviceInfoReader: (id<UADSDeviceInfoReader>)deviceInfoReader
-                          andCompressor: (id<USRVStringCompressor>)compressor;
+                          andCompressor: (id<USRVStringCompressor>)compressor
+                        withTokenPrefix: (NSString *)prefix;
 
 @end
 

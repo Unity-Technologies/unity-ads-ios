@@ -3,7 +3,7 @@
 
 @implementation NSString (Hash)
 
-- (NSString *)unityads_sha256 {
+- (NSString *)uads_sha256 {
     const char *str = [self UTF8String];
 
     if (str == NULL) {

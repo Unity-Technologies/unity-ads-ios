@@ -12,7 +12,7 @@ static NSString *kUADSShowModuleStateDisplayOptionsKey = @"display";
 
 @interface UADSShowModuleOptions : NSObject<UADSDictionaryConvertible>
 @property (nonatomic) bool shouldAutorotate;
-@property (nonatomic) bool statusBarOrientation;
+@property (nonatomic) NSInteger statusBarOrientation;
 @property (nonatomic) bool isStatusBarHidden;
 @property (nonatomic) int supportedOrientations;
 @property (nonatomic) NSArray<NSString *> *supportedOrientationsPlist;

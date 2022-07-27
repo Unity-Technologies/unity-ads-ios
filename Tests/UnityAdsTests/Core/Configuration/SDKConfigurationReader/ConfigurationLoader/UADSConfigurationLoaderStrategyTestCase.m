@@ -4,13 +4,11 @@
 #import "NSError+UADSError.h"
 #import "SDKMetricsSenderMock.h"
 #import "UADSTsiMetric.h"
-#import "ConfigurationMetricTagsReaderMock.h"
 
 @interface UADSConfigurationLoaderStrategyTestCase : XCTestCase
 @property (nonatomic, strong) UADSConfigurationLoaderMock *mainLoaderMock;
 @property (nonatomic, strong) UADSConfigurationLoaderMock *fallbackLoaderMock;
 @property (nonatomic, strong) SDKMetricsSenderMock *metricSenderMock;
-@property (nonatomic, strong) ConfigurationMetricTagsReaderMock *tagsReaderMock;
 @end
 
 @implementation UADSConfigurationLoaderStrategyTestCase
@@ -19,14 +17,12 @@
     self.mainLoaderMock = [UADSConfigurationLoaderMock new];
     self.fallbackLoaderMock = [UADSConfigurationLoaderMock new];
     self.metricSenderMock = [SDKMetricsSenderMock new];
-    self.tagsReaderMock = [ConfigurationMetricTagsReaderMock newWithExpectedTags: self.expectedTags];
 }
 
 - (id<UADSConfigurationLoader>)sut {
     return [UADSConfigurationLoaderStrategy newWithMainLoader: self.mainLoaderMock
                                             andFallbackLoader: self.fallbackLoaderMock
-                                                 metricSender: self.metricSenderMock
-                                             metricTagsReader: self.tagsReaderMock];
+                                                 metricSender: self.metricSenderMock];
 }
 
 - (void)test_parse_error_calls_fallback {
@@ -61,7 +57,7 @@
     _mainLoaderMock.expectedConfig = [USRVConfiguration newFromJSON: @{ }];
 
     [self callSutWithSuccessExpectation];
-    NSArray *expected = @[ [UADSTsiMetric newMissingTokenWithTags: self.expectedTags], [UADSTsiMetric newMissingStateIdWithTags: self.expectedTags] ];
+    NSArray *expected = @[ [UADSTsiMetric newMissingToken], [UADSTsiMetric newMissingStateId] ];
 
     XCTAssertEqualObjects(self.metricSenderMock.sentMetrics, expected);
 }
@@ -121,15 +117,11 @@
 
     [self callSutWithSuccessExpectation];
     XCTAssertEqual(_fallbackLoaderMock.loadCallCount, 1);
-    XCTAssertEqualObjects(self.metricSenderMock.sentMetrics, @[ [UADSTsiMetric newEmergencySwitchOffWithTags: self.expectedTags] ]);
+    XCTAssertEqualObjects(self.metricSenderMock.sentMetrics, @[ [UADSTsiMetric newEmergencySwitchOff] ]);
 }
 
 - (XCTestExpectation *)defaultExpectation {
     return [self expectationWithDescription: @"strategy"];
-}
-
-- (NSDictionary *)expectedTags {
-    return @{ @"tag": @"1" };
 }
 
 @end

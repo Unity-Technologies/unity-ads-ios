@@ -3,8 +3,8 @@
 #import "USTRStore.h"
 #import "USRVDevice.h"
 #import "UADSTools.h"
-#import "NSArray + Map.h"
-#import "SKProductBridge + Dictionary.h"
+#import "NSArray+Map.h"
+#import "SKProductBridge+Dictionary.h"
 
 @interface USTRStore ()
 @property (nonatomic, nonnull, strong) id<UADSAppStoreReceiptReader> receiptReader;

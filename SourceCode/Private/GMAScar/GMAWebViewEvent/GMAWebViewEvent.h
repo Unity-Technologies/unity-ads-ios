@@ -21,6 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)newSignalsEvent: (NSString *)signals;
 + (instancetype)newAdLoadedWithMeta: (GMAAdMetaData *)meta
                         andLoadedAd: (GADBaseAd *_Nullable)ad;
++ (instancetype)newScarPresent;
++ (instancetype)newScarNotPresent;
++ (instancetype)newScarUnsupported;
 @end
 
 NS_ASSUME_NONNULL_END

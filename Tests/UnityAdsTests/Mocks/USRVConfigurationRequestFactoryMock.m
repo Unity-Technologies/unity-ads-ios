@@ -18,6 +18,7 @@
     requestMock.expectedData = jsonData;
     requestMock.isResponseCodeInvalid = invalidResponseCode;
     factory.expectedRequest = requestMock;
+    factory.requestedTypes = [NSArray new];
     return factory;
 }
 
@@ -25,7 +26,19 @@
     return @"baseURL";
 }
 
-- (id<USRVWebRequest> _Nullable)configurationRequestFor: (UADSGameMode)mode {
+- (instancetype)init
+{
+    self = [super init];
+
+    if (self) {
+        _requestedTypes = [NSArray new];
+    }
+
+    return self;
+}
+
+- (id<USRVWebRequest> _Nullable)requestOfType: (USRVInitializationRequestType)type {
+    _requestedTypes = [_requestedTypes arrayByAddingObject: @(type)];
     return _expectedRequest;
 }
 

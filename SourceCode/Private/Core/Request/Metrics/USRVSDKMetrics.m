@@ -6,7 +6,6 @@
 
 @implementation USRVSDKMetrics
 
-
 + (id <ISDKMetrics>)getInstance {
     return UADSServiceProvider.sharedInstance.metricSender;
 }

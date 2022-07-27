@@ -20,7 +20,8 @@ typedef id<UADSWebViewInvoker> Invoker;
     Invoker basicInvoker = [UADSWebViewInvokerImp newWithWaitingTime: timeout];
 
     return [self newWithInvoker: basicInvoker
-                andErrorHandler: [UADSInternalErrorLogger newWithType: kUADSErrorHandlerTypeShowModule]];
+                andEventHandler: [UADSEventHandlerBase newDefaultWithType: kUADSEventHandlerTypeShowModule]
+                   timerFactory: [UADSTimerFactoryBase new]];
 }
 
 - (UADSInternalError *)executionErrorForPlacementID: (NSString *)placementID {
@@ -47,6 +48,7 @@ typedef id<UADSWebViewInvoker> Invoker;
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                         withOptions: (id<UADSDictionaryConvertible>)options
+                                                              timer: (id<UADSRepeatableTimer>)timer
                                                        withDelegate: (id<UADSAbstractModuleDelegate>)delegate {
     UADSShowModuleOperation *operation = [UADSShowModuleOperation new];
 
@@ -55,6 +57,7 @@ typedef id<UADSWebViewInvoker> Invoker;
     operation.options = options;
     operation.time = [USRVDevice getElapsedRealtime];     //ideally this should not be as explicit dependency
     operation.ttl = [self operationOperationTimeoutMs];
+    operation.timer = timer;
     return operation;
 }
 
@@ -93,6 +96,7 @@ typedef id<UADSWebViewInvoker> Invoker;
 - (void)sendShowCompleteEvent: (NSString *)placementID
                    listenerID: (NSString *)listenerID
                         state: (UnityAdsShowCompletionState)state {
+    [self handleSuccess: listenerID];
     UADShowDelegateWrapper *delegate = [self getDelegateForIDAndRemove: listenerID];
 
     [delegate unityAdsShowComplete: placementID
@@ -103,6 +107,13 @@ typedef id<UADSWebViewInvoker> Invoker;
                  listenerID: (NSString *)listenerID
                     message: (NSString *)message
                       error: (UnityAdsShowError)error {
+    UADSInternalError *internalError = [UADSInternalError newWithErrorCode: kUADSInternalErrorShowModule
+                                                                 andReason: error
+                                                                andMessage: message];
+
+    [self catchError: internalError
+               forId: listenerID];
+
     UADShowDelegateWrapper *delegate =  [self getDelegateForIDAndRemove: listenerID];
 
     [delegate unityAdsShowFailed: placementID

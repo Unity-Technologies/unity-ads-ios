@@ -1,8 +1,8 @@
 #import "NSDictionary+JSONString.h"
 
 @implementation NSDictionary (JSONString)
-- (NSString *)jsonEncodedString {
-    NSData *jsonData = [self jsonData];
+- (NSString *)uads_jsonEncodedString {
+    NSData *jsonData = [self uads_jsonData];
 
     if (!jsonData) {
         return @"";
@@ -12,7 +12,7 @@
                                  encoding: NSUTF8StringEncoding];
 }
 
-- (NSData *)jsonData {
+- (NSData *)uads_jsonData {
     NSError *err;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject: self
                                                        options: 0
@@ -26,7 +26,7 @@
     return jsonData;
 }
 
-- (NSString *)queryString {
+- (NSString *)uads_queryString {
     __block NSString *queryString = @"";
     __block BOOL first = true;
 
@@ -42,7 +42,7 @@
     return queryString;
 }
 
-- (BOOL)isEmpty {
+- (BOOL)uads_isEmpty {
     return self.count <= 0;
 }
 

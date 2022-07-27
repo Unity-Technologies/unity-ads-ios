@@ -99,7 +99,7 @@
     __block NSDictionary *contents = NULL;
 
     dispatch_sync(self.synchronizedQueue, ^{
-        contents = [self.storageContents deepCopy];
+        contents = [self.storageContents uads_deepCopy];
     });
 
     return contents;

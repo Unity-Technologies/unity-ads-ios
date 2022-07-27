@@ -1,7 +1,7 @@
 
 #import "SKProductBridge.h"
 #import <StoreKit/StoreKit.h>
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 
 @implementation SKProductBridge
 

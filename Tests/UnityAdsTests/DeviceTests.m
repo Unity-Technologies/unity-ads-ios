@@ -198,7 +198,7 @@
 - (void)testGetDeviceName {
     NSString *deviceName = [USRVDevice getDeviceName];
 
-    XCTAssertEqualObjects(deviceName, [[[UIDevice currentDevice] name] unityads_sha256], @"Device name should be correct");
+    XCTAssertEqualObjects(deviceName, [[[UIDevice currentDevice] name] uads_sha256], @"Device name should be correct");
 }
 
 - (void)testGetIdentifierForVendor {
@@ -225,11 +225,8 @@
 - (void)testGetLocaleList {
     NSArray<NSString *> *localeList = [USRVDevice getLocaleList];
 
+    XCTAssertEqualObjects(localeList, [NSLocale preferredLanguages]);
     XCTAssertGreaterThanOrEqual([localeList count], 1, @"Locale list should have at least 1 item in it");
-
-    if ([USRVDevice isSimulator]) {
-        XCTAssertEqualObjects(localeList[0], @"en", @"Locale list should be correct");
-    }
 }
 
 - (void)testGetCurrentUITheme {

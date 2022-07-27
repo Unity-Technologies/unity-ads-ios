@@ -56,14 +56,14 @@
     return true;
 }
 
-- (BOOL)initErrorState: (USRVConfiguration *)configuration state: (NSString *)state message: (NSString *)message {
+- (BOOL)initErrorState: (USRVConfiguration *)configuration code: (UADSErrorState)stateCode message: (NSString *)message {
     [UADSServiceProvider.sharedInstance.configurationSaver saveConfiguration: configuration];
     [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail: @"Unity Ads SDK failed to initialize"
-                                                                                  code: 0];
+                                                                                  code: stateCode];
 
     NSString *errorMessage = @"Unity Ads failed to initialize due to internal error";
 
-    if ([state isEqualToString: InitializeStateCreateStateName]) {
+    if (uads_isWebViewErrorState(stateCode)) {
         errorMessage = message;
     }
 

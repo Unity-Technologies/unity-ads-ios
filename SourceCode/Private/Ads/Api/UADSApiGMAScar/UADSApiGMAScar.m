@@ -24,6 +24,8 @@
 }
 
 + (void)WebViewExposed_getVersion: (USRVWebViewCallback *)callback {
+    [self sendAvailabilityMetrics];
+    
     [callback invoke: self.facade.sdkVersion, nil];
 }
 
@@ -119,6 +121,18 @@
 
 + (void)sendEvent: (id<UADSWebViewEvent>)event {
     [self.eventSender sendEvent: event];
+}
+
++ (void)sendAvailabilityMetrics {
+    if (self.facade.isGADExists) {
+        [self sendEvent:[GMAWebViewEvent newScarPresent]];
+        
+        if (!self.facade.isGADSupported) {
+            [self sendEvent:[GMAWebViewEvent newScarUnsupported]];
+        }
+    } else {
+        [self sendEvent:[GMAWebViewEvent newScarNotPresent]];
+    }
 }
 
 @end

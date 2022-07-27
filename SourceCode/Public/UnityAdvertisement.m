@@ -72,7 +72,7 @@
     wrappedOptions.supportedOrientations = [USRVClientProperties getSupportedOrientations];
     wrappedOptions.supportedOrientationsPlist = [USRVClientProperties getSupportedOrientationsPlist];
     wrappedOptions.isStatusBarHidden = UIApplication.sharedApplication.isStatusBarHidden;
-    wrappedOptions.statusBarOrientation =  UIApplication.sharedApplication.statusBarOrientation;
+    wrappedOptions.statusBarOrientation = UIApplication.sharedApplication.statusBarOrientation;
 
     [UADSShowModule.sharedInstance showAdForPlacementID: placementId
                                             withOptions: wrappedOptions
@@ -104,9 +104,9 @@
 }
 
 + (void)getToken: (void (^)(NSString *_Nullable))completion {
-    [self.tokenReader getToken:^(NSString *_Nullable token, UADSTokenType type) {
+    [self.tokenReader getToken:^(UADSHeaderBiddingToken *_Nullable token) {
         dispatch_on_main(^{
-                             completion(token);
+                             completion(token.value);
                          });
     }];
 }

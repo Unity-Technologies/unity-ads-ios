@@ -2,9 +2,13 @@
 #import "USRVSDKMetrics.h"
 #import "UADSMetricSenderWithBatch.h"
 #import "SDKMetricsSenderMock.h"
+#import "XCTestCase+Convenience.h"
+#import "NSDate+Mock.h"
+#import "NSArray+Map.h"
 #import "UADSMetricSelectorMock.h"
 #import "UADSGenericMediator.h"
 #import "XCTestCase+Convenience.h"
+#import "UADSLoggerMock.h"
 
 @interface UADSConfigurationSubjectMock : UADSGenericMediator<USRVConfiguration *><UADSConfigurationSubject>
 @end
@@ -34,7 +38,8 @@
     _mediator = [UADSConfigurationSubjectMock new];
     _sut = [UADSMetricSenderWithBatch newWithMetricSender: _mock
                                   andConfigurationSubject: _mediator
-                                              andSelector: _selectorMock];
+                                              andSelector: _selectorMock
+                                                andLogger: [UADSLoggerMock new]];
 }
 
 - (void)test_batch_events_when_no_metric_url_is_set {
@@ -70,6 +75,61 @@
     [_sut sendEvent: @"test4 "];
     [self waitForExp];
     XCTAssertEqualObjects(_mock.sentMetrics, expected);
+}
+
+- (void)test_batches_performance_metrics {
+    [NSDate setMockDate: false];
+    NSTimeInterval delay = 1;
+    XCTestExpectation *exp = self.defaultExpectation;
+
+    exp.expectedFulfillmentCount = 2;
+    UADSMetric *testMetric1 = [UADSMetric newWithName: @"test1"
+                                                value: nil
+                                                 tags: nil];
+    UADSMetric *testMetric2 = [UADSMetric newWithName: @"test2"
+                                                value: nil
+                                                 tags: nil];
+
+
+    [_sut measureDurationAndSend:^(UADSCompleteMeasureBlock _Nonnull completion) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+                           [NSThread sleepForTimeInterval: delay];
+                           completion(testMetric1);
+                           [exp fulfill];
+                       });
+    }];
+
+    [self waitForTimeInterval: delay + 0.5];
+    [self emulateConfigurationUpdateWithAllowedMetrics: true];
+
+    [_sut measureDurationAndSend:^(UADSCompleteMeasureBlock _Nonnull completion) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+                           [NSThread sleepForTimeInterval: delay];
+                           completion(testMetric2);
+                           [exp fulfill];
+                       });
+    }];
+
+    [self waitForExpectations: @[exp]
+                      timeout: delay * 2 + 1];
+
+    NSArray *expected = @[
+        [testMetric1 updatedWithValue: @(delay)],
+        [testMetric2 updatedWithValue: @(delay)]
+    ];
+
+    NSArray *received = [_mock.sentMetrics uads_mapObjectsUsingBlock:^id _Nonnull (UADSMetric *_Nonnull obj) {
+        NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary: obj.dictionary];
+        dictionary[@"v"] = @(round([dictionary[@"v"] intValue] / 1000));
+        return dictionary;
+    }];
+
+    expected = [expected uads_mapObjectsUsingBlock:^id _Nonnull (UADSMetric *_Nonnull obj) {
+        return obj.dictionary;
+    }];
+
+    XCTAssertEqualObjects(received, expected);
+    [NSDate setMockDate: true];
 }
 
 - (void)test_doesnt_send_batch_when_selector_says_to_log {
@@ -134,7 +194,8 @@
     @autoreleasepool {
         obj = [UADSMetricSenderWithBatch newWithMetricSender: _mock
                                      andConfigurationSubject: _mediator
-                                                 andSelector: _selectorMock];
+                                                 andSelector: _selectorMock
+                                                   andLogger: [UADSLoggerMock new]];
         USRVConfiguration *configMock = [USRVConfiguration newFromJSON: @{}];
         [_mediator notifyObserversWithObjectAndRemove: configMock];
     }
@@ -167,8 +228,7 @@
 
 - (void)emulateConfigurationUpdateWithAllowedMetrics: (BOOL)sendMetrics {
     USRVConfiguration *configMock = [USRVConfiguration newFromJSON: @{}];
-
-    _selectorMock.shouldSend = sendMetrics;
+    configMock.enableNativeMetrics = sendMetrics;
     [_mediator notifyObserversWithObjectAndRemove: configMock];
 }
 

@@ -2,6 +2,8 @@
 #import "USRVStorage.h"
 #import "UADSPIITrackingStatusReader.h"
 #import "UADSTsiMetric.h"
+#import "UADSPrivacyLoader.h"
+#import "UADSConfigurationLoader.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSDeviceTestsHelper : NSObject
@@ -26,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)    analyticUserMockValue;
 - (NSDictionary *)expectedMergedDataRealStorage;
 - (NSArray *)     expectedKeysFromDefaultInfo;
+- (NSArray *)     expectedKeysFromDefaultMinInfo;
 - (NSArray *)     allExpectedKeys;
 - (void)          setPIIDataToStorage;
 - (void)         commitPrivacyMode: (UADSPrivacyMode)mode
@@ -41,7 +44,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (UADSMetric *)            emergencyOffMetrics;
 - (UADSMetric *)            infoCollectionLatencyMetrics;
 - (UADSMetric *)            infoCompressionLatencyMetrics;
-- (NSDictionary *)          expectedTags;
+- (UADSMetric *)            privacyRequestLatencyMetrics;
+- (NSArray *)               allExpectedKeysFromMinInfo;
+- (UADSMetric *)privacyRequestFailureWithReason: (UADSPrivacyLoaderError)reason;
+- (UADSMetric *)configLatencyFailureMetricWithReason: (UADSConfigurationLoaderError)reason;
+- (UADSMetric *)            configLatencySuccessMetric;
+- (NSDictionary *)          retryTags;
 @end
 
 NS_ASSUME_NONNULL_END

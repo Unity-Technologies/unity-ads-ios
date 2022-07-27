@@ -1,6 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "USRVJsonStorageAggregator.h"
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 #import "UADSJsonStorageReaderMock.h"
 
 @interface USRVJsonStorageAggregatorTestCase : XCTestCase

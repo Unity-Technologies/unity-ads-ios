@@ -1,9 +1,9 @@
 #import <XCTest/XCTest.h>
-#import "SKProductBridge + Dictionary.h"
-#import "SKProduct + CustomInit.h"
-#import "NSLocale + CustomInit.h"
-#import "SKProductSubscriptionPeriod + CustomInit.h"
-#import "SKProductDiscount + CustomInit.h"
+#import "SKProductBridge+Dictionary.h"
+#import "SKProduct+CustomInit.h"
+#import "NSLocale+CustomInit.h"
+#import "SKProductSubscriptionPeriod+CustomInit.h"
+#import "SKProductDiscount+CustomInit.h"
 
 #define FALSE_AS_NUMBER [NSNumber numberWithBool: false]
 

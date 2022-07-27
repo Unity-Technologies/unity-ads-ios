@@ -1,9 +1,9 @@
 #import "NSDictionary+Merge.h"
-#import "NSMutableDictionary + SafeOperations.h"
+#import "NSMutableDictionary+SafeOperations.h"
 
 @implementation NSDictionary (Merge)
 
-+ (NSDictionary *)unityads_dictionaryByMerging: (NSDictionary *)primary secondary: (NSDictionary *)secondary {
++ (NSDictionary *)uads_dictionaryByMerging: (NSDictionary *)primary secondary: (NSDictionary *)secondary {
     if (!primary) {
         return secondary;
     }
@@ -18,8 +18,8 @@
         id newValue = [newDictionary valueForKey: key];
 
         if (newValue && [newValue isKindOfClass: [NSDictionary class]] && [obj isKindOfClass: [NSDictionary class]]) {
-            [newDictionary setValue: [NSDictionary unityads_dictionaryByMerging: obj
-                                                                      secondary: newValue]
+            [newDictionary setValue: [NSDictionary uads_dictionaryByMerging: obj
+                                                                  secondary: newValue]
                              forKey: key];
         } else {
             [newDictionary setValue: obj
@@ -31,8 +31,8 @@
 } /* unityads_dictionaryByMerging */
 
 - (NSDictionary *)uads_newdictionaryByMergingWith: (NSDictionary *)dictionary {
-    return [NSDictionary unityads_dictionaryByMerging: self
-                                            secondary: dictionary];
+    return [NSDictionary uads_dictionaryByMerging: self
+                                        secondary: dictionary];
 }
 
 - (NSDictionary *)uads_flatUsingSeparator: (NSString *)separator

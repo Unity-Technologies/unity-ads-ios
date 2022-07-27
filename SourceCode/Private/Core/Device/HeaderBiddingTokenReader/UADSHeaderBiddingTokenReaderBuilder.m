@@ -8,6 +8,9 @@
 #import "UADSHeaderBiddingTokenReaderWithMetrics.h"
 #import "USRVDataGzipCompressor.h"
 #import "UADSServiceProvider.h"
+#import "UADSHBTokenReaderWithPrivacyWait.h"
+
+static NSString *const kDefaultTokenPrefix = @"1:";
 
 @interface UADSHeaderBiddingTokenReaderBuilder ()
 @property (nonatomic, strong) id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>tokenReader;
@@ -16,7 +19,6 @@
 
 @implementation UADSHeaderBiddingTokenReaderBuilder
 
-_uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)defaultReader {
     @synchronized (self) {
@@ -36,7 +38,7 @@ _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
         reader = [UADSHeaderBiddingTokenReaderWithMetrics decorateOriginal: reader
                                                            andStatusReader: self.sdkInitializationStatusReader
                                                              metricsSender: self.metricsSender
-                                                                tagsReader: self.sdkConfigReader];
+                                                     privacyResponseReader: self.privacyStorage];
 
         _tokenReader = reader;
     }
@@ -51,19 +53,13 @@ _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
     UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
     UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: self.sdkConfigReader.getCurrentConfiguration.experiments];
 
-    _deviceInfoReader = [builder defaultReaderWithConfig: config
-                                           metricsSender: self.metricsSender
-                                        metricTagsReader: self.sdkConfigReader];
+    builder.selectorConfig = config;
+    builder.metricsSender = self.metricsSender;
+    builder.privacyReader = self.privacyStorage;
+    builder.extendedReader = true;
+    builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
+    _deviceInfoReader = builder.defaultReader;
     return _deviceInfoReader;
-}
-
-- (id<ISDKMetrics>)metricsSender {
-    if (_metricsSender) {
-        return _metricsSender;
-    }
-
-    _metricsSender = UADSServiceProvider.sharedInstance.metricSender;
-    return _metricsSender;
 }
 
 - (id<USRVStringCompressor>)bodyCompressor {
@@ -74,39 +70,33 @@ _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
     id<USRVDataCompressor> gzipCompressor = [USRVDataGzipCompressor new];
 
     gzipCompressor = [USRVDictionaryCompressorWithMetrics defaultDecorateOriginal: gzipCompressor
-                                                                 andMetricsSender: self.metricsSender
-                                                                       tagsReader: self.sdkConfigReader];
+                                                                 andMetricsSender: self.metricsSender];
 
     _bodyCompressor = [USRVBodyBase64GzipCompressor newWithDataCompressor: gzipCompressor];
     return _bodyCompressor;
 }
 
-- (id<UADSConfigurationReader, UADSConfigurationMetricTagsReader>)sdkConfigReader {
-    if (_sdkConfigReader) {
-        return _sdkConfigReader;
-    }
-
-    _sdkConfigReader = [UADSConfigurationCRUDBase new];
-    return _sdkConfigReader;
-}
-
-- (id<UADSHeaderBiddingTokenCRUD>)tokenCRUD {
-    if (_tokenCRUD) {
-        return _tokenCRUD;
-    }
-
-    _tokenCRUD = [UADSTokenStorage sharedInstance];
-    return _tokenCRUD;
-}
-
 - (id<UADSHeaderBiddingAsyncTokenReader>)tokenGenerator {
-    if (_tokenGenerator) {
-        return _tokenGenerator;
+    if (!_tokenGenerator) {
+        _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
+                                                                      andCompressor: self.bodyCompressor withTokenPrefix: self.nativeTokenPrefix];
     }
 
-    _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
-                                                                  andCompressor: self.bodyCompressor];
+    if (self.experiments.isPrivacyWaitEnabled) {
+        _tokenGenerator = [UADSHBTokenReaderWithPrivacyWait newWithOriginal: _tokenGenerator
+                                                          andPrivacySubject: self.privacyStorage
+                                                                    timeout: self.currentConfig.privacyWaitTimeout / 1000];
+    }
+
     return _tokenGenerator;
+}
+
+- (NSString *)nativeTokenPrefix {
+    if (!_nativeTokenPrefix) {
+        return kDefaultTokenPrefix;
+    }
+    
+    return _nativeTokenPrefix;
 }
 
 - (id<UADSInitializationStatusReader>)sdkInitializationStatusReader {
@@ -116,6 +106,14 @@ _uads_default_singleton_imp(UADSHeaderBiddingTokenReaderBuilder);
 
     _sdkInitializationStatusReader = [UADSInitializationStatusReaderBase new];
     return _sdkInitializationStatusReader;
+}
+
+- (UADSConfigurationExperiments *)experiments {
+    return self.currentConfig.experiments;
+}
+
+- (USRVConfiguration *)currentConfig {
+    return self.sdkConfigReader.getCurrentConfiguration;
 }
 
 @end

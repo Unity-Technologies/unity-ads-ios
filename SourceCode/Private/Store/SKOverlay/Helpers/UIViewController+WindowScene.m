@@ -1,9 +1,9 @@
 #import "UIViewController+WindowScene.h"
-#import "UIViewController + TopController.h"
+#import "UIViewController+TopController.h"
 
 @implementation UIViewController (WindowScene)
 
-+ (UIWindowScene *)currentWindowScene API_AVAILABLE(ios(13.0)) {
++ (UIWindowScene *)uads_currentWindowScene API_AVAILABLE(ios(13.0)) {
     UIViewController *currentVC = [UIViewController uads_getTopController];
     UIWindowScene *scene = [currentVC.view.window windowScene];
 

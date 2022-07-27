@@ -1,10 +1,3 @@
-//
-//  UnityAdsExampleUITests.m
-//  UnityAdsExampleUITests
-//
-//  Created by Brandon Zarzoza on 5/18/16.
-//
-//
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 #import "USRVConfiguration.h"

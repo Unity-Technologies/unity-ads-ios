@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "UADSDeviceIDFIReader.h"
-
+#import "UADSLogger.h"
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM (NSInteger, UADSGameMode) {
@@ -15,8 +15,11 @@ typedef NS_ENUM (NSInteger, UADSGameMode) {
 
 @end
 
-@interface UADSDeviceInfoReaderBase : NSObject<UADSDeviceInfoReader>
-+ (id<UADSDeviceInfoReader>)newWithIDFIReader: (id<UADSDeviceIDFIReader, UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)userDefaultsReader;
+@interface UADSDeviceInfoReaderExtended : NSObject<UADSDeviceInfoReader>
++ (id<UADSDeviceInfoReader>)newWithIDFIReader: (id<UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)idfiReader
+                                  andOriginal: (id<UADSDeviceInfoReader>)orignal
+                                    andLogger: (id<UADSLogger>)logger;
+
 @end
 
 NS_ASSUME_NONNULL_END

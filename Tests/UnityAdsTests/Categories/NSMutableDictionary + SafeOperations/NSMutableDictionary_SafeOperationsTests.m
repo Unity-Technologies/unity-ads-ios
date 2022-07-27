@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "NSMutableDictionary + SafeOperations.h"
+#import "NSMutableDictionary+SafeOperations.h"
 
 @interface NSMutableDictionary_SafeOperationsTests : XCTestCase
 

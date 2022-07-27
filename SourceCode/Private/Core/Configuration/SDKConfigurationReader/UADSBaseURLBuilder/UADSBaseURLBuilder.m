@@ -1,5 +1,5 @@
 #import "UADSBaseURLBuilder.h"
-#import "NSBundle + TypecastGet.h"
+#import "NSBundle+TypecastGet.h"
 #import "USRVDevice.h"
 
 #import "USRVSdkProperties.h"
@@ -33,11 +33,11 @@ NSString *const kDefaultPathComponent = @"webview";
 }
 
 - (NSString *)retrieveConfigInfoFromPlist {
-    return [self.bundle getStringValueForKey: kUnityServicesWebviewConfigInfoDictionaryKey];
+    return [self.bundle uads_getStringValueForKey: kUnityServicesWebviewConfigInfoDictionaryKey];
 }
 
 - (NSString *)retrieveBranchNameFromPlist {
-    return [self.bundle getStringValueForKey: kUnityServicesWebviewBranchInfoDictionaryKey];
+    return [self.bundle uads_getStringValueForKey: kUnityServicesWebviewBranchInfoDictionaryKey];
 }
 
 - (NSBundle *)bundle {

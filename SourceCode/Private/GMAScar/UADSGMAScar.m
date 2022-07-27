@@ -50,8 +50,15 @@ static NSString *const kUADSGMAScarNotPresentError = @"ERROR: Required GMA SDK c
 }
 
 - (BOOL)isAvailable {
-    return [_loaderStrategy isSupported] &&
-           [GADMobileAdsBridge exists];
+    return self.isGADSupported && self.isGADExists;
+}
+
+- (BOOL)isGADSupported {
+    return [_loaderStrategy isSupported];
+}
+
+- (BOOL)isGADExists {
+    return [GADMobileAdsBridge exists];
 }
 
 - (void)getSCARSignalsUsingInterstitialList: (NSArray *)interstitialList

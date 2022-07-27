@@ -7,32 +7,29 @@
 
 @interface UADSInitializeEventsMetricSender ()<USRVInitializationDelegate>
 @property (nonatomic, assign) CFTimeInterval startTime;
-@property (nonatomic, assign) CFTimeInterval configStartTime;
+@property (nonatomic, assign) NSTimeInterval epochStartTime;
 @property (nonatomic, strong) id<ISDKMetrics> metricSender;
-@property (nonatomic, strong, nonnull) id<UADSConfigurationMetricTagsReader> tagsReader;
 @property (nonatomic, strong, nonnull) id<UADSCurrentTimestamp> timestampReader;
 @property (nonatomic, assign) BOOL initMetricSent;
 @property (nonatomic, assign) BOOL tokenMetricSent;
-
+@property (nonatomic, assign) NSInteger configRetryCount;
+@property (nonatomic, assign) NSInteger webviewRetryCount;
 @end
 
 @implementation UADSInitializeEventsMetricSender
 
 _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
     return [[UADSInitializeEventsMetricSender alloc] initWithMetricSender: UADSServiceProvider.sharedInstance.metricSender
-                                                               tagsReader: [UADSConfigurationCRUDBase new]
                                                          currentTimestamp: [UADSCurrentTimestampBase new]
                                                               initSubject: USRVInitializationNotificationCenter.sharedInstance];
 })
 
 - (instancetype)initWithMetricSender: (id<ISDKMetrics>)metricSender
-                          tagsReader: (id<UADSConfigurationMetricTagsReader>)tagsReader
                     currentTimestamp: (id<UADSCurrentTimestamp>)timestampReader
                          initSubject: (nonnull id<USRVInitializationNotificationCenterProtocol>)initializationSubject {
     SUPER_INIT;
 
     self.metricSender = metricSender;
-    self.tagsReader = tagsReader;
     self.timestampReader = timestampReader;
     [initializationSubject addDelegate: self];
     return self;
@@ -40,12 +37,19 @@ _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
 
 - (void)didInitStart {
     self.startTime = self.timestampReader.currentTimestamp;
+    self.epochStartTime = self.timestampReader.epochSeconds;
+    self.configRetryCount = 0;
+    self.webviewRetryCount = 0;
 
-    [self.metricSender sendMetric: [UADSTsiMetric newInitStartedWithTags: [self getExperimentTags]]];
+    [self.metricSender sendMetric: [UADSTsiMetric newInitStarted]];
 }
 
-- (void)didConfigRequestStart {
-    self.configStartTime = self.timestampReader.currentTimestamp;
+- (void)didRetryConfig {
+    self.configRetryCount += 1;
+}
+
+- (void)didRetryWebview {
+    self.webviewRetryCount += 1;
 }
 
 - (void)sdkDidInitialize {
@@ -57,14 +61,14 @@ _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
 
         if (!self.initMetricSent) {
             [self.metricSender sendMetric: [UADSTsiMetric newInitTimeSuccess: self.duration
-                                                                    withTags: [self getExperimentTags]]];
+                                                                        tags: self.retryTags]];
             self.initMetricSent = YES;
         }
     }
 }
 
 - (NSNumber *)initializationStartTimeStamp {
-    return @(_startTime);
+    return @(_epochStartTime);
 }
 
 - (void)sdkInitializeFailed: (NSError *)error {
@@ -75,8 +79,12 @@ _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
         }
 
         if (!self.initMetricSent) {
+            NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
+                                             @"stt": uads_errorStateString(error.code)
+            }];
+            [tags addEntriesFromDictionary: self.retryTags];
             [self.metricSender sendMetric: [UADSTsiMetric newInitTimeFailure: self.duration
-                                                                    withTags: [self getExperimentTags]]];
+                                                                        tags: tags]];
             self.initMetricSent = YES;
         }
     }
@@ -86,7 +94,6 @@ _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
     @synchronized (self) {
         if (!self.tokenMetricSent) {
             [self sendTokenAvailabilityMetricOfType: type];
-            [self sendTokenResolutionRequestMetricIfNeeded];
             self.tokenMetricSent = YES;
         }
     }
@@ -99,42 +106,33 @@ _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
     }
 
     NSNumber *duration = [self.timestampReader msDurationFrom: self.startTime];
-    NSDictionary *tags = [self getExperimentTags];
     UADSTsiMetric *metric;
 
     switch (type) {
         case kUADSTokenAvailabilityTypeWeb:
             metric = [UADSTsiMetric newTokenAvailabilityLatencyWebview: duration
-                                                              withTags: tags];
+                                                                  tags: self.retryTags];
 
             break;
 
         case kUADSTokenAvailabilityTypeFirstToken:
             metric = [UADSTsiMetric newTokenAvailabilityLatencyConfig: duration
-                                                             withTags: tags];
+                                                                 tags: self.retryTags];
             break;
     }
 
     [self.metricSender sendMetric: metric];
 }
 
-- (void)sendTokenResolutionRequestMetricIfNeeded {
-    if (self.configStartTime != 0) {
-        [self.metricSender sendMetric: [UADSTsiMetric newTokenResolutionRequestLatency: self.tokenDuration
-                                                                              withTags: [self getExperimentTags]]];
-    }
-}
-
 - (NSNumber *)duration {
     return [self.timestampReader msDurationFrom: self.startTime];
 }
 
-- (NSNumber *)tokenDuration {
-    return [self.timestampReader msDurationFrom: self.configStartTime];
-}
-
-- (NSDictionary *)getExperimentTags {
-    return [self.tagsReader metricTags];
+- (NSDictionary *)retryTags {
+    return @{
+        @"c_retry": @(self.configRetryCount).stringValue,
+        @"wv_retry": @(self.webviewRetryCount).stringValue
+    };
 }
 
 @end

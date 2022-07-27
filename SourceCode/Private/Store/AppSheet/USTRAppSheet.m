@@ -4,7 +4,7 @@
 #import "USTRAppSheetError.h"
 #import "USTRAppSheetEvent.h"
 #import "USRVWebViewEventCategory.h"
-#import "UIViewController + TopController.h"
+#import "UIViewController+TopController.h"
 
 typedef void (^AppSheetCompletion)(BOOL result, NSString *__nullable error);
 

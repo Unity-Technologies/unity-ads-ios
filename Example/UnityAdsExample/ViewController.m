@@ -1,5 +1,5 @@
 #import "ViewController.h"
-
+#import "USRVDeviceLog.h"
 static NSString *const kDefaultGameId = @"14850";
 static NSString *const kGameIdKey = @"adsExampleAppGameId";
 
@@ -66,11 +66,12 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
     self.gameIdTextField.enabled = NO;
     self.testModeSwitch.enabled = NO;
 
-    [UnityAds setDebugMode: true];
-
+    [UnityAds setDebugMode: false];
+    [USRVDeviceLog setLogLevel: -1];
     [UnityAds initialize: gameId
                       testMode: self.testMode
         initializationDelegate: self];
+    [USRVDeviceLog setLogLevel: -1];
 } /* initializeButtonTapped */
 
 - (IBAction)interstitialLoadButtonTapped: (id)sender {
@@ -116,6 +117,20 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
     }
 }
 
+- (void)enableLoad: (BOOL)loadEnabled show: (BOOL)showEnabled forPlacementId: (NSString *)placementId {
+    if ([placementId isEqualToString: self.interstitialPlacementId]) {
+        [self toggleButtons: @[self.interstitialShowButton]
+                    enabled: showEnabled];
+        [self toggleButtons: @[self.interstitialLoadButton]
+                    enabled: loadEnabled];
+    } else if ([placementId isEqualToString: self.rewardedPlacementId]) {
+        [self toggleButtons: @[self.rewardedShowButton]
+                    enabled: showEnabled];
+        [self toggleButtons: @[self.rewardedLoadButton]
+                    enabled: loadEnabled];
+    }
+}
+
 #pragma mark UnityAdsInitializationDelegate
 
 - (void)initializationComplete {
@@ -135,17 +150,9 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
 - (void)unityAdsAdLoaded: (NSString *)placementId {
     NSLog(@"UnityAds adLoaded");
 
-    if ([placementId isEqualToString: self.interstitialPlacementId]) {
-        [self toggleButtons: @[self.interstitialShowButton]
-                    enabled: YES];
-        [self toggleButtons: @[self.interstitialLoadButton]
-                    enabled: NO];
-    } else if ([placementId isEqualToString: self.rewardedPlacementId]) {
-        [self toggleButtons: @[self.rewardedShowButton]
-                    enabled: YES];
-        [self toggleButtons: @[self.rewardedLoadButton]
-                    enabled: NO];
-    }
+    [self   enableLoad: NO
+                  show: YES
+        forPlacementId: placementId];
 }
 
 - (void)unityAdsAdFailedToLoad: (NSString *)placementId withError: (UnityAdsLoadError)error withMessage: (NSString *)message {
@@ -156,21 +163,17 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
 - (void)unityAdsShowComplete: (NSString *)placementId withFinishState: (UnityAdsShowCompletionState)state {
     NSLog(@"UnityAds showComplete %@ %ld", placementId, state);
 
-    if ([placementId isEqualToString: self.interstitialPlacementId]) {
-        [self toggleButtons: @[self.interstitialShowButton]
-                    enabled: NO];
-        [self toggleButtons: @[self.interstitialLoadButton]
-                    enabled: YES];
-    } else if ([placementId isEqualToString: self.rewardedPlacementId]) {
-        [self toggleButtons: @[self.rewardedShowButton]
-                    enabled: NO];
-        [self toggleButtons: @[self.rewardedLoadButton]
-                    enabled: YES];
-    }
+    [self   enableLoad: YES
+                  show: NO
+        forPlacementId: placementId];
 }
 
-- (void)unityAdsShowFailed: (NSString *)adUnitId withError: (UnityAdsShowError)error withMessage: (NSString *)message {
+- (void)unityAdsShowFailed: (NSString *)placementId withError: (UnityAdsShowError)error withMessage: (NSString *)message {
     NSLog(@"UnityAds showFailed %@ %ld", message, error);
+
+    [self   enableLoad: YES
+                  show: NO
+        forPlacementId: placementId];
 }
 
 - (void)unityAdsShowStart: (NSString *)adUnitId {

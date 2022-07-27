@@ -281,7 +281,7 @@ NSString * USRVNSStringFromCacheError(UnityServicesCacheError error) {
 }
 
 + (void)WebViewExposed_getHash: (NSString *)stringToHash callback: (USRVWebViewCallback *)callback {
-    [callback invoke: [stringToHash unityads_sha256], nil];
+    [callback invoke: [stringToHash uads_sha256], nil];
 }
 
 + (NSString *)fileIdToFilename: (NSString *)fileId {

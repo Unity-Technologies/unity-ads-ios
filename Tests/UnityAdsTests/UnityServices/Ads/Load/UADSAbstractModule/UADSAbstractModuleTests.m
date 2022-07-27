@@ -1,7 +1,7 @@
 #import "UnityAdsShowError.h"
 #import "NSArray+Convenience.h"
 #import "UADSAbstractTestModule.h"
-#import "UADSErrorHandlerMock.h"
+#import "UADSEventHandlerMock.h"
 #import "UADSAbstractModule.h"
 #import "UADSWebViewInvokerMock.h"
 #import "UADSAbstractModuleDelegateMock.h"
@@ -18,7 +18,7 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
 @property (nonatomic, strong) UADSWebViewInvokerMock *invokerMock;
 @property (nonatomic, strong) UADSAbstractModuleDelegateMock *delegateMock;
 @property (nonatomic, strong) UADSAbstractModule *moduleToTest;
-@property (nonatomic, strong) UADSErrorHandlerMock *errorHandlerMock;
+@property (nonatomic, strong) UADSEventHandlerMock *eventHandlerMock;
 @end
 
 
@@ -27,16 +27,17 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
 - (void)setUp {
     self.delegateMock = [UADSAbstractModuleDelegateMock new];
     self.invokerMock = [UADSWebViewInvokerMock new];
-    self.errorHandlerMock = [UADSErrorHandlerMock new];
+    self.eventHandlerMock = [UADSEventHandlerMock new];
     self.moduleToTest = [UADSAbstractTestModule newWithInvoker: _invokerMock
-                                               andErrorHandler: _errorHandlerMock];
+                                               andEventHandler: _eventHandlerMock
+                                                  timerFactory: [UADSTimerFactoryBase new]];
 }
 
 - (void)tearDown {
     _delegateMock = nil;
     _invokerMock = nil;
     _moduleToTest = nil;
-    _errorHandlerMock = nil;
+    _eventHandlerMock = nil;
 }
 
 - (UADSAbstractTestModule *)module {
@@ -49,7 +50,7 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     [self emulateDefaultExecuteMethodCallWait: false];
     [self validateInvokerIsCalledNumberOfTimes: 0];
     [self validateDelegateIsCalledWithDefaultError];
-    [self validateErrorHandlerIsCalledOnce];
+    XCTAssertEqual(_eventHandlerMock.errors.count, 1);
 }
 
 - (void)test_show_calls_stateSender {
@@ -68,9 +69,10 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     [self validateInvokerIsCalledNumberOfTimes: 1];
     [self validateInvokerIsCalledWithDefaultIDs];
     [self validateDelegateIsCalledWithDefaultError];
-    [self validateErrorHandlerIsCalledOnce];
+    [self validateEventHandlerIsCalledOnceWithError: kUADSListenerID];
     XCTAssertEqual(1, _delegateMock.errors.count);
-    XCTAssertEqualObjects(self.defaultInvokerError, _errorHandlerMock.errors.lastObject);
+    XCTAssertEqual(_eventHandlerMock.errors.count, 1);
+    XCTAssertEqualObjects(self.defaultInvokerError, [_eventHandlerMock.errors[kUADSListenerID] firstObject]);
 }
 
 - (void)test_if_operation_expires_error_is_sent_to_delegate {
@@ -81,9 +83,10 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     [self validateInvokerIsCalledNumberOfTimes: 1];
     [self validateInvokerIsCalledWithDefaultIDs];
     [self validateDelegateIsCalledNumberOfTimes: 1];
-    [self validateErrorHandlerIsCalledOnce];
+    [self validateEventHandlerIsCalledOnceWithError: kUADSListenerID];
     XCTAssertEqual(1, _delegateMock.errors.count);
-    XCTAssertEqualObjects(self.defaultExpectedExpirationError, _errorHandlerMock.errors.lastObject);
+    XCTAssertEqual(_eventHandlerMock.errors.count, 1);
+    XCTAssertEqualObjects(self.defaultExpectedExpirationError, [_eventHandlerMock.errors[kUADSListenerID] firstObject]);
 }
 
 - (void)test_operation_expiration_removes_operation_from_the_storage {
@@ -95,7 +98,7 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     [self validateInvokerIsCalledNumberOfTimes: 1];
     [self validateInvokerIsCalledWithDefaultIDs];
     [self validateDelegateIsCalledNumberOfTimes: 1];
-    [self validateErrorHandlerIsCalledOnce];
+    [self validateEventHandlerIsCalledOnceWithError: kUADSListenerID];
     XCTAssertEqual(1, _delegateMock.errors.count);
 }
 
@@ -108,7 +111,7 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     [self validateInvokerIsCalledNumberOfTimes: 1];
     [self validateInvokerIsCalledWithDefaultIDs];
     [self validateDelegateIsCalledWithDefaultError];
-    [self validateErrorHandlerIsCalledOnce];
+    [self validateEventHandlerIsCalledOnceWithError: kUADSListenerID];
     [self validateDelegateIsCalledNumberOfTimes: 1];
 }
 
@@ -223,8 +226,9 @@ static NSString *const kUADSTestDefaultMessage = @"kUADSTestDefaultMessage";
     return (UADSAbstractTestModuleState *)_invokerMock.operations.lastObject;
 }
 
-- (void)validateErrorHandlerIsCalledOnce {
-    XCTAssertEqual(_errorHandlerMock.errors.count, 1);
+- (void)validateEventHandlerIsCalledOnceWithError: (NSString *)opID {
+    XCTAssertEqual(_eventHandlerMock.errors.count, 1);
+    XCTAssertEqual([_eventHandlerMock.errors[opID] count], 1);
 }
 
 - (void)validateDelegateIsCalledWithDefaultError {

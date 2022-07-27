@@ -162,7 +162,7 @@
 
     XCTAssertNil(error, "Error was thrown parsing JSON");
 
-    XCTAssertEqualObjects([NSNumber numberWithInteger: [toJsonDictionary count]], [NSNumber numberWithInt: 20], "Size of JSON Objects was not as expected");
+    XCTAssertEqualObjects([NSNumber numberWithInteger: [toJsonDictionary count]], [NSNumber numberWithInt: 22], "Size of JSON Objects was not as expected");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject: @"hash"], "hash should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject: @"url"], "url should be set");
     XCTAssertTrue([[toJsonDictionary allKeys] containsObject: @"version"], "version should be set");

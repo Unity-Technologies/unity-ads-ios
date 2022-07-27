@@ -2,7 +2,7 @@
 
 @implementation SKOverlayAppConfiguration (Dictionary)
 
-+ (SKOverlayAppConfiguration *)overlayAppConfigurationFrom: (NSDictionary *)parameters API_AVAILABLE(ios(14.0)) {
++ (SKOverlayAppConfiguration *)uads_overlayAppConfigurationFrom: (NSDictionary *)parameters API_AVAILABLE(ios(14.0)) {
     NSString *appIdentifier = [parameters valueForKey: @"appIdentifier"];
     int position = [[parameters valueForKey: @"position"] intValue] ? : SKOverlayPositionBottom;
 
@@ -12,6 +12,11 @@
         config.userDismissible = [[parameters valueForKey: @"userDismissible"] boolValue] ? : false;
         config.campaignToken = [parameters valueForKey: @"campaignToken"];
         config.providerToken = [parameters valueForKey: @"providerToken"];
+
+        if (@available(iOS 15.0, *)) {
+            config.latestReleaseID = [parameters valueForKey: @"latestReleaseID"];
+            config.customProductPageIdentifier = [parameters valueForKey: @"customProductPageIdentifier"];
+        }
 
         NSDictionary *additional = [parameters valueForKey: @"additional"];
 

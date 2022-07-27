@@ -130,7 +130,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
 
 - (void)startPrepareTimeoutTimer: (NSInteger)timeout {
     self.prepareTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval: timeout
-                                                                target: self.weakSelf
+                                                                target: self.uads_weakSelf
                                                               selector: @selector(onPrepareTimeoutListener:)
                                                               userInfo: nil
                                                                repeats: false];
@@ -168,7 +168,7 @@ static void *itemStatusChangeToken = &itemStatusChangeToken;
     float interval = (float)self.progressInterval / 1000;
 
     self.progressTimer = [NSTimer scheduledTimerWithTimeInterval: interval
-                                                          target: self.weakSelf
+                                                          target: self.uads_weakSelf
                                                         selector: @selector(videoProgressTimer:)
                                                         userInfo: nil
                                                          repeats: YES];

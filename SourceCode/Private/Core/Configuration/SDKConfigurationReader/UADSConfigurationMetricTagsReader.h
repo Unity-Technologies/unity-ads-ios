@@ -2,4 +2,5 @@
 
 @protocol UADSConfigurationMetricTagsReader <NSObject>
 - (NSDictionary *)metricTags;
+- (NSDictionary *)metricInfo;
 @end

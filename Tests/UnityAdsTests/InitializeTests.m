@@ -240,7 +240,7 @@
 - (void)testInitializeStateCreate {
     NSString *url = @"https://www.example.com/handlecallback.html";
     NSString *data = @"<script>window.webkit.messageHandlers.handleInvocation.postMessage(JSON.stringify([[\"USRVApiSdk\",\"initComplete\", [], \"1\"]]));</script>";
-    NSString *hash = [data unityads_sha256];
+    NSString *hash = [data uads_sha256];
 
     [data writeToFile: [USRVSdkProperties getLocalWebViewFile]
            atomically: YES
@@ -276,7 +276,7 @@
 - (void)testInitializeStateCreateFailed {
     NSString *url = @"https://www.example.com/handlecallback.html";
     NSString *data = @"<script>window.webkit.messageHandlers.handleInvocation.postMessage(JSON.stringify([[\"USRVApiSdk\",\"initError\", ['error', 1], \"0\"]]));</script>";
-    NSString *hash = [data unityads_sha256];
+    NSString *hash = [data uads_sha256];
 
     [data writeToFile: [USRVSdkProperties getLocalWebViewFile]
            atomically: YES
@@ -319,7 +319,7 @@
     [config setNetworkErrorTimeout: oneHalfSecond];
     USRVInitializeStateNetworkError *networkErrorState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration: config
                                                                                                            erroredState: NULL
-                                                                                                              stateName: @"fake-state-in-test"
+                                                                                                                   code: kUADSErrorStateInvalidHash
                                                                                                                 message: @"this is just a test"];
 
 
@@ -437,7 +437,7 @@
     USRVConfiguration *config = [[USRVConfiguration alloc] init];
     USRVInitializeStateError *errorState = [[USRVInitializeStateError alloc] initWithConfiguration: config
                                                                                       erroredState: @"create"
-                                                                                         stateName: @"create"
+                                                                                              code: kUADSErrorStateNetworkConfigRequest
                                                                                            message: @"not found"];
 
     XCTestExpectation *expectation1 = [self expectationWithDescription: @"expectation"];
@@ -467,7 +467,7 @@
 
     NSString *url = @"https://www.example.com/handlecallback.html";
     NSString *data = @"<script>window.webkit.messageHandlers.handleInvocation.postMessage(JSON.stringify([[\"USRVApiSdk\",\"initError\", ['error from webview', 1], \"0\"]]));</script>";
-    NSString *hash = [data unityads_sha256];
+    NSString *hash = [data uads_sha256];
 
     [data writeToFile: [USRVSdkProperties getLocalWebViewFile]
            atomically: YES
@@ -650,11 +650,11 @@
                        error: nil];
 
     [localConfig setWebViewData: webViewData];
-    [localConfig setWebViewHash: [webViewData unityads_sha256]];
+    [localConfig setWebViewHash: [webViewData uads_sha256]];
     [localConfig setSdkVersion: [USRVSdkProperties getVersionName]];
 
     [downloadedConfig setWebViewData: webViewData2];
-    [downloadedConfig setWebViewHash: [webViewData2 unityads_sha256]];
+    [downloadedConfig setWebViewHash: [webViewData2 uads_sha256]];
 
     USRVInitializeStateCheckForUpdatedWebView *checkForUpdatedWebView = [[USRVInitializeStateCheckForUpdatedWebView alloc] initWithConfiguration: downloadedConfig
                                                                                                                               localConfiguration: localConfig];
@@ -676,10 +676,10 @@
                        error: nil];
 
     [localConfig setWebViewData: webViewData];
-    [localConfig setWebViewHash: [webViewData unityads_sha256]];
+    [localConfig setWebViewHash: [webViewData uads_sha256]];
 
     [downloadedConfig setWebViewData: webViewData];
-    [downloadedConfig setWebViewHash: [webViewData unityads_sha256]];
+    [downloadedConfig setWebViewHash: [webViewData uads_sha256]];
 
     USRVInitializeStateCheckForUpdatedWebView *checkForUpdatedWebView = [[USRVInitializeStateCheckForUpdatedWebView alloc] initWithConfiguration: downloadedConfig
                                                                                                                               localConfiguration: localConfig];
@@ -721,7 +721,7 @@
 
     NSString *webViewData = @"Random webView data";
 
-    localConfig.webViewHash = [webViewData unityads_sha256];
+    localConfig.webViewHash = [webViewData uads_sha256];
     [webViewData writeToFile: [USRVSdkProperties getLocalWebViewFile]
                   atomically: YES
                     encoding: NSUTF8StringEncoding
@@ -743,7 +743,7 @@
 
     NSString *webViewData = @"Random webView data";
 
-    localConfig.webViewHash = [webViewData unityads_sha256];
+    localConfig.webViewHash = [webViewData uads_sha256];
 
     USRVInitializeStateCheckForCachedWebViewUpdate *updateCache = [[USRVInitializeStateCheckForCachedWebViewUpdate alloc] initWithConfiguration: localConfig];
     USRVInitializeState *nextState = [updateCache execute];

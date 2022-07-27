@@ -1,6 +1,6 @@
 @implementation NSObject (DeepCopy)
 
-- (instancetype)deepCopy {
+- (instancetype)uads_deepCopy {
     return [NSKeyedUnarchiver unarchiveObjectWithData: [NSKeyedArchiver archivedDataWithRootObject: self]];
 }
 

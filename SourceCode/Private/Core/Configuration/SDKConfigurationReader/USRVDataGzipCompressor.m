@@ -5,7 +5,7 @@
 @implementation USRVDataGzipCompressor
 
 - (NSData *)compressedIntoData: (NSDictionary *)dictionary {
-    return dictionary.jsonData.gzippedData;
+    return dictionary.uads_jsonData.uads_gzippedData;
 }
 
 @end

@@ -30,14 +30,14 @@
 
 - (void)show: (NSDictionary *)configDictionary {
     if (@available(iOS 14.0, *)) {
-        UIWindowScene *scene = [UIViewController currentWindowScene];
+        UIWindowScene *scene = [UIViewController uads_currentWindowScene];
 
         if (scene == nil) {
             [self.handler sendOverlayDidFailToLoad: kOverlaySceneNotFound];
             return;
         }
 
-        SKOverlayAppConfiguration *config = [SKOverlayAppConfiguration overlayAppConfigurationFrom: configDictionary];
+        SKOverlayAppConfiguration *config = [SKOverlayAppConfiguration uads_overlayAppConfigurationFrom: configDictionary];
 
         if (config == nil) {
             [self.handler sendOverlayDidFailToLoad: kOverlayInvalidParamaters];
@@ -62,7 +62,7 @@
 
 - (void)hide {
     if (@available(iOS 14.0, *)) {
-        UIWindowScene *scene = [UIViewController currentWindowScene];
+        UIWindowScene *scene = [UIViewController uads_currentWindowScene];
         [SKOverlay dismissOverlayInScene: scene];
         self.currentAppIdentifier = nil;
     }

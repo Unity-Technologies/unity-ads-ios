@@ -2,13 +2,13 @@
 #import <XCTest/XCTest.h>
 #import "XCTestCase+Convenience.h"
 #import "NSDictionary+JSONString.h"
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 #import "NSArray+Sort.h"
 #import "UADSConfigurationPersistenceMock.h"
 #import "UADSBaseURLBuilder.h"
 #import "SDKMetricsSenderMock.h"
-#import "ConfigurationMetricTagsReaderMock.h"
 #import "NSData+GZIP.h"
+
 
 @implementation UADSLoaderIntegrationTestsHelper
 
@@ -35,6 +35,10 @@
 }
 
 - (void)validateURLOfRequest: (NSString *)urlString withExpectedCompressedKeys: (NSArray *)expectedKeys {
+    if (expectedKeys == nil || expectedKeys.count == 0) {
+        return;
+    }
+
     NSURLComponents *components = [[NSURLComponents alloc] initWithString: urlString];
     __block NSString *compressed;
 
@@ -52,7 +56,7 @@
     NSData *decoded = [[NSData alloc] initWithBase64EncodedString: compressed
                                                           options: 0];
 
-    decoded = [decoded gunzippedData];
+    decoded = [decoded uads_gunzippedData];
     NSDictionary *params = (NSDictionary *)[NSJSONSerialization JSONObjectWithData: decoded
                                                                            options: 0
                                                                              error: nil];
@@ -72,6 +76,12 @@
     };
 }
 
+- (NSDictionary *)successPayloadPrivacy {
+    return @{
+        @"pas": @(true)
+    };
+}
+
 - (NSDictionary *)successPayloadMissedData {
     return @{
         kUnityServicesConfigValueUrl: @"url",
@@ -84,12 +94,6 @@
         @"sdkVersionName": @"sdkVersionNameValue",
         @"ts": @"tsValue",
         @"sdkVersion": @"sdkVersion"
-    };
-}
-
-- (NSDictionary *)tsiFlowQueries {
-    return @{
-        @"c": @"compressedValue",
     };
 }
 

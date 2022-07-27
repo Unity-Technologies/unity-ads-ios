@@ -4,11 +4,12 @@ typedef NS_ENUM (int, UnityServicesLogLevel) {
     kUnityServicesLogLevelError   = 1,
     kUnityServicesLogLevelWarning = 2,
     kUnityServicesLogLevelInfo    = 3,
-    kUnityServicesLogLevelDebug   = 4
+    kUnityServicesLogLevelDebug   = 4,
+    kUnityServicesLogLevelPerf    = -5
 };
 
 #define USRVLogCore(logLevel, logLevelStr, format, function, lineNumber, ...) \
-    if (logLevel <= [USRVDeviceLog getLogLevel]) NSLog((@"%@/UnityAds: %s (line:%d) :: " format), logLevelStr, function, lineNumber, ## __VA_ARGS__);
+    if (logLevel <= [USRVDeviceLog getLogLevel]) { NSLog((@"%@/UnityAds: %s (line:%d) :: " format), logLevelStr, function, lineNumber, ## __VA_ARGS__); }
 
 #define USRVLogError(fmt, ...)   USRVLogCore(kUnityServicesLogLevelError, @"E", fmt, __PRETTY_FUNCTION__, __LINE__, ## __VA_ARGS__);
 #define USRVLogWarning(fmt, ...) USRVLogCore(kUnityServicesLogLevelWarning, @"W", fmt, __PRETTY_FUNCTION__, __LINE__, ## __VA_ARGS__);

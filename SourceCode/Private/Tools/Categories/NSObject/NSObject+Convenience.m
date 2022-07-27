@@ -3,7 +3,7 @@
 
 @implementation NSObject (Category)
 
-+ (bool)containsMethods: (NSArray<NSString *> *)names {
++ (bool)uads_containsMethods: (NSArray<NSString *> *)names {
     if (names.count == 0) {
         return true;
     }

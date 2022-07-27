@@ -3,10 +3,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface NSDictionary (JSONString)
-- (NSString *)       jsonEncodedString;
-- (NSData *_Nullable)jsonData;
-- (NSString *)       queryString;
-- (BOOL)             isEmpty;
+- (NSString *)       uads_jsonEncodedString;
+- (NSData *_Nullable)uads_jsonData;
+- (NSString *)       uads_queryString;
+- (BOOL)             uads_isEmpty;
 @end
 
 NS_ASSUME_NONNULL_END

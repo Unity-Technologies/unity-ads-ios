@@ -6,7 +6,7 @@
     _getTokenCount += 1;
 
     if (!_shoudSkipCompletion) {
-        completion(_expectedToken, kUADSTokenNative);
+        completion([UADSHeaderBiddingToken newNative: _expectedToken]);
     }
 }
 

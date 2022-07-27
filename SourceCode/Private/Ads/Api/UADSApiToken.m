@@ -1,7 +1,11 @@
 #import "UADSApiToken.h"
 #import "USRVWebViewCallback.h"
 #import "UADSTokenStorage.h"
-#import "UADSHeaderBiddingTokenReaderBuilder.h"
+#import "UADSServiceProvider.h"
+#import "UADSWebViewEvent.h"
+
+NSString *const kTokenEventName = @"TOKEN_NATIVE_DATA";
+NSString *const kTokenCategoryName = @"TOKEN";
 
 @implementation UADSApiToken
 
@@ -25,8 +29,27 @@
     [callback invoke: nil];
 }
 
++ (void)WebViewExposed_getNativeGeneratedToken: (USRVWebViewCallback *)callback {
+    
+    [self.serviceProvider.nativeTokenGenerator getToken:^(UADSHeaderBiddingToken * _Nullable token) {
+            UADSWebViewEventBase *event = [UADSWebViewEventBase newWithCategory: kTokenCategoryName
+                                                                      withEvent: kTokenEventName
+                                                                     withParams: @[token.value]];
+        [self.webViewEventSender sendEvent: event];
+    }];
+    [callback invoke: nil];
+}
+
 + (id<UADSHeaderBiddingTokenCRUD>)tokenStorage {
-    return UADSHeaderBiddingTokenReaderBuilder.sharedInstance.defaultReader;
+    return self.serviceProvider.hbTokenReader;
+}
+
++ (UADSServiceProvider *)serviceProvider {
+    return UADSServiceProvider.sharedInstance;
+}
+
++ (id<UADSWebViewEventSender>)webViewEventSender {
+    return self.serviceProvider.webViewEventSender;
 }
 
 @end

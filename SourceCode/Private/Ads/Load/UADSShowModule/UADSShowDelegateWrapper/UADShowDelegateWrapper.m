@@ -25,6 +25,10 @@
         publicErrorCode = kUnityShowErrorInternalError;
     }
 
+    if (error.errorCode == kUADSInternalErrorWebView && error.reasonCode ==  kUADSInternalErrorWebViewTimeout) {
+        publicErrorCode = kUnityShowErrorTimeout;
+    }
+
     if (error.errorCode == kUADSInternalErrorAbstractModule && error.reasonCode == kUADSInternalErrorAbstractModuleTimeout) {
         publicErrorCode = kUnityShowErrorInternalError;
     }

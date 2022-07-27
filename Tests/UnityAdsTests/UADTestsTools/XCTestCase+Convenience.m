@@ -1,6 +1,7 @@
 
 #import "XCTestCase+Convenience.h"
 #import "XCTestAssert+Fail.h"
+#import "UADSTools.h"
 @implementation XCTestCase (Category)
 - (XCTestExpectation *)defaultExpectation {
     return [self expectationWithDescription: NSStringFromClass([self class])];
@@ -35,6 +36,14 @@
 
     [self waitForExpectations: @[expectation]
                       timeout: 30];
+}
+
+- (void)runBlockAsync: (int)count block: (UADSVoidClosure)closureToPerform {
+    for (int i = 0; i < count; i++) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            closureToPerform();
+        });
+    }
 }
 
 - (void)postDidBecomeActive {

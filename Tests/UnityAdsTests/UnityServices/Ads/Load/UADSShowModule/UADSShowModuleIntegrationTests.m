@@ -88,7 +88,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     [self validateShowFailedForAReason: kUnityShowErrorInternalError];
 }
 
-- (void)test_sends_show_internal_timeout_if_web_view_timeout {
+- (void)test_sends_show_timeout_error_if_web_view_timeout {
     [self setExpectationInDelegate];
     [self initializeCommonFlowWithSDKInitialized: true
                                  withPlacementID: kUADSLoadModuleTestsPlacementID];
@@ -99,7 +99,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
                           completedPlacements: 0
                             clickedPlacements: 0
                             startedPlacements: 0];
-    [self validateShowFailedForAReason: kUnityShowErrorInternalError];
+    [self validateShowFailedForAReason: kUnityShowErrorTimeout];
 }
 
 - (void)test_show_complete_removes_delegate_from_the_storage {

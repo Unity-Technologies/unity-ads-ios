@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "WKWebView + UserAgent.h"
+#import "WKWebView+UserAgent.h"
 
 @interface WKWebViewUserAgentTestCase : XCTestCase
 
@@ -8,7 +8,7 @@
 @implementation WKWebViewUserAgentTestCase
 
 - (void)test_returns_web_view_agent_string {
-    XCTAssertNotNil([WKWebView getUserAgentSync]);
+    XCTAssertNotNil([WKWebView uads_getUserAgentSync]);
 }
 
 @end

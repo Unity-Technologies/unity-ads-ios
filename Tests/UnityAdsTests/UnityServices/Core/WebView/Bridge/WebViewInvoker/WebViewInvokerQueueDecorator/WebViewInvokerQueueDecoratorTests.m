@@ -256,10 +256,8 @@ static NSString *const NOT_INITIALIZED_FAILURE_MESSAGE = @"SHOULD NOT FALL HERE 
 }
 
 - (void)emulateSDKInitializeFailNotification {
-    NSNumber *code = [NSNumber numberWithInteger: self.mockError.errorCode];
-
     [_notificationCenter triggerSdkInitializeDidFail: self.mockError.errorMessage
-                                                code: code];
+                                                code: self.mockError.errorCode];
 }
 
 - (UADSInternalError *)mockError {

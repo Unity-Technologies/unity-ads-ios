@@ -4,7 +4,8 @@
 #import <UIKit/UIKit.h>
 #import "UADSWebViewInvoker.h"
 #import "UADSAbstractModuleOperationBasicObject.h"
-#import "UADSInternalErrorLogger.h"
+#import "UADSTimerFactory.h"
+#import "UADSEventHandler.h"
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kUnityAdsNotSupportedMessage = @"Unity Ads is not supported for this device";
@@ -16,7 +17,8 @@ typedef NSDictionary<NSString *, id<UADSAbstractModuleOperationObject> > UADSAbs
 // Contains common initialization flow for sharedInstances.
 + (instancetype)newSharedModule;
 + (instancetype) newWithInvoker: (id<UADSWebViewInvoker>)invoker
-                andErrorHandler: (id<UADSInternalErrorHandler>)errorHandler;
+                andEventHandler: (id<UADSEventHandler>)eventHandler
+                   timerFactory: (id<UADSTimerFactory>)timerFactory;
 + (instancetype)                         createDefaultModule;
 + (instancetype)                         sharedInstance;
 + (void)setConfiguration: (USRVConfiguration *)config;
@@ -28,6 +30,7 @@ typedef NSDictionary<NSString *, id<UADSAbstractModuleOperationObject> > UADSAbs
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                         withOptions: (id<UADSDictionaryConvertible>)options
+                                                              timer: (id<UADSRepeatableTimer>)timer
                                                        withDelegate: (id<UADSAbstractModuleDelegate>)delegate;
 
 - (UADSInternalError *_Nullable)executionErrorForPlacementID: (NSString *)placementID;
@@ -37,6 +40,8 @@ typedef NSDictionary<NSString *, id<UADSAbstractModuleOperationObject> > UADSAbs
 - (_Nullable id)getDelegateForIDAndRemove: (NSString *)listenerID;
 - (NSInteger)                            operationOperationTimeoutMs;
 - (id<UADSAbstractModuleOperationObject>)getOperationWithID: (NSString *)operationID;
+- (void)handleSuccess: (NSString *)operationID;
+- (void)catchError: (UADSInternalError *)error forId: (NSString *)operationID;
 @end
 
 NS_ASSUME_NONNULL_END

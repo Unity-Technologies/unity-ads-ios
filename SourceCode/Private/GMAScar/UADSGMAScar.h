@@ -19,6 +19,8 @@
 - (NSString *)   sdkVersion;
 
 - (BOOL)         isAvailable;
+- (BOOL)         isGADSupported;
+- (BOOL)         isGADExists;
 
 - (void)getSCARSignalsUsingInterstitialList: (NSArray *)interstitialList
                             andRewardedList: (NSArray *)rewardedList

@@ -1,5 +1,5 @@
 @interface NSObject (DeepCopy)
 
-- (instancetype)deepCopy;
+- (instancetype)uads_deepCopy;
 
 @end

@@ -2,7 +2,7 @@
 
 @implementation USRVDeviceLog
 
-static UnityServicesLogLevel _logLevel = kUnityServicesLogLevelDebug;
+static UnityServicesLogLevel _logLevel = -1;
 
 + (void)setLogLevel: (UnityServicesLogLevel)logLevel {
     _logLevel = logLevel;

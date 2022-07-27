@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "USRVInitializationDelegate.h"
+#import "UADSErrorState.h"
 
 @protocol USRVInitializationNotificationCenterProtocol
 
@@ -9,7 +10,7 @@
 
 - (void)        triggerSdkDidInitialize;
 
-- (void)triggerSdkInitializeDidFail: (NSString *)message code: (NSNumber *)code;
+- (void)triggerSdkInitializeDidFail: (NSString *)message code: (UADSErrorState)code;
 
 @end
 
@@ -23,6 +24,6 @@
 
 - (void)        triggerSdkDidInitialize;
 
-- (void)triggerSdkInitializeDidFail: (NSString *)message code: (NSNumber *)code;
+- (void)triggerSdkInitializeDidFail: (NSString *)message code: (UADSErrorState)code;
 
 @end

@@ -14,7 +14,7 @@
         @"id": @"unique_ID"
     };
 
-    XCTAssertEqualObjects(data.queryString, @"?id=unique_ID&username=user_name");
+    XCTAssertEqualObjects(data.uads_queryString, @"?id=unique_ID&username=user_name");
 }
 
 @end

@@ -11,7 +11,7 @@
 #import "USRVDevice.h"
 #import "USRVConnectivityUtils.h"
 #import "NSString+Hash.h"
-#import "WKWebView + UserAgent.h"
+#import "WKWebView+UserAgent.h"
 
 #ifndef MSEC_PER_SEC
 #define MSEC_PER_SEC 1000ull
@@ -508,7 +508,7 @@ static NSNumber *uadsBootTime = nil;
 }
 
 + (NSString *)getDeviceName {
-    return [[[UIDevice currentDevice] name] unityads_sha256];
+    return [[[UIDevice currentDevice] name] uads_sha256];
 }
 
 + (NSNumber *)getSystemBootTime {
@@ -543,7 +543,7 @@ static NSNumber *uadsBootTime = nil;
 }
 
 + (NSString *)getWebViewUserAgent {
-    return [WKWebView getUserAgentSync];
+    return [WKWebView uads_getUserAgentSync];
 }
 
 + (BOOL)isAppInForeground {
@@ -551,13 +551,13 @@ static NSNumber *uadsBootTime = nil;
 }
 
 + (NSNumber *)currentTimeStamp {
-    double timestamp = [UADSCurrentTimestampBase new].currentTimestamp;
+    double timestamp = [UADSCurrentTimestampBase new].epochSeconds;
 
     return @(round(timestamp * 1000));
 }
 
 + (NSNumber *)currentTimeStampInSeconds {
-    double timestamp = [UADSCurrentTimestampBase new].currentTimestamp;
+    double timestamp = [UADSCurrentTimestampBase new].epochSeconds;
 
     return @(round(timestamp));
 }

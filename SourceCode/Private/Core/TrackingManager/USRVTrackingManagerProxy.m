@@ -1,31 +1,27 @@
 #import <dlfcn.h>
 #import <objc/runtime.h>
 #import <Foundation/Foundation.h>
+#import "UADSTools.h"
 
 #import "USRVDevice.h"
 #import "USRVTrackingManagerProxy.h"
 #import "USRVWebViewApp.h"
 
+#import <AppTrackingTransparency/AppTrackingTransparency.h>
+
 @interface USRVTrackingManagerProxy ()
-@property (strong, nonatomic) Class trackingManagerClass;
 @end
 
 @implementation USRVTrackingManagerProxy
 
-- (instancetype)init {
-    if (self = [super init]) {
-        if (![USRVTrackingManagerProxy loadFramework]) {
-            USRVLogDebug(@"Can't load ATTrackingManager");
-        }
-
-        self.trackingManagerClass = NSClassFromString(@"ATTrackingManager");
-    }
-
-    return self;
-}
+_uads_default_singleton_imp(USRVTrackingManagerProxy);
 
 - (BOOL)available {
-    return self.trackingManagerClass != nil && [[NSBundle mainBundle] objectForInfoDictionaryKey: @"NSUserTrackingUsageDescription"] != nil;
+    if (@available(iOS 14, *)) {
+        return [[NSBundle mainBundle] objectForInfoDictionaryKey: @"NSUserTrackingUsageDescription"] != nil;
+    }
+
+    return false;
 }
 
 - (void)requestTrackingAuthorization {
@@ -38,73 +34,18 @@
                                          category: @"TRACKING_MANAGER"
                                            param1: [NSNumber numberWithUnsignedInteger: result], nil];
     };
-    SEL requestSelector = NSSelectorFromString(@"requestTrackingAuthorizationWithCompletionHandler:");
 
-    if ([self.trackingManagerClass respondsToSelector: requestSelector]) {
-        [self.trackingManagerClass performSelector: requestSelector
-                                        withObject: handler];
+    if (@available(iOS 14, *)) {
+        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler: handler];
     }
 }
 
 - (NSUInteger)trackingAuthorizationStatus {
-    if (!self.available) {
+    if (@available(iOS 14, *)) {
+        return [ATTrackingManager trackingAuthorizationStatus];
+    } else {
         return 0;
     }
-
-    NSUInteger value = [[self.trackingManagerClass valueForKey: @"trackingAuthorizationStatus"] unsignedIntegerValue];
-
-    return value;
 }
-
-+ (USRVTrackingManagerProxy *)sharedInstance {
-    static USRVTrackingManagerProxy *instance = nil;
-    static dispatch_once_t onceToken;
-
-    dispatch_once(&onceToken, ^{
-        instance = [[USRVTrackingManagerProxy alloc] init];
-    });
-    return instance;
-}
-
-+ (BOOL)isFrameworkPresent {
-    id attClass = objc_getClass("ATTrackingManager");
-
-    if (attClass) {
-        return YES;
-    }
-
-    return NO;
-}
-
-+ (BOOL)loadFramework {
-    NSString *frameworkLocation;
-
-    if (![USRVTrackingManagerProxy isFrameworkPresent]) {
-        USRVLogDebug(@"AppTrackingTransparency Framework is not present, trying to load it.");
-
-        if ([USRVDevice isSimulator]) {
-            NSString *frameworkPath = [[NSProcessInfo processInfo] environment][@"DYLD_FALLBACK_FRAMEWORK_PATH"];
-
-            if (frameworkPath) {
-                frameworkLocation = [NSString pathWithComponents: @[frameworkPath, @"AppTrackingTransparency.framework", @"AppTrackingTransparency"]];
-            }
-        } else {
-            frameworkLocation = [NSString stringWithFormat: @"/System/Library/Frameworks/AppTrackingTransparency.framework/AppTrackingTransparency"];
-        }
-
-        dlopen([frameworkLocation cStringUsingEncoding: NSUTF8StringEncoding], RTLD_LAZY);
-
-        if (![USRVTrackingManagerProxy isFrameworkPresent]) {
-            USRVLogError(@"AppTrackingTransparency still not present!");
-            return NO;
-        } else {
-            USRVLogDebug(@"Succesfully loaded AppTrackingTransparency framework");
-            return YES;
-        }
-    } else {
-        USRVLogDebug(@"AppTrackingTransparency framework already present");
-        return YES;
-    }
-} /* loadFramework */
 
 @end

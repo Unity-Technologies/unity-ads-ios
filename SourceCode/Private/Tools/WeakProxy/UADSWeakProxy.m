@@ -1,10 +1,3 @@
-//
-//  UADSWeakProxy.m
-//  UnityAds
-//
-//  Created by Alex Crowe on 2020-10-13.
-//
-
 #import "UADSWeakProxy.h"
 
 @interface UADSWeakProxy ()

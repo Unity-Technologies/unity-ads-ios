@@ -34,7 +34,7 @@
 
         case INITIALIZED_FAILED:
         case NOT_INITIALIZED:
-            completion(nil, kUADSTokenRemote);
+            completion([UADSHeaderBiddingToken newInvalidToken]);
             break;
     }
 }

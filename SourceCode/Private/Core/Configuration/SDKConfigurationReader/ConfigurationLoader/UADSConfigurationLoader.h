@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "UADSGenericCompletion.h"
-#import "USRVConfigurationRequestFactory.h"
+#import "USRVInitializationRequestFactory.h"
 #import "USRVConfiguration.h"
 NS_ASSUME_NONNULL_BEGIN
 @class USRVConfiguration;
@@ -12,6 +12,7 @@ typedef NS_ENUM (NSInteger, UADSConfigurationLoaderError) {
     kUADSConfigurationLoaderInvalidResponseCode
 };
 
+extern NSString * uads_configurationErrorTypeToString(UADSConfigurationLoaderError type);
 extern NSString *const kConfigurationLoaderErrorDomain;
 
 #define uads_invalidWebViewURLLoaderError \
@@ -43,7 +44,7 @@ typedef void (^UADSConfigurationCompletion)(USRVConfiguration *);
 @end
 
 @interface UADSConfigurationLoaderBase : NSObject<UADSConfigurationLoader>
-+ (id<UADSConfigurationLoader>)newWithFactory: (id<USRVConfigurationRequestFactory>)requestFactory;
++ (id<UADSConfigurationLoader>)newWithFactory: (id<USRVInitializationRequestFactory>)requestFactory;
 @end
 
 NS_ASSUME_NONNULL_END

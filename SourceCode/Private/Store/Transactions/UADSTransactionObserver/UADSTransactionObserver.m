@@ -1,7 +1,7 @@
 #import "UADSTransactionObserver.h"
-#import "NSMutableDictionary + SafeOperations.h"
-#import "SKPaymentTransaction + Dictionary.h"
-#import "NSArray + Map.h"
+#import "NSMutableDictionary+SafeOperations.h"
+#import "SKPaymentTransaction+Dictionary.h"
+#import "NSArray+Map.h"
 static NSString *const kSKPaymentTransactionReceiptKey = @"receipt";
 
 @interface UADSTransactionObserver ()

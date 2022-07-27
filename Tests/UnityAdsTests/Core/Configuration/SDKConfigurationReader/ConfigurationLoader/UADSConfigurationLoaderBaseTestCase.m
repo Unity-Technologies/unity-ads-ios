@@ -9,6 +9,26 @@
 
 @implementation UADSConfigurationLoaderBaseTestCase
 
+- (void)test_if_loader_uses_proper_factory_request_type {
+    USRVConfigurationRequestFactoryMock *factory = [USRVConfigurationRequestFactoryMock new];
+    UADSConfigurationLoaderBase *sut = [UADSConfigurationLoaderBase newWithFactory: factory];
+    XCTestExpectation *exp = [self defaultExpectation];
+    id successCheck = ^(id obj) {
+        [exp fulfill];
+    };
+
+    id errorCheck = ^(id<UADSError> _Nonnull error) {
+        [exp fulfill];
+    };
+
+    [sut loadConfigurationWithSuccess: successCheck
+                   andErrorCompletion: errorCheck];
+    [self waitForExpectations: @[exp]
+                      timeout: 1];
+
+    XCTAssertEqualObjects(factory.requestedTypes, @[@(USRVInitializationRequestTypeToken)]);
+}
+
 - (void)test_if_request_is_not_created_loader_returns_error {
     USRVConfigurationRequestFactoryMock *factory = [USRVConfigurationRequestFactoryMock new];
     UADSConfigurationLoaderBase *sut = [UADSConfigurationLoaderBase newWithFactory: factory];

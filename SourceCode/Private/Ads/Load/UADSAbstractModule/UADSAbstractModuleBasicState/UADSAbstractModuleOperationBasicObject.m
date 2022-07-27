@@ -41,9 +41,11 @@
 
 - (void)startTimer {
     __weak typeof(self) weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, _ttl * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        [weakSelf signalExpiration];
-    });
+    [self.timer scheduleWithTimeInterval: _ttl
+                             repeatCount: 1
+                                   block:^(NSInteger index) {
+                                       [weakSelf signalExpiration];
+                                   }];
 }
 
 - (void)signalExpiration {
@@ -53,6 +55,8 @@
 }
 
 - (void)stopTTLObserving {
+    [self.timer invalidate];
+    self.timer = nil;
     _operationExpired = nil;
 }
 

@@ -4,14 +4,33 @@
 
 NSString *const kConfigurationLoaderErrorDomain = @"com.unity.ads.UADSConfigurationLoader";
 
+extern NSString * uads_configurationErrorTypeToString(UADSConfigurationLoaderError type) {
+    switch (type) {
+        case kUADSConfigurationLoaderParsingError:
+            return @"ResponseParsing";
+
+        case kUADSConfigurationLoaderRequestIsNotCreated:
+            return @"ConfigurationRequestNotCreated";
+
+        case kUADSConfigurationLoaderInvalidResponseCode:
+            return @"RequestFailed";
+
+        case kUADSConfigurationLoaderInvalidWebViewURL:
+            return @"URLNotFound";
+
+        default:
+            return nil;
+    }
+}
+
 @interface UADSConfigurationLoaderBase ()
-@property (nonatomic, strong) id<USRVConfigurationRequestFactory>requestFactory;
+@property (nonatomic, strong) id<USRVInitializationRequestFactory>requestFactory;
 @end
 
 @implementation UADSConfigurationLoaderBase
 
-+ (id<UADSConfigurationLoader>)newWithFactory: (id<USRVConfigurationRequestFactory>)requestFactory {
-    UADSConfigurationLoaderBase *base = [UADSConfigurationLoaderBase new];
++ (id<UADSConfigurationLoader>)newWithFactory: (id<USRVInitializationRequestFactory>)requestFactory {
+    UADSConfigurationLoaderBase *base = [self new];
 
     base.requestFactory = requestFactory;
     return base;
@@ -22,7 +41,7 @@ NSString *const kConfigurationLoaderErrorDomain = @"com.unity.ads.UADSConfigurat
     id<USRVWebRequest> request;
 
     @try {
-        request = [self.requestFactory configurationRequestFor: UADSGameModeMix];
+        request = [self.requestFactory requestOfType: USRVInitializationRequestTypeToken];
     } @catch (NSException *exception) {
         errorCompletion(uads_requestIsNotCreatedLoaderError);
         return;

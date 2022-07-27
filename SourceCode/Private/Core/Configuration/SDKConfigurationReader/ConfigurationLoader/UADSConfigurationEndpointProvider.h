@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "USRVJsonStorage.h"
-#import "NSBundle + TypecastGet.h"
+#import "NSBundle+TypecastGet.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

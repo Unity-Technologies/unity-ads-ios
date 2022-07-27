@@ -1,4 +1,4 @@
-#import "USRVConfigurationRequestFactory.h"
+#import "USRVInitializationRequestFactory.h"
 #import "UADSConfigurationExperiments.h"
 #import "UADSConfigurationLoader.h"
 #import "USRVWebRequest.h"
@@ -53,6 +53,8 @@ extern NSString *const kUnityServicesConfigValueStateID;
 @property (nonatomic, strong) UADSConfigurationExperiments *experiments;
 @property (nonatomic, strong) NSString *source;
 @property (nonatomic, assign) long hbTokenTimeout;
+@property (nonatomic, assign) long privacyWaitTimeout;
+@property (nonatomic, assign) BOOL enableNativeMetrics;
 @property (nonatomic, strong, readonly) NSDictionary *originalJSON;
 
 - (void)        saveToDisk;

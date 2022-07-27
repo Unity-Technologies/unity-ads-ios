@@ -6,7 +6,7 @@
 
 
 - (nonnull NSString *)compressedIntoString: (nonnull NSDictionary *)dictionary {
-    return dictionary.jsonEncodedString;
+    return dictionary.uads_jsonEncodedString;
 }
 
 + (id<USRVStringCompressor>)defaultURLEncoded; {

@@ -3,7 +3,7 @@
 #import "USRVWebViewApp.h"
 #import "USRVWebViewAppMock.h"
 #import "UADSOverlayWebViewEvent.h"
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 
 @interface UADSOverlayEventHandlerTests : XCTestCase
 @property (nonatomic, strong) USRVWebViewAppMock *webAppMock;

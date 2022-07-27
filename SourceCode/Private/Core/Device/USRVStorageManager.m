@@ -126,8 +126,8 @@ _uads_custom_singleton_imp(USRVStorageManager, ^{
             id storageValue = [storage getValueForKey: key];
 
             if (storageValue && [storageValue isKindOfClass: [NSDictionary class]] && [value isKindOfClass: [NSDictionary class]]) {
-                value = [NSDictionary unityads_dictionaryByMerging: value
-                                                         secondary: storageValue];
+                value = [NSDictionary uads_dictionaryByMerging: value
+                                                     secondary: storageValue];
             }
 
             [storage set: key

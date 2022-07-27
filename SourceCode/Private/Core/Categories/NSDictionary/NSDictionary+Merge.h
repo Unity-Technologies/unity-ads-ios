@@ -1,6 +1,6 @@
 @interface NSDictionary (Merge)
 
-+ (NSDictionary *)unityads_dictionaryByMerging: (NSDictionary *)primary secondary: (NSDictionary *)secondary;
++ (NSDictionary *)uads_dictionaryByMerging: (NSDictionary *)primary secondary: (NSDictionary *)secondary;
 
 - (NSDictionary *)uads_newdictionaryByMergingWith: (NSDictionary *)dictionary;
 

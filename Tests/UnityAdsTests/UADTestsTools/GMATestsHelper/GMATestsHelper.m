@@ -3,7 +3,7 @@
 #import "USRVWebViewCallbackMock.h"
 #import "GMAIntegrationTestsConstants.h"
 
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 
 @implementation GMATestsHelper
 

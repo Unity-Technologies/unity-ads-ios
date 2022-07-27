@@ -1,32 +1,31 @@
 #import "UADSMetricSender.h"
 #import "USRVWebRequest.h"
-#import "USRVSdkProperties.h"
-#import "USRVDevice.h"
 #import "NSDictionary+JSONString.h"
-#import "UADSMetric.h"
-#import "UADSMetricCommonTags.h"
+#import "UADSMetricCommonTagsProvider.h"
 #import "UADSMetricsContainer.h"
+#import "UADSTools.h"
 
 @interface UADSMetricSender ()
 @property (nonatomic, strong) dispatch_queue_t metricQueue;
-@property (nonatomic, strong) NSObject<IUSRVWebRequestFactoryStatic> *requestFactory;
-@property (nonatomic, strong) UADSMetricCommonTags *commonTags;
-@property (nonatomic, strong) id<UADSConfigurationReader> configurationReader;
+@property (nonatomic, strong) id<IUSRVWebRequestFactory> requestFactory;
+@property (nonatomic, strong) id<UADSMetricCommonTagsProvider> commonTagsProvider;
+@property (nonatomic, strong) id<UADSConfigurationReader, UADSConfigurationMetricTagsReader> configurationReader;
 @end
 
 @implementation UADSMetricSender
 
-+ (instancetype)newWithConfigurationReader: (id<UADSConfigurationReader>)configReader
-                         andRequestFactory: (id<IUSRVWebRequestFactoryStatic>)factory {
++ (instancetype)newWithConfigurationReader: (id<UADSConfigurationReader, UADSConfigurationMetricTagsReader>)configReader
+                         andRequestFactory: (id<IUSRVWebRequestFactory>)factory
+                             storageReader: (id<UADSJsonStorageReader>)storageReader
+                             privacyReader: (id<UADSPrivacyResponseReader>)privacyReader {
     UADSMetricSender *sender = [UADSMetricSender new];
 
     sender.configurationReader = configReader;
     sender.requestFactory = factory;
     sender.metricQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    sender.commonTags = [[UADSMetricCommonTags alloc] initWithCountryISO: [USRVDevice getNetworkCountryISOWithLocaleFallback]
-                                                                platform: @"ios"
-                                                              sdkVersion: [USRVSdkProperties getVersionName]
-                                                           systemVersion: [USRVDevice getOsVersion]];
+    sender.commonTagsProvider = [UADSMetricCommonTagsProviderBase newWithTagsReader: configReader
+                                                                      storageReader: storageReader
+                                                                      privacyReader: privacyReader];
     return sender;
 }
 
@@ -74,14 +73,15 @@
 
     dispatch_async(self.metricQueue, ^{
         @try {
-            UADSMetricsContainer *container = [[UADSMetricsContainer alloc] initWithCommonTags: self.commonTags
-                                                                                       metrics: metrics];
-            NSString *postBody = [[container dictionary] jsonEncodedString];
+            UADSMetricsContainer *container = [[UADSMetricsContainer alloc] initWithCommonTags: self.commonTagsProvider.commonTags
+                                                                                       metrics: metrics
+                                                                                          info: self.commonTagsProvider.commonInfo];
+            NSString *postBody = [[container dictionary] uads_jsonEncodedString];
 
-            id<USRVWebRequest> request = [[self.requestFactory class] create: self.metricEndpoint
-                                                                 requestType: @"POST"
-                                                                     headers: NULL
-                                                              connectTimeout: 30000];
+            id<USRVWebRequest> request = [self.requestFactory create: self.metricEndpoint
+                                                         requestType: @"POST"
+                                                             headers: NULL
+                                                      connectTimeout: 30000];
             [request setBody: postBody];
             [request makeRequest];
 
@@ -95,6 +95,22 @@
         } @catch (NSException *exception) {
             USRVLogDebug("Metrics %@ failed to send from exception: %@", metrics, [exception name]);
         }
+    });
+}
+
+- (void)measureDurationAndSend: (UADSMetricsMeasureBlock)measureBlock {
+    __block UADSMetric *metricToSend;
+
+    __weak typeof(self) weakSelf = self;
+
+    uads_measure_duration_round_async(^(UADSVoidClosure _Nonnull completion) {
+        measureBlock(^(UADSMetric *metric) {
+            metricToSend = metric;
+            completion();
+        });
+    }, ^(NSNumber *duration) {
+        metricToSend = [metricToSend updatedWithValue: duration];
+        [weakSelf sendMetrics: @[metricToSend]];
     });
 }
 

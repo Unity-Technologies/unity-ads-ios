@@ -1,5 +1,6 @@
 #import "UADSWebViewInvoker.h"
 #import "UADSAbstractModuleDelegate.h"
+#import "UADSTimer.h"
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kUADSPlacementIDKey = @"placementId";
@@ -19,6 +20,7 @@ static NSString *const kUADSOptionsDictionaryKey = @"options";
 @property (nonatomic, copy) NSString *placementID;
 @property (nonatomic, strong) NSNumber *time;
 @property (nonatomic, strong) id<UADSDictionaryConvertible> options;
+@property (nonatomic, strong, nullable) id<UADSRepeatableTimer> timer;
 @property (nonatomic, strong) id<UADSAbstractModuleDelegate> delegate;
 @property (nonatomic, assign) NSInteger ttl;
 - (void)                          stopTTLObserving;

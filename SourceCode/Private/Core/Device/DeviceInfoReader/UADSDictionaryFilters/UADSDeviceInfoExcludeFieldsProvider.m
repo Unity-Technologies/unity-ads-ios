@@ -4,7 +4,7 @@
 #import "USRVStorageManager.h"
 #import "UADSJsonStorageKeyNames.h"
 #import "NSDictionary+Merge.h"
-#import "NSArray + Map.h"
+#import "NSArray+Map.h"
 
 @interface UADSDeviceInfoExcludeFieldsProvider ()
 @property (nonatomic, strong) id<UADSJsonStorageReader> jsonStorage;

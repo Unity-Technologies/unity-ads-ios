@@ -1,5 +1,5 @@
 #import "WebRequestFactoryMock.h"
-
+#import "NSArray+SafeOperations.h"
 
 @implementation WebRequestFactoryMock
 + (instancetype)shared {
@@ -26,23 +26,30 @@
                  requestType: (NSString *)requestType
                      headers: (NSDictionary<NSString *, NSArray<NSString *> *> *)headers
               connectTimeout: (int)connectTimeout {
-    if (_createdRequests == nil) {
-        _createdRequests = @[];
+    @synchronized (self) {
+        if (_createdRequests == nil) {
+            _createdRequests = @[];
+        }
     }
 
     WebRequestMock *requestToSaveForTesting = [WebRequestMock new];
 
+    requestToSaveForTesting.sleepTime = _requestSleepTime;
     requestToSaveForTesting.url = url;
     requestToSaveForTesting.requestType = requestType;
     requestToSaveForTesting.headers = headers;
     requestToSaveForTesting.connectTimeout = connectTimeout;
-    _createdRequests = [_createdRequests arrayByAddingObjectsFromArray: @[requestToSaveForTesting]];
+    @synchronized (self) {
+        _createdRequests = [_createdRequests arrayByAddingObjectsFromArray: @[requestToSaveForTesting]];
+    }
 
     if (_mockRequest) {
         return _mockRequest;
     }
 
-    requestToSaveForTesting.expectedData = _expectedRequestData[_createdRequests.count - 1];
+    requestToSaveForTesting.expectedData = [_expectedRequestData uads_getItemSafelyAtIndex: _createdRequests.count - 1];
+    requestToSaveForTesting.responseCode = 200;
+    requestToSaveForTesting.exp = _exp;
     return requestToSaveForTesting;
 }
 

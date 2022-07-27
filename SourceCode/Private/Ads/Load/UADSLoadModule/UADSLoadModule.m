@@ -24,11 +24,13 @@ typedef id<UADSWebViewInvoker> Invoker;
                                                        andNotificationCenter    : center];
 
     return [self newWithInvoker: bufferDecorator
-                andErrorHandler: [UADSInternalErrorLogger newWithType: kUADSErrorHandlerTypeLoadModule]];
+                andEventHandler: [UADSEventHandlerBase newDefaultWithType: kUADSEventHandlerTypeLoadModule]
+                   timerFactory: [UADSTimerFactoryBase new]];
 }
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                         withOptions: (id<UADSDictionaryConvertible>)options
+                                                              timer: (id<UADSRepeatableTimer>)timer
                                                        withDelegate: (id<UADSAbstractModuleDelegate>)delegate {
     UADSLoadModuleOperationObject *operation = [UADSLoadModuleOperationObject new];
 
@@ -37,6 +39,7 @@ typedef id<UADSWebViewInvoker> Invoker;
     operation.delegate = delegate;
     operation.ttl = [self operationOperationTimeoutMs];
     operation.time = [USRVDevice getElapsedRealtime];     // ideally this should not be as explicit dependency
+    operation.timer = timer;
     return operation;
 }
 
@@ -57,6 +60,7 @@ typedef id<UADSWebViewInvoker> Invoker;
 
 - (void)sendAdLoadedForPlacementID: (NSString *)placementID
                      andListenerID: (NSString *)listenerID {
+    [self handleSuccess: listenerID];
     UADSLoadModuleDelegateWrapper *delegate = [self getDelegateForIDAndRemove: listenerID];
 
     [delegate unityAdsAdLoaded: placementID];
@@ -69,6 +73,9 @@ typedef id<UADSWebViewInvoker> Invoker;
     UADSInternalError *internalError = [UADSInternalError newWithErrorCode: kUADSInternalErrorLoadModule
                                                                  andReason: error
                                                                 andMessage: message];
+
+    [self catchError: internalError
+               forId: listenerID];
     UADSLoadModuleDelegateWrapper *delegate = [self getDelegateForIDAndRemove: listenerID];
 
     [delegate didFailWithError: internalError

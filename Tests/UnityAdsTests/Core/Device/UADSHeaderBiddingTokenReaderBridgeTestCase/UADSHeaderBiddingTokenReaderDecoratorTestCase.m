@@ -24,8 +24,9 @@
 
 - (void)test_if_status_is_not_initialized_should_return_null_token {
     _statusReaderMock.currentState = NOT_INITIALIZED;
-    [self.sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
-        XCTAssertNil(token);
+    [self.sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+        XCTAssertNotNil(token);
+        XCTAssertFalse(token.isValid);
         XCTAssertEqual(self.readerMock.getTokenCount, 0);
     }];
 
@@ -34,8 +35,9 @@
 
 - (void)test_if_status_is_failed_should_return_null_token {
     _statusReaderMock.currentState = INITIALIZED_FAILED;
-    [self.sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
-        XCTAssertNil(token);
+    [self.sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+        XCTAssertNotNil(token);
+        XCTAssertFalse(token.isValid);
         XCTAssertEqual(self.readerMock.getTokenCount, 0);
     }];
 
@@ -51,7 +53,7 @@
     [sut deleteTokens];
     [sut createTokens: @[]];
     [sut appendTokens: @[]];
-    [sut getToken:^(NSString *_Nullable token, UADSTokenType type) {
+    [self.sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
     }];
 
     [self waitForTimeInterval: 0.5];

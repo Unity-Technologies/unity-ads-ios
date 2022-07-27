@@ -44,4 +44,8 @@
     return _experiments.isForcedUpdatePIIEnabled;
 }
 
+- (BOOL)isPrivacyRequestEnabled {
+    return _experiments.isPrivacyRequestEnabled;
+}
+
 @end

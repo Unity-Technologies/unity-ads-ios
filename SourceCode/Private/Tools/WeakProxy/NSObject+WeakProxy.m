@@ -3,7 +3,7 @@
 
 @implementation NSObject (Category)
 
-- (id)weakSelf {
+- (id)uads_weakSelf {
     return [UADSWeakProxy newWithObject: self];
 }
 

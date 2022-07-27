@@ -1,13 +1,14 @@
 
 #import <Foundation/Foundation.h>
-#import "USRVConfigurationRequestFactory.h"
+#import "USRVInitializationRequestFactory.h"
 #import "USRVConfiguration.h"
 #import "WebRequestMock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface USRVConfigurationRequestFactoryMock : NSObject<USRVConfigurationRequestFactory>
+@interface USRVConfigurationRequestFactoryMock : NSObject<USRVInitializationRequestFactory>
 @property (nonatomic, strong) WebRequestMock *expectedRequest;
+@property (nonatomic, strong) NSArray<NSNumber *> *requestedTypes;
 
 + (instancetype)newFactoryWithExpectedNSDictionaryInRequest: (NSDictionary *)obj invalidResponseCode: (BOOL)responseCode;
 @end

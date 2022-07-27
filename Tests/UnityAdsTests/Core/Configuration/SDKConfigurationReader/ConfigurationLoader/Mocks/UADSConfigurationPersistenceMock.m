@@ -11,6 +11,7 @@
 
 - (void)saveConfiguration: (USRVConfiguration *)configuration {
     _receivedConfig = [_receivedConfig arrayByAddingObjectsFromArray: @[configuration]];
+    [_original saveConfiguration: configuration];
 }
 
 @end

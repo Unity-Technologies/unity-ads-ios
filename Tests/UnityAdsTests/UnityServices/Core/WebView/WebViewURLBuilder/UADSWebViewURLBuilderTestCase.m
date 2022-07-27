@@ -57,21 +57,23 @@ static NSString *const kDefaultTestURL = @"https://baseurl";
     id<UADSBaseURLBuilder> sut = [UADSWebViewURLBuilder newWithBaseURL: kDefaultTestURL
                                                       andConfiguration : config];
 
-    XCTAssertEqualObjects(sut.baseURL, @"https://baseurl?version=webViewVersion&experiments=%7B%22experiment2%22%3A%22value2%22,%22fff%22%3Atrue,%22experiment1%22%3A%22value1%22%7D&origin=webViewURL&platform=ios");
+    XCTAssertEqualObjects(sut.baseURL, @"https://baseurl?version=webViewVersion&isNativeCollectingMetrics=true&experiments=%7B%22experiment2%22%3A%22value2%22,%22fff%22%3Atrue,%22experiment1%22%3A%22value1%22%7D&origin=webViewURL&platform=ios");
 }
 
 - (void)test_default_url_builder_doesnt_pass_attributes_if_flag_is_off {
     NSDictionary *experiments = [self testExperimentsAttributesWithForward: false];
 
+
     USRVConfiguration *config = [USRVConfiguration newFromJSON: @{
                                      kUnityServicesConfigValueUrl:  @"webViewURL",
                                      kUnityServicesConfigValueVersion: @"webViewVersion",
+                                     kUnityServicesConfigValueMetricSamplingRate: @(-1),
                                      kUnityServicesConfigValueExperiments: experiments
     }];
     id<UADSBaseURLBuilder> sut = [UADSWebViewURLBuilder newWithBaseURL: kDefaultTestURL
                                                       andConfiguration : config];
 
-    XCTAssertEqualObjects(sut.baseURL, @"https://baseurl?platform=ios&origin=webViewURL&version=webViewVersion");
+    XCTAssertEqualObjects(sut.baseURL, @"https://baseurl?version=webViewVersion&isNativeCollectingMetrics=false&origin=webViewURL&platform=ios");
 }
 
 - (NSDictionary *)testQueryAttributes {

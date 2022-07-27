@@ -137,7 +137,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     [self emulateLoadCallWithPlacementID: kUADSLoadModuleTestsPlacementID];
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
     [self.notificationCenter triggerSdkInitializeDidFail: kSDKInitFailedMessage
-                                                    code: @-1];
+                                                    code: -1];
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
     [self waitForExpectations: @[_loadDelegateMock.expectation]
                       timeout: DEFAULT_TEST_WAIT_TIME];

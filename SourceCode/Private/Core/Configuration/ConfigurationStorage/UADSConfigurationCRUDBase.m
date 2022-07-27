@@ -5,7 +5,7 @@
 @interface UADSConfigurationCRUDBase ()
 @property (nonatomic, assign) BOOL localRead;
 @property (nonatomic, strong) USRVConfiguration *localConfig;
-@property (nonatomic, strong) USRVConfiguration *cachedConfig;
+@property (nonatomic, strong) USRVConfiguration *remoteConfig;
 @property (nonatomic, strong) dispatch_queue_t syncQueue;
 @property (nonatomic, strong) UADSGenericMediator<USRVConfiguration *> *mediator;
 @end
@@ -30,17 +30,30 @@
     return self.localConfig;
 }
 
-- (USRVConfiguration *)remoteConfiguration {
-    return [[USRVWebViewApp getCurrentApp] configuration];
-}
-
 #pragma mark UADSConfigurationReader
 - (USRVConfiguration *)getCurrentConfiguration {
-    if (self.remoteConfiguration) {
-        return self.remoteConfiguration;
+    if ([self.remoteConfig hasValidWebViewURL]) {
+        return self.remoteConfig;
     }
 
     return [self localConfiguration];
+}
+
+- (UADSConfigurationExperiments *)currentSessionExperiments {
+    USRVConfiguration *config = [ self getCurrentConfiguration];
+
+    if (config == nil) {
+        return nil;
+    }
+
+    NSDictionary *currentFlags = [config.experiments currentSessionFlags] ? : @{};
+    NSMutableDictionary *experiments = [NSMutableDictionary dictionaryWithDictionary:  currentFlags];
+
+    NSDictionary *appliedFlags = [self.localConfiguration.experiments nextSessionFlags] ? : @{};
+
+    [experiments setValuesForKeysWithDictionary: appliedFlags];
+
+    return [UADSConfigurationExperiments newWithJSON: experiments];
 }
 
 #pragma mark UADSConfigurationMetricTagsReader
@@ -51,33 +64,36 @@
         return nil;
     }
 
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: currentConfig.experiments.json];
-    NSString *source = currentConfig.source;
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: self.currentSessionExperiments.json];
 
-    if (source != nil) {
-        tags[kUnityServicesConfigValueSource] = source;
-    }
+    tags[kUnityServicesConfigValueSource] = currentConfig.source;
 
     return tags;
 }
 
+- (NSDictionary *)metricInfo {
+    USRVConfiguration *currentConfig = [self getCurrentConfiguration];
+
+    if (currentConfig == nil) {
+        return nil;
+    }
+
+    return @{
+        kUnityServicesConfigValueMetricSamplingRate: [@(currentConfig.metricSamplingRate) stringValue]
+    };
+}
+
 - (void)subscribeToConfigUpdates: (UADSConfigurationObserver)observer {
-    dispatch_sync(self.syncQueue, ^{
-        [self.mediator subscribe: observer];
-    });
+    [self.mediator subscribe: observer];
 }
 
 - (void)saveConfiguration: (USRVConfiguration *)configuration {
     dispatch_sync(self.syncQueue, ^{
         [configuration saveToDisk];
-        self.cachedConfig = configuration;
+        self.remoteConfig = configuration;
     });
 
-    [self.mediator notifyObserversWithObject: configuration];
-
-    dispatch_sync(self.syncQueue, ^{
-        [self.mediator removeAllObservers];
-    });
+    [self.mediator notifyObserversWithObjectAndRemove: configuration];
 }
 
 - (USRVConfiguration *)getConfigFromFile {

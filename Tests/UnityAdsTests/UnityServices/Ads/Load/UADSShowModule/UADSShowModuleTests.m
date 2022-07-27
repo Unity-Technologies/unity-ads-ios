@@ -3,7 +3,7 @@
 #import "UADSWebViewInvokerMock.h"
 #import "UnityAdsShowDelegateMock.h"
 #import "USRVSdkProperties.h"
-#import "UADSErrorHandlerMock.h"
+#import "UADSEventHandlerMock.h"
 static NSString *const kUADSShowModuleTestsPlacementID = @"kUADSShowModuleTestsPlacementID";
 static NSString *const kUADSShowModuleTestsErrorMSG = @"kUADSShowModuleTestsErrorMSG";
 
@@ -17,7 +17,7 @@ typedef void (^VoidCompletion)(void);
 @property (nonatomic, strong) UADSWebViewInvokerMock *invokerMock;
 @property (nonatomic, strong) UnityAdsShowDelegateMock *showDelegateMock;
 @property (nonatomic, strong) UADSShowModule *moduleToTest;
-@property (nonatomic, strong) UADSErrorHandlerMock *errorHandlerMock;
+@property (nonatomic, strong) UADSEventHandlerMock *eventHandlerMock;
 @end
 
 @implementation UADSShowModuleTests
@@ -25,9 +25,10 @@ typedef void (^VoidCompletion)(void);
 - (void)setUp {
     self.showDelegateMock = [UnityAdsShowDelegateMock new];
     self.invokerMock = [UADSWebViewInvokerMock new];
-    self.errorHandlerMock = [UADSErrorHandlerMock new];
+    self.eventHandlerMock = [UADSEventHandlerMock new];
     self.moduleToTest = [UADSShowModule newWithInvoker: _invokerMock
-                                       andErrorHandler: _errorHandlerMock];
+                                       andEventHandler: _eventHandlerMock
+                                          timerFactory: [UADSTimerFactoryBase new]];
 }
 
 - (void)test_calls_invoker_if_sdk_initialized {
@@ -47,6 +48,7 @@ typedef void (^VoidCompletion)(void);
     [self executeTestFlowToTestEvent: true
                      withPlacementID: nil
                         andTestEvent: ^{}];
+    [self validateEventHandlerIsCalledOnceWithError];
     XCTAssertEqual(_invokerMock.invokerCalledNumberOfTimes, 0);
     XCTAssertEqual(_showDelegateMock.startedPlacements.count, 0);
     XCTAssertEqual(_showDelegateMock.failedPlacements.count, 1);
@@ -60,6 +62,7 @@ typedef void (^VoidCompletion)(void);
                         andTestEvent: ^{
                             [self emulateSendStartEvent];
                         }];
+    [self validateEventHandlerIsCalledOnceWithError];
     XCTAssertEqual(_invokerMock.invokerCalledNumberOfTimes, 0);
     XCTAssertEqual(_showDelegateMock.startedPlacements.count, 0);
     XCTAssertEqual(_showDelegateMock.failedPlacements.count, 1);
@@ -74,6 +77,7 @@ typedef void (^VoidCompletion)(void);
                         andTestEvent: ^{
                             [self emulateSendFailure];
                         }];
+    [self validateEventHandlerIsCalledOnceWithError];
     XCTAssertEqual(_invokerMock.invokerCalledNumberOfTimes, 1);
     XCTAssertEqual(_showDelegateMock.startedPlacements.count, 0);
     XCTAssertEqual(_showDelegateMock.failedPlacements.count, 1);
@@ -88,6 +92,7 @@ typedef void (^VoidCompletion)(void);
                         andTestEvent: ^{
                             [self emulateSendComplete];
                         }];
+    [self validateEventHandlerIsCalledOnceWithSuccess];
     XCTAssertEqual(_invokerMock.invokerCalledNumberOfTimes, 1);
     XCTAssertEqual(_showDelegateMock.startedPlacements.count, 0);
     XCTAssertEqual(_showDelegateMock.failedPlacements.count, 0);
@@ -102,6 +107,35 @@ typedef void (^VoidCompletion)(void);
                         andTestEvent: ^{
                             [self emulateSendClick];
                         }];
+}
+
+- (void)test_calls_event_handler_for_multiple_successful_loads {
+    [self setDefaultConfiguration];
+    [self setInitialized: YES];
+    NSString *op1Id = [self emulateShowCallAndStartWithPlacementId: @"placement1"];
+    NSString *op2Id = [self emulateShowCallAndStartWithPlacementId: @"placement2"];
+
+    [self emulateSendCompleteWithPlacementId: @"placement1"
+                                 operationId: op1Id];
+    [self emulateSendCompleteWithPlacementId: @"placement2"
+                                 operationId: op2Id];
+
+    [self validateEventHandlerIsCalledOnceWithSuccessForIds: @[op1Id, op2Id]];
+}
+
+- (void)test_calls_event_handler_for_multiple_failed_loads {
+    [self setDefaultConfiguration];
+    [self setInitialized: YES];
+
+    NSString *op1Id = [self emulateShowCallAndStartWithPlacementId: @"placement1"];
+    NSString *op2Id = [self emulateShowCallAndStartWithPlacementId: @"placement2"];
+
+    [self emulateSendFailureWithPlacementId: @"placement1"
+                                operationId: op1Id];
+    [self emulateSendFailureWithPlacementId: @"placement2"
+                                operationId: op2Id];
+
+    [self validateEventHandlerIsCalledOnceWithErrorForIds: @[op1Id, op2Id]];
 }
 
 - (void)executeTestFlowToTestEvent: (BOOL)initialized
@@ -134,11 +168,69 @@ typedef void (^VoidCompletion)(void);
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
 }
 
-- (void)emulateSendFailure {
-    [_moduleToTest sendShowFailedEvent: kUADSShowModuleTestsPlacementID
-                            listenerID: self.lastParamsInInvoker.id
+- (NSString *)emulateShowCallAndStartWithPlacementId: (NSString *)placementId {
+    [self emulateShowCallWithPlacementID: placementId];
+    NSString *opId = self.lastParamsInInvoker.id;
+
+    [_moduleToTest sendShowStartEvent: placementId
+                           listenerID: opId];
+    return opId;
+}
+
+- (void)emulateSendCompleteWithPlacementId: (NSString *)placementId operationId: (NSString *)operationId {
+    [_moduleToTest sendShowCompleteEvent: placementId
+                              listenerID: operationId
+                                   state: DEFAULT_COMPLETE_STATE];
+}
+
+- (void)emulateSendFailureWithPlacementId: (NSString *)placementId operationId: (NSString *)operationId {
+    [_moduleToTest sendShowFailedEvent: placementId
+                            listenerID: operationId
                                message: kUADSShowModuleTestsErrorMSG
                                  error: DEFAULT_ERROR];
+}
+
+- (void)emulateSendFailure {
+    [self emulateSendFailureWithPlacementId: kUADSShowModuleTestsPlacementID
+                                operationId: self.lastParamsInInvoker.id];
+}
+
+- (void)emulateSendComplete {
+    [self emulateSendCompleteWithPlacementId: kUADSShowModuleTestsPlacementID
+                                 operationId: self.lastParamsInInvoker.id];
+}
+
+- (void)emulateSendClick {
+    [_moduleToTest sendShowClickEvent: kUADSShowModuleTestsPlacementID
+                           listenerID: self.lastParamsInInvoker.id];
+}
+
+- (void)validateEventHandlerIsCalledOnceWithSuccessForIds: (NSArray *)opIds {
+    XCTAssertEqual(_eventHandlerMock.startedCalls.count, opIds.count);
+    XCTAssertEqual(_eventHandlerMock.onSuccessCalls.count, opIds.count);
+
+    for (NSString *opId in opIds) {
+        XCTAssertEqualObjects(_eventHandlerMock.startedCalls[opId], @(1));
+        XCTAssertEqualObjects(_eventHandlerMock.onSuccessCalls[opId], @(1));
+    }
+}
+
+- (void)validateEventHandlerIsCalledOnceWithErrorForIds: (NSArray *)opIds {
+    XCTAssertEqual(_eventHandlerMock.startedCalls.count, opIds.count ? : 1);
+    XCTAssertEqual(_eventHandlerMock.errors.count, opIds.count ? : 1);
+
+    for (NSString *opId in opIds) {
+        XCTAssertEqualObjects(_eventHandlerMock.startedCalls[opId], @(1));
+        XCTAssertEqual(_eventHandlerMock.errors[opId].count, 1);
+    }
+}
+
+- (void)validateEventHandlerIsCalledOnceWithSuccess {
+    [self validateEventHandlerIsCalledOnceWithSuccessForIds: @[self.lastParamsInInvoker.id]];
+}
+
+- (void)validateEventHandlerIsCalledOnceWithError {
+    [self validateEventHandlerIsCalledOnceWithErrorForIds: self.lastParamsInInvoker.id ? @[self.lastParamsInInvoker.id] : nil];
 }
 
 #warning should avoid using global states, the object should depend on the configuration reader
@@ -147,17 +239,6 @@ typedef void (^VoidCompletion)(void);
 
     config.showTimeout = 1000;
     [UADSAbstractModule setConfiguration: config];
-}
-
-- (void)emulateSendComplete {
-    [_moduleToTest sendShowCompleteEvent: kUADSShowModuleTestsPlacementID
-                              listenerID: self.lastParamsInInvoker.id
-                                   state: DEFAULT_COMPLETE_STATE];
-}
-
-- (void)emulateSendClick {
-    [_moduleToTest sendShowClickEvent: kUADSShowModuleTestsPlacementID
-                           listenerID: self.lastParamsInInvoker.id];
 }
 
 - (void)await {

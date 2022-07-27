@@ -7,6 +7,8 @@
 #import "UADSMediationMetaData.h"
 #import "UADSDeviceTestsHelper.h"
 #import "NSDictionary+Merge.h"
+#import "UADSDeviceInfoStorageKeysProviderMock.h"
+#import "UADSDeviceInfoStorageKeysProviderExtended.h"
 
 @interface UADSDeviceInfoReaderWithStorageInfoTestCase : XCTestCase
 @property (nonatomic, strong) UADSJsonStorageReaderMock *jsonStorageMock;
@@ -24,9 +26,10 @@
 - (void)test_appends_values_from_json_storage_to_output {
     UADSJsonStorageReaderMock *jsonStorageMock = [UADSJsonStorageReaderMock new];
     UADSDeviceReaderMock *originalMock = [UADSDeviceReaderMock new];
+    UADSDeviceInfoStorageKeysProviderMock *keysProvider = [UADSDeviceInfoStorageKeysProviderMock new];
     UADSDeviceInfoReaderWithStorageInfo *sut = [UADSDeviceInfoReaderWithStorageInfo decorateOriginal: originalMock
                                                                                 andJSONStorageReader: jsonStorageMock
-                                                                                   includeContainers: @[]];
+                                                                                        keysProvider: keysProvider];
 
     jsonStorageMock.expectedContent = self.mockDataFromJsonStorage;
     originalMock.expectedInfo = self.mockDataFromDeviceReader;
@@ -36,7 +39,9 @@
 
 - (void)test_filters_and_append_required_payload_to_output {
     UADSDeviceReaderMock *originalMock = [UADSDeviceReaderMock new];
-    UADSDeviceInfoReaderWithStorageInfo *sut = [UADSDeviceInfoReaderWithStorageInfo defaultDecorationOfOriginal: originalMock];
+    UADSDeviceInfoStorageKeysProviderExtended *keysProvider = [UADSDeviceInfoStorageKeysProviderExtended new];
+    UADSDeviceInfoReaderWithStorageInfo *sut = [UADSDeviceInfoReaderWithStorageInfo defaultDecorationOfOriginal: originalMock
+                                                                                                andKeysProvider: keysProvider];
 
     originalMock.expectedInfo = self.mockDataFromDeviceReader;
     [_tester commitAllTestData];

@@ -30,6 +30,8 @@ NSString *const kUnityServicesConfigValueStateID = @"sid";
 NSString *const kUnityServicesConfigValueExperiments = @"exp";
 NSString *const kUnityServicesConfigValueSource = @"src";
 NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
+NSString *const kUnityServicesConfigPrivacyWaitTimeout = @"prwto";
+
 
 @interface USRVConfiguration ()
 @property (nonatomic, strong) NSDictionary *originalJSON;
@@ -159,11 +161,14 @@ NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
     self.sdkVersion = configDictionary[kUnityServicesConfigValueSdkVersion] ? : nil;
     self.headerBiddingToken = configDictionary[kUnityServicesConfigValueUAToken];
     self.stateId = configDictionary[kUnityServicesConfigValueStateID];
-    self.source = configDictionary[kUnityServicesConfigValueSource];
+    self.source = [configDictionary[kUnityServicesConfigValueSource] isKindOfClass: [NSNull class]] ? nil : configDictionary[kUnityServicesConfigValueSource];
     NSDictionary *experimentsDictionary = configDictionary[kUnityServicesConfigValueExperiments] ? : @{};
 
     self.hbTokenTimeout = [configDictionary[kUnityServicesConfigHeaderBiddingTimeout] longLongValue] ? : 5000; //tto
+    self.privacyWaitTimeout = [configDictionary[kUnityServicesConfigPrivacyWaitTimeout] longLongValue] ? : 3000; //prwto
     self.experiments = [UADSConfigurationExperiments newWithJSON: experimentsDictionary];
+    
+    self.enableNativeMetrics = self.metricSamplingRate >= (arc4random_uniform(99) + 1);
 }
 
 - (NSArray<NSString *> *)getWebAppApiClassList {
@@ -202,7 +207,10 @@ NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
         kUnityServicesConfigValueWebViewAppCreateTimeout: [NSNumber numberWithLong: self.webViewAppCreateTimeout],
         kUnityServicesConfigHeaderBiddingTimeout: [NSNumber numberWithLong: self.hbTokenTimeout],
         kUnityServicesConfigValueSdkVersion: self.sdkVersion ? : [NSNull null],
-        kUnityServicesConfigValueExperiments: self.experiments.json ? : [NSNull null]
+        kUnityServicesConfigValueExperiments: self.experiments.json ? : [NSNull null],
+        kUnityServicesConfigHeaderBiddingTimeout: [NSNumber numberWithLong: self.hbTokenTimeout],
+        kUnityServicesConfigPrivacyWaitTimeout: [NSNumber numberWithLong: self.privacyWaitTimeout],
+        kUnityServicesConfigValueSource: self.source ? : [NSNull null]
     };
 
     // TODO: Handle JSON Serialization Error
@@ -221,7 +229,7 @@ NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
 - (BOOL)hasValidWebViewURL {
     NSString *url = self.webViewUrl;
 
-    return url != nil && ![url isEqual: @""];
+    return url != nil && ![url isEqual: @""] && ![url isKindOfClass: [NSNull class]];
 }
 
 @end

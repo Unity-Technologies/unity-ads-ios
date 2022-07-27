@@ -1,4 +1,6 @@
 #import <Foundation/Foundation.h>
+
+#import "USRVDeviceLog.h"
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -72,6 +74,9 @@ NS_ASSUME_NONNULL_BEGIN
 #define UADS_ABSTRACT_CLASS_EXCEPTION \
     NSAssert(NO, @"Cannot be used as an abstract class");
 
+
+
+
 _Nullable id typecast(id obj, Class class);
 
 typedef void (^UADSNSErrorCompletion)(NSError *_Nullable error);
@@ -80,8 +85,19 @@ void dispatch_on_main(dispatch_block_t block);
 void dispatch_on_main_sync(dispatch_block_t block);
 
 typedef void (^UADSVoidClosure)(void);
+typedef void (^UADSDurationMeasureClosure)(UADSVoidClosure);
+typedef void (^UADSDurationClosure)(CFTimeInterval);
+typedef void (^UADSDurationNSNumberClosure)(NSNumber *);
 
 
 static NSString *const kUADS_EMPTY_STRING = @"";
 
+void uads_measure_duration_async(UADSDurationMeasureClosure blockToMeasure, UADSDurationClosure result);
+void uads_measure_duration_round_async(UADSDurationMeasureClosure blockToMeasure, UADSDurationNSNumberClosure result);
+
+
+CFTimeInterval uads_measure_duration_sync(UADSVoidClosure blockToMeasure);
+void uads_measure_performance_and_log(NSString *name, UADSVoidClosure blockToMeasure);
+
+NSString *uads_bool_to_string(BOOL value);
 NS_ASSUME_NONNULL_END

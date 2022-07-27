@@ -1,5 +1,5 @@
 #import "USRVWebRequest.h"
-
+#import <XCTest/XCTest.h>
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *url;
 @property (nonatomic, strong) NSString *requestType;
 @property (nonatomic, strong) NSString *body;
+@property (nonatomic, strong) NSData *bodyData;
 @property (nonatomic, strong) NSDictionary<NSString *, NSArray *> *headers;
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *responseHeaders;
 @property (nonatomic, strong) NSMutableData *receivedData;
@@ -28,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) NSData *expectedData;
 @property (nonatomic, assign) BOOL isResponseCodeInvalid;
+
+@property (nonatomic, strong) XCTestExpectation *exp;
+@property (nonatomic, assign) CFTimeInterval sleepTime;
 @end
 
 NS_ASSUME_NONNULL_END
