@@ -9,7 +9,8 @@
     return self;
 }
 
-- (void)sendEvent:(id<UADSWebViewEvent>)event {
+- (void)sendEvent: (id<UADSWebViewEvent>)event {
     _receivedEvents = [_receivedEvents arrayByAddingObject: event];
 }
+
 @end

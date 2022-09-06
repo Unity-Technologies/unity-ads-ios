@@ -28,8 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) int makeRequestCount;
 
 @property (nonatomic, assign) NSData *expectedData;
-@property (nonatomic, assign) BOOL isResponseCodeInvalid;
 
+@property (nonatomic, assign) BOOL isResponseCodeInvalid;
+@property (nonatomic, assign) BOOL throwExceptionOnMakeRequest;
 @property (nonatomic, strong) XCTestExpectation *exp;
 @property (nonatomic, assign) CFTimeInterval sleepTime;
 @end

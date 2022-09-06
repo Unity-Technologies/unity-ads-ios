@@ -1,6 +1,7 @@
 #import "UADSConfigurationCRUDBase.h"
 #import "USRVSdkProperties.h"
 #import "USRVWebViewApp.h"
+#import "UADSServiceProviderProxy.h"
 
 @interface UADSConfigurationCRUDBase ()
 @property (nonatomic, assign) BOOL localRead;
@@ -39,7 +40,7 @@
     return [self localConfiguration];
 }
 
-- (UADSConfigurationExperiments *)currentSessionExperiments {
+- (NSDictionary *)currentSessionExperimentsAsDictionary {
     USRVConfiguration *config = [ self getCurrentConfiguration];
 
     if (config == nil) {
@@ -53,7 +54,11 @@
 
     [experiments setValuesForKeysWithDictionary: appliedFlags];
 
-    return [UADSConfigurationExperiments newWithJSON: experiments];
+    return experiments;
+}
+
+- (UADSConfigurationExperiments *)currentSessionExperiments {
+    return [UADSConfigurationExperiments newWithJSON: self.currentSessionExperimentsAsDictionary];
 }
 
 #pragma mark UADSConfigurationMetricTagsReader
@@ -64,7 +69,7 @@
         return nil;
     }
 
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: self.currentSessionExperiments.json];
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: self.currentSessionExperimentsAsDictionary];
 
     tags[kUnityServicesConfigValueSource] = currentConfig.source;
 
@@ -93,6 +98,7 @@
         self.remoteConfig = configuration;
     });
 
+    [UADSServiceProviderProxy.shared saveConfiguration: configuration.originalJSON];
     [self.mediator notifyObserversWithObjectAndRemove: configuration];
 }
 

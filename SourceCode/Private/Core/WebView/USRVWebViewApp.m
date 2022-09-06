@@ -184,7 +184,8 @@ static NSCondition *blockCondition = nil;
         [webView setValue: @NO
                forKeyPath : @"scrollView.bounces"];
 
-        [webView setValue: [UADSWebViewNavigationDelegate sharedInstance] forKey: @"navigationDelegate"];
+        [webView setValue: [UADSWebViewNavigationDelegate sharedInstance]
+                   forKey: @"navigationDelegate"];
         [webViewApp setWebView: webView];
 
         NSString *const localWebViewUrl = [USRVSdkProperties getLocalWebViewFile];

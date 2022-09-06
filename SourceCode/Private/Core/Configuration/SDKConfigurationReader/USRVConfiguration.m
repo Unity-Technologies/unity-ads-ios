@@ -2,8 +2,10 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebRequestFactory.h"
 #import "USRVConfigurationStorage.h"
+#import "UADSServiceProviderProxy.h"
 #import "UADSTools.h"
 #import "UADSTokenStorage.h"
+#import "NSDictionary+Merge.h"
 
 NSString *const kUnityServicesConfigValueHash = @"hash";
 NSString *const kUnityServicesConfigValueUrl = @"url";
@@ -28,6 +30,7 @@ NSString *const kUnityServicesConfigValueFastFlowFlag = @"ffl";
 NSString *const kUnityServicesConfigValueUAToken = @"tkn";
 NSString *const kUnityServicesConfigValueStateID = @"sid";
 NSString *const kUnityServicesConfigValueExperiments = @"exp";
+NSString *const kUnityServicesConfigValueExperimentsObject = @"expo";
 NSString *const kUnityServicesConfigValueSource = @"src";
 NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
 NSString *const kUnityServicesConfigPrivacyWaitTimeout = @"prwto";
@@ -162,13 +165,15 @@ NSString *const kUnityServicesConfigPrivacyWaitTimeout = @"prwto";
     self.headerBiddingToken = configDictionary[kUnityServicesConfigValueUAToken];
     self.stateId = configDictionary[kUnityServicesConfigValueStateID];
     self.source = [configDictionary[kUnityServicesConfigValueSource] isKindOfClass: [NSNull class]] ? nil : configDictionary[kUnityServicesConfigValueSource];
-    NSDictionary *experimentsDictionary = configDictionary[kUnityServicesConfigValueExperiments] ? : @{};
+    NSDictionary *experimentsDictionary = configDictionary[kUnityServicesConfigValueExperimentsObject] ? : (configDictionary[kUnityServicesConfigValueExperiments] ? : @{});
 
     self.hbTokenTimeout = [configDictionary[kUnityServicesConfigHeaderBiddingTimeout] longLongValue] ? : 5000; //tto
     self.privacyWaitTimeout = [configDictionary[kUnityServicesConfigPrivacyWaitTimeout] longLongValue] ? : 3000; //prwto
     self.experiments = [UADSConfigurationExperiments newWithJSON: experimentsDictionary];
-    
+
     self.enableNativeMetrics = self.metricSamplingRate >= (arc4random_uniform(99) + 1);
+    self.originalJSON = [NSDictionary uads_dictionaryByMerging: @{@"enableNativeMetrics": @(self.enableNativeMetrics)}
+                                                     secondary: configDictionary];
 }
 
 - (NSArray<NSString *> *)getWebAppApiClassList {

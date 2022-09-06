@@ -2,11 +2,9 @@
 #import "UADSConfigurationLoaderIntegrationMetricsBatchTests.h"
 #import "UADSMetricSenderWithBatch.h"
 #import "UADSLoggerMock.h"
-#import "UADSMetricSelectorMock.h"
 
 @interface UADSConfigurationLoaderIntegrationMetricsBatchTests ()
 @property (nonatomic, strong) id<UADSConfigurationCRUD> configCRUD;
-@property (nonatomic, strong) UADSMetricSelectorMock *selectorMock;
 @end
 
 
@@ -15,8 +13,6 @@
 - (void)setUp {
     [super setUp];
     _configCRUD = [UADSConfigurationCRUDBase new];
-    _selectorMock = [UADSMetricSelectorMock new];
-    _selectorMock.shouldSend = true;
     self.saverMock.original = _configCRUD;
 }
 
@@ -24,8 +20,8 @@
     self.webRequestFactoryMock.expectedRequestData = @[[NSData new], [NSData new]];
 
     [self callSUTExpectingFailWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi": @"true" }]];
-    [self.saverMock saveConfiguration: [USRVConfiguration newFromJSON:@{}]];
-    
+    [self.saverMock saveConfiguration: [USRVConfiguration newFromJSON: @{}]];
+
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
                      andExpectedQueries: nil];
@@ -44,9 +40,8 @@
 }
 
 - (id<ISDKMetrics, ISDKPerformanceMetricsSender>)metricSender {
-    return [UADSMetricSenderWithBatch newWithMetricSender: self.metricsSenderMock
+    return [UADSMetricSenderWithBatch decorateWithMetricSender: self.metricsSenderMock
                                   andConfigurationSubject: self.configCRUD
-                                              andSelector: _selectorMock
                                                 andLogger: [UADSLoggerMock new]];
 }
 

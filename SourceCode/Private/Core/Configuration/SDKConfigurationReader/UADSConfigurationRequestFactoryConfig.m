@@ -40,6 +40,10 @@
     return _experiments.isTwoStageInitializationEnabled;
 }
 
+- (BOOL)isSwiftInitEnabled {
+    return _experiments.isSwiftNativeRequestsEnabled;
+}
+
 - (BOOL)isForcedUpdatePIIEnabled {
     return _experiments.isForcedUpdatePIIEnabled;
 }

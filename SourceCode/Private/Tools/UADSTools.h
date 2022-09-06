@@ -99,5 +99,5 @@ void uads_measure_duration_round_async(UADSDurationMeasureClosure blockToMeasure
 CFTimeInterval uads_measure_duration_sync(UADSVoidClosure blockToMeasure);
 void uads_measure_performance_and_log(NSString *name, UADSVoidClosure blockToMeasure);
 
-NSString *uads_bool_to_string(BOOL value);
+NSString * uads_bool_to_string(BOOL value);
 NS_ASSUME_NONNULL_END

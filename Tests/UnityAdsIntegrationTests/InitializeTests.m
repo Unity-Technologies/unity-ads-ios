@@ -2,6 +2,10 @@
 #import "USRVConfiguration.h"
 #import "USRVSdkProperties.h"
 #import "USRVInitialize.h"
+#import "USRVInitializeStateConfig.h"
+#import "USRVInitializeStateLoadCache.h"
+#import "USRVInitializeStateLoadWeb.h"
+#import "USRVInitializeStateCreate.h"
 
 @interface InitializeTests : XCTestCase
 @end

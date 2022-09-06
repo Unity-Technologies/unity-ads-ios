@@ -14,12 +14,12 @@ typedef void (^SUTAdditionalBlock)(id<UADSHeaderBiddingAsyncTokenReader, UADSHea
 - (id<UADSHeaderBiddingTokenCRUD>)                                   tokenCRUD;
 
 - (void)                                                          runTestWithNativeGeneration: (BOOL)nativeGeneration
-                                                                           withExpectedTokens: (NSArray<NSString *> *)expectedTokens
+                                                                           withExpectedTokens: (NSArray<UADSHeaderBiddingToken *> *)expectedTokens
                                                                      expectedGenerationCalled: (NSInteger)generateCalled
                                                                                     hbTimeout: (NSInteger)timeout
                                                                               additionalBlock: (SUTAdditionalBlock)block;
 - (void)runTestUsingCreatedSut: (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sut
-            withExpectedTokens: (NSArray<NSString *> *)expectedTokens
+            withExpectedTokens: (NSArray<UADSHeaderBiddingToken *> *)expectedTokens
       expectedGenerationCalled: (NSInteger)generateCalled
                      hbTimeout: (NSInteger)timeout
               waitForHBTimeout: (BOOL)waitForHBTimeout

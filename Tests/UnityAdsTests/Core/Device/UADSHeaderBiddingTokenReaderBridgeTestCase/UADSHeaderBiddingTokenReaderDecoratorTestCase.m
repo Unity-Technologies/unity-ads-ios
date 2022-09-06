@@ -27,6 +27,7 @@
     [self.sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
         XCTAssertNotNil(token);
         XCTAssertFalse(token.isValid);
+        XCTAssertEqual(token.type, kUADSTokenRemote);
         XCTAssertEqual(self.readerMock.getTokenCount, 0);
     }];
 
@@ -38,6 +39,7 @@
     [self.sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
         XCTAssertNotNil(token);
         XCTAssertFalse(token.isValid);
+        XCTAssertEqual(token.type, kUADSTokenRemote);
         XCTAssertEqual(self.readerMock.getTokenCount, 0);
     }];
 

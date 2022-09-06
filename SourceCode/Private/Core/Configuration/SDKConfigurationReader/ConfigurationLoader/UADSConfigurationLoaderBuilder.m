@@ -10,6 +10,7 @@
 #import "UADSDeviceInfoReaderBuilder.h"
 #import "USRVBodyURLEncodedCompressorDecorator.h"
 #import "USRVDictionaryCompressorWithMetrics.h"
+#import "UADSWebRequestFactorySwiftAdapter.h"
 #import "UADSPrivacyLoaderWithMetrics.h"
 #import "UADSConfigurationLoaderWithMetrics.h"
 
@@ -18,24 +19,21 @@
 @interface UADSConfigurationLoaderBuilder ()
 @property (nonatomic, strong) UADSConfigurationLoaderBuilderConfig config;
 @property (nonatomic, strong) id<IUSRVWebRequestFactory> webRequestFactory;
-
 @end
 
 @implementation UADSConfigurationLoaderBuilder
 
+
 + (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config
-         andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory {
+         andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory
+                 metricSender: (id<ISDKMetrics>)metricSender  {
     UADSConfigurationLoaderBuilder *builder = [self new];
 
-    builder.metricsSender = [USRVSDKMetrics getInstance];
+    builder.metricsSender = metricSender;
     builder.config = config;
     builder.webRequestFactory = webRequestFactory;
+    builder.metricsSender = metricSender;
     return builder;
-}
-
-+ (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config {
-    return [self newWithConfig: config
-          andWebRequestFactory      : [USRVWebRequestFactory new]];
 }
 
 - (id<UADSConfigurationLoader>)loader {

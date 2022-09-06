@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL isPOSTMethodInConfigRequestEnabled;
 @property (nonatomic) BOOL isForcedUpdatePIIEnabled;
 @property (nonatomic) BOOL isPrivacyRequestEnabled;
+@property (nonatomic) BOOL isSwiftInitEnabled;
 
 @property (nonatomic) NSString *gameID;
 @property (nonatomic) NSString *sdkVersionName;

@@ -32,8 +32,23 @@
     return [[USRVConfiguration alloc] initWithConfigJsonData: configDictionary.uads_jsonData];
 }
 
+- (nonnull UADSConfigurationExperiments *)currentSessionExperiments {
+    return [UADSConfigurationExperiments newWithJSON: self.experiments];
+}
+
+
+- (nonnull NSDictionary *)currentSessionExperimentsAsDictionary {
+    return self.experiments;
+}
+
+
 - (NSDictionary *)metricTags {
     return self.experiments;
 }
+
+- (NSDictionary *)metricInfo {
+    return self.experiments;
+}
+
 
 @end

@@ -28,10 +28,21 @@
     XCTAssertNil(sut.metricTags);
 }
 
-- (void)test_returns_correct_config {
+- (void)test_returns_correct_experiments_as_metric_tags {
+    [self checkCurrentExperimentsFlagsLocalWithObjects: false
+                                      remoteWithObjest: false];                       // 4.3.0 and before
+    [self checkCurrentExperimentsFlagsLocalWithObjects: false
+                                      remoteWithObjest: true];                        // upgade to 4.4.0,
+    [self checkCurrentExperimentsFlagsLocalWithObjects: true
+                                      remoteWithObjest: false];                       // could happen only if we rollback "expo"
+    [self checkCurrentExperimentsFlagsLocalWithObjects: true
+                                      remoteWithObjest: true];                        // subsequent 4.4.0 inits
+}
+
+- (void)checkCurrentExperimentsFlagsLocalWithObjects: (BOOL)localWithObjects remoteWithObjest: (BOOL)withObject {
     UADSConfigurationCRUDBase *sut = [UADSConfigurationCRUDBase new];
 
-    [self saveLocalConfig];
+    [self saveLocalConfigWithObject: localWithObjects];
     USRVConfiguration *config = [sut getCurrentConfiguration];
 
     XCTAssertEqualObjects(config.webViewUrl, self.localWebViewUrl);
@@ -41,7 +52,9 @@
     XCTAssertNil(sut.metricTags[@"tsi_p"]);
 
     [sut saveConfiguration: [self mockConfigWithUrl: self.remoteWebViewUrl
-                                        experiments: self.experiments]];
+                                        experiments: withObject ? self.
+                             experimentsWithObject : self.experiments
+                                   experimentObject: withObject]];
 
     config = [sut getCurrentConfiguration];
     XCTAssertEqualObjects(config.webViewUrl, self.remoteWebViewUrl);
@@ -55,7 +68,8 @@
     UADSConfigurationCRUDBase *sut = [UADSConfigurationCRUDBase new];
     XCTestExpectation *exp = [self defaultExpectation];
     USRVConfiguration *localConfiguration = [self mockConfigWithUrl: self.localWebViewUrl
-                                                        experiments: self.experiments];
+                                                        experiments: self.experiments
+                                                   experimentObject: false];
     int threadCount = 1000;
 
     exp.expectedFulfillmentCount = threadCount;
@@ -87,9 +101,10 @@
     }];
 
     USRVConfiguration *local = [self mockConfigWithUrl: self.localWebViewUrl
-                                           experiments: self.localExperiments];
+                                           experiments: self.localExperiments
+                                      experimentObject: false];
 
-    [self saveLocalConfig];
+    [self saveLocalConfigWithObject: false];
     [sut saveConfiguration: [USRVConfiguration newFromJSON: @{}]];
 
     [self waitForExpectations: @[exp]
@@ -99,18 +114,21 @@
     XCTAssertEqualObjects(received.webViewUrl, local.webViewUrl);
 }
 
-- (void)saveLocalConfig {
+- (void)saveLocalConfigWithObject: (BOOL)withObject {
     USRVConfiguration *localConfiguration = [self mockConfigWithUrl: self.localWebViewUrl
-                                                        experiments: self.localExperiments];
+                                                        experiments: withObject ? self.
+                                             localExperimentsObject : self.localExperiments
+                                                   experimentObject: withObject];
 
     [[localConfiguration toJson] writeToFile: [USRVSdkProperties getLocalConfigFilepath]
                                   atomically: YES];
 }
 
-- (USRVConfiguration *)mockConfigWithUrl: (NSString *)url experiments: (NSDictionary *)experiments {
+- (USRVConfiguration *)mockConfigWithUrl: (NSString *)url experiments: (NSDictionary *)experiments experimentObject: (BOOL)isObjest {
+    NSString *experimentsKey = isObjest ? kUnityServicesConfigValueExperimentsObject : kUnityServicesConfigValueExperiments;
     USRVConfiguration *configuration = [USRVConfiguration newFromJSON: @{
                                             kUnityServicesConfigValueUrl:  url,
-                                            kUnityServicesConfigValueExperiments: experiments,
+                                            experimentsKey: experiments,
                                             kUnityServicesConfigValueSource: self.source
     }];
 
@@ -129,8 +147,47 @@
     return @{ @"tsi": @"false", @"fff": @"false" };
 }
 
+- (NSDictionary *)localExperimentsObject {
+    return @{
+        @"tsi": @{
+            @"value": @"false",
+            @"applied": @"next"
+        },
+        @"fff": @{
+            @"value": @"false",
+            @"applied": @"immediate"
+        }
+    };
+}
+
 - (NSDictionary *)experiments {
-    return @{ @"tsi": @"true", @"fff": @"true", @"nwt": @"true", @"tsi_p": @"true" };
+    return @{
+        @"tsi": @"true",
+        @"fff": @"true",
+        @"nwt": @"true",
+        @"tsi_p": @"true"
+    };
+}
+
+- (NSDictionary *)experimentsWithObject {
+    return @{
+        @"tsi": @{
+            @"value": @"true",
+            @"applied": @"next"
+        },
+        @"fff": @{
+            @"value": @"true",
+            @"applied": @"immediate"
+        },
+        @"nwt": @{
+            @"value": @"true",
+            @"applied": @"immediate"
+        },
+        @"tsi_p": @{
+            @"value": @"true",
+            @"applied": @"next"
+        }
+    };
 }
 
 - (NSString *)source {

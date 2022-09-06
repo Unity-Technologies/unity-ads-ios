@@ -35,6 +35,7 @@ typedef void (^UADSMetricsMeasureBlock)(UADSCompleteMeasureBlock);
 @interface USRVSDKMetrics : NSObject
 //+ (void)setConfiguration: (nullable USRVConfiguration *)configuration;
 //+ (void)setConfiguration: (nullable USRVConfiguration *)configuration requestFactory: (id<IUSRVWebRequestFactoryStatic>)factory;
+
 + (id <ISDKMetrics>)getInstance;
 //+ (void)            reset;
 @end

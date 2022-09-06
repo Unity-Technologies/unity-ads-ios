@@ -1,6 +1,7 @@
 #import "USRVWebRequestQueue.h"
 #import "USRVWebRequest.h"
 #import "USRVResolveError.h"
+#import "UADSServiceProvider.h"
 
 @implementation USRVWebRequestQueue
 
@@ -42,7 +43,8 @@ static dispatch_once_t onceToken;
                                                                                   headers: headers
                                                                                      body: body
                                                                             completeBlock: completeBlock
-                                                                           connectTimeout: connectTimeout];
+                                                                           connectTimeout: connectTimeout
+                                                                                  factory: [UADSServiceProvider sharedInstance].webViewRequestFactory];
         [requestQueue addOperation: operation];
     }
 }

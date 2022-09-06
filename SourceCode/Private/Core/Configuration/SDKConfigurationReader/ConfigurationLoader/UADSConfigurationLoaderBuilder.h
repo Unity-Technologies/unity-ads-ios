@@ -24,11 +24,13 @@ typedef id<UADSConfigurationRequestFactoryConfig, UADSPrivacyConfig> UADSConfigu
 @property (nonatomic, strong) id<UADSLogger>logger;
 @property (nonatomic, strong) id<UADSRetryInfoReader> retryInfoReader;
 @property (nonatomic) BOOL noCompression;
-+ (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config;
-+ (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config
-         andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory;
+
 - (id<UADSConfigurationLoader>)         loader;
 - (id<USRVInitializationRequestFactory>)requestFactoryWithExtendedInfo: (BOOL)hasExtendedInfo;
+
++ (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config
+         andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory
+                 metricSender: (id<ISDKMetrics>)metricSender;
 @end
 
 NS_ASSUME_NONNULL_END

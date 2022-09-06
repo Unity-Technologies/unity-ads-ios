@@ -14,7 +14,7 @@
 #import "UADSCurrentTimestampMock.h"
 #import "UADSConfigurationCRUDBase.h"
 #import "UADSCurrentTimestampMock.h"
-
+#import "WebRequestFactoryMock.h"
 NSString *const kUnityMockedBaseURL = @"https:/baseURL";
 NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.unity3d.com/webview/4.0.0/release/config";
 
@@ -139,7 +139,9 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
         urlBuilder = [UADSBaseURLBuilderBase newWithHostNameProvider: UADSConfigurationEndpointProvider.defaultProvider];
     }
 
-    UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config];
+    UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
+                                                                       andWebRequestFactory: [WebRequestFactoryMock new]
+                                                                               metricSender: [SDKMetricsSenderMock new]];
 
     builder.metricsSender = self.metricsMock;
     builder.deviceInfoReader = self.infoReaderMock;

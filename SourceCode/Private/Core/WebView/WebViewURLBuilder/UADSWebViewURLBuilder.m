@@ -33,7 +33,7 @@
                                     forKey: @"origin"];
     [queryAttributes uads_setValueIfNotNil: config.webViewVersion
                                     forKey: @"version"];
-    
+
     [queryAttributes uads_setValueIfNotNil: uads_bool_to_string(config.enableNativeMetrics)
                                     forKey: @"isNativeCollectingMetrics"];
 

@@ -16,14 +16,14 @@
 - (void)          validateMetrics: (NSArray<UADSMetric *> *)expectedMetrics;
 - (void)setExpectedPrivacyModeTo: (UADSPrivacyMode)mode
          withUserBehaviouralFlag: (BOOL)flag;
-- (NSDictionary *)       piiExpectedData;
+- (NSDictionary *)                         piiExpectedData;
 - (void)setPrivacyResponseState: (UADSPrivacyResponseState)state;
-- (NSArray *)            expectedKeysNoPII;
+- (NSArray *)                              expectedKeysNoPII;
 - (NSArray *)expectedKeysWithPIIIncludeNonBehavioral: (BOOL)include;
 - (NSArray *)expectedKeysMinIncludeNonBehavioral: (BOOL)include;
 - (NSArray *)expectedKeysNoPIIIncludeNonBehavioral: (BOOL)include;
 - (id<UADSPrivacyConfig, UADSClientConfig>)privacyConfig;
-- (NSDictionary *)       piiFullContentData;
+- (NSDictionary *)                         piiFullContentData;
 @end
 
 #endif /* UADSDeviceInfoReaderIntegrationTestsCaseBase_h */

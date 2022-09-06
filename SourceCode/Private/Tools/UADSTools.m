@@ -57,6 +57,6 @@ void uads_measure_performance_and_log(NSString *name, UADSVoidClosure blockToMea
     }
 }
 
-NSString *uads_bool_to_string(BOOL value) {
+NSString * uads_bool_to_string(BOOL value) {
     return value ? @"true" : @"false";
 }

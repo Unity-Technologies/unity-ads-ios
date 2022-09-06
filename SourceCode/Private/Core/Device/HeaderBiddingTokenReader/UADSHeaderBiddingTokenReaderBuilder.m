@@ -79,7 +79,8 @@ static NSString *const kDefaultTokenPrefix = @"1:";
 - (id<UADSHeaderBiddingAsyncTokenReader>)tokenGenerator {
     if (!_tokenGenerator) {
         _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
-                                                                      andCompressor: self.bodyCompressor withTokenPrefix: self.nativeTokenPrefix];
+                                                                      andCompressor: self.bodyCompressor
+                                                                    withTokenPrefix: self.nativeTokenPrefix];
     }
 
     if (self.experiments.isPrivacyWaitEnabled) {
@@ -95,7 +96,7 @@ static NSString *const kDefaultTokenPrefix = @"1:";
     if (!_nativeTokenPrefix) {
         return kDefaultTokenPrefix;
     }
-    
+
     return _nativeTokenPrefix;
 }
 

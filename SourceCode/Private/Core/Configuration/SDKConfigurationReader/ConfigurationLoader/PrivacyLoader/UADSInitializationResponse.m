@@ -32,7 +32,7 @@
     response.headerBiddingToken = dictionary[@"tkn"];
     response.stateId = dictionary[@"sid"];
     response.source = dictionary[@"src"];
-    NSDictionary *experimentsDictionary = dictionary[@"exp"] ? : @{};
+    NSDictionary *experimentsDictionary = dictionary[@"expo"] ? : (dictionary[@"exp"] ? : @{});
 
     response.hbTokenTimeout = [dictionary[@"tto"] longLongValue] ? : 5000; //tto
     response.privacyWaitTimeout = [dictionary[@"prwto"] longLongValue] ? : 3000; //prwto

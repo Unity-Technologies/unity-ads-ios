@@ -8,6 +8,7 @@
 #import "USRVStorageManager.h"
 #import "UADSCurrentTimestampBase.h"
 
+#import "UADSWebRequestFactorySwiftAdapter.h"
 @interface UADSServiceProvider ()
 @property (nonatomic, strong) id<UADSPerformanceLogger>performanceLogger;
 @property (nonatomic, strong) UADSPerformanceMeasurer *performanceMeasurer;
@@ -21,7 +22,6 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
 - (instancetype)init {
     SUPER_INIT
     self.configurationStorage = [UADSConfigurationCRUDBase new];
-    self.requestFactory = [USRVWebRequestFactory new];
     return self;
 }
 
@@ -40,11 +40,13 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     if (_webViewEventSender) {
         return _webViewEventSender;
     }
+
     return [UADSWebViewEventSenderBase new];
 }
 
 - (id<UADSHeaderBiddingAsyncTokenReader>)nativeTokenGenerator {
     UADSHeaderBiddingTokenReaderBuilder *tokenReaderBuilder = self.tokenBuilder;
+
     tokenReaderBuilder.nativeTokenPrefix = @"";
     return tokenReaderBuilder.tokenGenerator;
 }
@@ -53,7 +55,9 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     if (_tokenBuilder) {
         return _tokenBuilder;
     }
+
     UADSHeaderBiddingTokenReaderBuilder *tokenReaderBuilder = [UADSHeaderBiddingTokenReaderBuilder new];
+
     tokenReaderBuilder.privacyStorage = self.privacyStorage;
     tokenReaderBuilder.sdkConfigReader = self.configurationStorage;
     tokenReaderBuilder.tokenCRUD =  [UADSTokenStorage sharedInstance];
@@ -68,11 +72,11 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
 - (id<ISDKMetrics>)metricSender {
     @synchronized (self) {
         if (!_metricSender) {
-            _metricSender = [UADSMetricSender newWithConfigurationReader: _configurationStorage
-                                                       andRequestFactory: _requestFactory
+            _metricSender = [UADSMetricSender newWithConfigurationReader: self.configurationStorage
+                                                       andRequestFactory: self.metricsRequestFactory
                                                            storageReader: [USRVStorageManager getStorage: kUnityServicesStorageTypePublic]
                                                            privacyReader: self.privacyStorage];
-            _metricSender = [UADSMetricSenderWithBatch decorateWithMetricSender: _metricSender
+            _metricSender = [UADSMetricSenderWithBatch decorateWithMetricSender: self.metricSender
                                                         andConfigurationSubject: self.configurationStorage
                                                                       andLogger: self.logger];
         }
@@ -90,15 +94,42 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     return _privacyStorage;
 }
 
+- (id<IUSRVWebRequestFactory>)metricsRequestFactory {
+    if (_metricsRequestFactory) {
+        return _metricsRequestFactory;
+    }
+    
+    if ([self.experiments isSwiftNativeRequestsEnabled]) {
+        return [UADSWebRequestFactorySwiftAdapter new];
+    } else {
+        return [USRVWebRequestFactory new];
+    }
+}
+
+- (id<IUSRVWebRequestFactory>)webViewRequestFactory {
+    if (_webViewRequestFactory) {
+        return _webViewRequestFactory;
+    }
+    if ([self.experiments isSwiftWebViewRequestsEnabled]) {
+        return [UADSWebRequestFactorySwiftAdapter newWithMetricSender: self.metricSender];
+    } else {
+        return [USRVWebRequestFactory new];
+    }
+}
+
+
 - (id<UADSConfigurationLoader>)configurationLoaderUsing: (USRVConfiguration *)configuration retryInfoReader: (id<UADSRetryInfoReader>)retryInfoReader {
     UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: configuration.experiments];
     UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
-                                                                       andWebRequestFactory      : self.requestFactory];
+                                                                       andWebRequestFactory: self.webViewRequestFactory
+                                                                               metricSender: self.metricSender];
+
 
     builder.privacyStorage = self.privacyStorage;
     builder.logger = self.logger;
     builder.configurationSaver = self.configurationSaver;
     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
+    builder.metricsSender = self.metricSender;
     builder.retryInfoReader = retryInfoReader;
     return builder.loader;
 }
@@ -122,6 +153,7 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     return _performanceLogger;
 }
 
+
 - (UADSPerformanceMeasurer *)performanceMeasurer {
     @synchronized (self) {
         if (!_performanceMeasurer) {
@@ -130,6 +162,10 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     }
 
     return _performanceMeasurer;
+}
+
+- (UADSConfigurationExperiments *)experiments {
+    return self.configurationStorage.currentSessionExperiments;
 }
 
 @end

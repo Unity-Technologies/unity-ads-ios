@@ -38,10 +38,16 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
         self.gameIdTextField.text = kDefaultGameId;
     }
 
-    self.interstitialPlacementId = @"video";
+    self.interstitialPlacementId = [defaults valueForKey:@"interstitialPlacementId"] ?:  @"video";
     self.rewardedPlacementId = @"rewardedVideo";
     self.bannerId = @"bannerads";
     self.testMode = YES;
+    
+    self.initializeButton.accessibilityIdentifier = @"InitializeButton";
+    self.gameIdTextField.accessibilityIdentifier = @"GameIDField";
+    self.interstitialLoadButton.accessibilityIdentifier = @"interstitialLoadButton";
+    self.interstitialShowButton.accessibilityIdentifier = @"interstitialShowButton";
+    
 } /* viewDidLoad */
 
 - (IBAction)doneEditingGameId: (id)sender {
@@ -157,6 +163,18 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
 
 - (void)unityAdsAdFailedToLoad: (NSString *)placementId withError: (UnityAdsLoadError)error withMessage: (NSString *)message {
     NSLog(@"UnityAds adFailedToLoad: %ld - %@", (long)error, message);
+    
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"My Alert"
+                                   message:message
+                                   preferredStyle:UIAlertControllerStyleAlert];
+     
+    UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
+       handler:^(UIAlertAction * action) {}];
+     
+    [alert addAction:defaultAction];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+    
 }
 
 #pragma mark UnityAdsShowDelegate

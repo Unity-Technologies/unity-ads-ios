@@ -3,14 +3,14 @@
 
 @implementation USRVWebRequestOperation
 
-- (instancetype)initWithUrl: (NSString *)url requestType: (NSString *)requestType headers: (NSDictionary<NSString *, NSArray<NSString *> *> *)headers body: (NSString *)body completeBlock: (UnityServicesWebRequestCompletion)completeBlock connectTimeout: (int)connectTimeout {
+- (instancetype)initWithUrl: (NSString *)url requestType: (NSString *)requestType headers: (NSDictionary<NSString *, NSArray<NSString *> *> *)headers body: (NSString *)body completeBlock: (UnityServicesWebRequestCompletion)completeBlock connectTimeout: (int)connectTimeout factory: (id<IUSRVWebRequestFactory>)factory {
     self = [super init];
 
     if (self) {
-        [self setRequest: [USRVWebRequestFactory create: url
-                                            requestType: requestType
-                                                headers: headers
-                                         connectTimeout: connectTimeout]];
+        [self setRequest: [factory create: url
+                              requestType: requestType
+                                  headers: headers
+                           connectTimeout: connectTimeout]];
         [self.request setBody: body];
 
         [self setCompleteBlock: completeBlock];

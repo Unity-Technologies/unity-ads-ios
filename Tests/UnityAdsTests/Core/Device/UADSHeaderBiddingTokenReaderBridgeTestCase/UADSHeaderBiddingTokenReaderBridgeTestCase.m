@@ -6,6 +6,7 @@
 #import "UADSTokenStorage.h"
 #import "XCTestCase+Convenience.h"
 #import "UADSTools.h"
+#import "NSArray+Map.h"
 
 @interface UADSHeaderBiddingTokenReaderBridgeTestCase ()
 
@@ -43,9 +44,9 @@
 }
 
 - (void)test_if_native_generation_is_available_and_queue_is_empty_should_call_native_generator {
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"token"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
 
     [self runTestWithNativeGeneration: true
                    withExpectedTokens: @[expectedToken]
@@ -55,11 +56,10 @@
 }
 
 - (void)test_if_tsi_nt_is_off_and_no_valid_token_in_storage_should_not_call_native_generation {
-    NSPointerArray *array = [NSPointerArray new];
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newInvalidToken];
 
-    [array addPointer: nil];
     [self runTestWithNativeGeneration: false
-                   withExpectedTokens: (NSArray *)array
+                   withExpectedTokens: @[expectedToken]
              expectedGenerationCalled: 0
                             hbTimeout: 1
                       additionalBlock: nil];
@@ -115,13 +115,13 @@
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: true];
 
     [sut createTokens: @[]];
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"token"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: @[expectedToken]
         expectedGenerationCalled: 1
-                       hbTimeout: 1
+                       hbTimeout: 100
                 waitForHBTimeout: true
                  additionalBlock: nil];
 }
@@ -130,9 +130,9 @@
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: true];
 
     [sut appendTokens: @[]];
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"token"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: @[expectedToken]
         expectedGenerationCalled: 1
@@ -145,9 +145,9 @@
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: true];
 
     [sut setInitToken: nil];
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"token"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: @[expectedToken]
         expectedGenerationCalled: 1
@@ -157,45 +157,65 @@
 }
 
 - (void)test_tsi_nt_off_should_notify_each_observer_with_its_own_token_after_queue_appended {
-    NSArray *tokens = @[@"token1", @"token2", @"token3"];
+    NSArray *tokens = @[
+        [UADSHeaderBiddingToken newWebToken: @"token1"],
+        [UADSHeaderBiddingToken newWebToken: @"token2"],
+        [UADSHeaderBiddingToken newWebToken: @"token3"]
+    ];
 
+
+    self.nativeGeneratorMock.expectedToken = @"token";
+    NSArray *tokenValues = [tokens uads_mapObjectsUsingBlock:^id _Nonnull(UADSHeaderBiddingToken *  _Nonnull obj) {
+        return obj.value;
+    }];
+    
     [self runTestWithNativeGeneration: false
                    withExpectedTokens: tokens
              expectedGenerationCalled: 0
                             hbTimeout: 5
                       additionalBlock:^(id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut) {
-                          [sut appendTokens: tokens];
+                          [sut appendTokens: tokenValues];
                       }];
 }
 
 - (void)test_tsi_nt_off_should_notify_each_observer_with_its_own_token_after_queue_created {
-    NSArray *tokens = @[@"token1", @"token2", @"token3"];
+    NSArray *tokens = @[
+        [UADSHeaderBiddingToken newWebToken: @"token1"],
+        [UADSHeaderBiddingToken newWebToken: @"token2"],
+        [UADSHeaderBiddingToken newWebToken: @"token3"]
+    ];
+
+
+    self.nativeGeneratorMock.expectedToken = @"token";
+    NSArray *tokenValues = [tokens uads_mapObjectsUsingBlock:^id _Nonnull(UADSHeaderBiddingToken *  _Nonnull obj) {
+        return obj.value;
+    }];
 
     [self runTestWithNativeGeneration: false
                    withExpectedTokens: tokens
              expectedGenerationCalled: 0
                             hbTimeout: 5
                       additionalBlock:^(id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut) {
-                          [sut createTokens: tokens];
+                          [sut createTokens: tokenValues];
                       }];
 }
 
 - (void)test_tsi_nt_off_should_notify_each_observer_with_init_token_when_its_saved {
-    NSString *expectedToken = @"token";
 
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"token"];
     [self runTestWithNativeGeneration: false
                    withExpectedTokens: @[expectedToken, expectedToken, expectedToken]
              expectedGenerationCalled: 0
                             hbTimeout: 5
                       additionalBlock:^(id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut) {
-                          [sut setInitToken: expectedToken];
+                          [sut setInitToken: expectedToken.value];
                       }];
 }
 
 - (void)test_if_tsi_nt_is_off_and_storage_has_init_token_should_call_completion {
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"token"];
 
-    [self.tokenCRUD setInitToken: expectedToken];
+    [self.tokenCRUD setInitToken: expectedToken.value];
     [self runTestWithNativeGeneration: false
                    withExpectedTokens: @[expectedToken]
              expectedGenerationCalled: 0
@@ -205,10 +225,10 @@
 
 - (void)test_if_tsi_nt_is_on_and_storage_has_init_token_should_return_init_token {
     self.nativeGeneratorMock.expectedToken = @"token";
-    NSString *initToken = @"init_token";
+    UADSHeaderBiddingToken *initToken = [UADSHeaderBiddingToken newInitializeToken: @"init_token"];
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: true];
 
-    [sut setInitToken: initToken];
+    [sut setInitToken: initToken.value];
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: @[initToken]
         expectedGenerationCalled: 0
@@ -218,11 +238,11 @@
 }
 
 - (void)test_if_tsi_nt_is_on_and_storage_has_token_in_queue_should_return_token_from_queue {
-    self.nativeGeneratorMock.expectedToken = @"token";
-    NSString *expectedToken = @"expectedToken";
+    self.nativeGeneratorMock.expectedToken =  @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"expectedToken"];
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: true];
 
-    [sut createTokens: @[expectedToken]];
+    [sut createTokens: @[expectedToken.value]];
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: @[expectedToken]
         expectedGenerationCalled: 0
@@ -232,26 +252,26 @@
 }
 
 - (void)test_notifies_only_once_when_a_queue_is_created_tsi_nt_is_off {
-    NSString *expectedToken = @"expectedToken";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"token"];
 
     [self runTestWithNativeGeneration: false
                    withExpectedTokens: @[expectedToken]
              expectedGenerationCalled: 0
                             hbTimeout: 5
                       additionalBlock:^(id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut) {
-                          [sut createTokens: @[expectedToken]];
-                          [sut appendTokens: @[expectedToken]];
+                          [sut createTokens: @[expectedToken.value]];
+                          [sut appendTokens: @[expectedToken.value]];
                       }];
 }
 
 - (void)test_if_a_queue_was_created_once_should_not_use_native_generator {
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"token"];
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: true];
 
-    [sut createTokens: @[expectedToken]];
+    [sut createTokens: @[expectedToken.value]];
     NSArray *array = @[
         expectedToken,
-        [NSNull null]
+        [UADSHeaderBiddingToken newInvalidToken]
     ];
 
     [self runTestUsingCreatedSut: sut
@@ -263,8 +283,9 @@
 }
 
 - (void)test_if_the_queue_is_exhausted_dont_clean_the_queue_of_observers {
-    NSString *expectedToken = @"token";
-    NSString *expectedToken2 = @"token2";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"token"];
+    UADSHeaderBiddingToken *expectedToken2 = [UADSHeaderBiddingToken newWebToken: @"token2"];
+
     id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> sut = [self sutWithNativeGeneration: false];
 
 
@@ -279,19 +300,20 @@
                        hbTimeout: 5
                 waitForHBTimeout: false
                  additionalBlock:^(id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> currentSut) {
-                     [sut createTokens: @[expectedToken]];
-                     [currentSut appendTokens: @[expectedToken2]];
+                     [sut createTokens: @[expectedToken.value]];
+                     [currentSut appendTokens: @[expectedToken2.value]];
                  }];
 }
 
 - (void)test_if_tsi_nt_is_off_and_storage_has_token_in_queue_should_call_completion {
-    NSString *expectedToken = @"token";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newWebToken: @"token"];
     id<UADSHeaderBiddingAsyncTokenReader> sut = [self sutWithNativeGeneration: false];
     XCTestExpectation *expectation = self.defaultExpectation;
 
-    [self.tokenCRUD createTokens: @[expectedToken]];
+    [self.tokenCRUD createTokens: @[expectedToken.value]];
     [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
-        XCTAssertEqualObjects(token.value, expectedToken);
+        XCTAssertEqualObjects(token.value, expectedToken.value);
+        XCTAssertEqual(token.type, expectedToken.type);
         XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, 0);
         [expectation fulfill];
     }];
@@ -300,7 +322,7 @@
 }
 
 - (void)runTestWithNativeGeneration: (BOOL)nativeGeneration
-                 withExpectedTokens: (NSArray<NSString *> *)expectedTokens
+                 withExpectedTokens: (NSArray<UADSHeaderBiddingToken *> *)expectedTokens
            expectedGenerationCalled: (NSInteger)generateCalled
                           hbTimeout: (NSInteger)timeout
                     additionalBlock: (SUTAdditionalBlock)block {
@@ -316,7 +338,7 @@
 }
 
 - (void)runTestUsingCreatedSut: (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sut
-            withExpectedTokens: (NSArray<NSString *> *)expectedTokens
+            withExpectedTokens: (NSArray<UADSHeaderBiddingToken *> *)expectedTokens
       expectedGenerationCalled: (NSInteger)generateCalled
                      hbTimeout: (NSInteger)timeout
               waitForHBTimeout: (BOOL)waitForHBTimeout
@@ -327,10 +349,10 @@
     _configReaderMock.expectedConfiguration.hbTokenTimeout = timeout * 1000;
     expectation.expectedFulfillmentCount = expectedTokens.count;
 
-    for (NSString *expectedToken in expectedTokens) {
+    for (UADSHeaderBiddingToken *expectedToken in expectedTokens) {
         [sut getToken:^(UADSHeaderBiddingToken *_Nullable token) {
-            NSString *tokenToCompare = [expectedToken isEqual: [NSNull null]] ? nil : expectedToken;
-            XCTAssertEqualObjects(token.value, tokenToCompare);
+            XCTAssertEqualObjects(token.value, expectedToken.value);
+            XCTAssertEqual(token.type, expectedToken.type);
             XCTAssertEqual(self.nativeGeneratorMock.getTokenCount, generateCalled);
             [expectation fulfill];
         }];

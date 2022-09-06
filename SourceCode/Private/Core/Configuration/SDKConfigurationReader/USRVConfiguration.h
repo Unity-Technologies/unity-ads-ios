@@ -12,6 +12,7 @@ extern NSString *const kUnityServicesConfigValueSdkVersion;
 extern NSString *const kUnityServicesConfigValueNetworkErrorTimeout;
 extern NSString *const kUnityServicesConfigValueDelayWebviewUpdate;
 extern NSString *const kUnityServicesConfigValueExperiments;
+extern NSString *const kUnityServicesConfigValueExperimentsObject;
 extern NSString *const kUnityServicesConfigValueShowTimeout;
 extern NSString *const kUnityServicesConfigValueLoadTimeout;
 extern NSString *const kUnityServicesConfigValueWebViewTimeout;
@@ -56,7 +57,6 @@ extern NSString *const kUnityServicesConfigValueStateID;
 @property (nonatomic, assign) long privacyWaitTimeout;
 @property (nonatomic, assign) BOOL enableNativeMetrics;
 @property (nonatomic, strong, readonly) NSDictionary *originalJSON;
-
 - (void)        saveToDisk;
 - (instancetype)initWithConfigUrl: (NSString *)url;
 - (instancetype)initWithConfigJsonData: (NSData *)configJsonData;

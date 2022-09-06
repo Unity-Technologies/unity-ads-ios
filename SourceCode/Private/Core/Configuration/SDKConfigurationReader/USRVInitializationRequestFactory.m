@@ -125,6 +125,7 @@ NSString * uads_requestTypeString(USRVInitializationRequestType type) {
 
 - (NSDictionary *)appendCommonValuesTo: (NSDictionary *)dictionary {
     NSMutableDictionary *mDictionary = [[NSMutableDictionary alloc] initWithDictionary: dictionary];
+
     mDictionary[ @"sdkVersionName"] = _config.sdkVersionName ? : @"";
     return mDictionary;
 }

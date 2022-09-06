@@ -1,4 +1,5 @@
 #import "UnityAds+Testability.h"
+#import "USRVSdkProperties.h"
 
 @class UnityAds;
 @class USRVSdkProperties;

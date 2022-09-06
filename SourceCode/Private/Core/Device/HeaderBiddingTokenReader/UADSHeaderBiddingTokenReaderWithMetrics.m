@@ -45,7 +45,6 @@
 }
 
 - (void)sendRemoteTokenMetricsIfNeeded: (UADSHeaderBiddingToken *)token  {
-    
     if (!token.isValid) {
         [self.metricsSender sendMetric: [UADSTsiMetric newAsyncTokenNullWithTags: [self metricTags]]];
     } else {

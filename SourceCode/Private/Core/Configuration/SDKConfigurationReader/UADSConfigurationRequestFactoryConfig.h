@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)        isTwoStageInitializationEnabled;
 - (BOOL)        isPOSTMethodInConfigRequestEnabled;
+- (BOOL)        isSwiftInitEnabled;
 
 - (NSString *)  sdkVersionName;
 - (NSString *)  sdkVersion;

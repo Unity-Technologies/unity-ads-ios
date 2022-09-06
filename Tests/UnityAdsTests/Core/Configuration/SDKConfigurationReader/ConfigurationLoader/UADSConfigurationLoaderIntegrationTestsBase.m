@@ -93,10 +93,9 @@
 
 - (UADSConfigurationLoaderBuilder *)sutBuilderForConfig: (UADSConfigurationLoaderBuilderConfig)config {
     UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
-                                                                       andWebRequestFactory      : _webRequestFactoryMock];
+                                                                       andWebRequestFactory      : _webRequestFactoryMock metricSender: self.metricSender];
 
     builder.configurationSaver = self.configSaver;
-    builder.metricsSender = self.metricSender;
     builder.privacyStorage = _privacyStorage;
     builder.currentTimeStampReader = [UADSCurrentTimestampMock new];
     builder.retryInfoReader = [UADSRetryInfoReaderMock newWithInfo: _deviceInfoTester.retryTags];

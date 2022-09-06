@@ -7,6 +7,7 @@
 #import "NSString+Hash.h"
 #import <AVFoundation/AVFoundation.h>
 #import "USRVApiRequest.h"
+#import "NSDictionary+Headers.h"
 
 NSString * USRVNSStringFromCacheError(UnityServicesCacheError error) {
     switch (error) {
@@ -55,7 +56,7 @@ NSString * USRVNSStringFromCacheError(UnityServicesCacheError error) {
 
     BOOL success = [USRVCacheQueue download: url
                                      target: [USRVApiCache fileIdToFilename: fileId]
-                                    headers: [USRVApiRequest getHeadersMap: headers]
+                                    headers: [NSDictionary uads_getHeadersMap: headers]
                                      append: [append boolValue]];
 
     if (!success) {

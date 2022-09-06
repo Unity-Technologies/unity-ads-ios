@@ -5,7 +5,6 @@
 #import "XCTestCase+Convenience.h"
 #import "NSDate+Mock.h"
 #import "NSArray+Map.h"
-#import "UADSMetricSelectorMock.h"
 #import "UADSGenericMediator.h"
 #import "XCTestCase+Convenience.h"
 #import "UADSLoggerMock.h"
@@ -24,7 +23,6 @@
 
 @interface UADSMetricSenderWithBatchTest : XCTestCase
 @property (nonatomic, strong) SDKMetricsSenderMock *mock;
-@property (nonatomic, strong) UADSMetricSelectorMock *selectorMock;
 @property (nonatomic, strong) UADSMetricSenderWithBatch *sut;
 @property (nonatomic, strong) UADSConfigurationSubjectMock *mediator;
 @property (nonatomic, strong) XCTestExpectation *exp;
@@ -34,11 +32,9 @@
 
 - (void)setUp {
     _mock = [SDKMetricsSenderMock new];
-    _selectorMock = [UADSMetricSelectorMock new];
     _mediator = [UADSConfigurationSubjectMock new];
-    _sut = [UADSMetricSenderWithBatch newWithMetricSender: _mock
+    _sut = [UADSMetricSenderWithBatch decorateWithMetricSender: _mock
                                   andConfigurationSubject: _mediator
-                                              andSelector: _selectorMock
                                                 andLogger: [UADSLoggerMock new]];
 }
 
@@ -192,9 +188,8 @@
     UADSMetricSenderWithBatch *obj;
 
     @autoreleasepool {
-        obj = [UADSMetricSenderWithBatch newWithMetricSender: _mock
+        obj = [UADSMetricSenderWithBatch decorateWithMetricSender: _mock
                                      andConfigurationSubject: _mediator
-                                                 andSelector: _selectorMock
                                                    andLogger: [UADSLoggerMock new]];
         USRVConfiguration *configMock = [USRVConfiguration newFromJSON: @{}];
         [_mediator notifyObserversWithObjectAndRemove: configMock];
@@ -228,6 +223,7 @@
 
 - (void)emulateConfigurationUpdateWithAllowedMetrics: (BOOL)sendMetrics {
     USRVConfiguration *configMock = [USRVConfiguration newFromJSON: @{}];
+
     configMock.enableNativeMetrics = sendMetrics;
     [_mediator notifyObserversWithObjectAndRemove: configMock];
 }

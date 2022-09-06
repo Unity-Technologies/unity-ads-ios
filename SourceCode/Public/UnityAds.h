@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
+
 /**
  *  This is an umbrella header, pls modify it with caution ;)
  */
+
 #ifndef UnityAds_h
 #define UnityAds_h
 

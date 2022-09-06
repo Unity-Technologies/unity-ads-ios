@@ -45,11 +45,9 @@
 
 - (void)test_if_state_is_failed_should_return_null_token_even_if_first_init_token_is_not_nil {
     [self.tokenCRUD setInitToken: @"init_token"];
-    NSPointerArray *array = [NSPointerArray new];
 
-    [array addPointer: nil];
     [self runTestWithNativeGeneration: true
-                   withExpectedTokens: (NSArray *)array
+                   withExpectedTokens: @[UADSHeaderBiddingToken.newInvalidToken]
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: INITIALIZED_FAILED
@@ -59,11 +57,9 @@
 
 - (void)test_if_state_is_failed_return_null_token_even_if_queue_is_not_empty {
     [self.tokenCRUD createTokens: @[@"token"]];
-    NSPointerArray *array = [NSPointerArray new];
 
-    [array addPointer: nil];
     [self runTestWithNativeGeneration: true
-                   withExpectedTokens: (NSArray *)array
+                   withExpectedTokens: @[UADSHeaderBiddingToken.newInvalidToken]
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: INITIALIZED_FAILED
@@ -75,11 +71,9 @@
 
 - (void)test_if_state_is_not_initialized_return_null_token_even_if_first_init_token_is_not_nil {
     [self.tokenCRUD setInitToken: @"init_token"];
-    NSPointerArray *array = [NSPointerArray new];
 
-    [array addPointer: nil];
     [self runTestWithNativeGeneration: true
-                   withExpectedTokens: (NSArray *)array
+                   withExpectedTokens: @[UADSHeaderBiddingToken.newInvalidToken]
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: NOT_INITIALIZED
@@ -89,11 +83,9 @@
 
 - (void)test_if_state_is_not_initialized_return_null_token_even_if_queue_is_not_empty {
     [self.tokenCRUD createTokens: @[@"token"]];
-    NSPointerArray *array = [NSPointerArray new];
 
-    [array addPointer: nil];
     [self runTestWithNativeGeneration: true
-                   withExpectedTokens: (NSArray *)array
+                   withExpectedTokens: @[UADSHeaderBiddingToken.newInvalidToken]
              expectedGenerationCalled: 0
                             hbTimeout: 0
                             initState: NOT_INITIALIZED
@@ -107,8 +99,10 @@
     self.nativeGeneratorMock = nil;
     self.builder.deviceInfoReader = self.readerMock;
     // encoded device info: @{ @"test": @"info" };
-    NSString *token = @"1:H4sIAAAAAAAAE6tWKkktLlGyUsrMS8tXqgUAIuq+TA8AAAA=";
+    NSString *tokenString = @"1:H4sIAAAAAAAAE6tWKkktLlGyUsrMS8tXqgUAIuq+TA8AAAA=";
 
+    UADSHeaderBiddingToken *token = [UADSHeaderBiddingToken newNative:tokenString];
+    
     [self runTestWithNativeGeneration: true
                    withExpectedTokens: @[token]
              expectedGenerationCalled: 0
@@ -121,11 +115,9 @@
 }
 
 - (void)test_sends_null_token_metric_when_timeout {
-    NSPointerArray *array = [NSPointerArray new];
 
-    [array addPointer: nil];
     [self runTestWithNativeGeneration: false
-                   withExpectedTokens: (NSArray *)array
+                   withExpectedTokens: @[UADSHeaderBiddingToken.newInvalidToken]
              expectedGenerationCalled: 0
                             hbTimeout: 1
                             initState: INITIALIZING
@@ -135,12 +127,28 @@
                                                            type: kUADSTokenRemote]]];
 }
 
+- (void)test_returns_native_token_during_initializing_state {
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"expectedToken"];
+
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
+    [self runTestWithNativeGeneration: true
+                   withExpectedTokens: @[expectedToken]
+             expectedGenerationCalled: 1
+                            hbTimeout: 1
+                            initState: INITIALIZING
+                      additionalBlock: nil
+                         privacyState: kUADSPrivacyResponseUnknown];
+    [self validateMetricsSent: @[[self nativeTokenGeneratedMetricWithState: INITIALIZING]]];
+}
+
 - (void)test_available_async_token_sent_when_return_valid_token {
-    NSArray *expected = @[@"token"];
+    UADSHeaderBiddingToken *token = [UADSHeaderBiddingToken newWebToken: @"token"];
+    
     UADSMetric *expectedMetric = [UADSTsiMetric newAsyncTokenTokenAvailableWithTags: [self metricTagsWithState: INITIALIZED_SUCCESSFULLY]];
-    [self.tokenCRUD createTokens: expected];
+
+    [self.tokenCRUD createTokens: @[token.value]];
     [self runTestWithNativeGeneration: false
-                   withExpectedTokens: expected
+                   withExpectedTokens: @[token]
              expectedGenerationCalled: 0
                             hbTimeout: 1
                             initState: INITIALIZED_SUCCESSFULLY
@@ -171,9 +179,9 @@
                             andPrivacyWait: true
                                 andTimeout: 4];
 
-    NSString *expectedToken = @"expectedToken";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"expectedToken"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self setInitState: INITIALIZED_SUCCESSFULLY];
 
     [self runTestUsingCreatedSut: sut
@@ -193,9 +201,9 @@
                             andPrivacyWait: true
                                 andTimeout: 4];
 
-    NSString *expectedToken = @"expectedToken";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"expectedToken"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self setInitState: INITIALIZED_SUCCESSFULLY];
 
     [self runTestUsingCreatedSut: sut
@@ -220,12 +228,13 @@
                             andPrivacyWait: true
                                 andTimeout: 4];
 
-    NSString *expectedToken = @"expectedToken";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"expectedToken"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self setInitState: INITIALIZED_SUCCESSFULLY];
     [self setPrivacyState: kUADSPrivacyResponseDenied];
-
+    
+  
     [self runTestUsingCreatedSut: sut
               withExpectedTokens: @[expectedToken]
         expectedGenerationCalled: 1
@@ -279,9 +288,9 @@
                             andPrivacyWait: true
                                 andTimeout: 4];
 
-    NSString *expectedToken = @"expectedToken";
+    UADSHeaderBiddingToken *expectedToken = [UADSHeaderBiddingToken newNative: @"expectedToken"];
 
-    self.nativeGeneratorMock.expectedToken = expectedToken;
+    self.nativeGeneratorMock.expectedToken = expectedToken.value;
     [self setInitState: INITIALIZED_SUCCESSFULLY];
     [self setPrivacyState: kUADSPrivacyResponseAllowed];
 
@@ -314,7 +323,7 @@
 }
 
 - (void)runTestWithNativeGeneration: (BOOL)nativeGeneration
-                 withExpectedTokens: (NSArray<NSString *> *)expectedTokens
+                 withExpectedTokens: (NSArray<UADSHeaderBiddingToken *> *)expectedTokens
            expectedGenerationCalled: (NSInteger)generateCalled
                           hbTimeout: (NSInteger)timeout
                           initState: (InitializationState)state

@@ -9,7 +9,7 @@
 @property (nonatomic, strong) id<UADSDeviceIDFIReader>userDefaultsReader;
 @property (nonatomic, strong) id<UADSPIITrackingStatusReader>userContainerReader;
 @property (nonatomic) BOOL includeUserNonBehavioral;
-@property (nonatomic, copy) NSString* gameID;
+@property (nonatomic, copy) NSString *gameID;
 @end
 
 @implementation UADSMinDeviceInfoReader
@@ -46,7 +46,7 @@
 
     [info uads_setValueIfNotNil: @([USRVTrackingManagerProxy.sharedInstance trackingAuthorizationStatus])
                          forKey: kUADSDeviceInfoDeviceTrackingAuthStatusKey];
-    
+
     [info uads_setValueIfNotNil: self.gameID
                          forKey: kUADSDeviceInfoGameIDKey];
 

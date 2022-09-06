@@ -11,17 +11,16 @@
 }
 
 - (NSNumber *)errorCode {
-    return self.userInfoErrorCode ?: @(self.code);
+    return self.userInfoErrorCode ? : @(self.code);
 }
 
 - (nonnull NSString *)errorDomain {
     return self.domain;
 }
 
--(NSNumber *)userInfoErrorCode {
+- (NSNumber *)userInfoErrorCode {
     return self.userInfo[@"code"];
 }
-
 
 @end
 

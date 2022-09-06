@@ -11,7 +11,9 @@
 #import "USRVInitialize.h"
 #import "USRVInitializationNotificationCenter.h"
 #import "USRVSDKMetrics.h"
+#import "USRVInitializeStateCreate.h"
 #import "UADSServiceProvider.h"
+
 @implementation USRVCoreModuleConfiguration
 
 - (NSArray<NSString *> *)getWebAppApiClassList {

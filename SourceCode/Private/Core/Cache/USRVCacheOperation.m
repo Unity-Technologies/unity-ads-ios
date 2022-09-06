@@ -6,6 +6,7 @@
 #import "USRVApiRequest.h"
 #import "USRVApiCache.h"
 #import "USRVWebRequestFactory.h"
+#import "NSDictionary+Headers.h"
 
 @implementation USRVCacheOperation
 
@@ -74,10 +75,10 @@
 
     long long startTime = [[NSDate date] timeIntervalSince1970] * 1000;
 
-    self.request = [USRVWebRequestFactory create: self.source
-                                     requestType: @"GET"
-                                         headers: NULL
-                                  connectTimeout: self.connectTimeout];
+    self.request = [[USRVWebRequestFactory new] create: self.source
+                                           requestType: @"GET"
+                                               headers: NULL
+                                        connectTimeout: self.connectTimeout];
 
     if (self.append) {
         @try {
@@ -151,7 +152,7 @@
                             [NSNumber numberWithLongLong: fileSize],
                             [NSNumber numberWithLongLong: weakSelf.expectedContentSize],
                             [NSNumber numberWithLong: responseCode],
-                            [USRVApiRequest getHeadersArray: responseHeaders],
+                            [NSDictionary uads_getHeadersArray: responseHeaders],
                             nil];
                        });
     }];
@@ -239,7 +240,7 @@
              [NSNumber numberWithLongLong: self.expectedContentSize],
              [NSNumber numberWithLongLong: duration],
              [NSNumber numberWithLong: responseCode],
-             [USRVApiRequest getHeadersArray: responseHeaders],
+             [NSDictionary uads_getHeadersArray: responseHeaders],
              nil];
         });
     } else {
@@ -251,7 +252,7 @@
              [NSNumber numberWithLongLong: self.expectedContentSize],
              [NSNumber numberWithLongLong: duration],
              [NSNumber numberWithLong: responseCode],
-             [USRVApiRequest getHeadersArray: responseHeaders],
+             [NSDictionary uads_getHeadersArray: responseHeaders],
              nil];
         });
     }

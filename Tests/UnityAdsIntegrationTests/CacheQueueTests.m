@@ -84,14 +84,8 @@ static long kMinFileSize = 5000;
     [super setUp];
     MockWebViewApp *webApp = [[MockWebViewApp alloc] init];
 
-    [USRVWebRequestFactory setImplementationType: kUnityAdsWebRequestUrlConnection];
     [USRVWebViewApp setCurrentApp: webApp];
     [USRVCacheQueue start];
-}
-
-- (void)tearDown {
-    [super tearDown];
-    [USRVWebRequestFactory setImplementationType: kUnityAdsWebRequestUrlConnection];
 }
 
 - (void)testDownloadFile {

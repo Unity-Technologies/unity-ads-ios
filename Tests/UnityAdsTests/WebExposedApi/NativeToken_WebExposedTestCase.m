@@ -17,7 +17,7 @@ NSString *const kTokenCategoryName = @"TOKEN";
 @property (nonatomic, strong) SDKMetricsSenderMock *metricSenderMock;
 @property (nonatomic, strong) UADSPrivacyStorage *privacyMock;
 @property (nonatomic, strong) UADSConfigurationReaderMock *configReaderMock;
-@property (nonatomic, strong) UADSEventSenderMock* eventSenderMock;
+@property (nonatomic, strong) UADSEventSenderMock *eventSenderMock;
 @end
 
 @implementation NativeToken_WebExposedTestCase
@@ -30,6 +30,7 @@ NSString *const kTokenCategoryName = @"TOKEN";
     self.privacyMock = [UADSPrivacyStorage new];
     self.eventSenderMock = [UADSEventSenderMock new];
     UADSHeaderBiddingTokenReaderBuilder *builder = [UADSHeaderBiddingTokenReaderBuilder new];
+
     UADSServiceProvider.sharedInstance.tokenBuilder = builder;
     UADSServiceProvider.sharedInstance.metricSender = self.metricSenderMock;
     UADSServiceProvider.sharedInstance.webViewEventSender = self.eventSenderMock;
@@ -42,19 +43,19 @@ NSString *const kTokenCategoryName = @"TOKEN";
 - (void)tearDown {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-    
+
     UADSServiceProvider.sharedInstance.tokenBuilder = nil;
     UADSServiceProvider.sharedInstance.metricSender = nil;
     UADSServiceProvider.sharedInstance.webViewEventSender = nil;
-    
+
 #pragma clang diagnostic pop
-    
 }
 
 - (void)test_token_doesnt_have_prefix {
     [UADSApiToken WebViewExposed_getNativeGeneratedToken: [USRVWebViewCallback new]];
     id<UADSWebViewEvent> lastEvent = _eventSenderMock.receivedEvents.lastObject;
     id<UADSWebViewEvent> expectedEvent = self.expectedEvent;
+
     XCTAssertEqualObjects(lastEvent.categoryName, expectedEvent.categoryName);
     XCTAssertEqualObjects(lastEvent.eventName, expectedEvent.eventName);
     XCTAssertEqualObjects(lastEvent.params, expectedEvent.params);
@@ -68,11 +69,10 @@ NSString *const kTokenCategoryName = @"TOKEN";
 - (UADSWebViewEventBase *)expectedEvent {
     // encoded device info: @{ @"test": @"info" };
     NSString *token = @"H4sIAAAAAAAAE6tWKkktLlGyUsrMS8tXqgUAIuq+TA8AAAA=";
-   return [UADSWebViewEventBase newWithCategory: kTokenCategoryName
-                                      withEvent: kTokenEventName
-                                     withParams: @[token]];
+
+    return [UADSWebViewEventBase newWithCategory: kTokenCategoryName
+                                       withEvent: kTokenEventName
+                                      withParams: @[token]];
 }
-
-
 
 @end

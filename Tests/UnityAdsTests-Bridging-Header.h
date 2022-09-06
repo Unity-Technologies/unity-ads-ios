@@ -36,6 +36,10 @@
 #import "UADSTokenStorage.h"
 #import "NSInvocation+Convenience.h"
 
+// SWIFT TESTS
+#import "UADSWebRequestSwiftAdapter.h"
+#import "UADSWebRequestFactorySwiftAdapter.h"
+
 // TESTING SPECIFIC
 #import "UnityAds+Testability.h"
 #import "TestUtilities.h"

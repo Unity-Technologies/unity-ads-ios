@@ -23,4 +23,14 @@
     return newDictionary;
 }
 
+- (NSDictionary *)uads_mapValues: (id(NS_NOESCAPE ^)(id key, id obj))block {
+    NSMutableDictionary *newDictionary = [NSMutableDictionary new];
+
+    [self enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
+        newDictionary[key] = block(key, obj);
+    }];
+
+    return newDictionary;
+}
+
 @end

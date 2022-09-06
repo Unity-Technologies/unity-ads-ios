@@ -1,12 +1,10 @@
 #import "UADSConfigurationExperiments.h"
 #import "NSDictionary+Filter.h"
-
-#define NEXT_SESSION_FLAGS     @[@"tsi", @"tsi_upii", @"tsi_p", @"tsi_nt", @"tsi_prr", @"tsi_prw"]
-#define NEXT_SESSION_FLAGS_SET [NSSet setWithArray: NEXT_SESSION_FLAGS]
-
+#import "UADSConfigurationExperimentValue.h"
 
 @interface UADSConfigurationExperiments ()
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *json;
+@property (nonatomic, strong) NSDictionary<NSString *, UADSConfigurationExperimentValue *> *experimentObjects;
 @end
 
 @implementation UADSConfigurationExperiments
@@ -14,47 +12,86 @@
     UADSConfigurationExperiments *obj = [UADSConfigurationExperiments new];
 
     obj.json = json;
+
+    NSMutableDictionary *parsed = [NSMutableDictionary dictionary];
+
+    [json enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+        parsed[key] = [UADSConfigurationExperimentValue newWithKey: key
+                                                              json: obj];
+    }];
+    obj.experimentObjects = parsed;
+
     return obj;
 }
 
 - (BOOL)isTwoStageInitializationEnabled {
-    return [_json[@"tsi"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"tsi"];
 }
 
 - (BOOL)isForcedUpdatePIIEnabled {
-    return [_json[@"tsi_upii"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"tsi_upii"];
 }
 
 - (BOOL)isPOSTMethodInConfigRequestEnabled {
-    return [_json[@"tsi_p"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"tsi_p"];
 }
 
 - (BOOL)isForwardExperimentsToWebViewEnabled {
-    return [_json[@"fff"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"fff"];
 }
 
 - (BOOL)isHeaderBiddingTokenGenerationEnabled {
-    return [_json[@"tsi_nt"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"tsi_nt"];
 }
 
 - (BOOL)isPrivacyRequestEnabled {
-    return [_json[@"tsi_prr"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"tsi_prr"];
 }
 
 - (BOOL)isPrivacyWaitEnabled {
-    return [_json[@"tsi_prw"] boolValue] ? : false;
+    return [self isExperimentEnabledWithKey: @"tsi_prw"];
+}
+
+- (BOOL)isExperimentEnabledWithKey: (NSString *)key {
+    return self.experimentObjects[key].enabled;
+}
+
+- (BOOL)isSwiftDownloadEnabled {
+    return [self isExperimentEnabledWithKey: @"s_wd"];
+}
+
+- (BOOL)isSwiftNativeRequestsEnabled {
+    return [self isExperimentEnabledWithKey: @"s_nrq"];
+}
+
+- (BOOL)isSwiftWebViewRequestsEnabled {
+    return [self isExperimentEnabledWithKey: @"s_wvrq"];
 }
 
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
-    return [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSString *_Nonnull obj) {
-        return [NEXT_SESSION_FLAGS_SET containsObject: key];
+    return [self flattenFlagsWith:^BOOL (id key) {
+        return [self isExperimentForNextSession: key];
     }];
 }
 
 - (NSDictionary<NSString *, NSString *> *)currentSessionFlags {
-    return [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSString *_Nonnull obj) {
-        return ![NEXT_SESSION_FLAGS_SET containsObject: key];
+    return [self flattenFlagsWith:^BOOL (id key) {
+        return ![self isExperimentForNextSession: key];
     }];
+}
+
+- (NSDictionary<NSString *, NSString *> *)flattenFlagsWith: (BOOL (^)(id key))block {
+    NSDictionary *flags = [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSString *_Nonnull obj) {
+        return block(key);
+    }];
+
+    return [flags uads_mapValues:^id _Nonnull (id _Nonnull key, id _Nonnull value) {
+        return [self isExperimentEnabledWithKey: key] ? @"true" : @"false";
+    }];
+}
+
+- (BOOL)isExperimentForNextSession: (NSString *)key {
+    return self.experimentObjects[key].nextSession;
 }
 
 @end

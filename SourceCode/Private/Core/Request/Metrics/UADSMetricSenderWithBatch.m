@@ -2,7 +2,6 @@
 
 @interface UADSMetricSenderWithBatch ()
 @property (nonatomic, strong) NSMutableArray<UADSMetric *> *metricsQueue;
-@property (nonatomic, strong) id<UADSMetricsSelector> selector;
 @property (nonatomic, strong) id<UADSLogger>logger;
 @property (nonatomic) dispatch_queue_t syncQueue;
 @end
@@ -11,21 +10,10 @@
 
 + (instancetype)decorateWithMetricSender: (id<ISDKMetrics, ISDKPerformanceMetricsSender>)original andConfigurationSubject: (id<UADSConfigurationSubject>)subject
                                andLogger: (nonnull id<UADSLogger>)logger {
-    return [self newWithMetricSender: original
-             andConfigurationSubject: subject
-                         andSelector: [UADSMetricsSelectorBase new]
-                           andLogger: logger];
-}
-
-+ (instancetype)newWithMetricSender: (id <ISDKMetrics, ISDKPerformanceMetricsSender>)original
-            andConfigurationSubject: (id<UADSConfigurationSubject>)subject
-                        andSelector: (id<UADSMetricsSelector>)selector
-                          andLogger: (nonnull id<UADSLogger>)logger {
     UADSMetricSenderWithBatch *decorator = [UADSMetricSenderWithBatch new];
 
     decorator.original = original;
     decorator.state = kUADSMetricSenderStateWaiting;
-    decorator.selector = selector;
     decorator.metricsQueue = [NSMutableArray new];
     decorator.syncQueue = dispatch_queue_create("com.dispatch.UADSMetricSenderWithBatch", DISPATCH_QUEUE_SERIAL);
     decorator.logger = logger;

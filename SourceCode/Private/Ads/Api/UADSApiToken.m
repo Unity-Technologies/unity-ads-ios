@@ -30,11 +30,10 @@ NSString *const kTokenCategoryName = @"TOKEN";
 }
 
 + (void)WebViewExposed_getNativeGeneratedToken: (USRVWebViewCallback *)callback {
-    
-    [self.serviceProvider.nativeTokenGenerator getToken:^(UADSHeaderBiddingToken * _Nullable token) {
-            UADSWebViewEventBase *event = [UADSWebViewEventBase newWithCategory: kTokenCategoryName
-                                                                      withEvent: kTokenEventName
-                                                                     withParams: @[token.value]];
+    [self.serviceProvider.nativeTokenGenerator getToken:^(UADSHeaderBiddingToken *_Nullable token) {
+        UADSWebViewEventBase *event = [UADSWebViewEventBase newWithCategory: kTokenCategoryName
+                                                                  withEvent: kTokenEventName
+                                                                 withParams: @[token.value]];
         [self.webViewEventSender sendEvent: event];
     }];
     [callback invoke: nil];

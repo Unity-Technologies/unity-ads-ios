@@ -26,7 +26,7 @@
     [UADSTokenStorage.sharedInstance deleteTokens];
     _serviceProvider = [UADSServiceProvider new];
     _webRequestFactoryMock = [WebRequestFactoryMock new];
-    _serviceProvider.requestFactory = _webRequestFactoryMock;
+    _serviceProvider.webViewRequestFactory = _webRequestFactoryMock;
     _infoTester = [UADSDeviceTestsHelper new];
     _configTester = [UADSLoaderIntegrationTestsHelper new];
     [self deleteConfigFile];

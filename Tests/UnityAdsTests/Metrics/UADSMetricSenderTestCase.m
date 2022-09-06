@@ -28,9 +28,9 @@ NSString *const VALID_URL = @"http://valid.url";
     _serviceProvider = [UADSServiceProvider new];
     _serviceProvider.privacyStorage = _privacyMock;
 
-
     _requestFactoryMock = [WebRequestFactoryMock new];
-    _serviceProvider.requestFactory = _requestFactoryMock;
+    _serviceProvider.webViewRequestFactory = _requestFactoryMock;
+    _serviceProvider.metricsRequestFactory = _requestFactoryMock;
 
     [self clearMediationMetadata];
     [USRVSdkProperties setTestMode: false];
@@ -349,6 +349,7 @@ NSString *const VALID_URL = @"http://valid.url";
     config.metricsUrl = url;
     config.webViewUrl = @"web_URL";
     config.enableNativeMetrics = rate == 100;
+
     config.experiments = [UADSConfigurationExperiments newWithJSON: self.experiments];
 
     return config;
@@ -411,7 +412,7 @@ NSString *const VALID_URL = @"http://valid.url";
 
 - (NSDictionary *)experiments {
     return @{
-        @"ff": @"vv"
+        @"ff": @"true"
     };
 }
 

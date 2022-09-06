@@ -1,4 +1,4 @@
-#import "UnityAdsTests-Bridging-Header.h"
+#import "UnityAds.h"
 
 @interface UnityAds (Testability)
 

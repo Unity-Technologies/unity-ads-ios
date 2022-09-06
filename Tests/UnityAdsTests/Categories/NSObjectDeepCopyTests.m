@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#import "UnityAdsTests-Bridging-Header.h"
+#import "NSObject+DeepCopy.h"
 
 @interface NSObjectDeepCopyTests : XCTestCase
 @end

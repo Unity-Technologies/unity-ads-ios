@@ -4,10 +4,24 @@
 #import "USRVWebViewApp.h"
 #import "USRVWebRequestError.h"
 #import "USRVWebRequestEvent.h"
+#import "UADSServiceProviderProxy.h"
+#import "NSMutableDictionary+SafeOperations.h"
+#import "UADSServiceProviderProxy.h"
+#import "UADSBaseOptions.h"
+#import "UADSCommonNetworkErrorProxy.h"
+#import "UADSCorePresenceChecker.h"
+#import "NSDictionary+Headers.h"
 
 @implementation USRVApiRequest
-
 static NSString *webRequestEventCategory = @"REQUEST";
+
++ (USRVWebViewApp *)eventSender {
+    return [USRVWebViewApp getCurrentApp];
+}
+
++ (void)WebViewExposed_supportsURLSession: (USRVWebViewCallback *)callback {
+    [callback invoke: [NSNumber numberWithBool: UADSCorePresenceChecker.isPresent], nil];
+}
 
 + (void)WebViewExposed_get: (NSString *)requestId url: (NSString *)url headers: (NSArray *)headers connectTimeout: (NSNumber *)connectTimeout callback: (USRVWebViewCallback *)callback {
     if (headers && headers.count == 0) {
@@ -28,7 +42,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
         }
     };
 
-    NSDictionary *mappedHeaders = [USRVApiRequest getHeadersMap: headers];
+    NSDictionary *mappedHeaders = [NSDictionary uads_getHeadersMap: headers];
 
     if (!mappedHeaders) {
         [callback error: USRVNSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed)
@@ -63,7 +77,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
         }
     };
 
-    NSDictionary *mappedHeaders = [USRVApiRequest getHeadersMap: headers];
+    NSDictionary *mappedHeaders = [NSDictionary uads_getHeadersMap: headers];
 
     if (!mappedHeaders) {
         [callback error: USRVNSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed)
@@ -98,7 +112,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
         }
     };
 
-    NSDictionary *mappedHeaders = [USRVApiRequest getHeadersMap: headers];
+    NSDictionary *mappedHeaders = [NSDictionary uads_getHeadersMap: headers];
 
     if (!mappedHeaders) {
         [callback error: USRVNSStringFromWebRequestError(kUnityServicesWebRequestErrorMappingHeadersFailed)
@@ -120,54 +134,8 @@ static NSString *webRequestEventCategory = @"REQUEST";
     [callback invoke: nil];
 }
 
-+ (NSDictionary<NSString *, NSArray *> *)getHeadersMap: (NSArray *)headers {
-    NSMutableDictionary *mappedHeaders = [[NSMutableDictionary alloc] init];
-
-    if (headers && headers.count > 0) {
-        for (int idx = 0; idx < headers.count; idx++) {
-            if (![[headers objectAtIndex: idx] isKindOfClass: [NSArray class]]) return NULL;
-
-            NSArray *header = [headers objectAtIndex: idx];
-
-            if ([header count] != 2) return NULL;
-
-            if (![[header objectAtIndex: 0] isKindOfClass: [NSString class]] || ![[header objectAtIndex: 1] isKindOfClass: [NSString class]]) {
-                return NULL;
-            }
-
-            NSString *headerKey = [header objectAtIndex: 0];
-            NSString *headerValue = [header objectAtIndex: 1];
-
-            if (headerKey.length < 1) return NULL;
-
-            NSMutableArray *valueList = [[NSMutableArray alloc] initWithArray: [mappedHeaders objectForKey: headerKey]];
-            [valueList addObject: headerValue];
-            [mappedHeaders setObject: valueList
-                              forKey: headerKey];
-        }
-    }
-
-    return mappedHeaders;
-} /* getHeadersMap */
-
-+ (NSArray<NSArray<NSString *> *> *)getHeadersArray: (NSDictionary<NSString *, NSString *> *)headersMap {
-    __block NSArray *headersArray = [NSArray array];
-
-    if (headersMap && headersMap.count > 0) {
-        @try {
-            [headersMap enumerateKeysAndObjectsUsingBlock: ^(NSString *_Nonnull key, NSString *_Nonnull obj, BOOL *_Nonnull stop) {
-                headersArray = [headersArray arrayByAddingObject: @[key, obj]];
-            }];
-        } @catch (id exception) {
-            return NULL;
-        }
-    }
-
-    return headersArray;
-}
-
 + (void)sendSuccess: (NSString *)requestId url: (NSString *)url response: (NSString *)response responseCode: (long)responseCode headers: (NSDictionary<NSString *, NSString *> *)headers {
-    NSArray<NSArray<NSString *> *> *responseHeaders = [USRVApiRequest getHeadersArray: headers];
+    NSArray<NSArray<NSString *> *> *responseHeaders = [NSDictionary uads_getHeadersArray: headers];
 
     if (!responseHeaders) {
         NSError *error = [NSError errorWithDomain: @"com.unity3d.ads.UnityServices.Error"
@@ -210,5 +178,36 @@ static NSString *webRequestEventCategory = @"REQUEST";
      [NSString stringWithFormat: @"%@: %ld", errorMessage, [errorCode longValue]],
      nil];
 } /* sendFailed */
+
++ (void)sendResponseToWebView: (NSDictionary *)dictionary
+                     category: (UnityServicesWebRequestEvent)event {
+    [self.eventSender sendEvent: USRVNSStringFromWebRequestEvent(event)
+                       category: webRequestEventCategory
+                         param1: dictionary, nil];
+}
+
++ (void)WebViewExposed_sendRequest: (NSDictionary *)requestDictionary
+                          callback: (USRVWebViewCallback *)callback {
+    id errorCompletion = ^(NSDictionary *_Nonnull error) {
+        [self sendResponseToWebView: error
+                           category: kUnityServicesWebRequestEventFailed];
+    };
+
+    id successCompletion = ^(NSDictionary *_Nonnull response) {
+        [self sendResponseToWebView: response
+                           category: kUnityServicesWebRequestEventComplete];
+    };
+
+
+    [self.network sendRequestUsing: requestDictionary
+                 successCompletion: successCompletion
+                andErrorCompletion: errorCompletion];
+
+    [callback invoke: requestDictionary[@"id"] ? : @"", nil];
+}
+
++ (UADSCommonNetworkProxy *)network {
+    return [UADSServiceProviderProxy shared].mainNetworkLayer;
+}
 
 @end
