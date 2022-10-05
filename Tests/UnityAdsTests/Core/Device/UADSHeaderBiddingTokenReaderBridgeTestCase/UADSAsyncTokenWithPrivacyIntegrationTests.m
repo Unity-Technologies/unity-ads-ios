@@ -159,9 +159,6 @@
 
 - (NSDictionary *)experimentsWithPrivacyWait: (BOOL)privacyWait {
     return @{
-        @"tsi_nt": @"true",
-        @"tsi": @"true",
-        @"tsi_prr": @"true",
         @"tsi_prw": @(privacyWait)
     };
 }

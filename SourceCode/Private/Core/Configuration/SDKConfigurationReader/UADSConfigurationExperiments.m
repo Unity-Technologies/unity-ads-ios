@@ -25,7 +25,7 @@
 }
 
 - (BOOL)isTwoStageInitializationEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi"];
+    return [self isExperimentEnabledWithKey: @"tsi" defaultValue: true];
 }
 
 - (BOOL)isForcedUpdatePIIEnabled {
@@ -41,11 +41,11 @@
 }
 
 - (BOOL)isHeaderBiddingTokenGenerationEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_nt"];
+    return [self isExperimentEnabledWithKey: @"tsi_nt" defaultValue: true];
 }
 
 - (BOOL)isPrivacyRequestEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_prr"];
+    return [self isExperimentEnabledWithKey: @"tsi_prr" defaultValue: true];
 }
 
 - (BOOL)isPrivacyWaitEnabled {
@@ -53,7 +53,15 @@
 }
 
 - (BOOL)isExperimentEnabledWithKey: (NSString *)key {
-    return self.experimentObjects[key].enabled;
+    return [self isExperimentEnabledWithKey: key defaultValue: false];
+}
+
+- (BOOL)isExperimentEnabledWithKey: (NSString *)key defaultValue: (BOOL)defaulValue {
+    UADSConfigurationExperimentValue *experiment = self.experimentObjects[key];
+    if (experiment) {
+        return experiment.enabled;
+    }
+    return defaulValue;
 }
 
 - (BOOL)isSwiftDownloadEnabled {

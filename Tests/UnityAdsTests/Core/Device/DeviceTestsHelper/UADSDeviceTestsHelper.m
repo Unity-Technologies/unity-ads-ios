@@ -201,7 +201,6 @@
                 @"adapter.name": @"Packman",
                 @"configuration.hasInitialized": @NO,
                 [self webViewDataKeyFor: @"sessionID"]: @"sessionID",
-                [self webViewDataKeyFor: @"gameSessionId"]: @"gameSessionId",
                 [self userDataKeyFor: @"requestToReadyTime"]: @"requestToReadyTime",
                 [self userDataKeyFor: @"clickCount"]: @(10),
                 [self userDataKeyFor: @"requestCount"]: @(10),
@@ -305,7 +304,10 @@
         kUADSDeviceInfoReaderPlatformKey,
         kUADSDeviceInfoLimitAdTrackingKey,
         kUADSDeviceInfoDeviceTrackingAuthStatusKey,
-        kUADSDeviceInfoGameIDKey
+        kUADSDeviceInfoGameIDKey,
+        UADSJsonStorageKeyNames.webViewDataGameSessionIdKey,
+        kUADSDeviceInfoReaderSDKVersionNameKey,
+        kUADSDeviceInfoReaderSDKVersionKey
     ];
 }
 
@@ -319,7 +321,6 @@
                 kUADSDeviceInfoReaderScreenWidthKey,
                 kUADSDeviceInfoReaderEncryptedKey,
                 kUADSDeviceInfoReaderRootedKey,
-                kUADSDeviceInfoReaderSDKVersionKey,
                 kUADSDeviceInfoReaderOSVersionKey,
                 kUADSDeviceInfoReaderDeviceModelKey,
                 kUADSDeviceInfoReaderLanguageKey,

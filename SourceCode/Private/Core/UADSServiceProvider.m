@@ -7,11 +7,13 @@
 #import "UADSConfigurationLoaderBuilder.h"
 #import "USRVStorageManager.h"
 #import "UADSCurrentTimestampBase.h"
-
+#import "UADSGameSessionIdReader.h"
 #import "UADSWebRequestFactorySwiftAdapter.h"
+#import "UADSClientConfig.h"
 @interface UADSServiceProvider ()
 @property (nonatomic, strong) id<UADSPerformanceLogger>performanceLogger;
 @property (nonatomic, strong) UADSPerformanceMeasurer *performanceMeasurer;
+@property (nonatomic, strong) id<UADSGameSessionIdReader> gameSessionIdReader;
 @end
 
 @implementation UADSServiceProvider
@@ -22,6 +24,7 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
 - (instancetype)init {
     SUPER_INIT
     self.configurationStorage = [UADSConfigurationCRUDBase new];
+    self.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
     return self;
 }
 
@@ -61,6 +64,7 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     tokenReaderBuilder.privacyStorage = self.privacyStorage;
     tokenReaderBuilder.sdkConfigReader = self.configurationStorage;
     tokenReaderBuilder.tokenCRUD =  [UADSTokenStorage sharedInstance];
+    tokenReaderBuilder.gameSessionIdReader = self.gameSessionIdReader;
     return tokenReaderBuilder;
 }
 
@@ -119,7 +123,7 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
 
 
 - (id<UADSConfigurationLoader>)configurationLoaderUsing: (USRVConfiguration *)configuration retryInfoReader: (id<UADSRetryInfoReader>)retryInfoReader {
-    UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: configuration.experiments];
+    UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: configuration.experiments];
     UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
                                                                        andWebRequestFactory: self.webViewRequestFactory
                                                                                metricSender: self.metricSender];
@@ -131,6 +135,7 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
     builder.metricsSender = self.metricSender;
     builder.retryInfoReader = retryInfoReader;
+    builder.gameSessionIdReader = self.gameSessionIdReader;
     return builder.loader;
 }
 

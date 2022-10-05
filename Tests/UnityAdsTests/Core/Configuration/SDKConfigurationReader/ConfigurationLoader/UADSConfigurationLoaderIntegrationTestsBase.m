@@ -83,8 +83,8 @@
     XCTAssertEqual(_saverMock.receivedConfig.count, count);
 }
 
-- (UADSConfigurationRequestFactoryConfigBase *)factoryConfigWithExperiments: (NSDictionary *)experiments {
-    return [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: [UADSConfigurationExperiments newWithJSON: experiments]];
+- (id<UADSClientConfig, UADSPrivacyConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments {
+    return [UADSCClientConfigBase defaultWithExperiments: [UADSConfigurationExperiments newWithJSON: experiments]];
 }
 
 - (NSString *)expectedHostName {
@@ -99,7 +99,7 @@
     builder.privacyStorage = _privacyStorage;
     builder.currentTimeStampReader = [UADSCurrentTimestampMock new];
     builder.retryInfoReader = [UADSRetryInfoReaderMock newWithInfo: _deviceInfoTester.retryTags];
-
+    builder.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
     return builder;
 }
 
@@ -155,8 +155,7 @@
 
 - (NSArray<NSString *> *)appendCommonKeys: (NSArray<NSString *> *)array {
     return [array arrayByAddingObjectsFromArray: @[
-                @"callType",
-                @"sdkVersionName"
+                @"callType"
     ]];
 }
 

@@ -39,7 +39,8 @@
     return [UADSMinDeviceInfoReader newWithIDFIReader: self.idfiReader
                                   userContainerReader: self.userStorageReader
                                 withUserNonBehavioral: self.selectorConfig.isPrivacyRequestEnabled
-                                           withGameID: self.selectorConfig.gameID];
+                                  gameSessionIdReader: self.gameSessionIdReader
+                                         clientConfig: self.selectorConfig];
 }
 
 - (id<UADSDeviceIDFIReader, UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)idfiReader {

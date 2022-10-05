@@ -51,13 +51,14 @@ static NSString *const kDefaultTokenPrefix = @"1:";
     }
 
     UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
-    UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase defaultWithExperiments: self.sdkConfigReader.getCurrentConfiguration.experiments];
+    UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: self.sdkConfigReader.getCurrentConfiguration.experiments];
 
     builder.selectorConfig = config;
     builder.metricsSender = self.metricsSender;
     builder.privacyReader = self.privacyStorage;
     builder.extendedReader = true;
     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
+    builder.gameSessionIdReader = self.gameSessionIdReader;
     _deviceInfoReader = builder.defaultReader;
     return _deviceInfoReader;
 }

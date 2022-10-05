@@ -1,11 +1,11 @@
 #import <Foundation/Foundation.h>
 #import "UADSPIIDataSelector.h"
-#import "UADSConfigurationRequestFactoryConfig.h"
+#import "UADSClientConfig.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 
-@interface UADSFactoryConfigMock : NSObject<UADSConfigurationRequestFactoryConfig, UADSPrivacyConfig>
+@interface UADSFactoryConfigMock : NSObject<UADSClientConfig, UADSPrivacyConfig>
 @property (nonatomic) BOOL isTwoStageInitializationEnabled;
 @property (nonatomic) BOOL isPOSTMethodInConfigRequestEnabled;
 @property (nonatomic) BOOL isForcedUpdatePIIEnabled;

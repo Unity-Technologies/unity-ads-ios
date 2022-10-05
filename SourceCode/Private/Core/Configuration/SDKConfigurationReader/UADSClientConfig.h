@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "UADSConfigurationExperiments.h"
 #import "UADSPIIDataSelector.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -7,21 +6,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol UADSClientConfig <NSObject>
 - (NSString *)  gameID;
-@end
-
-@protocol UADSConfigurationRequestFactoryConfig <NSObject, UADSClientConfig>
+- (NSString *)  sdkVersionName;
+- (NSString *)  sdkVersion;
 
 - (BOOL)        isTwoStageInitializationEnabled;
 - (BOOL)        isPOSTMethodInConfigRequestEnabled;
 - (BOOL)        isSwiftInitEnabled;
-
-- (NSString *)  sdkVersionName;
-- (NSString *)  sdkVersion;
-
 @end
 
-
-@interface UADSConfigurationRequestFactoryConfigBase : NSObject<UADSConfigurationRequestFactoryConfig, UADSPrivacyConfig, UADSClientConfig>
+@interface UADSCClientConfigBase : NSObject<UADSClientConfig, UADSPrivacyConfig>
 + (instancetype)newWithExperiments: (UADSConfigurationExperiments *)experiments
                          andGameID: (NSString *)gameID
                     andVersionName: (NSString *)versionName

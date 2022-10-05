@@ -8,12 +8,14 @@
 @implementation UADSConfigurationExperimentsTestCase
 
 
-- (void)test_experiments_returns_false_when_json_is_empty {
+- (void)test_experiments_returns_default_values_when_json_is_empty {
     UADSConfigurationExperiments *sut = [UADSConfigurationExperiments newWithJSON: @{}];
 
     XCTAssertEqual(sut.isPOSTMethodInConfigRequestEnabled, false);
     XCTAssertEqual(sut.isForwardExperimentsToWebViewEnabled, false);
-    XCTAssertEqual(sut.isTwoStageInitializationEnabled, false);
+    XCTAssertEqual(sut.isTwoStageInitializationEnabled, true);
+    XCTAssertEqual(sut.isPrivacyRequestEnabled, true);
+    XCTAssertEqual(sut.isHeaderBiddingTokenGenerationEnabled, true);
 }
 
 - (void)test_experiments_returns_value_from_dictionary {

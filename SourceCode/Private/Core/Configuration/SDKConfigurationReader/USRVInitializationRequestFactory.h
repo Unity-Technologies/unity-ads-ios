@@ -3,7 +3,7 @@
 #import "UADSDeviceInfoReader.h"
 #import "USRVBodyBase64GzipCompressor.h"
 #import "UADSBaseURLBuilder.h"
-#import "UADSConfigurationRequestFactoryConfig.h"
+#import "UADSClientConfig.h"
 #import "UADSPIIDataSelector.h"
 #import "USRVWebRequestFactory.h"
 #import "UADSCurrentTimestamp.h"
@@ -28,7 +28,7 @@ extern NSString * uads_requestTypeString(USRVInitializationRequestType mode);
                       andDataCompressor: (id<USRVDataCompressor>)dataCompressor
                          andBaseBuilder: (id<UADSBaseURLBuilder>)urlBaseBuilder
                    andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory
-                       andFactoryConfig: (id<UADSConfigurationRequestFactoryConfig>)config
+                       andFactoryConfig: (id<UADSClientConfig>)config
                      andTimeStampReader: (id<UADSCurrentTimestamp>)timeStampReader;
 
 

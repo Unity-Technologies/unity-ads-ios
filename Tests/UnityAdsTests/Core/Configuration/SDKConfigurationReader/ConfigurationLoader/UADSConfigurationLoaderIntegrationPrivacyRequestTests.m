@@ -9,20 +9,15 @@
 
 @implementation UADSConfigurationLoaderIntegrationPrivacyRequestTests
 
-- (void)test_tsi_on_prr_on_should_call_privacy_request {
+- (void)test_default_should_call_privacy_request {
     self.webRequestFactoryMock.expectedRequestData = @[
         self.helper.successPayloadPrivacy.uads_jsonData,
         self.helper.successPayload.uads_jsonData
     ];
 
-    NSDictionary *experimentsFlags = @{
-        @"tsi": @"true",
-        @"tsi_prr": @"true"
-    };
-
     [self.deviceInfoTester commitAllTestData];
 
-    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: experimentsFlags]];
+    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
 
     NSArray *expectedKeys = self.deviceInfoTester.allExpectedKeysFromMinInfo;
 
@@ -58,15 +53,10 @@
         self.helper.successPayload.uads_jsonData
     ];
 
-    NSDictionary *experimentsFlags = @{
-        @"tsi": @"true",
-        @"tsi_prr": @"true"
-    };
-
     [self.deviceInfoTester commitAllTestData];
 
-    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: experimentsFlags]];
-    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: experimentsFlags]];
+    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
+    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
 
     // privacy request
     NSArray *expectedKeys = self.deviceInfoTester.allExpectedKeysFromMinInfo;
@@ -104,20 +94,15 @@
     ]];
 }
 
-- (void)test_tsi_on_prr_on_privacy_request_broken_should_not_include_pii {
+- (void)test_default_privacy_request_broken_should_not_include_pii {
     self.webRequestFactoryMock.expectedRequestData = @[
         [NSData new],
         self.helper.successPayload.uads_jsonData
     ];
 
-    NSDictionary *experimentsFlags = @{
-        @"tsi": @"true",
-        @"tsi_prr": @"true"
-    };
-
     [self.deviceInfoTester commitAllTestData];
 
-    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: experimentsFlags]];
+    [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
 
     NSArray *expectedKeys = self.deviceInfoTester.allExpectedKeysFromMinInfo;
 

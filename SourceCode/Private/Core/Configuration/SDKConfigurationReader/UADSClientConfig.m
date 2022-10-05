@@ -1,8 +1,9 @@
-#import "UADSConfigurationRequestFactoryConfig.h"
+#import "UADSClientConfig.h"
 #import "USRVClientProperties.h"
 #import "USRVSdkProperties.h"
+#import "UADSConfigurationExperiments.h"
 
-@interface UADSConfigurationRequestFactoryConfigBase ()
+@interface UADSCClientConfigBase ()
 @property (nonatomic, strong) UADSConfigurationExperiments *experiments;
 @property (nonatomic, strong) NSString *gameID;
 @property (nonatomic, strong) NSString *sdkVersionName;
@@ -10,7 +11,7 @@
 @end
 
 
-@implementation UADSConfigurationRequestFactoryConfigBase
+@implementation UADSCClientConfigBase
 
 + (instancetype)defaultWithExperiments: (UADSConfigurationExperiments *)experiments {
     return [self newWithExperiments: experiments
@@ -23,7 +24,7 @@
                          andGameID: (NSString *)gameID
                     andVersionName: (NSString *)versionName
                         andVersion: (NSNumber *)version {
-    UADSConfigurationRequestFactoryConfigBase *config = [UADSConfigurationRequestFactoryConfigBase new];
+    UADSCClientConfigBase *config = [UADSCClientConfigBase new];
 
     config.gameID = gameID;
     config.experiments = experiments;
@@ -51,5 +52,6 @@
 - (BOOL)isPrivacyRequestEnabled {
     return _experiments.isPrivacyRequestEnabled;
 }
+
 
 @end

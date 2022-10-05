@@ -3,7 +3,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^UADSNetworkSuccessCompletion)(NSDictionary *_Nonnull);
-typedef void (^UADSNetworkErrorCompletion)(NSError *_Nonnull);
+typedef void (^UADSNetworkErrorCompletion)(NSDictionary *_Nonnull);
 
 typedef void (^UADSDownloadSuccessCompletion)(NSURL *_Nonnull);
 

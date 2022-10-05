@@ -23,7 +23,7 @@
 - (void)test_config_with_tsi_on_triggers_new_flow_no_session_id_metrics {
     self.webRequestFactoryMock.expectedRequestData = @[self.helper.successPayload.uads_jsonData];
 
-    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi": @"true" }]];
+    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi_prr": @"false" }]];
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
@@ -33,7 +33,6 @@
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];
     [self validateMetrics: @[
          self.deviceInfoTester.infoCollectionLatencyMetrics,
-         self.deviceInfoTester.tsiNoSessionIDMetrics,
          self.deviceInfoTester.infoCompressionLatencyMetrics,
          self.deviceInfoTester.configLatencySuccessMetric
     ]];
@@ -43,7 +42,7 @@
     [self.deviceInfoTester commitAllTestData];
     self.webRequestFactoryMock.expectedRequestData = @[self.helper.successPayload.uads_jsonData];
 
-    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi": @"true" }]];
+    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi_prr": @"false" }]];
 
 
     NSArray *expectedKeys = [self appendCommonKeys: self.deviceInfoTester.allExpectedKeys];
@@ -66,7 +65,7 @@
 
     self.webRequestFactoryMock.expectedRequestData = @[self.helper.successPayload.uads_jsonData];
 
-    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi": @"true" }]];
+    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi_prr": @"false" }]];
 
     NSArray *expectedKeys = [self appendCommonKeys: self.deviceInfoTester.expectedKeysFromDefaultInfo];
 
@@ -78,7 +77,6 @@
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];
     [self validateMetrics: @[
          self.deviceInfoTester.infoCollectionLatencyMetrics,
-         self.deviceInfoTester.tsiNoSessionIDMetrics,
          self.deviceInfoTester.infoCompressionLatencyMetrics,
          self.deviceInfoTester.configLatencySuccessMetric
     ]];
@@ -91,7 +89,7 @@
         self.helper.successPayload.uads_jsonData
     ];
 
-    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi": @"true" }]];
+    [self callSUTExpectingSuccessWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi_prr": @"false" }]];
 
     NSArray *expectedKeys = [self appendCommonKeys: self.deviceInfoTester.expectedKeysFromDefaultInfo];
 
@@ -107,7 +105,6 @@
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];
     [self validateMetrics: @[
          self.deviceInfoTester.infoCollectionLatencyMetrics,
-         self.deviceInfoTester.tsiNoSessionIDMetrics,
          self.deviceInfoTester.infoCompressionLatencyMetrics,
          [self.deviceInfoTester configLatencyFailureMetricWithReason: kUADSConfigurationLoaderParsingError],
          self.deviceInfoTester.emergencyOffMetrics

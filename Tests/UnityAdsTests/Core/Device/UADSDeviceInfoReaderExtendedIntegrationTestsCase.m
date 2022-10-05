@@ -27,8 +27,7 @@
                               allKeys: allKeys];
 
     [self validateMetrics: @[
-         self.tester.infoCollectionLatencyMetrics,
-         self.tester.tsiNoSessionIDMetrics
+         self.tester.infoCollectionLatencyMetrics
     ]];
 }
 

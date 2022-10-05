@@ -14,8 +14,7 @@
                               allKeys: self.tester.expectedKeysFromDefaultInfo];
 
     [self validateMetrics: @[
-         self.tester.infoCollectionLatencyMetrics,
-         self.tester.tsiNoSessionIDMetrics
+         self.tester.infoCollectionLatencyMetrics
     ]];
 }
 

@@ -22,6 +22,7 @@
     builder.extendedReader = self.isDeviceInfoReaderExtended;
     builder.privacyReader = self.privacyStorageMock;
     builder.currentTimeStampReader = [UADSCurrentTimestampMock new];
+    builder.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
     id<UADSDeviceInfoReader> reader = builder.defaultReader;
 
     return [reader getDeviceInfoForGameMode: UADSGameModeMix];

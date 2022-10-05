@@ -6,6 +6,7 @@
 #import "UADSLoaderIntegrationTestsHelper.h"
 #import "UADSDeviceTestsHelper.h"
 #import "UADSPrivacyStorage.h"
+#import "UADSClientConfig.h"
 
 #ifndef UADSConfigurationLoaderIntegrationTestsBase_h
 #define UADSConfigurationLoaderIntegrationTestsBase_h
@@ -35,7 +36,7 @@
            withExpectedCompressedKeys: (NSArray *)keys;
 - (void)validateCreateRequestCalledNumberOfTimes: (NSInteger)count;
 - (void)validateConfigWasSavedToPersistenceNumberOfTimes: (NSInteger)count;
-- (UADSConfigurationRequestFactoryConfigBase *)factoryConfigWithExperiments: (NSDictionary *)experiments;
+- (id<UADSClientConfig, UADSPrivacyConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments;
 - (NSString *)                                   expectedHostName;
 - (void)callSUTExpectingFailWithConfig: (UADSConfigurationLoaderBuilderConfig)config;
 - (void)callSUTExpectingSuccessWithConfig: (UADSConfigurationLoaderBuilderConfig)config;

@@ -7,10 +7,11 @@
 #import "UADSCurrentTimestamp.h"
 #import "UADSLogger.h"
 #import "UADSInitializeEventsMetricSender.h"
+#import "UADSGameSessionIdReader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef id<UADSConfigurationRequestFactoryConfig, UADSPrivacyConfig> UADSConfigurationLoaderBuilderConfig;
+typedef id<UADSClientConfig, UADSPrivacyConfig> UADSConfigurationLoaderBuilderConfig;
 
 @interface UADSConfigurationLoaderBuilder : NSObject
 @property (nonatomic, strong) id<USRVInitializationRequestFactory> mainRequestFactory;
@@ -23,6 +24,7 @@ typedef id<UADSConfigurationRequestFactoryConfig, UADSPrivacyConfig> UADSConfigu
 @property (nonatomic, strong) id<UADSCurrentTimestamp>currentTimeStampReader;
 @property (nonatomic, strong) id<UADSLogger>logger;
 @property (nonatomic, strong) id<UADSRetryInfoReader> retryInfoReader;
+@property (nonatomic, strong) id<UADSGameSessionIdReader> gameSessionIdReader;
 @property (nonatomic) BOOL noCompression;
 
 - (id<UADSConfigurationLoader>)         loader;

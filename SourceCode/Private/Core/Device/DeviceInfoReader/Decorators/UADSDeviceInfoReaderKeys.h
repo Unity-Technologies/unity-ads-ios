@@ -12,6 +12,7 @@ extern NSString *const kUADSDeviceInfoReaderEncryptedKey;
 extern NSString *const kUADSDeviceInfoReaderPlatformKey;
 extern NSString *const kUADSDeviceInfoReaderRootedKey;
 extern NSString *const kUADSDeviceInfoReaderSDKVersionKey;
+extern NSString *const kUADSDeviceInfoReaderSDKVersionNameKey;
 extern NSString *const kUADSDeviceInfoReaderOSVersionKey;
 extern NSString *const kUADSDeviceInfoReaderDeviceModelKey;
 extern NSString *const kUADSDeviceInfoReaderLanguageKey;

@@ -10,6 +10,7 @@ NSString *const kUADSDeviceInfoReaderEncryptedKey = @"encrypted";
 NSString *const kUADSDeviceInfoReaderPlatformKey = @"platform";
 NSString *const kUADSDeviceInfoReaderRootedKey = @"rooted";
 NSString *const kUADSDeviceInfoReaderSDKVersionKey = @"sdkVersion";
+NSString *const kUADSDeviceInfoReaderSDKVersionNameKey = @"sdkVersionName";
 NSString *const kUADSDeviceInfoReaderOSVersionKey = @"osVersion";
 NSString *const kUADSDeviceInfoReaderDeviceModelKey = @"deviceModel";
 NSString *const kUADSDeviceInfoReaderLanguageKey = @"language";

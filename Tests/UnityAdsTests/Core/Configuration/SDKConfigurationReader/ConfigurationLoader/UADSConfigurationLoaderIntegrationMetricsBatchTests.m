@@ -17,22 +17,22 @@
 }
 
 - (void)test_config_failure_triggers_batcher_to_send_metrics__by_saving_empty_config {
-    self.webRequestFactoryMock.expectedRequestData = @[[NSData new], [NSData new]];
+    self.webRequestFactoryMock.expectedRequestData = @[[NSData new], [NSData new], [NSData new]];
 
-    [self callSUTExpectingFailWithConfig:  [self factoryConfigWithExperiments: @{ @"tsi": @"true" }]];
+    [self callSUTExpectingFailWithConfig:  [self factoryConfigWithExperiments: @{ }]];
     [self.saverMock saveConfiguration: [USRVConfiguration newFromJSON: @{}]];
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
                      andExpectedQueries: nil];
 
-    [self validateCreateRequestCalledNumberOfTimes: 2];
+    [self validateCreateRequestCalledNumberOfTimes: 3];
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];
     UADSMetric *configFailureMetric = [self.deviceInfoTester configLatencyFailureMetricWithReason: kUADSConfigurationLoaderParsingError];
-
+    UADSMetric *privacyFailureMetric = [self.deviceInfoTester privacyRequestFailureWithReason: kUADSPrivacyLoaderParsingError];
     [self validateMetrics: @[
+         [privacyFailureMetric updatedWithValue: @(0)],
          self.deviceInfoTester.infoCollectionLatencyMetrics,
-         self.deviceInfoTester.tsiNoSessionIDMetrics,
          self.deviceInfoTester.infoCompressionLatencyMetrics,
          [configFailureMetric updatedWithValue: @(0)],
          self.deviceInfoTester.emergencyOffMetrics,

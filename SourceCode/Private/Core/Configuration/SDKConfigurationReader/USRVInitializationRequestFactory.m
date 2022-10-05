@@ -20,7 +20,7 @@
 @property (nonatomic, strong) id<USRVDataCompressor>dataCompressor;
 @property (nonatomic, strong) id<UADSDeviceInfoReader>infoReader;
 @property (nonatomic, strong) id<UADSBaseURLBuilder> urlBaseBuilder;
-@property (nonatomic, strong) id<UADSConfigurationRequestFactoryConfig> config;
+@property (nonatomic, strong) id<UADSClientConfig> config;
 @property (nonatomic, strong) id<IUSRVWebRequestFactory> webRequestFactory;
 @property (nonatomic, strong) id<UADSCurrentTimestamp> timeStampReader;
 @property (nonatomic, assign) int connectTimeout;
@@ -45,7 +45,7 @@ NSString * uads_requestTypeString(USRVInitializationRequestType type) {
                       andDataCompressor: (id<USRVDataCompressor>)dataCompressor
                          andBaseBuilder: (id<UADSBaseURLBuilder>)urlBaseBuilder
                    andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory
-                       andFactoryConfig: (id<UADSConfigurationRequestFactoryConfig>)config
+                       andFactoryConfig: (id<UADSClientConfig>)config
                      andTimeStampReader: (id<UADSCurrentTimestamp>)timeStampReader {
     USRVInitializationRequestFactoryBase *base = [self new];
 

@@ -1,7 +1,7 @@
 #import "UADSWebRequestSwiftAdapter.h"
-#import <UnityAds/UnityAds-Swift.h>
 #import "NSDictionary+Headers.h"
 #import "NSError+RequestDictionary.h"
+#import "UADSServiceProviderProxy.h"
 
 @implementation UADSWebRequestSwiftAdapter
 
@@ -16,23 +16,23 @@
 
 - (NSData *)makeRequest {
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    NetworkLayerObjCBridge *networkLayer = [[ServiceProviderObjCBridge shared] nativeNetworkLayer];
-
+    UADSCommonNetworkProxy *networkLayer = [[UADSServiceProviderProxy shared] mainNetworkLayer];
+    
     [networkLayer sendRequestUsing: [self dictionaryRequest]
-                           success:^(NSDictionary<NSString *, id> *_Nonnull success) {
-                               self.responseHeaders = success[@"headers"];
-                               self.responseCode = [success[@"responseCode"] longValue];
-                               self.receivedData = [NSMutableData dataWithData: [success[@"response"] dataUsingEncoding: NSUTF8StringEncoding]];
-                               self.expectedContentLength =  [[self.responseHeaders objectForKey: @"X-OrigLength"] intValue];
-
-                               dispatch_semaphore_signal(sem);
-                           }
-                           failure:^(NSDictionary<NSString *, id> *_Nonnull failure) {
-                               self.responseCode = [failure[@"code"] longValue];
-                               self.error = [NSError errorWithFailureDictionary: failure];
-
-                               dispatch_semaphore_signal(sem);
-                           }];
+                 successCompletion:^(NSDictionary<NSString *, id> *_Nonnull success) {
+        self.responseHeaders = success[@"headers"];
+        self.responseCode = [success[@"responseCode"] longValue];
+        self.receivedData = [NSMutableData dataWithData: [success[@"response"] dataUsingEncoding: NSUTF8StringEncoding]];
+        self.expectedContentLength =  [[self.responseHeaders objectForKey: @"X-OrigLength"] intValue];
+        
+        dispatch_semaphore_signal(sem);
+    }
+                andErrorCompletion:^(NSDictionary<NSString *, id> *_Nonnull failure) {
+        self.responseCode = [failure[@"code"] longValue];
+        self.error = [NSError errorWithFailureDictionary: failure];
+        
+        dispatch_semaphore_signal(sem);
+    }];
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     return self.receivedData;
 }

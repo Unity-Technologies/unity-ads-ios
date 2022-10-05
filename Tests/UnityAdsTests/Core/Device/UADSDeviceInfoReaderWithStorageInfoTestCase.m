@@ -9,6 +9,7 @@
 #import "NSDictionary+Merge.h"
 #import "UADSDeviceInfoStorageKeysProviderMock.h"
 #import "UADSDeviceInfoStorageKeysProviderExtended.h"
+#import "UADSJsonStorageKeyNames.h"
 
 @interface UADSDeviceInfoReaderWithStorageInfoTestCase : XCTestCase
 @property (nonatomic, strong) UADSJsonStorageReaderMock *jsonStorageMock;
@@ -54,6 +55,7 @@
     return [_tester.expectedMergedDataRealStorage uads_newdictionaryByMergingWith: @{
                 @"id": @"id",
                 @"mode": @"mix",
+                UADSJsonStorageKeyNames.webViewDataGameSessionIdKey: @"gameSessionId"
     }];
 }
 

@@ -107,6 +107,7 @@
     builder.privacyReader = self.privacyStorage;
     builder.logger = self.logger;
     builder.currentTimeStampReader = self.currentTimeStampReader;
+    builder.gameSessionIdReader = self.gameSessionIdReader;
     return builder.defaultReader;
 }
 
