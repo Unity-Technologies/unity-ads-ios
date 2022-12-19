@@ -21,4 +21,6 @@
 @property (nonatomic, strong) NSMutableURLRequest *request;
 @property (nonatomic, strong) NSURLConnection *connection;
 @property (nonatomic, assign) int connectTimeout;
+
+- (void)setNativeNetworkBuilder: (id)networkLayer;
 @end

@@ -56,6 +56,7 @@ extern NSString *const kUnityServicesConfigValueStateID;
 @property (nonatomic, assign) long hbTokenTimeout;
 @property (nonatomic, assign) long privacyWaitTimeout;
 @property (nonatomic, assign) BOOL enableNativeMetrics;
+@property (nonatomic, strong) NSString *sessionToken;
 @property (nonatomic, strong, readonly) NSDictionary *originalJSON;
 - (void)        saveToDisk;
 - (instancetype)initWithConfigUrl: (NSString *)url;

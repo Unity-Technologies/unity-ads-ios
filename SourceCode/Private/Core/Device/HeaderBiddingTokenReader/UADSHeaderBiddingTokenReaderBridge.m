@@ -38,7 +38,7 @@
 }
 
 - (UADSConfigurationExperiments *)currentExperiments {
-    return _configurationReader.getCurrentConfiguration.experiments ? : [UADSConfigurationExperiments newWithJSON: @{}];
+    return _configurationReader.currentSessionExperiments;
 }
 
 - (void)saveAsObserver: (nonnull UADSHeaderBiddingTokenCompletion)completion type: (UADSTokenType)type {

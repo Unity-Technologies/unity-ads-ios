@@ -4,14 +4,19 @@
 #import "USRVSDKMetrics.h"
 #import "UADSLogger.h"
 #import "UADSConfigurationLoader.h"
+#import "UADSConfigurationLoaderBuilder.h"
 #import "UADSPerformanceLogger.h"
 #import "UADSInitializeEventsMetricSender.h"
 #import "UADSPerformanceMeasurer.h"
 #import "UADSWebViewEventSender.h"
-
+#import "UADSServiceProviderProxy.h"
+#import "USRVInitializeStateFactory.h"
+#import "UADSDeviceInfoProvider.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UADSServiceProvider : NSObject
+
+@interface UADSServiceProvider : NSObject<UADSConfigurationLoaderProvider>
+@property (nonatomic, strong) UADSServiceProviderProxy* objBridge;
 @property (nonatomic, strong) id<UADSConfigurationCRUD> configurationStorage;
 @property (nonatomic, strong) id<ISDKMetrics, ISDKPerformanceMetricsSender>metricSender;
 @property (nonatomic, strong) id<IUSRVWebRequestFactory>metricsRequestFactory;
@@ -21,15 +26,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<UADSWebViewEventSender> webViewEventSender;
 @property (nonatomic, strong) UADSHeaderBiddingTokenReaderBuilder *tokenBuilder;
 @property (nonatomic, strong) id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader, UADSPrivacyResponseSubject> privacyStorage;
+@property (nonatomic, strong) id<UADSRetryInfoReader> retryReader;
 
 + (instancetype)                         sharedInstance;
 - (id<UADSHeaderBiddingAsyncTokenReader>)nativeTokenGenerator;
-- (id<UADSConfigurationSaver>)           configurationSaver;
-- (id<UADSConfigurationLoader>) configurationLoaderUsing: (USRVConfiguration *)config
-                                         retryInfoReader: (id<UADSRetryInfoReader>)retryInfoReader;
-- (id<UADSPerformanceLogger>)            performanceLogger;
-- (UADSPerformanceMeasurer *)            performanceMeasurer;
+- (id<UADSConfigurationSaver>) configurationSaver;
+- (id<UADSPerformanceLogger>)  performanceLogger;
+- (UADSPerformanceMeasurer *)  performanceMeasurer;
+- (UADSSDKInitializerProxy *)sdkInitializer;
+- (USRVInitializeStateFactory *)stateFactory;
 
+- (BOOL)newInitFlowEnabled;
 @end
 
 NS_ASSUME_NONNULL_END

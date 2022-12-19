@@ -7,7 +7,9 @@
 @end
 
 @implementation UADSMetricsContainer
-- (instancetype)initWithCommonTags: (UADSMetricCommonTags *)tags metrics: (NSArray<UADSMetric *> *)metrics info: (NSDictionary *)commonInfo {
+- (instancetype)initWithCommonTags: (UADSMetricCommonTags *)tags
+                           metrics: (NSArray<UADSMetric *> *)metrics
+                              info: (NSDictionary *)commonInfo {
     SUPER_INIT;
     _commonTags = tags;
     _metrics = metrics;
@@ -25,7 +27,7 @@
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary: @{
                                      @"m": metricsDict,
                                      @"t": [self.commonTags dictionary]
-    }];
+    }]  ;
 
     if (self.commonInfo) {
         [dict addEntriesFromDictionary: self.commonInfo];

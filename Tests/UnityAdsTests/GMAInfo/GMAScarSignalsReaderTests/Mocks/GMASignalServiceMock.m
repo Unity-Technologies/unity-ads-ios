@@ -69,11 +69,6 @@ typedef NSMutableDictionary<NSString *, UADSGMASCARCompletion *> CompletionMap;
     }
 }
 
-- (nonnull GADQueryInfoBridge *)queryForPlacementID: (nonnull NSString *)placementID {
-    NSAssert(true, @"this mock should not be used for testing ");
-    return nil;
-}
-
 - (nullable GADRequestBridge *)getAdRequestFor: (nonnull NSString *)placementId
                                  usingAdString: (nonnull NSString *)adString
                                          error: (id<UADSError>  _Nullable __autoreleasing *_Nullable)error {

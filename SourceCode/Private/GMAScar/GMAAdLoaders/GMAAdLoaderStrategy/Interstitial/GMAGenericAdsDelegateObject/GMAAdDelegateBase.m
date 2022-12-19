@@ -88,6 +88,10 @@
     [_eventSender sendEvent: [GMAWebViewEvent newImpressionRecordedWithMeta: _meta]];
 }
 
+- (void)adDidRecordClick:(nonnull id)ad {
+    [_eventSender sendEvent: [GMAWebViewEvent newAdClickedWithMeta: _meta]];
+}
+
 - (void)scheduleQuartileEvents: (NSTimeInterval)totalTime {
     if (self.hasScheduledQuartileEvents) {
         return;

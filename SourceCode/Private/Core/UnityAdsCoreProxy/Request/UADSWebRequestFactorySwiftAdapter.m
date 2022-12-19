@@ -1,17 +1,20 @@
 #import "UADSWebRequestFactorySwiftAdapter.h"
 #import "UADSWebRequestSwiftAdapter.h"
 #import "UADSWebRequestSwiftAdapterWithFallback.h"
-
+#import "UADSCommonNetworkProxy.h"
 @interface UADSWebRequestFactorySwiftAdapter ()
 @property (nonatomic, strong) id<ISDKMetrics> metricSender;
+@property (nonatomic, strong) UADSCommonNetworkProxy* networkLayer;
 @end
 
 @implementation UADSWebRequestFactorySwiftAdapter
 
-+ (instancetype)newWithMetricSender: (id<ISDKMetrics>)metricSender {
++ (instancetype)newWithMetricSender: (id<ISDKMetrics>)metricSender
+                         andNetworkLayer: (UADSCommonNetworkProxy *)networkLayer {
     UADSWebRequestFactorySwiftAdapter *factory = [UADSWebRequestFactorySwiftAdapter new];
 
     factory.metricSender = metricSender;
+    factory.networkLayer = networkLayer;
     return factory;
 }
 
@@ -20,7 +23,7 @@
                                                                                    requestType: requestType
                                                                                        headers: headers
                                                                                 connectTimeout: connectTimeout];
-
+    [swiftRequest setNativeNetworkBuilder: _networkLayer];
     UADSWebRequestSwiftAdapterWithFallback *requestWithFallback = [UADSWebRequestSwiftAdapterWithFallback newWithOriginal: swiftRequest
                                                                                                              metricSender: _metricSender];
 

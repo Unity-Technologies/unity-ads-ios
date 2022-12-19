@@ -1,6 +1,6 @@
 #import "UADSConfigurationExperimentValue.h"
 
-#define NEXT_SESSION_FLAGS     @[@"tsi", @"tsi_upii", @"tsi_p", @"tsi_nt", @"tsi_prr", @"tsi_prw"]
+#define NEXT_SESSION_FLAGS     @[@"tsi", @"tsi_upii", @"tsi_p", @"tsi_nt", @"tsi_prr", @"tsi_prw", @"s_init", @"s_pte", @"s_ntf", @"s_nrq", @"s_wbrq", @"s_wd"]
 #define NEXT_SESSION_FLAGS_SET [NSSet setWithArray: NEXT_SESSION_FLAGS]
 
 @implementation UADSConfigurationExperimentValue

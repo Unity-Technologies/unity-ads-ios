@@ -21,7 +21,7 @@
 @property (strong, nonatomic) id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader> privacyStorage;
 
 - (void)validateMetrics: (NSArray<UADSMetric *> *)expectedMetrics;
-- (id<UADSConfigurationLoader>)sutForConfig: (UADSConfigurationLoaderBuilderConfig)config;
+- (id<UADSConfigurationLoader>)sutForConfig: (id<UADSClientConfig>)config;
 
 - (void)validateCreatedRequestAtIndex: (NSInteger)index
                  withExpectedHostHame: (NSString *)hostName
@@ -38,8 +38,8 @@
 - (void)validateConfigWasSavedToPersistenceNumberOfTimes: (NSInteger)count;
 - (id<UADSClientConfig, UADSPrivacyConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments;
 - (NSString *)                                   expectedHostName;
-- (void)callSUTExpectingFailWithConfig: (UADSConfigurationLoaderBuilderConfig)config;
-- (void)callSUTExpectingSuccessWithConfig: (UADSConfigurationLoaderBuilderConfig)config;
+- (id<UADSConfigurationLoader>)callSUTExpectingFailWithConfig: (id<UADSClientConfig>)config;
+- (void)callSUTExpectingSuccessWithConfig: (id<UADSClientConfig>)config;
 - (NSArray<NSString *> *)appendCommonKeys: (NSArray<NSString *> *)array;
 
 - (id<UADSConfigurationSaver>)                   configSaver;

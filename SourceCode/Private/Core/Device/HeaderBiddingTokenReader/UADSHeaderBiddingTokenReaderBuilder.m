@@ -51,9 +51,9 @@ static NSString *const kDefaultTokenPrefix = @"1:";
     }
 
     UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
-    UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: self.sdkConfigReader.getCurrentConfiguration.experiments];
+    UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: self.experiments];
 
-    builder.selectorConfig = config;
+    builder.clientConfig = config;
     builder.metricsSender = self.metricsSender;
     builder.privacyReader = self.privacyStorage;
     builder.extendedReader = true;

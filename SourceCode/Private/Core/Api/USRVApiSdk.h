@@ -1,3 +1,4 @@
+#import "USRVWebViewCallback.h"
 @interface USRVApiSdk : NSObject
 
 typedef NS_ENUM (NSInteger, USRVDownloadLatestWebViewStatus) {
@@ -6,5 +7,6 @@ typedef NS_ENUM (NSInteger, USRVDownloadLatestWebViewStatus) {
     kDownloadLatestWebViewStatusMissingLatestConfig,
     kDownloadLatestWebViewStatusBackgroundDownloadStarted
 };
-
++ (void)setServiceProviderForTesting: (id)sProvider;
++ (void)WebViewExposed_getTrrData: (USRVWebViewCallback *)callback;
 @end

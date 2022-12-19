@@ -25,4 +25,9 @@
     }
 }
 
+- (void)startWithCompletion:(void (^)(void))completion error:(void (^)(NSError * _Nonnull))error  {
+    //placeholder to make the state compatible with swift, we can plug objc provider here to call storage to load config into memory
+    completion();
+}
+
 @end

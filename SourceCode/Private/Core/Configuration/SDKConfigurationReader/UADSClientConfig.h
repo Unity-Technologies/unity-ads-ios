@@ -4,7 +4,7 @@
 NS_ASSUME_NONNULL_BEGIN
 @class UADSConfigurationExperiments;
 
-@protocol UADSClientConfig <NSObject>
+@protocol UADSClientConfig <NSObject, UADSPrivacyConfig>
 - (NSString *)  gameID;
 - (NSString *)  sdkVersionName;
 - (NSString *)  sdkVersion;

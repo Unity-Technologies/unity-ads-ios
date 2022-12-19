@@ -2,6 +2,9 @@
 #import "USRVConnectivityMonitor.h"
 #import "USRVApiSdk.h"
 #import <Foundation/Foundation.h>
+#import "USRVInitializeStateType.h"
+
+
 
 @interface USRVInitialize : NSObject
 
@@ -13,7 +16,7 @@
 
 // BASE STATE
 
-@interface USRVInitializeState : NSOperation
+@interface USRVInitializeState : NSOperation<USRVInitializeTask>
 
 @property (nonatomic, strong) USRVConfiguration *configuration;
 

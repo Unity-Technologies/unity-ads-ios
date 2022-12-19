@@ -17,8 +17,9 @@
     decorator.metricsQueue = [NSMutableArray new];
     decorator.syncQueue = dispatch_queue_create("com.dispatch.UADSMetricSenderWithBatch", DISPATCH_QUEUE_SERIAL);
     decorator.logger = logger;
+    __weak typeof(decorator) weakDecorator = decorator;
     [subject subscribeToConfigUpdates:^(USRVConfiguration *_Nonnull config) {
-        [decorator configurationUpdated: config];
+        [weakDecorator configurationUpdated: config];
     }];
 
     return decorator;
@@ -112,7 +113,7 @@
     dispatch_async(self.syncQueue, ^{
         BOOL shouldSend = configuration.enableNativeMetrics;
         weakSelf.state = shouldSend ? kUADSMetricSenderStateSend : kUADSMetricSenderStateLog;
-
+        
         [weakSelf sendQueueIfNeeded];
     });
 }

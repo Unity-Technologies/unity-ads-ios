@@ -1,4 +1,5 @@
 #import "USRVInitialize.h"
+#import "UADSCommonNetworkProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) int retries;
 @property (nonatomic, assign) long retryDelay;
+@property (nonatomic, strong) UADSCommonNetworkProxy *networkLayer;
 
 @end
 

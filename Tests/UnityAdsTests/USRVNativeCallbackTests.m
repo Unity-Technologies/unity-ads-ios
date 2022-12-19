@@ -52,6 +52,9 @@ static NSArray *nativeCallbackParams = NULL;
 - (void)tearDown {
     [super tearDown];
     [USRVWebViewApp setCurrentApp: NULL];
+    
+    nativeCallbackInvoked = false;
+    nativeCallbackParams = nil;
 }
 
 - (void)testNullCallback {

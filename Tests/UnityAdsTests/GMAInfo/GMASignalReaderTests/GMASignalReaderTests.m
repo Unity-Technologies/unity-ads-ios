@@ -17,7 +17,7 @@ static NSString *const kFakeQuery = @"FAKE_QUERY";
 
 @interface GMASignalReaderTests : XCTestCase
 @property (nonatomic, strong) GMAQueryInfoReaderMock *mock;
-@property (nonatomic, strong) id<GMASignalService> readerToTest;
+@property (nonatomic, strong) GMABaseQuerySignalReader *readerToTest;
 @end
 
 @implementation GMASignalReaderTests

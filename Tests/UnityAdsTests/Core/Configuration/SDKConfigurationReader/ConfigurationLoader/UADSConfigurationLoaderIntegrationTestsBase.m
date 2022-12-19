@@ -31,8 +31,8 @@
                           expectedMetrics);
 }
 
-- (id<UADSConfigurationLoader>)sutForConfig: (UADSConfigurationLoaderBuilderConfig)config {
-    return [self sutBuilderForConfig: config].loader;
+- (id<UADSConfigurationLoader>)sutForConfig: (id<UADSClientConfig>)config {
+    return [self sutBuilderForConfig: config].configurationLoader;
 }
 
 - (void)validateCreatedRequestAtIndex: (NSInteger)index
@@ -91,7 +91,7 @@
     return [kDefaultConfigVersion stringByAppendingFormat: @".%@", kDefaultConfigHostNameBase];
 }
 
-- (UADSConfigurationLoaderBuilder *)sutBuilderForConfig: (UADSConfigurationLoaderBuilderConfig)config {
+- (UADSConfigurationLoaderBuilder *)sutBuilderForConfig: (id<UADSClientConfig>)config {
     UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
                                                                        andWebRequestFactory      : _webRequestFactoryMock metricSender: self.metricSender];
 
@@ -103,7 +103,7 @@
     return builder;
 }
 
-- (void)callSUTExpectingFailWithConfig: (UADSConfigurationLoaderBuilderConfig)config {
+- (id<UADSConfigurationLoader>)callSUTExpectingFailWithConfig: (id<UADSClientConfig>)config {
     id<UADSConfigurationLoader> sut = [self sutForConfig: config];
     XCTestExpectation *exp = self.defaultExpectation;
     id success = ^(id obj) {
@@ -120,9 +120,10 @@
 
     [self waitForExpectations: @[exp]
                       timeout: 1];
+    return sut;
 }
 
-- (void)callSUTExpectingSuccessWithConfig: (UADSConfigurationLoaderBuilderConfig)config {
+- (void)callSUTExpectingSuccessWithConfig: (id<UADSClientConfig>)config {
     id<UADSConfigurationLoader> sut = [self sutForConfig: config];
 
     [self callSUTExpectingSuccess: sut];

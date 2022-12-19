@@ -16,12 +16,13 @@
     self.saverMock.original = _configCRUD;
 }
 
-- (void)test_config_failure_triggers_batcher_to_send_metrics__by_saving_empty_config {
-    self.webRequestFactoryMock.expectedRequestData = @[[NSData new], [NSData new], [NSData new]];
+- (void)test_config_failure_triggers_batcher_to_send_metrics_by_saving_empty_config {
+    self.webRequestFactoryMock.expectedRequestData = @[[NSData new], [NSData new],  [NSData new]]; //privacy + config + fallback
 
-    [self callSUTExpectingFailWithConfig:  [self factoryConfigWithExperiments: @{ }]];
+    id sut = [self callSUTExpectingFailWithConfig:  [self factoryConfigWithExperiments: @{}]];
     [self.saverMock saveConfiguration: [USRVConfiguration newFromJSON: @{}]];
-
+    
+    [NSThread sleepForTimeInterval: 1];
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
                      andExpectedQueries: nil];
@@ -35,7 +36,7 @@
          self.deviceInfoTester.infoCollectionLatencyMetrics,
          self.deviceInfoTester.infoCompressionLatencyMetrics,
          [configFailureMetric updatedWithValue: @(0)],
-         self.deviceInfoTester.emergencyOffMetrics,
+         self.deviceInfoTester.emergencyOffMetrics
     ]];
 }
 

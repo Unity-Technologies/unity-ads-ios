@@ -235,6 +235,20 @@
     [self validateExpectedDefaultParamsInEvents: expectedEvents];
 }
 
+- (void)test_ad_did_record_click_sends_ad_click_event {
+    GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
+
+    [delegateToTest adDidRecordClick: self.fakeAdObject];
+
+    GMAAdMetaData *meta = self.defaultMeta;
+    NSArray<GMAWebViewEvent *> *expectedEvents = @[
+        [GMAWebViewEvent newAdClickedWithMeta: meta],
+    ];
+
+    [self validateExpectedEvents: expectedEvents];
+    [self validateExpectedDefaultParamsInEvents: expectedEvents];
+}
+
 - (void)test_did_fail_sends_id_error_and_code {
     NSError *fakeError = [[NSError alloc] initWithDomain: @"domain "
                                                     code: 100

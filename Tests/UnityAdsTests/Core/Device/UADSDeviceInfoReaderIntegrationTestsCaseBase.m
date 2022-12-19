@@ -17,7 +17,7 @@
 - (NSDictionary *)getDataFromSut {
     UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
 
-    builder.selectorConfig = self.privacyConfig;
+    builder.clientConfig = self.privacyConfig;
     builder.metricsSender = self.metricsMock;
     builder.extendedReader = self.isDeviceInfoReaderExtended;
     builder.privacyReader = self.privacyStorageMock;

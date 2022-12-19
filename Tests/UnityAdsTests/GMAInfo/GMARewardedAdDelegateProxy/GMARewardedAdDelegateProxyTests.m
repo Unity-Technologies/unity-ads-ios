@@ -220,6 +220,19 @@
     XCTAssertEqualObjects(receivedParams[3], fakeError.errorCode);
 }
 
+- (void)test_ad_did_record_click_sends_ad_click_event {
+    GMARewardedAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
+
+    [delegateToTest adDidRecordClick: self.fakeAdObject];
+
+    GMAAdMetaData *meta = self.defaultMeta;
+    NSArray<GMAWebViewEvent *> *expectedEvents = @[
+        [GMAWebViewEvent newAdClickedWithMeta: meta],
+    ];
+
+    [self validateExpectedEvents: expectedEvents];
+}
+
 - (void)simulateQuartilesPlayed: (NSInteger)count {
     [self.timerFactoryMock.lastTimerMock fire: count];
 }

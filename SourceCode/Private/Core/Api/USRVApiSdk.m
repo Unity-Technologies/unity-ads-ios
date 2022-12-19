@@ -6,7 +6,17 @@
 #import "USRVInitialize.h"
 #import "USRVDevice.h"
 #import "UADSServiceProvider.h"
+
+static UADSServiceProvider* serviceProvider;
 @implementation USRVApiSdk
+
++ (void)load {
+    serviceProvider = UADSServiceProvider.sharedInstance;
+}
+
++ (void)setServiceProviderForTesting: (UADSServiceProvider*)sProvider {
+    serviceProvider = sProvider;
+}
 
 + (void)WebViewExposed_loadComplete: (USRVWebViewCallback *)callback {
     USRVLogDebug(@"Web application loaded");
@@ -101,6 +111,10 @@
     UADSPrivacyResponseState state = UADSServiceProvider.sharedInstance.privacyStorage.responseState;
 
     return uads_privacyResponseStateToString(state);
+}
+
++ (void)WebViewExposed_getTrrData: (USRVWebViewCallback *)callback {
+    [callback invoke: serviceProvider.configurationStorage.getCurrentConfiguration.originalJSON, nil];
 }
 
 @end

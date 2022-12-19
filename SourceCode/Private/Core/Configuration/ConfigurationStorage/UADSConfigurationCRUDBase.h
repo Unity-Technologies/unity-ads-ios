@@ -2,6 +2,7 @@
 #import "USRVConfiguration.h"
 #import "UADSConfigurationMetricTagsReader.h"
 #import "UADSGenericMediator.h"
+#import "UADSServiceProviderProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,7 +11,7 @@ typedef void (^UADSConfigurationObserver)(USRVConfiguration *);
 @protocol UADSConfigurationSaver <NSObject>
 
 - (void)saveConfiguration: (USRVConfiguration *)configuration;
-
+- (void)triggerSaved: (USRVConfiguration *)config;
 @end
 
 @protocol UADSConfigurationReader <NSObject>
@@ -18,6 +19,7 @@ typedef void (^UADSConfigurationObserver)(USRVConfiguration *);
 - (USRVConfiguration *)getCurrentConfiguration;
 - (NSDictionary *)     currentSessionExperimentsAsDictionary;
 - (UADSConfigurationExperiments *)     currentSessionExperiments;
+- (NSString *)getCurrentMetricsUrl;
 @end
 
 
@@ -35,6 +37,7 @@ typedef void (^UADSConfigurationObserver)(USRVConfiguration *);
 
 
 @interface UADSConfigurationCRUDBase : NSObject<UADSConfigurationCRUD>
+@property (nonatomic, weak) UADSServiceProviderProxy *serviceProviderBridge;
 @end
 
 NS_ASSUME_NONNULL_END

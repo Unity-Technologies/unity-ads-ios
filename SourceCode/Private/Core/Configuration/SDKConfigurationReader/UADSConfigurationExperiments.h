@@ -15,6 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)        isSwiftDownloadEnabled;
 - (BOOL)        isSwiftNativeRequestsEnabled;
 - (BOOL)        isSwiftWebViewRequestsEnabled;
+- (BOOL)        isSwiftInitFlowEnabled;
+- (BOOL)        isUseNewTasksEnabled;
+- (BOOL)        isParallelExecutionEnabled;
 
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags;
 - (NSDictionary<NSString *, NSString *> *)currentSessionFlags;

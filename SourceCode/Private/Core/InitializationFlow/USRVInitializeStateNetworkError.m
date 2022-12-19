@@ -65,4 +65,41 @@
     return false;
 }
 
+
+- (void)startWithCompletion:(void (^)(void))completion error:(void (^)(NSError * _Nonnull))error {
+    USRVLogError(@"Unity Ads init: network error, waiting for connection events");
+
+    self.blockCondition = [[NSCondition alloc] init];
+    [self.blockCondition lock];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [USRVConnectivityMonitor startListening: self];
+    });
+
+    double networkErrorTimeoutInSeconds = [self.configuration networkErrorTimeout] / (double)1000;
+    BOOL success = [self.blockCondition waitUntilDate: [[NSDate alloc] initWithTimeIntervalSinceNow: networkErrorTimeoutInSeconds]];
+
+    if (success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [USRVConnectivityMonitor stopListening: self];
+        });
+
+        [self.blockCondition unlock];
+        [self.erroredState startWithCompletion: completion error: error];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [USRVConnectivityMonitor stopListening: self];
+        });
+    }
+
+    [self.blockCondition unlock];
+    id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
+                                                              erroredState: self.erroredState
+                                                                      code: self.stateCode
+                                                                   message: self.message];
+
+    [nextState startWithCompletion: completion error: error];
+    
+}
+
 @end

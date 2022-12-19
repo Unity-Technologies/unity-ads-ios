@@ -2,7 +2,7 @@
 #import "USRVWebRequestWithUrlConnection.h"
 #import "USRVSDKMetrics.h"
 
-NSString *const UADSSwiftErrorDomain = @"UnityAds.HTTPURLResponseError";
+NSString *const UADSSwiftErrorDomain = @"UnityAds.NetworkResponseError";
 
 @interface UADSWebRequestSwiftAdapterWithFallback ()
 @property (nonatomic, strong) id<USRVWebRequest> original;

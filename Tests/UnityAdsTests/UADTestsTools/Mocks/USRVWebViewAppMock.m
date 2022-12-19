@@ -34,12 +34,16 @@
 - (BOOL)sendEvent: (NSString *)eventId category: (NSString *)category param1: (id)param1, ... {
     _categoryNames = [_categoryNames arrayByAddingObject: category];
     _eventNames = [_eventNames arrayByAddingObject: eventId];
-    _params =  [_params arrayByAddingObject: param1];
+    if (param1) {
+        _params =  [_params arrayByAddingObject: param1];
+    }
+    
     return true;
 }
 
 - (BOOL)sendEvent: (NSString *)eventId category: (NSString *)category params: (NSArray *)params {
     [_expectation fulfill];
+    _expectation = nil;
     _categoryNames = [_categoryNames arrayByAddingObject: category];
     _eventNames = [_eventNames arrayByAddingObject: eventId];
 

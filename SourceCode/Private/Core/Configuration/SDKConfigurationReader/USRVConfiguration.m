@@ -34,7 +34,7 @@ NSString *const kUnityServicesConfigValueExperimentsObject = @"expo";
 NSString *const kUnityServicesConfigValueSource = @"src";
 NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
 NSString *const kUnityServicesConfigPrivacyWaitTimeout = @"prwto";
-
+NSString *const kUnityServicesConfigSessionToken = @"sTkn";
 
 @interface USRVConfiguration ()
 @property (nonatomic, strong) NSDictionary *originalJSON;
@@ -170,7 +170,7 @@ NSString *const kUnityServicesConfigPrivacyWaitTimeout = @"prwto";
     self.hbTokenTimeout = [configDictionary[kUnityServicesConfigHeaderBiddingTimeout] longLongValue] ? : 5000; //tto
     self.privacyWaitTimeout = [configDictionary[kUnityServicesConfigPrivacyWaitTimeout] longLongValue] ? : 3000; //prwto
     self.experiments = [UADSConfigurationExperiments newWithJSON: experimentsDictionary];
-
+    self.sessionToken = configDictionary[kUnityServicesConfigSessionToken] ? : nil;
     self.enableNativeMetrics = self.metricSamplingRate >= (arc4random_uniform(99) + 1);
     self.originalJSON = [NSDictionary uads_dictionaryByMerging: @{@"enableNativeMetrics": @(self.enableNativeMetrics)}
                                                      secondary: configDictionary];

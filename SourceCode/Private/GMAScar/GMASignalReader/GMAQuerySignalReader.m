@@ -12,10 +12,6 @@ static NSString *kGMABaseQuerySignalReaderQueryInvalidInfo = @"ERROR: Cannot ins
 
 @implementation GMABaseQuerySignalReader
 
-+ (instancetype)defaultReader {
-    return [self newWithInfoReader: [[GMABaseQueryInfoReader alloc] init]];
-}
-
 + (instancetype)newWithInfoReader: (id<GMAQueryInfoReader>)reader {
     return [[self alloc] initWithInfoReader: reader];
 }

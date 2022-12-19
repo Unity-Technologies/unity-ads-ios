@@ -6,12 +6,14 @@
 #import "GMAError+XCTest.h"
 #import "EventSenderMock.h"
 #import "XCTestCase+Convenience.h"
+#import "UADSGMAScarForTest.h"
+#import "GMABaseQuerySignalReaderV85.h"
 
 #define GMA_INTERSTITIAL_LIST @[@"interstitial_video"]
 #define GMA_REWARDED_LIST     @[@"rewarded_video"]
 
 @interface UADSGMAScarTests : XCTestCase
-@property (nonatomic, strong) UADSGMAScar *sut;
+@property (nonatomic, strong) UADSGMAScarForTest *sut;
 @property (nonatomic, strong) GMABaseSCARSignalsReader *signalsService;
 @property (nonatomic, strong) EventSenderMock *senderMock;
 @end
@@ -23,19 +25,8 @@
 }
 
 - (void)setUpE2ETests {
-    _signalsService = GMABaseSCARSignalsReader.defaultService;
     _senderMock = [EventSenderMock new];
-    GMASCARSignalsReaderDecorator *encoder = [GMASCARSignalsReaderDecorator newWithSignalService: _signalsService];
-
-    id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: _senderMock];
-    GMADelegatesBaseFactory *delegatesFactory = [GMADelegatesBaseFactory newWithEventSender: _senderMock
-                                                                               errorHandler: errorHandler];
-    GMAAdLoaderStrategy *strategy = [GMAAdLoaderStrategy newWithRequestFactory: _signalsService
-                                                            andDelegateFactory: delegatesFactory];
-
-    _sut = [[UADSGMAScar alloc] initWithSignalService: encoder
-                                    andLoaderStrategy: strategy
-                                      andErrorHandler: errorHandler];
+    _sut = [[UADSGMAScarForTest alloc] initWithEventSender: _senderMock];
 }
 
 - (void)tearDown {
@@ -61,11 +52,7 @@
     GMAAdMetaData *meta = [self defaultMetaForType: GADQueryInfoAdTypeInterstitial];
 
     meta.placementID = GMA_INTERSTITIAL_LIST[0];
-
-    GADQueryInfoBridge *query = [_signalsService queryForPlacementID: meta.placementID];
-
-    meta.adString = [self fakeAdStringFor: query];
-
+    meta.adString = [self fakeAdString];
 
     [_sut loadSuccessSyncWithTestCase: self
                           andMetaData: meta
@@ -80,19 +67,28 @@
                      andRewardedList: @[]];
 
     GMAAdMetaData *meta = [self defaultMetaForType: GADQueryInfoAdTypeInterstitial];
-    NSString *message = [NSString stringWithFormat: kGMAQueryNotFoundFormat, meta.placementID];
-
+    NSString *eventName;
+    NSArray *params;
+    if ([GMABaseQuerySignalReaderV85 isSupported]) {
+        eventName = @"LOAD_ERROR";
+        params = @[meta.placementID, meta.queryID, kGMAAdStringWasInvalid, @(13)];
+    } else {
+        eventName = @"QUERY_NOT_FOUND_ERROR";
+        params = @[meta.placementID,
+                   meta.queryID,
+                   [NSString stringWithFormat: kGMAQueryNotFoundFormat, meta.placementID]];
+    }
     [_sut loadErrorSyncWithTestCase: self
                         andMetaData: meta
                  andErrorCompletion:^(id<UADSError> _Nonnull error) {
                      GMAError *gmaError = (GMAError *)error;
-                     [gmaError testWithEventName: @"QUERY_NOT_FOUND_ERROR"
-                                       expParams: @[ meta.placementID, meta.queryID, message]];
+                     [gmaError testWithEventName: eventName
+                                       expParams: params];
                  }];
 }
 
-- (NSString *)fakeAdStringFor: (GADQueryInfoBridge *)query {
-    return [NSString stringWithFormat: @"{\"request_id\":\"%@\"}", query.sourceQueryDictionary[@"request_id"]];
+- (NSString *)fakeAdString {
+    return [NSString stringWithFormat: @"{\"request_id\":\"%@\"}", _sut.lastRequestId];
 }
 
 - (void)test_non_supported_loader_produces_the_right_error {

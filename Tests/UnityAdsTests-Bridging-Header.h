@@ -35,11 +35,16 @@
 #import "UADSProxyReflection.h"
 #import "UADSTokenStorage.h"
 #import "NSInvocation+Convenience.h"
-
 // SWIFT TESTS
 #import "UADSWebRequestSwiftAdapter.h"
 #import "UADSWebRequestFactorySwiftAdapter.h"
-
+#import "UADSServiceProvider.h"
+#import "USRVWebViewApp.h"
+#import "UADSMetric.h"
+#import "UADSTsiMetric.h"
+#import "UADSPrivacyMetrics.h"
+#import "USRVApiSdk.h"
 // TESTING SPECIFIC
 #import "UnityAds+Testability.h"
 #import "TestUtilities.h"
+#import "USRVWebViewCallbackMock.h"

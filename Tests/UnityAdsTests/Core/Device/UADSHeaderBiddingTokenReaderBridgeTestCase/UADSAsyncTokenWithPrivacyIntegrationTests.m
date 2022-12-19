@@ -9,6 +9,7 @@
 #import "UADSDeviceTestsHelper.h"
 #import "UADSJsonStorageKeyNames.h"
 #import "UADSRetryInfoReaderMock.h"
+#import "UADSConfigurationReaderMock.h"
 
 #define DEFAULT_TTO  3
 #define DEFAULT_PRWO 1
@@ -18,6 +19,7 @@
 @property (strong, nonatomic) WebRequestFactoryMock *webRequestFactoryMock;
 @property (strong, nonatomic) UADSDeviceTestsHelper *infoTester;
 @property (strong, nonatomic) UADSLoaderIntegrationTestsHelper *configTester;
+@property (strong, nonatomic) UADSConfigurationReaderMock *configurationReaderMock;
 @end
 
 @implementation UADSAsyncTokenWithPrivacyIntegrationTests
@@ -29,6 +31,7 @@
     _serviceProvider.webViewRequestFactory = _webRequestFactoryMock;
     _infoTester = [UADSDeviceTestsHelper new];
     _configTester = [UADSLoaderIntegrationTestsHelper new];
+    _configurationReaderMock = [UADSConfigurationReaderMock new];
     [self deleteConfigFile];
     [_infoTester clearAllStorages];
 }
@@ -87,8 +90,9 @@
     XCTestExpectation *exp = self.defaultExpectation;
 
     exp.expectedFulfillmentCount = 2;
-    id<UADSConfigurationLoader> loader = [_serviceProvider configurationLoaderUsing: config
-                                                                    retryInfoReader: [UADSRetryInfoReaderMock newWithInfo: @{}]];
+    _serviceProvider.retryReader = [UADSRetryInfoReaderMock newWithInfo: @{}];
+    _configurationReaderMock.expectedConfiguration = config;
+    id<UADSConfigurationLoader> loader = [_serviceProvider configurationLoader];
 
 
     dispatch_async(self.globalQueue, ^{

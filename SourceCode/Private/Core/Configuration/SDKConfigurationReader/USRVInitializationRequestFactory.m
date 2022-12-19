@@ -29,7 +29,7 @@
 NSString * uads_requestTypeString(USRVInitializationRequestType type) {
     switch (type) {
         case USRVInitializationRequestTypeToken:
-            return @"token";
+            return @"token_srr";
 
         case USRVInitializationRequestTypePrivacy:
             return @"privacy";

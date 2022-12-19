@@ -13,7 +13,7 @@ typedef UADSGenericCompletion<UADSSCARSignals *>   UADSGMAScarSignalsCompletion;
                                  completion: (UADSGMAScarSignalsCompletion *)completion;
 @end
 
-@protocol GMASCARSignalService<NSObject, GMASCARSignalsReader, GMAQueryInfoStorage, GADRequestFactory>;
+@protocol GMASCARSignalService<NSObject, GMASCARSignalsReader, GADRequestFactory>;
 @end
 
 /**
@@ -26,7 +26,6 @@ typedef UADSGenericCompletion<UADSSCARSignals *>   UADSGMAScarSignalsCompletion;
    @note: Will generate an error if no signals are able to be generated, or all requests to GMA api failed
  */
 @interface GMABaseSCARSignalsReader : NSObject<GMASCARSignalService>
-+ (instancetype)defaultService;
 + (instancetype)newWithSignalService: (id<GMASignalService>)signalService;
 @end
 

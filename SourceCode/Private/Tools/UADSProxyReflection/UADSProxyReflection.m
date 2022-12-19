@@ -122,6 +122,14 @@
                                     args: arguments];
 }
 
+- (id)callInstanceMethodWithReturn: (NSString *)methodName
+                              args: (NSArray<id> *)arguments {
+    return [NSInvocation uads_invokeWithReturnedUsingMethod: methodName
+                                                  classType:[[self class] getClass]
+                                                     target: self.proxyObject
+                                                       args:arguments];
+}
+
 + (void)callClassMethod: (NSString *)methodName args: (NSArray<id> *)arguments {
     [NSInvocation uads_invokeUsingMethod: methodName
                                classType: [[self class] getClass]

@@ -1,6 +1,7 @@
 #import <XCTest/XCTest.h>
 #import "GMAAdMetaData.h"
 
+
 @interface GMAAdMetaDataTests : XCTestCase
 
 @end

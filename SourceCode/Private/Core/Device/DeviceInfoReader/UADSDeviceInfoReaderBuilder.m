@@ -15,16 +15,22 @@
 
 @implementation UADSDeviceInfoReaderBuilder
 - (id<UADSDeviceInfoReader>)defaultReader {
+    return [self readerWithExtended: self.extendedReader];
+}
+
+- (id<UADSDeviceInfoReader>)readerWithExtended:(BOOL)extendedReader {
     id<UADSDeviceInfoReader> deviceInfoReader = self.minimalDeviceInfoReader;
 
-    deviceInfoReader = [self extendOriginalIfNeed: deviceInfoReader
-                                  usingIDFIReader: self.idfiReader];
+    if (extendedReader) {
+        deviceInfoReader = [self extendOriginal: deviceInfoReader
+                                      usingIDFIReader: self.idfiReader];
+    }
 
     deviceInfoReader = [self addStorageDumpDecorator: deviceInfoReader];
 
-    if (self.extendedReader) {
+    if (extendedReader) {
         deviceInfoReader = [self addPIIDecorator: deviceInfoReader
-                                     usingConfig: self.selectorConfig];
+                                     usingConfig: self.clientConfig];
 
         deviceInfoReader = [self addMetrics: deviceInfoReader
                           usingMetricsSender: self.metricsSender
@@ -38,21 +44,17 @@
 - (id<UADSDeviceInfoReader>)minimalDeviceInfoReader {
     return [UADSMinDeviceInfoReader newWithIDFIReader: self.idfiReader
                                   userContainerReader: self.userStorageReader
-                                withUserNonBehavioral: self.selectorConfig.isPrivacyRequestEnabled
+                                withUserNonBehavioral: self.clientConfig.isPrivacyRequestEnabled
                                   gameSessionIdReader: self.gameSessionIdReader
-                                         clientConfig: self.selectorConfig];
+                                         clientConfig: self.clientConfig];
 }
 
 - (id<UADSDeviceIDFIReader, UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)idfiReader {
     return [UADSDeviceIDFIReaderBase new];
 }
 
-- (id<UADSDeviceInfoReader>)extendOriginalIfNeed: (id<UADSDeviceInfoReader>)original
+- (id<UADSDeviceInfoReader>)extendOriginal: (id<UADSDeviceInfoReader>)original
                                  usingIDFIReader: (id<UADSAnalyticValuesReader, UADSInitializationTimeStampReader>)analyticValueReader {
-    if (!self.extendedReader) {
-        return original;
-    }
-
     return [UADSDeviceInfoReaderExtended newWithIDFIReader: analyticValueReader
                                                andOriginal: original
                                                  andLogger: self.logger];
@@ -115,6 +117,10 @@
 
 - (id<UADSJsonStorageReader>)privateStorage {
     return [USRVStorageManager getStorage: kUnityServicesStorageTypePrivate];
+}
+
+- (NSDictionary *)getDeviceInfoWithExtended:(BOOL)extended {
+    return [[self readerWithExtended: extended] getDeviceInfoForGameMode:UADSGameModeMix];
 }
 
 @end

@@ -2,7 +2,7 @@
 #import "UADSPrivacyStorage.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UADSPrivacyStorageMock : NSObject<UADSPrivacyResponseSaver, UADSPrivacyResponseReader>
+@interface UADSPrivacyStorageMock : NSObject<UADSPrivacyResponseSaver, UADSPrivacyResponseReader, UADSPrivacyResponseSubject>
 @property (nonatomic, strong) NSArray<UADSInitializationResponse *> *responses;
 @property (nonatomic, assign) UADSPrivacyResponseState expectedState;
 @end

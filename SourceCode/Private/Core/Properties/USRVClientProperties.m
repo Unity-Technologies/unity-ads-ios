@@ -29,14 +29,23 @@ __weak static UIViewController *_currentViewController = nil;
     NSArray *adNetworkItems = [NSBundle.mainBundle.infoDictionary objectForKey: @"SKAdNetworkItems"];
 
     if (adNetworkItems != nil) {
-        adNetworkIds = [[NSMutableArray alloc] initWithCapacity: [adNetworkItems count]];
-
-        for (int i = 0; i < adNetworkItems.count; i++) {
-            NSString *adNetworkId = [[adNetworkItems objectAtIndex: i] objectForKey: @"SKAdNetworkIdentifier"];
-
-            if (adNetworkId != nil) {
-                [adNetworkIds addObject: adNetworkId];
+        if ([adNetworkItems isKindOfClass: NSArray.class]) {
+            adNetworkIds = [[NSMutableArray alloc] initWithCapacity: [adNetworkItems count]];
+            
+            for (int i = 0; i < adNetworkItems.count; i++) {
+                NSDictionary *item = [adNetworkItems objectAtIndex: i];
+                if ([item isKindOfClass: NSDictionary.class]) {
+                    NSString *adNetworkId = [item objectForKey: @"SKAdNetworkIdentifier"];
+                    
+                    if (adNetworkId != nil) {
+                        [adNetworkIds addObject: adNetworkId];
+                    }
+                } else {
+                    USRVLogError(@"SKAdNetworkItems must be an array of dictionaries. Please change the value type.");
+                }
             }
+        } else {
+            USRVLogError(@"SKAdNetworkItems must be an array of dictionaries. Please change the value type.");
         }
     }
 

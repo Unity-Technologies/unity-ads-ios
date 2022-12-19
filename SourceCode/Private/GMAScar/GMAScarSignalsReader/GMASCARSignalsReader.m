@@ -10,10 +10,6 @@ typedef NSMutableDictionary<NSString *, NSString *> UADSMutableScarSignals;
 
 @implementation GMABaseSCARSignalsReader
 
-+ (instancetype)defaultService {
-    return [self newWithSignalService: GMABaseQuerySignalReader.defaultReader];
-}
-
 + (instancetype)newWithSignalService: (id<GMASignalService>)signalService {
     return [[self alloc] initWithSignalService: signalService];
 }
@@ -99,10 +95,6 @@ typedef NSMutableDictionary<NSString *, NSString *> UADSMutableScarSignals;
                                             error(returnedError);
                                             dispatch_group_leave(group);
                                         }];
-}
-
-- (GADQueryInfoBridge *)queryForPlacementID: (NSString *)placementID {
-    return [_signalService queryForPlacementID: placementID];
 }
 
 - (GADRequestBridge *)getAdRequestFor: (GMAAdMetaData *)meta

@@ -1,5 +1,6 @@
 #import "GADRequestBridge.h"
 #import "GADQueryInfoBridge.h"
+#import "GMAQueryInfoRequestFactory.h"
 NS_ASSUME_NONNULL_BEGIN
 
 /// An object that conforms to the protocol should provide implementation for returning `GADQueryInfo` for an AdType
@@ -15,6 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Class-proxy for creating `GADQueryInfo`  reflectively. Hiden behind protocol for testability and scalability.
 @interface GMABaseQueryInfoReader : NSObject<GMAQueryInfoReader>
+- (instancetype)__unavailable init;
++ (instancetype)newWithRequestFactory:(id<GMAQueryInfoRequestFactory>)factory;
 @end
 
 NS_ASSUME_NONNULL_END

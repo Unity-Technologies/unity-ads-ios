@@ -4,13 +4,13 @@
 #import "USRVInitializeStateLoadCacheConfigAndWebView.h"
 #import "USRVInitializeStateRetry.h"
 #import "USRVInitializeStateNetworkError.h"
-#import "UADSConfigurationLoaderBuilder.h"
+
 #import "UADSHeaderBiddingTokenReaderBuilder.h"
 #import "UADSServiceProvider.h"
 #import "UADSInitializeEventsMetricSender.h"
 
 @interface USRVInitializeStateConfig ()
-@property (nonatomic, strong) id<UADSConfigurationLoader> configLoader;
+
 @end
 
 @implementation USRVInitializeStateConfig : USRVInitializeState
@@ -22,8 +22,7 @@
         self.localConfig = configuration;
         //read from local config
         self.configuration = [[USRVConfiguration alloc] initWithConfigUrl: [USRVSdkProperties getConfigUrl]];
-        self.configLoader = [UADSServiceProvider.sharedInstance configurationLoaderUsing: configuration
-                                                                         retryInfoReader: UADSInitializeEventsMetricSender.sharedInstance];
+        self.configLoader = [UADSServiceProvider.sharedInstance configurationLoader];
 
         [self setRetries: retries];
         [self setRetryDelay: retryDelay];
@@ -130,6 +129,61 @@
                                                                                  code: kUADSErrorStateNetworkConfigRequest
                                                                               message: @"Network error occured init SDK initialization, waiting for connection"];
         return nextState;
+    }
+}
+
+
+- (void)startWithCompletion:(void (^)(void))completion error:(void (^)(NSError * _Nonnull))error {
+    
+    USRVLogInfo(@"\n=============== %@ TSI FLOW/ USING LOADER ============= \n", NSStringFromClass([self class]));
+
+
+    __block NSError *configError;
+    id success = ^(USRVConfiguration *config) {
+        self.configuration = config;
+        completion();
+        USRVLogInfo(@"Config received");
+    };
+
+    id errorCompletion = ^(NSError *receivedError) {
+        configError = receivedError;
+        [self processError: receivedError
+             andCompletion: completion
+                     error: error];
+    };
+
+    [self.configLoader loadConfigurationWithSuccess: success
+                                 andErrorCompletion: errorCompletion];
+
+}
+
+- (void)processError: (NSError *)configError
+       andCompletion: (void (^)(void))completion
+               error:(void (^)(NSError * _Nonnull))error  {
+    if (configError && self.retries < [self.configuration maxRetries]) {
+        self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
+        self.retries++;
+        [[UADSInitializeEventsMetricSender sharedInstance] didRetryConfig];
+        USRVInitializeStateConfig *retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig];
+        retryState.configuration = self.localConfig;
+        retryState.localConfig = self.localConfig;
+        [retryState setRetries: self.retries];
+        [retryState setRetryDelay: self.retryDelay];
+        retryState.configLoader = self.configLoader;
+
+        id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration: self.localConfig
+                                                                    retryState: retryState
+                                                                    retryDelay: self.retryDelay];
+        [nextState startWithCompletion: completion error: error];
+    } else {
+        id erroredState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig
+                                                                           retries: self.retries
+                                                                        retryDelay: self.retryDelay];
+        id nextState = [[USRVInitializeStateNetworkError alloc] initWithConfiguration: self.localConfig
+                                                                         erroredState: erroredState
+                                                                                 code: kUADSErrorStateNetworkConfigRequest
+                                                                              message: @"Network error occured init SDK initialization, waiting for connection"];
+        [nextState startWithCompletion: completion error: error];
     }
 }
 

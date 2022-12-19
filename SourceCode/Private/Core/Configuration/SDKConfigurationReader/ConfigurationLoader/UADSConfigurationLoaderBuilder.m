@@ -13,20 +13,20 @@
 #import "UADSWebRequestFactorySwiftAdapter.h"
 #import "UADSPrivacyLoaderWithMetrics.h"
 #import "UADSConfigurationLoaderWithMetrics.h"
-
+#import "UADSConfigurationLoaderStrategy.h"
 #import "UADSServiceProvider.h"
 
 @interface UADSConfigurationLoaderBuilder ()
-@property (nonatomic, strong) UADSConfigurationLoaderBuilderConfig config;
+@property (nonatomic, strong) id<UADSClientConfig> config;
 @property (nonatomic, strong) id<IUSRVWebRequestFactory> webRequestFactory;
 @end
 
 @implementation UADSConfigurationLoaderBuilder
 
 
-+ (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config
++ (instancetype)newWithConfig: (id<UADSClientConfig>)config
          andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory
-                 metricSender: (id<ISDKMetrics>)metricSender  {
+                 metricSender: (id<ISDKMetrics, ISDKPerformanceMetricsSender>)metricSender  {
     UADSConfigurationLoaderBuilder *builder = [self new];
 
     builder.metricsSender = metricSender;
@@ -36,12 +36,13 @@
     return builder;
 }
 
-- (id<UADSConfigurationLoader>)loader {
+- (id<UADSConfigurationLoader>)configurationLoader {
     id<UADSConfigurationLoader> loaderToReturn = self.baseStrategy;
 
     loaderToReturn = [self decorateWithSaving: loaderToReturn];
     return loaderToReturn;
 }
+
 
 - (id<UADSConfigurationLoader>)baseStrategy {
     id<UADSConfigurationLoader>mainLoader = self.mainLoader;
@@ -102,7 +103,7 @@
     UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
 
     builder.metricsSender = _metricsSender;
-    builder.selectorConfig = self.config;
+    builder.clientConfig = self.config;
     builder.extendedReader = extended;
     builder.privacyReader = self.privacyStorage;
     builder.logger = self.logger;

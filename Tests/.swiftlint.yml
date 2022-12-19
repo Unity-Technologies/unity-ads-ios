@@ -1,0 +1,63 @@
+disabled_rules: # rule identifiers to exclude from running
+  - generic_type_name
+  - identifier_name
+  # - type_name
+opt_in_rules: # some rules are only opt-in
+  - empty_count
+  - discouraged_optional_collection
+  - comma
+  - control_statement
+  - first_where
+  - closure_body_length
+  - closure_end_indentation
+  - closure_parameter_position
+  - closure_spacing
+  - collection_alignment
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - empty_string
+  - empty_xctest_method
+  - explicit_enum_raw_value
+  - explicit_init
+  - force_unwrapping
+  - last_where
+  - multiline_arguments
+  - multiline_function_chains
+  - multiline_parameters
+  - number_separator
+  - unused_import
+  - unused_capture_list
+  - unused_declaration
+  - unused_setter_value
+  - yoda_condition
+  
+analyzer_rules: # Rules run by `swiftlint analyze` (experimental)
+  - explicit_self
+# configurable rules can be customized from this configuration file
+# binary rules can set their severity level
+nesting: 
+  warning: 1
+  error: 2
+closure_body_length: 
+  - 5 #warning
+  - 10 #warning
+force_cast: error # implicitly
+force_try:
+  severity: error # explicitly
+force_unwrapping: error
+
+line_length: 150
+
+# or they can set both explicitly
+file_length:
+  warning: 300
+  error: 400
+
+type_name:
+  min_length: 4 # only warning
+  max_length: # warning and error
+    warning: 60
+    error: 70
+  excluded: iPhone # excluded via string
+
+reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit, html, emoji, sonarqube, markdow

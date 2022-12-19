@@ -41,6 +41,10 @@
                                                error: NULL];
     [[NSFileManager defaultManager] removeItemAtPath: [USRVSdkProperties getLocalConfigFilepath]
                                                error: NULL];
+    
+    [USRVSdkProperties setLatestConfiguration: nil];
+    [USRVSdkProperties setInitializationState: NOT_INITIALIZED];
+    [USRVSdkProperties setInitialized: false];
 }
 
 - (void)testInitializeStateLoadConfigFile {

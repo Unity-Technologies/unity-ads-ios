@@ -40,4 +40,29 @@
     return self;
 }
 
+- (void)startWithCompletion:(void (^)(void))completion error:(void (^)(NSError * _Nonnull))error {
+    USRVLogDebug(@"Unity Ads init: creating webapp");
+
+    [self.configuration setWebViewData: [self webViewData]];
+    NSNumber *errorState = [USRVWebViewApp create: self.configuration
+                                             view: nil];
+
+    if (!errorState) {
+        completion();
+    } else {
+        id erroredState = [[USRVInitializeStateCreate alloc] init];
+        NSString *errorMessage = @"Unity Ads WebApp creation failed";
+
+        if ([[USRVWebViewApp getCurrentApp] getWebAppFailureMessage] != nil) {
+            errorMessage = [[USRVWebViewApp getCurrentApp] getWebAppFailureMessage];
+        }
+
+        id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
+                                                                  erroredState: erroredState
+                                                                          code: [errorState intValue]
+                                                                       message: errorMessage];
+        [nextState startWithCompletion: completion error: error];
+    }
+}
+
 @end

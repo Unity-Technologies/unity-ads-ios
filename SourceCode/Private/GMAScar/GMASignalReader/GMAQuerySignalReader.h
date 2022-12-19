@@ -21,14 +21,6 @@ typedef NSMutableDictionary<NSString *, GADQueryInfoBridge *>   GADQueryInfoSour
                completion: (UADSGMASCARCompletion *)completionHandler;
 @end
 
-
-@protocol GMAQueryInfoStorage<NSObject>
-
-/// Returns GADQuery wrapped behind proxy GADQueryInfoBridge for a placement ID
-/// @param placementID NSString *
-- (GADQueryInfoBridge *)queryForPlacementID: (NSString *)placementID;
-@end
-
 @protocol GADRequestFactory<NSObject>
 
 /// Creates GADRequest wrapped into GADRequestBridge proxy using placementID and adString
@@ -39,7 +31,7 @@ typedef NSMutableDictionary<NSString *, GADQueryInfoBridge *>   GADQueryInfoSour
 @end
 
 
-@protocol GMASignalService<NSObject, GMAQuerySignalReader, GMAQueryInfoStorage, GADRequestFactory>
+@protocol GMASignalService<NSObject, GMAQuerySignalReader, GADRequestFactory>
 
 @end
 
@@ -50,8 +42,8 @@ typedef NSMutableDictionary<NSString *, GADQueryInfoBridge *>   GADQueryInfoSour
 - (instancetype)__unavailable init;
 + (instancetype)newWithInfoReader: (id<GMAQueryInfoReader>)reader;
 
-/// Returns a prepared instance with default `id<GMAQueryInfoReader>`
-+ (instancetype)               defaultReader;
+// exposed for tests
+- (GADQueryInfoBridge *)queryForPlacementID: (NSString *)placementID;
 @end
 
 NS_ASSUME_NONNULL_END

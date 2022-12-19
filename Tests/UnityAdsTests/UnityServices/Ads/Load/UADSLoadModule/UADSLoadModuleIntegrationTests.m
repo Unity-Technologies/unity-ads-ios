@@ -27,9 +27,11 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 }
 
 - (void)setUp {
+    [self setDefaultConfiguration];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
     self.loadDelegateMock = [UnityAdsLoadDelegateMock new];
+    [self emulateSDKInitialized: NOT_INITIALIZED];
 }
 
 - (void)tearDown {
@@ -230,6 +232,11 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     [self emulateLoadCallWithPlacementID: kUADSLoadModuleTestsPlacementID];
     [self waitForExpectations: @[_webAppMock.expectation]
                       timeout: DEFAULT_TEST_WAIT_TIME];
+}
+
+- (void)setDefaultConfiguration {
+    USRVConfiguration *config = [USRVConfiguration new];
+    [UADSAbstractModule setConfiguration: config];
 }
 
 @end

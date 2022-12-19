@@ -4,12 +4,23 @@
 #import "USRVClientProperties.h"
 #import "USRVInitialize.h"
 #import "USRVDevice.h"
+#import "UADSServiceProvider.h"
 
 @implementation UnityServices
 
 + (void)        initialize: (NSString *)gameId
                   testMode: (BOOL)testMode
     initializationDelegate: (nullable id<UnityAdsInitializationDelegate>)initializationDelegate {
+    if (UADSServiceProvider.sharedInstance.newInitFlowEnabled) {
+        [self newStart: gameId testMode: testMode delegate: initializationDelegate];
+    } else {
+        [self legacyStart: gameId testMode: testMode delegate: initializationDelegate];
+    }
+} /* initialize */
+
++ (void)legacyStart: (NSString *)gameId
+           testMode: (BOOL)testMode
+           delegate: (nullable id<UnityAdsInitializationDelegate>)initializationDelegate  {
     @synchronized (self) {
         if ([USRVSdkProperties getCurrentInitializationState] != NOT_INITIALIZED) {
             NSString *differingParams = @"";
@@ -99,7 +110,39 @@
         USRVConfiguration *configuration = [[USRVConfiguration alloc] init];
         [USRVInitialize initialize: configuration];
     }
-} /* initialize */
+}
+
++ (void)newStart: (NSString *)gameId
+        testMode: (BOOL)testMode
+        delegate: (nullable id<UnityAdsInitializationDelegate>)initializationDelegate  {
+    @synchronized (self) {
+
+        [USRVSdkProperties addInitializationDelegate: initializationDelegate];
+      
+        [USRVSdkProperties setInitializationTime: [[USRVDevice getElapsedRealtime] longLongValue]];
+        
+        [UnityServices setDebugMode: [USRVSdkProperties getDebugMode]];
+        [USRVClientProperties setGameId: gameId];
+        [USRVSdkProperties setTestMode: testMode];
+
+        [UADSServiceProvider.sharedInstance.sdkInitializer initializeWithGameID: gameId
+                                                                       testMode:testMode
+                                                                     completion:^{
+                    [USRVSdkProperties setInitializationState: INITIALIZED_SUCCESSFULLY];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [USRVSdkProperties notifyInitializationComplete];
+                    });
+            
+                } error:^(NSError * _Nonnull error) {
+                    
+                    [USRVSdkProperties setInitializationState: INITIALIZED_FAILED];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [USRVSdkProperties notifyInitializationFailed: error.code
+                                                     withErrorMessage: error.localizedDescription];
+                    });
+                }];
+    }
+}
 
 + (BOOL)getDebugMode {
     return [USRVSdkProperties getDebugMode];

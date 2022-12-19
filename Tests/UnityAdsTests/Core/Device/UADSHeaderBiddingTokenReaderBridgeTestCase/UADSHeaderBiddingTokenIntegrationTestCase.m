@@ -22,6 +22,7 @@
 
 - (void)setUp {
     [super setUp];
+    [self deleteConfigFile];
     self.builder = [UADSHeaderBiddingTokenReaderBuilder new];
     self.readerMock = [UADSDeviceReaderMock new];
     self.readerMock.expectedInfo = @{ @"test": @"info" };
@@ -388,15 +389,16 @@
 
 - (void)test_multithread_native_generation_does_not_crash {
     [self mockSuccessInitWithNativeGenerationOn: true];
-
-
+    UADSServiceProvider *sut = [UADSServiceProvider new];
     [self asyncExecuteTimes: 1000
                       block:^(XCTestExpectation *_Nonnull expectation, int index) {
-                          [UnityAds getToken:^(NSString *_Nullable token) {
-                              XCTAssertTrue([token hasPrefix: @"1:"]);
-                              [expectation fulfill];
-                          }];
+                            [sut.hbTokenReader getToken:^(UADSHeaderBiddingToken * _Nullable token) {
+                                XCTAssertTrue([token.value hasPrefix: @"1:"]);
+                                [expectation fulfill];
+                            }];
+                      
                       }];
+ 
 }
 
 - (void)mockSuccessInitWithNativeGenerationOn: (BOOL)ntOn {
@@ -411,8 +413,17 @@
     config.webViewHash = @"hash";
     config.webViewVersion = @"123";
     config.metricsUrl = @"url";
-
-    [[[UADSServiceProvider sharedInstance] configurationSaver] saveConfiguration: config];
+    [self saveConfigToFile: config];
+//    [[[UADSServiceProvider sharedInstance] configurationSaver] saveConfiguration: config];
 }
 
+- (void)saveConfigToFile: (USRVConfiguration *)config {
+    [config saveToDisk];
+}
+- (void)deleteConfigFile {
+    NSString *fileName = [USRVSdkProperties getLocalConfigFilepath];
+
+    [[NSFileManager defaultManager] removeItemAtPath: fileName
+                                               error: nil];
+}
 @end

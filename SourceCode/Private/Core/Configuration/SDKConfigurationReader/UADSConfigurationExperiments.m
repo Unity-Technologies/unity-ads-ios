@@ -76,6 +76,19 @@
     return [self isExperimentEnabledWithKey: @"s_wvrq"];
 }
 
+- (BOOL)isSwiftInitFlowEnabled {
+    return [self isExperimentEnabledWithKey: @"s_init"];
+}
+
+- (BOOL)isUseNewTasksEnabled {
+    return [self isExperimentEnabledWithKey: @"s_ntf"];
+}
+
+
+- (BOOL)isParallelExecutionEnabled {
+    return [self isExperimentEnabledWithKey: @"s_pte"];
+}
+
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
     return [self flattenFlagsWith:^BOOL (id key) {
         return [self isExperimentForNextSession: key];

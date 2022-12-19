@@ -9,7 +9,8 @@
 #import "UADSCurrentTimestampBase.h"
 #import "UADSGameSessionIdReader.h"
 #import "UADSWebRequestFactorySwiftAdapter.h"
-#import "UADSClientConfig.h"
+#import "UADSDeviceInfoReaderBuilder.h"
+
 @interface UADSServiceProvider ()
 @property (nonatomic, strong) id<UADSPerformanceLogger>performanceLogger;
 @property (nonatomic, strong) UADSPerformanceMeasurer *performanceMeasurer;
@@ -21,11 +22,42 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     return [self new];
 })
 
+
 - (instancetype)init {
     SUPER_INIT
-    self.configurationStorage = [UADSConfigurationCRUDBase new];
+    UADSConfigurationCRUDBase *crudBase = [UADSConfigurationCRUDBase new];
+    self.configurationStorage = crudBase;
+    self.privacyStorage = [UADSPrivacyStorage new];
+    self.performanceMeasurer = [UADSPerformanceMeasurer newWithTimestampReader: [UADSCurrentTimestampBase new]];
+    self.logger = [UADSConsoleLogger newWithSystemList: @[]];
+    self.performanceLogger = [UADSPerformanceLoggerBase newWithLogger: self.logger];
+    /**
+        this is done as a quick workaround to be able to call internal functions from swift without exposing too much to public
+        we need device info only when its created and the builder needs to be created at request as well in order to use the lates config
+     */
+    self.objBridge = [UADSServiceProviderProxy newWithDeviceInfoProvider: self];
+    
+    crudBase.serviceProviderBridge = self.objBridge;
     self.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
     return self;
+}
+
+- (BOOL)newInitFlowEnabled {
+    return [self.experiments isSwiftInitFlowEnabled];
+}
+
+
+-(NSDictionary *)getDeviceInfoWithExtended: (BOOL)extended {
+    
+    return [[self deviceInfoBuilderWithMetrics: true] getDeviceInfoWithExtended: extended];
+}
+
+-(void)didCompleteInit: (NSDictionary *)config {
+    [_configurationStorage triggerSaved: [USRVConfiguration newFromJSON: config]];
+}
+
+- (void)didReceivePrivacy: (NSDictionary *) privacy {
+    [_privacyStorage saveResponse: [UADSInitializationResponse newFromDictionary:privacy]];
 }
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)hbTokenReader {
@@ -89,14 +121,6 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     return _metricSender;
 }
 
-- (id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader, UADSPrivacyResponseSubject>)privacyStorage {
-    @synchronized (self) {
-        if (!_privacyStorage) {
-            _privacyStorage = [UADSPrivacyStorage new];
-        }
-    }
-    return _privacyStorage;
-}
 
 - (id<IUSRVWebRequestFactory>)metricsRequestFactory {
     if (_metricsRequestFactory) {
@@ -104,7 +128,8 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     }
     
     if ([self.experiments isSwiftNativeRequestsEnabled]) {
-        return [UADSWebRequestFactorySwiftAdapter new];
+        return [UADSWebRequestFactorySwiftAdapter newWithMetricSender: nil
+                                                      andNetworkLayer: self.objBridge.nativeMetricsNetworkLayer];
     } else {
         return [USRVWebRequestFactory new];
     }
@@ -115,62 +140,58 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
         return _webViewRequestFactory;
     }
     if ([self.experiments isSwiftWebViewRequestsEnabled]) {
-        return [UADSWebRequestFactorySwiftAdapter newWithMetricSender: self.metricSender];
+        return [UADSWebRequestFactorySwiftAdapter newWithMetricSender: self.metricSender
+                                                      andNetworkLayer: self.objBridge.nativeNetworkLayer];
     } else {
         return [USRVWebRequestFactory new];
     }
 }
 
+- (id<UADSDeviceInfoProvider>)deviceInfoBuilderWithMetrics: (BOOL)includeMetrics {
+    UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
 
-- (id<UADSConfigurationLoader>)configurationLoaderUsing: (USRVConfiguration *)configuration retryInfoReader: (id<UADSRetryInfoReader>)retryInfoReader {
-    UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: configuration.experiments];
-    UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
-                                                                       andWebRequestFactory: self.webViewRequestFactory
-                                                                               metricSender: self.metricSender];
-
-
-    builder.privacyStorage = self.privacyStorage;
+    builder.metricsSender = includeMetrics ? self.metricSender : nil;
+    builder.clientConfig = [UADSCClientConfigBase defaultWithExperiments: self.experiments];;
+    builder.privacyReader = self.privacyStorage;
     builder.logger = self.logger;
-    builder.configurationSaver = self.configurationSaver;
     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
-    builder.metricsSender = self.metricSender;
-    builder.retryInfoReader = retryInfoReader;
     builder.gameSessionIdReader = self.gameSessionIdReader;
-    return builder.loader;
+    return builder;
 }
 
-- (id<UADSLogger>)logger {
-    @synchronized (self) {
-        if (!_logger) {
-            _logger = [UADSConsoleLogger newWithSystemList: @[]];
-        }
-    }
-    return _logger;
-}
+- (id<UADSConfigurationLoader>)configurationLoader {
+     UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: self.experiments];
+    
 
-- (id<UADSPerformanceLogger>)performanceLogger {
-    @synchronized (self) {
-        if (!_performanceLogger) {
-            _performanceLogger = [UADSPerformanceLoggerBase newWithLogger: self.logger];
-        }
-    }
+     UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
+                                                                        andWebRequestFactory: self.webViewRequestFactory
+                                                                                metricSender: self.metricSender];
 
-    return _performanceLogger;
-}
-
-
-- (UADSPerformanceMeasurer *)performanceMeasurer {
-    @synchronized (self) {
-        if (!_performanceMeasurer) {
-            _performanceMeasurer = [UADSPerformanceMeasurer newWithTimestampReader: [UADSCurrentTimestampBase new]];
-        }
-    }
-
-    return _performanceMeasurer;
-}
+     builder.privacyStorage = self.privacyStorage;
+     builder.logger = self.logger;
+     builder.configurationSaver = self.configurationSaver;
+     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
+     builder.retryInfoReader = self.retryReader;
+     builder.gameSessionIdReader = self.gameSessionIdReader;
+     builder.metricsSender = self.metricSender;
+     return builder.configurationLoader;
+ }
 
 - (UADSConfigurationExperiments *)experiments {
     return self.configurationStorage.currentSessionExperiments;
+}
+
+- (USRVInitializeStateFactory *)stateFactory {
+    return [USRVInitializeStateFactory newWithBuilder: self
+                                      andConfigReader: self.configurationStorage];
+}
+
+- (UADSSDKInitializerProxy *)sdkInitializer {
+    return [self.objBridge sdkInitializerWithFactory: self.stateFactory];
+}
+
+- (UADSCommonNetworkProxy *)nativeNetworkLayer {
+    return self.objBridge.nativeNetworkLayer;
 }
 
 @end

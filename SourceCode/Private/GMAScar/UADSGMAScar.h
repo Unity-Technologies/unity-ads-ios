@@ -12,9 +12,7 @@
 @property (strong, nonatomic) id<UADSErrorHandler>errorHandler;
 + (instancetype) defaultInfo;
 + (UADSGMAScar *)sharedInstance;
-- (instancetype)initWithSignalService: (id<GMAEncodedSCARSignalsReader>)signalService
-                    andLoaderStrategy: (id<GMAAdLoader, UADSAdPresenter, GMAVersionChecker>)loaderStrategy
-                      andErrorHandler: (id<UADSErrorHandler>)errorHandler;
+- (instancetype)initWithEventSender: (id<UADSWebViewEventSender>)eventSender;
 
 - (NSString *)   sdkVersion;
 
@@ -31,4 +29,6 @@
 - (void)showAdUsingMetaData: (GMAAdMetaData *)meta
            inViewController: (UIViewController *)viewController;
 
+// exposed for tests
+- (id<GMAQueryInfoReader>)queryInfoReader;
 @end

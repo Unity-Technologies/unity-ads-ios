@@ -73,6 +73,7 @@
 
     dispatch_async(self.metricQueue, ^{
         @try {
+            
             UADSMetricsContainer *container = [[UADSMetricsContainer alloc] initWithCommonTags: self.commonTagsProvider.commonTags
                                                                                        metrics: metrics
                                                                                           info: self.commonTagsProvider.commonInfo];
@@ -115,7 +116,7 @@
 }
 
 - (NSString *)metricEndpoint {
-    return [_configurationReader getCurrentConfiguration].metricsUrl;
+    return [_configurationReader getCurrentMetricsUrl];
 }
 
 @end

@@ -12,7 +12,7 @@ static NSString *const kGMAQueryNotFoundFormat = @"Query Info is not found for p
 static NSString *const kGMAInfoNotCreatedFormat =  @"GADInfo was nil or invalid for placementID %@. Possibly QueryId and RequestId don't match";
 
 static NSString *const kGMAInternalSignalsErrorMessage =  @"Could not collect signals. Probably SCAR is not supported";
-
+static NSString *const kGMAAdStringWasInvalid = @"The ad string could not be loaded because it was invalid.";
 
 
 

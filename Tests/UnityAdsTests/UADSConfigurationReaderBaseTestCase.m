@@ -40,9 +40,9 @@
 }
 
 - (void)checkCurrentExperimentsFlagsLocalWithObjects: (BOOL)localWithObjects remoteWithObjest: (BOOL)withObject {
+    [self saveLocalConfigWithObject: localWithObjects];
     UADSConfigurationCRUDBase *sut = [UADSConfigurationCRUDBase new];
 
-    [self saveLocalConfigWithObject: localWithObjects];
     USRVConfiguration *config = [sut getCurrentConfiguration];
 
     XCTAssertEqualObjects(config.webViewUrl, self.localWebViewUrl);
@@ -62,6 +62,9 @@
     XCTAssertTrue(config.experiments.isTwoStageInitializationEnabled);
     XCTAssertEqualObjects(sut.metricTags[@"tsi"], @"false", @"Metric tag should have tsi flag from cached configuration");
     XCTAssertNil(sut.metricTags[@"tsi_p"], @"Feature flag should be applied from the next session only");
+    
+    UADSConfigurationExperiments *experiments = sut.currentSessionExperiments;
+    XCTAssertFalse(experiments.isTwoStageInitializationEnabled, @"Experiments should have tsi flag from cached configuration");
 }
 
 - (void)test_subscribing_and_notifying_observers_is_multithread_protected {

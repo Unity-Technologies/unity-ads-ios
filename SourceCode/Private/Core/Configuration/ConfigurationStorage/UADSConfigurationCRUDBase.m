@@ -2,6 +2,7 @@
 #import "USRVSdkProperties.h"
 #import "USRVWebViewApp.h"
 #import "UADSServiceProviderProxy.h"
+#import "NSMutableDictionary+SafeOperations.h"
 
 @interface UADSConfigurationCRUDBase ()
 @property (nonatomic, assign) BOOL localRead;
@@ -24,7 +25,7 @@
     dispatch_sync(self.syncQueue, ^{
         if (!self.localRead) {
             self.localConfig = [self getConfigFromFile];
-            self.localRead = YES;
+            self.localRead = true;
         }
     });
 
@@ -33,11 +34,24 @@
 
 #pragma mark UADSConfigurationReader
 - (USRVConfiguration *)getCurrentConfiguration {
+    
     if ([self.remoteConfig hasValidWebViewURL]) {
         return self.remoteConfig;
     }
 
     return [self localConfiguration];
+}
+
+- (NSString *)getCurrentMetricsUrl {
+    if (![self.remoteConfig.metricsUrl isEqualToString: @""]) {
+        return self.remoteConfig.metricsUrl;
+    }
+
+    return self.localConfiguration.metricsUrl;
+}
+
+- (UADSConfigurationExperiments *)currentSessionExperiments {
+    return [UADSConfigurationExperiments newWithJSON: self.currentSessionExperimentsAsDictionary];
 }
 
 - (NSDictionary *)currentSessionExperimentsAsDictionary {
@@ -55,10 +69,6 @@
     [experiments setValuesForKeysWithDictionary: appliedFlags];
 
     return experiments;
-}
-
-- (UADSConfigurationExperiments *)currentSessionExperiments {
-    return [UADSConfigurationExperiments newWithJSON: self.currentSessionExperimentsAsDictionary];
 }
 
 #pragma mark UADSConfigurationMetricTagsReader
@@ -82,24 +92,37 @@
     if (currentConfig == nil) {
         return nil;
     }
-
-    return @{
-        kUnityServicesConfigValueMetricSamplingRate: [@(currentConfig.metricSamplingRate) stringValue]
-    };
+    NSMutableDictionary *info = [NSMutableDictionary new];
+    info[kUnityServicesConfigValueMetricSamplingRate] = [@(currentConfig.metricSamplingRate) stringValue];
+    [info uads_setValueIfNotNil: currentConfig.sessionToken
+                         forKey: @"sTkn"];
+    return info;
 }
+
 
 - (void)subscribeToConfigUpdates: (UADSConfigurationObserver)observer {
     [self.mediator subscribe: observer];
 }
 
 - (void)saveConfiguration: (USRVConfiguration *)configuration {
+    [self saveConfiguration:configuration notifyBridge:YES];
+}
+
+- (void)saveConfiguration: (USRVConfiguration *)configuration notifyBridge: (bool)notify {
     dispatch_sync(self.syncQueue, ^{
-        [configuration saveToDisk];
+        
         self.remoteConfig = configuration;
     });
+    
+    if (notify) {
+        [self.serviceProviderBridge saveConfiguration: configuration.originalJSON];
+    }
 
-    [UADSServiceProviderProxy.shared saveConfiguration: configuration.originalJSON];
     [self.mediator notifyObserversWithObjectAndRemove: configuration];
+}
+
+- (void)triggerSaved: (USRVConfiguration *)config {
+    [self saveConfiguration: config notifyBridge: NO];
 }
 
 - (USRVConfiguration *)getConfigFromFile {

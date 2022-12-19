@@ -91,7 +91,7 @@ static dispatch_once_t onceToken;
 
 - (instancetype)initWithConfiguration: (USRVConfiguration *)configuration {
     self = [super init];
-
+    
     if (self) {
         [self setConfiguration: configuration];
     }
@@ -109,6 +109,15 @@ static dispatch_once_t onceToken;
 
 - (BOOL)isRetryState {
     return [self isKindOfClass: USRVInitializeStateRetry.class];
+}
+
+
+- (NSString *)systemName {
+    return self.metricName;
+}
+
+- (void)startWithCompletion:(nonnull void (^)(void))completion error:(nonnull void (^)(NSError * _Nonnull))error {
+    
 }
 
 @end

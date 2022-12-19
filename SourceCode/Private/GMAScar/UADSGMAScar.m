@@ -8,8 +8,13 @@
 #import "UADSWebViewEventSender.h"
 #import "GMAWebViewEvent.h"
 #import "GMAError.h"
+#import "GMAQueryInfoRequestFactory.h"
+#import "GMAQueryInfoRequestFactoryV85.h"
+#import "GMABaseQuerySignalReaderV85.h"
+#import "GMAVersionReaderStrategy.h"
 
 static NSString *const kUADSGMAScarNotPresentError = @"ERROR: Required GMA SDK classes are not present. Cannot get SCAR signals.";
+static NSString* kLastQueryInfoRequestId = @"0";
 
 @interface UADSGMAScar ()
 
@@ -20,29 +25,49 @@ static NSString *const kUADSGMAScarNotPresentError = @"ERROR: Required GMA SDK c
 @implementation UADSGMAScar
 
 + (instancetype)defaultInfo {
-    GMABaseSCARSignalsReader *signalsService = GMABaseSCARSignalsReader.defaultService;
-    GMASCARSignalsReaderDecorator *encoder = [GMASCARSignalsReaderDecorator newWithSignalService: signalsService];
-
     id<UADSWebViewEventSender>eventSender = [UADSWebViewEventSenderBase new];
-    id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
+    return [[self alloc] initWithEventSender: eventSender];
+}
+
+- (instancetype)initWithEventSender: (id<UADSWebViewEventSender>)eventSender {
+    SUPER_INIT
+    
+    id<GMAQueryInfoReader> queryInfoReader = [self queryInfoReader];
+    id<GMASignalService> signalReader = [self signalReaderWithQueryInfo:queryInfoReader];
+    GMABaseSCARSignalsReader *signalsService = [GMABaseSCARSignalsReader newWithSignalService:signalReader];
+    GMASCARSignalsReaderDecorator *encoder = [GMASCARSignalsReaderDecorator newWithSignalService: signalsService];
+    
+    id<UADSErrorHandler> errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
     GMADelegatesBaseFactory *delegatesFactory = [GMADelegatesBaseFactory newWithEventSender: eventSender
                                                                                errorHandler: errorHandler];
     GMAAdLoaderStrategy *strategy = [GMAAdLoaderStrategy newWithRequestFactory: signalsService
                                                             andDelegateFactory: delegatesFactory];
-
-    return [[self alloc] initWithSignalService: encoder
-                             andLoaderStrategy: strategy
-                               andErrorHandler: errorHandler];
+    
+    self.errorHandler = errorHandler;
+    self.signalService = encoder;
+    self.loaderStrategy = strategy;
+    
+    return self;
 }
 
-- (instancetype)initWithSignalService: (id<GMAEncodedSCARSignalsReader>)signalService
-                    andLoaderStrategy: (id<GMAAdLoader, UADSAdPresenter, GMAVersionChecker>)loaderStrategy
-                      andErrorHandler: (id<UADSErrorHandler>)errorHandler {
-    SUPER_INIT
-    self.signalService = signalService;
-    self.loaderStrategy = loaderStrategy;
-    self.errorHandler = errorHandler;
-    return self;
+- (id<GMAQueryInfoReader>)queryInfoReader {
+    id<GMAQueryInfoRequestFactory> requestFactory;
+    if ([GMABaseQuerySignalReaderV85 isSupported]) {
+        requestFactory = [GMAQueryInfoRequestFactoryV85 new];
+    } else {
+        requestFactory = [GMAQueryInfoRequestFactoryBase new];
+    }
+    return [GMABaseQueryInfoReader newWithRequestFactory:requestFactory];
+}
+
+- (id<GMASignalService>)signalReaderWithQueryInfo:(id<GMAQueryInfoReader>)queryInfoReader {
+    id<GMASignalService> signalReader;
+    if ([GMABaseQuerySignalReaderV85 isSupported]) {
+        signalReader = [GMABaseQuerySignalReaderV85 newWithInfoReader:queryInfoReader];
+    } else {
+        signalReader = [GMABaseQuerySignalReader newWithInfoReader:queryInfoReader];
+    }
+    return signalReader;
 }
 
 - (NSString *)sdkVersion {

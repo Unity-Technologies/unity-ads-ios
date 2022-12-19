@@ -109,6 +109,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)callInstanceMethod: (NSString *)methodName
                       args: (NSArray<id> *)arguments;
 
+/// Call an instance method reflectively
+/// @param methodName Instance method name. Should be a format: @"methodname:arg1:arg2"
+/// @param arguments An Array of arguments for the method
+- (id)callInstanceMethodWithReturn: (NSString *)methodName
+                              args: (NSArray<id> *)arguments;
+
 
 /// Call a class method reflectively
 /// @param methodName Instance method name. Should be a format: @"methodname:arg1:arg2"

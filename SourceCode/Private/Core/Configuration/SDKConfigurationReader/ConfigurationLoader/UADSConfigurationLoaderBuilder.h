@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "UADSConfigurationLoaderStrategy.h"
 #import "UADSConfigurationExperiments.h"
 #import "UADSConfigurationLoaderWithPersistence.h"
 #import "UADSPrivacyStorage.h"
@@ -11,12 +10,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef id<UADSClientConfig, UADSPrivacyConfig> UADSConfigurationLoaderBuilderConfig;
+@protocol UADSConfigurationLoaderProvider <NSObject>
+- (id<UADSConfigurationLoader>)configurationLoader;
+@end
 
-@interface UADSConfigurationLoaderBuilder : NSObject
+//typedef id<UADSConfigurationRequestFactoryConfig, UADSPrivacyConfig> UADSConfigurationLoaderBuilderConfig;
+
+@interface UADSConfigurationLoaderBuilder : NSObject<UADSConfigurationLoaderProvider>
 @property (nonatomic, strong) id<USRVInitializationRequestFactory> mainRequestFactory;
 @property (nonatomic, strong) id<UADSConfigurationSaver> configurationSaver;
-@property (nonatomic, strong) id<ISDKMetrics> metricsSender;
+@property (nonatomic, strong) id<ISDKMetrics, ISDKPerformanceMetricsSender> metricsSender;
 @property (nonatomic, strong) id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader> privacyStorage;
 @property (nonatomic, strong) id<UADSPrivacyLoader>privacyLoader;
 @property (nonatomic, strong) id<UADSDeviceInfoReader>deviceInfoReader;
@@ -27,12 +30,11 @@ typedef id<UADSClientConfig, UADSPrivacyConfig> UADSConfigurationLoaderBuilderCo
 @property (nonatomic, strong) id<UADSGameSessionIdReader> gameSessionIdReader;
 @property (nonatomic) BOOL noCompression;
 
-- (id<UADSConfigurationLoader>)         loader;
 - (id<USRVInitializationRequestFactory>)requestFactoryWithExtendedInfo: (BOOL)hasExtendedInfo;
 
-+ (instancetype)newWithConfig: (UADSConfigurationLoaderBuilderConfig)config
++ (instancetype)newWithConfig: (id<UADSClientConfig>)config
          andWebRequestFactory: (id<IUSRVWebRequestFactory>)webRequestFactory
-                 metricSender: (id<ISDKMetrics>)metricSender;
+                 metricSender: (id<ISDKMetrics, ISDKPerformanceMetricsSender>)metricSender;
 @end
 
 NS_ASSUME_NONNULL_END

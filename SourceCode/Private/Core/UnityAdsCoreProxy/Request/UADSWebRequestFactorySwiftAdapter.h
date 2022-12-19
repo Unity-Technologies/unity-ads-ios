@@ -5,7 +5,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSWebRequestFactorySwiftAdapter : NSObject <IUSRVWebRequestFactory>
-+ (instancetype)newWithMetricSender: (nullable id<ISDKMetrics>)metricSender;
++ (instancetype)newWithMetricSender: (nullable id<ISDKMetrics>)metricSender andNetworkLayer: (id)networkLayer;
 @end
 
 NS_ASSUME_NONNULL_END
