@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface USRVInitializeStateCreate : USRVInitializeState
 
 @property (atomic, strong) NSString *webViewData;
-
++ (void)setMocked: (BOOL)isMocked;
 - (instancetype)initWithConfiguration: (USRVConfiguration *)configuration webViewData: (NSString *)webViewData;
 
 @end

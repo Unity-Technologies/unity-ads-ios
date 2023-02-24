@@ -11,7 +11,7 @@
 }
 
 + (NSArray<NSString *> *)requiredKeysForKVO {
-    return [super.requiredKeysForKVO arrayByAddingObjectsFromArray: @[AD_STRING_KEY, REQUEST_AGENT_KEY]];
+    return @[AD_STRING_KEY, REQUEST_AGENT_KEY];
 }
 
 - (void)registerAdNetworkExtras:(nonnull id)extras {

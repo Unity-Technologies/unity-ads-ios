@@ -16,7 +16,7 @@
 //#import <CommonCrypto/CommonDigest.h>
 //#import <sys/mman.h>
 //#import "UADSHeaderBiddingTokenReaderBuilder.h"
-//#import "UADSServiceProvider.h"
+//#import "UADSServiceProviderContainer.h"
 //
 //@implementation USRVInitialize
 //
@@ -231,7 +231,7 @@
 //        self.localConfig = configuration;
 //        //read from local config
 //        self.configuration = [[USRVConfiguration alloc] initWithConfigUrl: [USRVSdkProperties getConfigUrl]];
-//        self.configLoader = [UADSServiceProvider.sharedInstance configurationLoaderUsing: configuration];
+//        self.configLoader = [UADSServiceProviderContainer.sharedInstance.serviceProvider configurationLoaderUsing: configuration];
 //
 //        [self setRetries: retries];
 //        [self setRetryDelay: retryDelay];
@@ -254,12 +254,12 @@
 //    if (!self.configuration.error) {
 //        if (self.configuration.headerBiddingToken) {
 //            USRVLogInfo(@"Found token in the response. Will Attempt to save");
-//            [UADSServiceProvider.sharedInstance.hbTokenReader setInitToken: self.configuration.headerBiddingToken];
+//            [UADSServiceProviderContainer.sharedInstance.serviceProvider.hbTokenReader setInitToken: self.configuration.headerBiddingToken];
 //        }
 //
 //        USRVLogInfo(@"Saving Configuration To Disk");
 //
-//        [UADSServiceProvider.sharedInstance.configurationSaver saveConfiguration: self.configuration];
+//        [UADSServiceProviderContainer.sharedInstance.serviceProvider.configurationSaver saveConfiguration: self.configuration];
 //
 //        if (self.configuration.delayWebViewUpdate) {
 //            id nextState = [[USRVInitializeStateLoadCacheConfigAndWebView alloc] initWithConfiguration: self.configuration

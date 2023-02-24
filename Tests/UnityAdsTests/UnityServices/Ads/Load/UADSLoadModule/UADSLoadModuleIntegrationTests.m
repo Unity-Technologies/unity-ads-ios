@@ -4,11 +4,11 @@
 #import "USRVSdkProperties.h"
 #import "UADSLoadModule.h"
 #import "USRVInitializationNotificationCenter.h"
-
+#import "XCTestCase+Convenience.h"
 static NSString *const kUADSLoadModuleTestsPlacementID = @"kUADSLoadModuleTestsPlacementID";
 static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 #define DEFAULT_TEST_WAIT_TIME 10.0
-#define DEFAULT_SLEEP_TIME     2
+#define DEFAULT_SLEEP_TIME     1
 
 @interface UADSLoadModuleIntegrationTests : XCTestCase
 @property (nonatomic, strong) USRVWebViewAppMock *webAppMock;
@@ -27,6 +27,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 }
 
 - (void)setUp {
+    [self resetUnityAds];
     [self setDefaultConfiguration];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
@@ -39,12 +40,15 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     _loadDelegateMock = nil;
     [USRVWebViewApp setCurrentApp: nil];
     [UADSLoadModule setConfiguration: [USRVConfiguration new]];
+    [self resetUnityAds];
 }
 
 - (void)test_load_after_SDK_is_initialized_calls_web_view {
+    [self setExpectationInDelegate];
     [self emulateSDKInitialized: INITIALIZED_SUCCESSFULLY];
     [self emulateLoadCallWithPlacementID: kUADSLoadModuleTestsPlacementID];
-    [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
+    [self waitForExpectations: @[_loadDelegateMock.expectation]
+                      timeout: DEFAULT_TEST_WAIT_TIME];
     XCTAssertEqual(_webAppMock.returnedParams.count, 1);
 }
 
@@ -110,23 +114,20 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     XCTAssertEqual(_webAppMock.returnedParams.count, 1);
 }
 
-- (void)test_load_before_SDK_is_initialized_doesnt_call_web_view {
-    [self emulateSDKInitialized: NOT_INITIALIZED];
-    [self emulateLoadCallWithPlacementID: kUADSLoadModuleTestsPlacementID];
-    [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
-    XCTAssertEqual(_webAppMock.returnedParams.count, 0);
-}
-
 - (void)test_load_before_SDK_is_initialized {
     [self emulateSDKInitialized: NOT_INITIALIZED];
     [self setExpectationInDelegate];
+    [self setWebViewExpectation];
     [self emulateLoadCallWithPlacementID: kUADSLoadModuleTestsPlacementID];
+   
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
+    XCTAssertEqual(_webAppMock.returnedParams.count, 0);
+    
     [self.notificationCenter triggerSdkDidInitialize];
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
     [self emulateInvokerSuccessResponse];
     [self emulateSendLoadedForTheLastListener];
-    [self waitForExpectations: @[_loadDelegateMock.expectation]
+    [self waitForExpectations: @[_loadDelegateMock.expectation, _webAppMock.expectation]
                       timeout: DEFAULT_TEST_WAIT_TIME];
     XCTAssertEqual(_loadDelegateMock.succeedPlacements.count, 1);
     XCTAssertEqual(_loadDelegateMock.failedPlacements.count, 0);
@@ -136,12 +137,14 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 - (void)test_load_before_SDK_is_initialized_failed {
     [self emulateSDKInitialized: NOT_INITIALIZED];
     [self setExpectationInDelegate];
+    [self setWebViewExpectation];
+    _webAppMock.expectation.inverted = true;
     [self emulateLoadCallWithPlacementID: kUADSLoadModuleTestsPlacementID];
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
     [self.notificationCenter triggerSdkInitializeDidFail: kSDKInitFailedMessage
                                                     code: -1];
     [self waitForTimeInterval: DEFAULT_SLEEP_TIME];
-    [self waitForExpectations: @[_loadDelegateMock.expectation]
+    [self waitForExpectations: @[_loadDelegateMock.expectation,  _webAppMock.expectation]
                       timeout: DEFAULT_TEST_WAIT_TIME];
     XCTAssertEqual(_loadDelegateMock.succeedPlacements.count, 0);
     XCTAssertEqual(_loadDelegateMock.failedPlacements.count, 1);
@@ -153,6 +156,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     [self setShorterOperationTTL];
     [self initializeCommonFlowWithSDKInitialized: INITIALIZED_SUCCESSFULLY];
     [self emulateInvokerSuccessResponse];
+    
     [self waitForExpectations: @[_loadDelegateMock.expectation]
                       timeout: DEFAULT_TEST_WAIT_TIME];
     XCTAssertEqual(_loadDelegateMock.succeedPlacements.count, 0);

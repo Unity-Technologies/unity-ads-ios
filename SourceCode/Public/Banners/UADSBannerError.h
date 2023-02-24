@@ -6,7 +6,9 @@ typedef NS_ENUM (NSInteger, UADSBannerErrorCode) {
     UADSBannerErrorCodeUnknown      = 0,
     UADSBannerErrorCodeNativeError  = 1,
     UADSBannerErrorCodeWebViewError = 2,
-    UADSBannerErrorCodeNoFillError  = 3
+    UADSBannerErrorCodeNoFillError  = 3,
+    UADSBannerErrorInitializeFailed = 4,
+    UADSBannerErrorInvalidArgument = 5
 };
 
 @interface UADSBannerError : NSError

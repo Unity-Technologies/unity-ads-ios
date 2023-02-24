@@ -45,7 +45,7 @@
     return self.experiments;
 }
 
-- (NSDictionary *)metricInfo {
+- (NSDictionary *)metricContainerConfigurationInfo {
     return _expectedMetricInfo;
 }
 

@@ -31,9 +31,11 @@
 }
 
 - (void)testGetScreenLayout {
-    NSInteger layout = [USRVDevice getScreenLayout];
-
-    XCTAssertTrue(layout != UIDeviceOrientationUnknown);
+    if (@available(iOS 16, *)) { // ios 16 returns UIDeviceOrientationUnknown for simulator
+    } else {
+        NSInteger layout = [USRVDevice getScreenLayout];
+        XCTAssertTrue(layout != UIDeviceOrientationUnknown);
+    }
 }
 
 - (void)testGetAdvertisingTrackingId {

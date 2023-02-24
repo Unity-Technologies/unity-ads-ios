@@ -24,9 +24,9 @@ typedef NSDictionary<NSString *, id<UADSAbstractModuleOperationObject> > UADSAbs
 + (void)setConfiguration: (USRVConfiguration *)config;
 + (USRVConfiguration *)                  configuration;
 
-- (void)executeForPlacement: (NSString *_Nonnull)placementId
-                withOptions: (id<UADSDictionaryConvertible>)options
-                andDelegate: (nullable id<UADSAbstractModuleDelegate>)delegate;
+- (NSString *)executeForPlacement: (NSString *_Nonnull)placementId
+                      withOptions: (id<UADSDictionaryConvertible>)options
+                      andDelegate: (nullable id<UADSAbstractModuleDelegate>)delegate;
 
 - (id<UADSAbstractModuleOperationObject>)createEventWithPlacementID: (NSString *)placementID
                                                         withOptions: (id<UADSDictionaryConvertible>)options

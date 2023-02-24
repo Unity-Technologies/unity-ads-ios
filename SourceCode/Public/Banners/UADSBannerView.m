@@ -1,11 +1,10 @@
 #import "UADSBannerView.h"
 #import "USRVBannerBridge.h"
 #import "UADSBannerWebPlayerContainer.h"
-#import "UADSBannerViewManager.h"
 #import "USRVSdkProperties.h"
-#import "USRVInitializationNotificationCenter.h"
+#import "UADSBannerLoadModule.h"
 
-@interface UADSBannerView () <USRVInitializationDelegate>
+@interface UADSBannerView ()
 
 @property (nonatomic, strong) NSString *viewId;
 @property (nonatomic, strong) UADSBannerWebPlayerContainer *bannerWebPlayerContainer;
@@ -22,9 +21,6 @@
     if (self) {
         _placementId = placementId;
         _size = size;
-        _viewId = [NSUUID UUID].UUIDString;
-        [[UADSBannerViewManager sharedInstance] addBannerView: self
-                                                   bannerAdId: self.viewId];
         [self setupConstraints];
     }
 
@@ -32,21 +28,17 @@
 }
 
 - (void)load {
-    if ([USRVSdkProperties isInitialized]) {
-        [self bridgeLoad];
-    } else {
-        __weak UADSBannerView *weakSelf = self;
-        [[USRVInitializationNotificationCenter sharedInstance] addDelegate: weakSelf];
-    }
+    [self loadWithOptions:[UADSLoadOptions new]];
+}
+
+- (void) loadWithOptions: (UADSLoadOptions *)options {
+    self.viewId = [[UADSBannerLoadModule sharedInstance] loadForPlacementID: _placementId
+                                                                 bannerView: self
+                                                                    options: options
+                                                               loadDelegate: _delegate];
 }
 
 // MARK : Private methods
-
-- (void)bridgeLoad {
-    [USRVBannerBridge loadBannerPlacement: self.placementId
-                               bannerAdId: self.viewId
-                                     size: self.size];
-}
 
 - (void)setBannerWebPlayerContainer: (UADSBannerWebPlayerContainer *)bannerWebPlayerContainer {
     __weak UADSBannerView *weakSelf = self;
@@ -108,30 +100,8 @@
 
 - (void)dealloc {
     self.delegate = nil;
-    [[UADSBannerViewManager sharedInstance] removeBannerViewWithBannerAdId: self.viewId];
-    [[USRVInitializationNotificationCenter sharedInstance] removeDelegate: self];
+    [[UADSBannerLoadModule sharedInstance] getDelegateForIDAndRemove:self.viewId];
     [USRVBannerBridge destroyBannerWithId: self.viewId];
-}
-
-// MARK : USRVInitializationDelegate
-
-- (void)sdkDidInitialize {
-    [[USRVInitializationNotificationCenter sharedInstance] removeDelegate: self];
-    [self bridgeLoad];
-}
-
-- (void)sdkInitializeFailed: (NSError *)error {
-    [[USRVInitializationNotificationCenter sharedInstance] removeDelegate: self];
-
-    if (self.delegate && [self.delegate respondsToSelector: @selector(bannerViewDidError:error:)]) {
-        UADSBannerError *error = [[UADSBannerError alloc] initWithCode: UADSBannerErrorCodeNativeError
-                                                              userInfo: @{
-                                      NSLocalizedDescriptionKey: @"UnityAds failed to initialize! Banner load could not be sent!"
-        }];
-        __weak UADSBannerView *weakSelf = self;
-        [self.delegate bannerViewDidError: weakSelf
-                                    error: error];
-    }
 }
 
 @end

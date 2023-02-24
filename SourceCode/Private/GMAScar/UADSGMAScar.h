@@ -14,6 +14,7 @@
 + (UADSGMAScar *)sharedInstance;
 - (instancetype)initWithEventSender: (id<UADSWebViewEventSender>)eventSender;
 
+- (id<GMASCARSignalService>)rawSignalService;
 - (NSString *)   sdkVersion;
 
 - (BOOL)         isAvailable;

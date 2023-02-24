@@ -9,7 +9,7 @@
 #import "UADSTokenStorage.h"
 #import "UADSShowModuleOptions.h"
 #import "UADSHeaderBiddingTokenReaderBuilder.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 @implementation UnityAds
 
 #pragma mark Public Selectors
@@ -84,6 +84,7 @@
 }
 
 + (void)setDebugMode: (BOOL)enableDebugMode {
+    [self.serviceProvider.objBridge setDebugMode: enableDebugMode];
     [UnityServices setDebugMode: enableDebugMode];
 }
 
@@ -112,7 +113,12 @@
 }
 
 + (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)tokenReader {
-    return UADSServiceProvider.sharedInstance.hbTokenReader;
+    return self.serviceProvider.hbTokenReader;
 }
+
++ (UADSServiceProvider *)serviceProvider {
+    return UADSServiceProviderContainer.sharedInstance.serviceProvider;
+}
+
 
 @end

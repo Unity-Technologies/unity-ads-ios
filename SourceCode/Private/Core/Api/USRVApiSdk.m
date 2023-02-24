@@ -5,13 +5,13 @@
 #import "USRVWebViewCallback.h"
 #import "USRVInitialize.h"
 #import "USRVDevice.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 static UADSServiceProvider* serviceProvider;
 @implementation USRVApiSdk
 
 + (void)load {
-    serviceProvider = UADSServiceProvider.sharedInstance;
+    serviceProvider = UADSServiceProviderContainer.sharedInstance.serviceProvider;
 }
 
 + (void)setServiceProviderForTesting: (UADSServiceProvider*)sProvider {
@@ -108,13 +108,17 @@ static UADSServiceProvider* serviceProvider;
 }
 
 + (NSString *)privacyState {
-    UADSPrivacyResponseState state = UADSServiceProvider.sharedInstance.privacyStorage.responseState;
+    UADSPrivacyResponseState state = UADSServiceProviderContainer.sharedInstance.serviceProvider.privacyStorage.responseState;
 
     return uads_privacyResponseStateToString(state);
 }
 
 + (void)WebViewExposed_getTrrData: (USRVWebViewCallback *)callback {
     [callback invoke: serviceProvider.configurationStorage.getCurrentConfiguration.originalJSON, nil];
+}
+
++ (void)WebViewExposed_getSharedSessionID:(USRVWebViewCallback *)callback {
+    [callback invoke: serviceProvider.sharedSessionId];
 }
 
 @end

@@ -1,5 +1,5 @@
 #import "UADSWebViewNavigationDelegate.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "UADSWebViewMetric.h"
 
 @interface UADSWebViewNavigationDelegate ()
@@ -24,7 +24,7 @@ _uads_default_singleton_imp(UADSWebViewNavigationDelegate);
 }
 
 - (id<ISDKMetrics>)metricSender {
-    return UADSServiceProvider.sharedInstance.metricSender;
+    return UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender;
 }
 
 @end

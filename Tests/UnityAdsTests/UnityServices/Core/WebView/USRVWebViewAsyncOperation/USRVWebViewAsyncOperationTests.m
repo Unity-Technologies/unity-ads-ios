@@ -20,6 +20,10 @@ static NSString *const DEFAULT_EXPECTATION_NAME = @"FAKE_WEB_VIEW_METHOD";
     _queue = dispatch_queue_create("USRVWebViewAsyncOperationTests.Queue", DISPATCH_QUEUE_CONCURRENT);
 }
 
+- (void)tearDown {
+    [USRVWebViewApp setCurrentApp: nil];
+}
+
 - (void)test_success_response_from_web_app_returns_ok_status {
     USRVWebViewAsyncOperation *operation = [self newOperationToTest];
 

@@ -7,7 +7,6 @@ class UnityAdsServiceProvider {
     var deviceInfoReader: DeviceInfoReader & LegacyDeviceInfoReader
     var allowedNetworkCodes = Array(200...299)
     var legacyStateFactory = USRVInitializeStateFactory()
-    let retriesInfoStorage: RetriesInfoWriter & RetriesInfoReader = RetriesInfoStorageBase()
 
     let performanceMeasurer: PerformanceMeasurer<String> // probably should use a struct to represent System?
 
@@ -39,25 +38,13 @@ class UnityAdsServiceProvider {
                                        configurationProvider: sdkStateStorage,
                                        deviceInfoReader: deviceInfoReader,
                                        performanceMeasurer: performanceMeasurer,
-                                       logger: logger,
-                                       retriesInfoStorage: retriesInfoStorage)
+                                       logger: logger)
     }
 
     private var _sdkInitializer: SDKInitializer?
 
     var sdkInitializer: SDKInitializer {
         syncQueue.sync { getOrCreateInitializer() }
-    }
-
-    private func getOrCreateInitializer() -> SDKInitializer {
-        guard let initializer = _sdkInitializer else {
-            let new = SDKInitializerBase(task: initTaskRunner,
-                                         stateStorage: sdkStateStorage,
-                                         settingsStorage: skdSettingsStorage)
-            _sdkInitializer = new
-            return new
-        }
-        return initializer
     }
 
     func updateConfiguration(_ config: UnityAdsConfig) {
@@ -69,16 +56,29 @@ class UnityAdsServiceProvider {
     }
 }
 
+private extension UnityAdsServiceProvider {
+    func getOrCreateInitializer() -> SDKInitializer {
+        guard let initializer = _sdkInitializer else {
+            let new = SDKInitializerBase(task: initTaskRunner,
+                                         stateStorage: sdkStateStorage,
+                                         settingsStorage: skdSettingsStorage)
+            _sdkInitializer = new
+            return new
+        }
+        return initializer
+    }
+}
+
 // subscribe for updates. Used by objc layer
 extension UnityAdsServiceProvider {
 
     func subscribeToConfigAndInitComplete(_ closure: @escaping Closure<[String: Any]>) {
         sdkStateStorage.configProvider.subscribe { config in
-            closure( (try? config.legacy.asErasedDictionary) ?? [:] )
+            closure( (try? config.legacy.convertIntoDictionary()) ?? [:] )
         }
 
         sdkStateStorage.subscribe {[weak sdkStateStorage] in
-            guard let config = try? sdkStateStorage?.config.legacy.asErasedDictionary else { return }
+            guard let config = try? sdkStateStorage?.config.legacy.convertIntoDictionary() else { return }
             closure(config)
         }
     }
@@ -135,13 +135,13 @@ extension UnityAdsServiceProvider {
 
     }
 
-    private var initTaskFactory: InitializationTaskFactoryStrategy {
+    var initTaskFactory: InitializationTaskFactoryStrategy {
         .init(downloaderBuilder: networkServicesFactory.webViewDownloaderBuilder,
               metricSenderProvider: networkServicesFactory,
               sdkStateStorage: sdkStateStorage,
               performanceMeasurer: performanceMeasurer,
               stateFactoryObjc: legacyStateFactory,
-              retriesInfoWriter: retriesInfoStorage)
+              settingsProvider: skdSettingsStorage)
     }
 
 }

@@ -4,18 +4,19 @@
 #import "UADSBaseURLBuilder.h"
 #import "USRVClientProperties.h"
 #import "UADSConfigurationEndpointProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 NSString *const kUnityServicesCacheDirName = @"UnityAdsCache";
 NSString *const kUnityServicesLocalCacheFilePrefix = @"UnityAdsCache-";
 NSString *const kUnityServicesLocalStorageFilePrefix = @"UnityAdsStorage-";
 NSString *const kUnityServicesWebviewBranchInfoDictionaryKey = @"UADSWebviewBranch";
 NSString *const kUnityServicesWebviewConfigInfoDictionaryKey = @"UADSWebviewConfig";
-NSString *const kUnityServicesVersionName = @"4.5.0";
+NSString *const kUnityServicesVersionName = @"4.6.0";
 NSString *const kUnityServicesFlavorDebug = @"debug";
 NSString *const kUnityServicesFlavorRelease = @"release";
 NSString *const kChinaIsoAlpha2Code = @"CN";
 NSString *const kChinaIsoAlpha3Code = @"CHN";
-int const kUnityServicesVersionCode = 4500;
+int const kUnityServicesVersionCode = 4600;
 
 @implementation USRVSdkProperties
 
@@ -63,6 +64,10 @@ static dispatch_queue_t queue;
 }
 
 + (InitializationState)getCurrentInitializationState {
+    UADSServiceProvider *provider = UADSServiceProviderContainer.sharedInstance.serviceProvider;
+    if ([provider.configurationStorage.currentSessionExperiments isSwiftInitFlowEnabled]) {
+        return [provider.objBridge currentState];
+    }
     return currentInitializeState;
 }
 

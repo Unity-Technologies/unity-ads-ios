@@ -51,8 +51,8 @@ extern NSString * uads_configurationErrorTypeToString(UADSConfigurationLoaderErr
         errorCompletion(uads_requestIsNotCreatedLoaderError);
         return;
     }
-
     NSData *responseData = [request makeRequest];
+  
     NSError *error = [request error];
 
     if (error) {

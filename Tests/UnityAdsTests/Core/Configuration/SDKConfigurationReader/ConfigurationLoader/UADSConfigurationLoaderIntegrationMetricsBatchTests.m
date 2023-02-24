@@ -27,7 +27,7 @@
                    withExpectedHostHame: self.expectedHostName
                      andExpectedQueries: nil];
 
-    [self validateCreateRequestCalledNumberOfTimes: 3];
+    [self validateCreateRequestCalledNumberOfTimes: 2];
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];
     UADSMetric *configFailureMetric = [self.deviceInfoTester configLatencyFailureMetricWithReason: kUADSConfigurationLoaderParsingError];
     UADSMetric *privacyFailureMetric = [self.deviceInfoTester privacyRequestFailureWithReason: kUADSPrivacyLoaderParsingError];
@@ -35,8 +35,7 @@
          [privacyFailureMetric updatedWithValue: @(0)],
          self.deviceInfoTester.infoCollectionLatencyMetrics,
          self.deviceInfoTester.infoCompressionLatencyMetrics,
-         [configFailureMetric updatedWithValue: @(0)],
-         self.deviceInfoTester.emergencyOffMetrics
+         [configFailureMetric updatedWithValue: @(0)]
     ]];
 }
 

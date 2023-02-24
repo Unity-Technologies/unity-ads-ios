@@ -15,6 +15,10 @@ typedef id<UADSWebViewInvoker> Invoker;
     });
 }
 
++ (UADSEventHandlerType)moduleType {
+    return kUADSEventHandlerTypeLoadModule;
+}
+
 + (instancetype)createDefaultModule {
     int timeout = self.configuration.webViewTimeout / 1000;
     Invoker basicInvoker = [UADSWebViewInvokerImp newWithWaitingTime: timeout];
@@ -24,7 +28,7 @@ typedef id<UADSWebViewInvoker> Invoker;
                                                        andNotificationCenter    : center];
 
     return [self newWithInvoker: bufferDecorator
-                andEventHandler: [UADSEventHandlerBase newDefaultWithType: kUADSEventHandlerTypeLoadModule]
+                andEventHandler: [UADSEventHandlerBase newDefaultWithType: self.moduleType]
                    timerFactory: [UADSTimerFactoryBase new]];
 }
 

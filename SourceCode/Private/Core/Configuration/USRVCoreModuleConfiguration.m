@@ -12,7 +12,7 @@
 #import "USRVInitializationNotificationCenter.h"
 #import "USRVSDKMetrics.h"
 #import "USRVInitializeStateCreate.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @implementation USRVCoreModuleConfiguration
 
@@ -59,7 +59,7 @@
 }
 
 - (BOOL)initErrorState: (USRVConfiguration *)configuration code: (UADSErrorState)stateCode message: (NSString *)message {
-    [UADSServiceProvider.sharedInstance.configurationSaver saveConfiguration: configuration];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.configurationSaver saveConfiguration: configuration];
     [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail: @"Unity Ads SDK failed to initialize"
                                                                                   code: stateCode];
 

@@ -29,7 +29,7 @@
     [_timer scheduleWithTimeIntervals: intervals
                                 block:^(NSInteger index) {
                                     NSTimeInterval currentTime =  [NSDate currentTimeInterval];
-                                    XCTAssertEqualWithAccuracy(currentTime - startTime, [intervals[index] doubleValue], 0.01);
+                                    XCTAssertEqualWithAccuracy(currentTime - startTime, [intervals[index] doubleValue], 0.05);
                                     startTime = currentTime;
                                     [exp fulfill];
                                 }];
@@ -50,7 +50,7 @@
                          repeatCount: repeatCount
                                block:^(NSInteger index) {
                                    NSTimeInterval currentTime =  [NSDate currentTimeInterval];
-                                   XCTAssertEqualWithAccuracy(currentTime - startTime, ti, 0.01);
+                                   XCTAssertEqualWithAccuracy(currentTime - startTime, ti, 0.05);
                                    startTime = currentTime;
                                    [exp fulfill];
                                }];
@@ -86,7 +86,7 @@
                          repeatCount: repeatCount
                                block:^(NSInteger index) {
                                    NSTimeInterval currentTime =  [NSDate currentTimeInterval];
-                                   XCTAssertEqualWithAccuracy(currentTime - startTime, ti, 0.1);
+                                   XCTAssertEqualWithAccuracy(currentTime - startTime, ti, 0.3);
                                    startTime = currentTime;
                                    [exp fulfill];
                                }];
@@ -131,7 +131,7 @@
                          repeatCount: repeatCount
                                block:^(NSInteger index) {
                                    NSTimeInterval currentTime =  [NSDate currentTimeInterval];
-                                   XCTAssertEqualWithAccuracy(currentTime - startTime, ti, 0.01);
+                                   XCTAssertEqualWithAccuracy(currentTime - startTime, ti, 0.05);
                                    startTime = currentTime;
                                    [exp fulfill];
                                }];

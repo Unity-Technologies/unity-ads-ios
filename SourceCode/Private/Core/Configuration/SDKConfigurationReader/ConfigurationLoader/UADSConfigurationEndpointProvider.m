@@ -7,7 +7,11 @@
 NSString *const kUnityServicesConfigVersionKey = @"UnityAdsConfigVersion";
 
 NSString *const kDefaultConfigVersion = @"configv2";
-NSString *const kChinaConfigHostNameBase = @"unityads.unitychina.cn";
+/**
+ * kChinaConfigHostName is Base64 Encoded to remove
+ * direct links to China country code endpoints within the code
+ */
+NSString *const kChinaConfigHostNameBase = @"dW5pdHlhZHMudW5pdHljaGluYS5jbg==";
 NSString *const kDefaultConfigHostNameBase = @"unityads.unity3d.com";
 
 
@@ -42,7 +46,11 @@ NSString *const kDefaultConfigHostNameBase = @"unityads.unity3d.com";
 }
 
 - (NSString *)configHostName {
-    return self.isChina ? kChinaConfigHostNameBase : kDefaultConfigHostNameBase;
+    if (self.isChina) {
+        NSData *encoded = [[NSData alloc] initWithBase64EncodedString:kChinaConfigHostNameBase options:0];
+        return [[NSString alloc] initWithData:encoded encoding:NSUTF8StringEncoding];
+    }
+    return kDefaultConfigHostNameBase;
 }
 
 - (BOOL)isChina {

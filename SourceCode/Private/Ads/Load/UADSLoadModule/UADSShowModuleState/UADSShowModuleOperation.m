@@ -6,6 +6,10 @@
     return @"show";
 }
 
+- (nonnull NSString *)className {
+    return kWebViewClassName;
+}
+
 - (NSDictionary *)dictionary {
     return @{
         kUADSOptionsDictionaryKey: self.options.dictionary,

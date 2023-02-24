@@ -8,7 +8,8 @@ final class SDKStateStorage: GenericMediator<UResult<Void>>,
                              InitializationStateSubject,
                              MetricsSenderBatchConditionSubject,
                              UnityAdsConfigurationProvider,
-                             UnityAdsLocalConfigurationLoader {
+                             UnityAdsLocalConfigurationLoader,
+                             RetriesInfoStorage {
 
     typealias ConfigProvider = UnityAdsConfigurationProvider &
                                UnityAdsLocalConfigurationLoader &
@@ -36,6 +37,7 @@ final class SDKStateStorage: GenericMediator<UResult<Void>>,
     private let privacyStorage = PrivacyStateStorage()
 
     private(set) var configProvider: ConfigProvider
+    let retriesInfoStorage: RetriesInfoWriter & RetriesInfoReader = RetriesInfoStorageBase()
 
     init(configProvider: ConfigProvider) {
         self.configProvider = configProvider
@@ -96,5 +98,15 @@ final class PrivacyStateStorage: GenericMediator<UResult<PrivacyResponse>>,
     func save(response: PrivacyResponse) {
         privacyResponse = response
         notifyObservers(with: .success(privacyResponse))
+    }
+}
+
+extension SDKStateStorage {
+    func retryInfo() -> [String: String] {
+        retriesInfoStorage.retryInfo()
+    }
+
+    func set(retried: Int, task: RetriableTask) {
+        retriesInfoStorage.set(retried: retried, task: task)
     }
 }

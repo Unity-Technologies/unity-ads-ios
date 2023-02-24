@@ -21,7 +21,7 @@
 
 - (void)test_contains_default_device_info {
     [self.tester commitUserDefaultsTestData];
-    NSArray *allKeys = [self.tester.expectedKeysFromDefaultInfo arrayByAddingObjectsFromArray:  @[UADSJsonStorageKeyNames.userNonBehavioralFlagKey]];
+    NSArray *allKeys = self.tester.expectedKeysFromDefaultInfo;
 
     [self.tester validateDataContains: [self getDataFromSut]
                               allKeys: allKeys];
@@ -69,13 +69,6 @@
     [self validateMetrics: @[
          self.tester.infoCollectionLatencyMetrics
     ]];
-}
-
-- (id<UADSPrivacyConfig>)privacyConfig {
-    UADSFactoryConfigMock *config =  [UADSFactoryConfigMock new];
-
-    config.isPrivacyRequestEnabled = true;
-    return config;
 }
 
 - (BOOL)isDeviceInfoReaderExtended {

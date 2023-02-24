@@ -32,8 +32,10 @@ final class SDKInitializerBase: SDKInitializer {
     func initialize(with config: SDKInitializerConfig, completion: @escaping ResultClosure<Void>) {
         queue.sync { startInitialization(with: config, completion: completion) }
     }
+}
 
-    private func startInitialization(with config: SDKInitializerConfig, completion: @escaping ResultClosure<Void>) {
+private extension SDKInitializerBase {
+    func startInitialization(with config: SDKInitializerConfig, completion: @escaping ResultClosure<Void>) {
         completions = completions.appended(completion)
         switch state {
         case .notInitialized:
@@ -48,24 +50,24 @@ final class SDKInitializerBase: SDKInitializer {
 
     }
 
-    private func changeStatusAndStartTheTask(config: SDKInitializerConfig) {
+    func changeStatusAndStartTheTask(config: SDKInitializerConfig) {
         setInProgress(for: config)
         startTask()
     }
 
-    private func setInProgress(for config: SDKInitializerConfig) {
+    func setInProgress(for config: SDKInitializerConfig) {
         initConfig = config
         state = .inProcess
     }
 
-    private func startTask() {
+    func startTask() {
         self.task.start {[weak self] result in
             self?.processResult(result)
             self?.notifySavedCompletionsAndClean(with: result)
         }
     }
 
-    private func processResult(_ result: UResult<Void>) {
+    func processResult(_ result: UResult<Void>) {
         queue.sync {
             result.do({ state = .initialized })
                   .onFailure({ state = .failed($0) })
@@ -73,7 +75,7 @@ final class SDKInitializerBase: SDKInitializer {
         }
     }
 
-    private func notifySavedCompletionsAndClean(with result: UResult<Void>) {
+    func notifySavedCompletionsAndClean(with result: UResult<Void>) {
         queue.async {[weak self] in
             self?.completions.forEach({ $0(result) })
             self?.completions = []

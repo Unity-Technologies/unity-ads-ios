@@ -1,6 +1,7 @@
 import Foundation
 
 final class InitializationTaskFactoryStrategy: TaskFactory {
+    typealias SettingsProvider =  InitializationTaskFactoryBase.SettingsProvider
     private let factoryBase: InitializationTaskFactoryBase
 
     init(downloaderBuilder: WebViewDownloadBuilder,
@@ -8,14 +9,14 @@ final class InitializationTaskFactoryStrategy: TaskFactory {
          sdkStateStorage: SDKStateStorage,
          performanceMeasurer: PerformanceMeasurer<String>,
          stateFactoryObjc: USRVInitializeStateFactory = .init(),
-         retriesInfoWriter: RetriesInfoWriter) {
+         settingsProvider: SettingsProvider) {
 
         self.factoryBase = .init(downloaderBuilder: downloaderBuilder,
                                  metricSenderProvider: metricSenderProvider,
                                  sdkStateStorage: sdkStateStorage,
                                  performanceMeasurer: performanceMeasurer,
                                  stateFactoryObjc: stateFactoryObjc,
-                                 retriesInfoWriter: retriesInfoWriter)
+                                 settingsProvider: settingsProvider)
     }
 
     func task(of type: InitTaskCategory) -> Task {

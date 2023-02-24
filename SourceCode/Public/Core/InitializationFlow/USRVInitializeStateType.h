@@ -16,6 +16,7 @@ typedef NS_ENUM (NSInteger, USRVInitializeStateType) {
 @protocol USRVInitializeTask <NSObject>
 - (void)startWithCompletion:(void (^)(void))completion error:(void (^)(NSError *))error;
 - (NSString *)systemName;
+- (NSInteger)retryCount;
 @end
 
 NS_ASSUME_NONNULL_END

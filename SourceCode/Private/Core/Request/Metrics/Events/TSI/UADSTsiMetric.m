@@ -62,12 +62,6 @@
                         tags: tags];
 }
 
-+ (instancetype)newEmergencySwitchOff {
-    return [self newWithName: @"native_emergency_switch_off"
-                       value: nil
-                        tags: nil];
-}
-
 + (instancetype)newDeviceInfoCollectionLatency: (NSNumber *)value {
     return [self newWithName: @"native_device_info_collection_latency"
                        value: value

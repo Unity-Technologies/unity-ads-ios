@@ -32,9 +32,7 @@ static NSString* kLastQueryInfoRequestId = @"0";
 - (instancetype)initWithEventSender: (id<UADSWebViewEventSender>)eventSender {
     SUPER_INIT
     
-    id<GMAQueryInfoReader> queryInfoReader = [self queryInfoReader];
-    id<GMASignalService> signalReader = [self signalReaderWithQueryInfo:queryInfoReader];
-    GMABaseSCARSignalsReader *signalsService = [GMABaseSCARSignalsReader newWithSignalService:signalReader];
+    id<GMASCARSignalService> signalsService = self.rawSignalService;
     GMASCARSignalsReaderDecorator *encoder = [GMASCARSignalsReaderDecorator newWithSignalService: signalsService];
     
     id<UADSErrorHandler> errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
@@ -48,6 +46,11 @@ static NSString* kLastQueryInfoRequestId = @"0";
     self.loaderStrategy = strategy;
     
     return self;
+}
+- (id<GMASCARSignalService> _Nullable)rawSignalService {
+    id<GMAQueryInfoReader> queryInfoReader = [self queryInfoReader];
+    id<GMASignalService> signalReader = [self signalReaderWithQueryInfo:queryInfoReader];
+    return [GMABaseSCARSignalsReader newWithSignalService:signalReader];
 }
 
 - (id<GMAQueryInfoReader>)queryInfoReader {

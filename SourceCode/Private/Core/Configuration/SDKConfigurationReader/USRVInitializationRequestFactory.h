@@ -4,7 +4,6 @@
 #import "USRVBodyBase64GzipCompressor.h"
 #import "UADSBaseURLBuilder.h"
 #import "UADSClientConfig.h"
-#import "UADSPIIDataSelector.h"
 #import "USRVWebRequestFactory.h"
 #import "UADSCurrentTimestamp.h"
 

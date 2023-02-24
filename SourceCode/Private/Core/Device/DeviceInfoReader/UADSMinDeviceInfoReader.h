@@ -8,7 +8,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UADSMinDeviceInfoReader : NSObject<UADSDeviceInfoReader>
 + (id<UADSDeviceInfoReader>)newWithIDFIReader: (id<UADSDeviceIDFIReader>)idfiReader
                           userContainerReader: (id<UADSPIITrackingStatusReader>)userContainerReader
-                        withUserNonBehavioral: (BOOL)includeUserNonBehavioral
                           gameSessionIdReader: (id<UADSGameSessionIdReader>)gameSessionIdReader
                                  clientConfig: (id<UADSClientConfig>)clientConfig;
 @end

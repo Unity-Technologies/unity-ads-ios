@@ -22,34 +22,11 @@ class SDKInitializerSequentialFlowIntegrationTests: SDKInitializerLegacyIntegrat
             .init(data: configMockFactory.webViewFakeData)
         ]
 
-        var sdkMetrics: [SDKMetricType] =  [
-            .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
-            .legacy(.missed(.token)),
-            .legacy(.missed(.stateID))
-        ]
-
-        let sdkPerformanceMetrics: [SDKMetricType] = [
-            .systemPerformance(.success(.compression)),
-            .requestPerformance(.success(.privacy)),
-            .requestPerformance(.success(.config)),
-            .taskPerformance(.success(.loadLocalConfig)),
-            .taskPerformance(.success(.privacyFetch)),
-            .taskPerformance(.success(.configFetch)),
-            .taskPerformance(.success(.webViewDownload)),
-            .taskPerformance(.success(.webViewCreate)),
-            .taskPerformance(.success(.initModules)),
-            .taskPerformance(.success(.reset)),
-            .taskPerformance(.success(.complete)),
-            .taskPerformance(.success(.initializer))
-        ]
-
-        sdkMetrics += sdkPerformanceMetrics
         let testConfig = TestConfig(responses: responses,
                                     sdkConfig: expectedConfig,
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
-                                    metrics: sdkMetrics,
+                                    metrics: ExpectedMetrics.SequentialFlow.HappyPath,
                                     expectDiagnostic: true)
         try executeTest(with: testConfig,
                         resultValidation: { XCTAssertSuccess($0) },
@@ -262,7 +239,7 @@ class SDKInitializerSequentialFlowIntegrationTests: SDKInitializerLegacyIntegrat
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    configRetried: true,
+                                    configRetried: expectedConfig.network.request.retry.maxCount,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -357,7 +334,7 @@ class SDKInitializerSequentialFlowIntegrationTests: SDKInitializerLegacyIntegrat
                                     expectedNumberOfRequests: expectedNumberOfRequests,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    webviewRetried: true,
+                                    webviewRetried: webViewRetries,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -534,4 +511,27 @@ class SDKInitializerSequentialFlowIntegrationTests: SDKInitializerLegacyIntegrat
         })
     }
 
+    func test_webview_download_skipped_when_native_webview_cache_is_on() throws {
+        let expectedConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments, currentExperiments: ["nwc": true])
+        let returnedConfigData = try expectedConfig.legacy.convertIntoDictionary().serializedData()
+        let privacyData = returnedConfigData
+        let responses: [URLProtocolResponseStub] = [
+            .init(data: privacyData),
+            .init(data: returnedConfigData)
+        ]
+
+        let testConfig = TestConfig(responses: responses,
+                                    sdkConfig: expectedConfig,
+                                    expectedNumberOfRequests: responses.count,
+                                    multithreadCount: 1,
+                                    metrics: ExpectedMetrics.SequentialFlow.HappyPath,
+                                    expectDiagnostic: true)
+        try executeTest(with: testConfig,
+                        resultValidation: { XCTAssertSuccess($0) },
+                        final: {
+
+            XCTAssertEqual(self.tester.sdkState, .initialized)
+        })
+
+    }
 }

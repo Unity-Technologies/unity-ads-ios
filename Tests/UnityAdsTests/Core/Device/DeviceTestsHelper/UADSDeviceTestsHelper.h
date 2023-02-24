@@ -35,13 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
                   andNonBehavioral: (BOOL)flag;
 - (void)validateDataContains: (NSDictionary *)data allKeys: (NSArray *)keys;
 - (NSDictionary *)          piiDecisionContentData;
-- (NSDictionary *)piiDecisionContentDataWithUserBehavioral: (BOOL)flag;
 - (void)saveExpectedContentToJSONStorage: (NSDictionary *)content;
-- (NSArray *)expectedPrivacyModeKeysWitNonBehavioral: (BOOL)nonBehavioral;
+- (NSArray *)expectedPrivacyModeKey;
 - (void)setSMPPrivacyMode: (UADSPrivacyMode)mode;
 - (NSArray <UADSMetric *> *)missedDataMetrics;
 - (UADSMetric *)            tsiNoSessionIDMetrics;
-- (UADSMetric *)            emergencyOffMetrics;
 - (UADSMetric *)            infoCollectionLatencyMetrics;
 - (UADSMetric *)            infoCompressionLatencyMetrics;
 - (UADSMetric *)            privacyRequestLatencyMetrics;

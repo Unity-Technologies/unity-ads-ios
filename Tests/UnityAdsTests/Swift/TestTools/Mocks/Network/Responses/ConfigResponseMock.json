@@ -1,0 +1,743 @@
+{
+  "url": "https://config.unityads.unity3d.com/webview/4.0.0/7db1f05a333b5b396b7b9e2e90b940c34fb40a3a/release/index.html",
+  "hash": "5103d0b41c74fc07380b481418fd3efd51e55c1573bce4ea6af5f62c7552d440",
+  "version": "7db1f05a333b5b396b7b9e2e90b940c34fb40a3a",
+  "dwu": false,
+  "sdkv": "4.0.0",
+  "murl": "https://sdk-diagnostics.prd.mz.internal.unity3d.com/v2/metrics",
+  "msr": 5,
+  "omn": "Unity3d",
+  "omv": "1.3.0",
+  "sto": 30000,
+  "ntwd": true,
+  "mbs": 1,
+  "src": "srvc",
+  "expo": {
+    "fff": {
+      "value": "false"
+    },
+    "mbs": {
+      "value": "1"
+    },
+    "ntwd": {
+      "value": "true"
+    },
+    "scar_bm": {
+      "value": "laz"
+    },
+    "sto": {
+      "value": "30000"
+    },
+    "tsi": {
+      "value": "true"
+    },
+    "tsi_loadv5": {
+      "value": "true"
+    },
+    "tsi_p": {
+      "value": "true"
+    },
+    "tsi_upii": {
+      "value": "false"
+    }
+  },
+  "SRR": {
+    "enabled": true,
+    "assetCaching": "forced",
+    "projectId": "0a379f5a-c4fa-4f7f-a5c1-e49fd3dd63d4",
+    "placements": [
+      {
+        "id": "iOS_Interstitial",
+        "name": "iOS Interstitial",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Interstitial_5ea5041d_ecf9_4cdc_acdb_1faa8a29044f",
+        "name": "iOS_Interstitial_5ea5041d_ecf9_4cdc_acdb_1faa8a29044f",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Interstitial_ae8bdfd2_c705_4c44_bc09_4ba3357e5584",
+        "name": "iOS_Interstitial_ae8bdfd2_c705_4c44_bc09_4ba3357e5584",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial",
+        "placementType": "bidding",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Interstitial_5dcc4329_6f77_49e1_9c60_0f81f48495b5",
+        "name": "iOS_Interstitial_5dcc4329_6f77_49e1_9c60_0f81f48495b5",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Interstitial_5352f1a1_bcd2_4522_819d_f14f9321c82b",
+        "name": "iOS_Interstitial_5352f1a1_bcd2_4522_819d_f14f9321c82b",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Interstitial_c57cc2b2_c059_40d9_892a_f7dd93841cb1",
+        "name": "iOS_Interstitial_c57cc2b2_c059_40d9_892a_f7dd93841cb1",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Rewarded",
+        "name": "iOS Rewarded",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Rewarded",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Rewarded_21727e12_7aa4_44f5_af06_f87ab00a4938",
+        "name": "iOS_Rewarded_21727e12_7aa4_44f5_af06_f87ab00a4938",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Rewarded",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Rewarded_6c05b7ec_d85d_4fd7_9bfd_301500c39efb",
+        "name": "iOS_Rewarded_6c05b7ec_d85d_4fd7_9bfd_301500c39efb",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Rewarded",
+        "placementType": "bidding",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Rewarded_2ce851c6_93ac_41e9_b105_59c5029aa8ea",
+        "name": "iOS_Rewarded_2ce851c6_93ac_41e9_b105_59c5029aa8ea",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Rewarded",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Rewarded_d31e779f_99a9_4e9d_b484_5dacd1e3e76c",
+        "name": "iOS_Rewarded_d31e779f_99a9_4e9d_b484_5dacd1e3e76c",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Rewarded",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Rewarded_93636b95_10b3_4a3d_9300_16cd9c7a2cef",
+        "name": "iOS_Rewarded_93636b95_10b3_4a3d_9300_16cd9c7a2cef",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Rewarded",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Interstitial_1",
+        "name": "iOS Interstitial 1",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Interstitial_1",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Banner",
+        "name": "iOS Banner",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "BANNER"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Banner",
+        "placementType": "waterfall",
+        "adFormat": "banner",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Banner_d86d28b2_f2e2_424a_97b6_e37711ad82fd",
+        "name": "iOS_Banner_d86d28b2_f2e2_424a_97b6_e37711ad82fd",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "BANNER"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Banner",
+        "placementType": "waterfall",
+        "adFormat": "banner",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Banner_701a4ce4_b194_404c_8270_d4df5209267b",
+        "name": "iOS_Banner_701a4ce4_b194_404c_8270_d4df5209267b",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "BANNER"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Banner",
+        "placementType": "waterfall",
+        "adFormat": "banner",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Banner_ca2a3b08_efbd_434b_9cab_4cd2b8aaafee",
+        "name": "iOS_Banner_ca2a3b08_efbd_434b_9cab_4cd2b8aaafee",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "BANNER"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Banner",
+        "placementType": "waterfall",
+        "adFormat": "banner",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "iOS_Banner_b0d92b02_0cf1_4549_b6e1_e01437ddea30",
+        "name": "iOS_Banner_b0d92b02_0cf1_4549_b6e1_e01437ddea30",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "BANNER"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "iOS_Banner",
+        "placementType": "waterfall",
+        "adFormat": "banner",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "defaultVideoAndPictureZone",
+        "name": "Placement",
+        "default": true,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 3,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "defaultVideoAndPictureZone",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "incentivizedZone",
+        "name": "Placement",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "incentivizedZone",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "rewardedVideoZone",
+        "name": "rewardedVideoZone",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "rewardedVideoZone",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "rewardedVideo",
+        "name": "Rewarded Video",
+        "default": false,
+        "allowSkip": false,
+        "disableBackButton": true,
+        "muteVideo": true,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO"
+        ],
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "rewardedVideo",
+        "placementType": "waterfall",
+        "adFormat": "rewarded",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "video",
+        "name": "Video",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "MRAID",
+          "VIDEO",
+          "DISPLAY"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "video",
+        "placementType": "waterfall",
+        "adFormat": "interstitial",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      },
+      {
+        "id": "bannerads",
+        "name": "bannerads",
+        "default": false,
+        "allowSkip": true,
+        "disableBackButton": true,
+        "muteVideo": false,
+        "useDeviceOrientationForVideo": false,
+        "adTypes": [
+          "BANNER"
+        ],
+        "skipInSeconds": 5,
+        "skipEndCardOnClose": false,
+        "disableVideoControlsFade": false,
+        "auctionType": "cpm",
+        "useCloseIconInsteadOfSkipIcon": false,
+        "banner": {
+          "refreshRate": 30
+        },
+        "adUnitId": "bannerads",
+        "placementType": "waterfall",
+        "adFormat": "banner",
+        "closeTimerDuration": 5,
+        "iosEligible": true
+      }
+    ],
+    "organizationId": "2475366",
+    "developerId": 11460,
+    "properties": "teAWwbs+P7lbw8bcIzDCzuxw0dVW2wJ7qyprUc+udQgqxFQVDchQ4BZswnFnXlc=",
+    "platform": "ios",
+    "analytics": false,
+    "test": true,
+    "abGroup": 10,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOjI0MSwiYXBwTGV2ZWxDb3BwYSI6ZmFsc2UsImF0dCI6MCwiYXVjIjo3OSwiYXVpIjoyMTEsImF6cCI6IjBhMzc5ZjVhLWM0ZmEtNGY3Zi1hNWMxLWU0OWZkM2RkNjNkNCIsImNhbGN1bGF0ZWRDb3BwYSI6ZmFsc2UsImNvbnNlbnQiOmZhbHNlLCJjb250ZXh0dWFsT25seSI6ZmFsc2UsImNwaSI6MTM0LCJjcmVhdGVkIjoxNjc0NzUzMjkzMDAwLCJkbHQiOjAsImR0IjowLCJldHQiOlsyMTQ3NDgzNjgwLDc4NzUsMTAzNjQsNzMxMCwxMDcwMyw5ODU3LDEwNzYxLDg3MTcsMTA3OTIsOTIxOCw5MTg0LDg1NTIsMTAwNDQsOTIyNCw3MzQ2LDEwNzE2LDEwNzYyXSwiZXhwIjoxNjc2NDc1NDQ1LCJpYXAiOjM0LCJpYXQiOjE2NzUyNjU4NDUsImlnIjoiWERqVklmZlVlWkk1VnZ1c1lGZEtwS1ZQQTJqQ2Mwc3ZZa001eU1MYmdISmZELzlLbUEvbXVuZlpISVJrM0JQWk45Nlg1QT09IiwiaXIiOiJPSjlqYWl6OEtOL2ZMZ0NjMmlxb0JRbWV5Q3JxV0V3NnQ4ek53MEV4STFGcDRQYTBUSjVxMVM3UjhZTkhGZzBaMCt6YVZRL1RYenZ2YTR0M3BKS21wdz09IiwiaXNzIjoiYWRzLXNkay1jb25maWd1cmF0aW9uLnVuaXR5YWRzLnVuaXR5M2QuY29tIiwibGVnYWxUZXJyaXRvcnkiOjAsImx0diI6MTQ5LCJtaXhlZCI6ZmFsc2UsInBybyI6MjUzLCJwcm94aWVkIjpmYWxzZSwic3MiOiI3ZWZmNWZlNC01NjM2LTQ0NTktYjcxZS1lYjVmNGNhZDEwOWYiLCJzdWIiOiJVWHJuWHNPM1ZQczFsanlFbWd1VzhIV2VGVklzbFFaNnhBY0VWYWpDVHlieExPUVp1WjZkYXNUV0tiNHFQZzEvY3c0cnpnPT0iLCJ0Z3QiOjE1MywidmciOiIrMnNUN2M3WkJHc3NHQnRHVk5hdW91cXMrYjlGZ1p6YnVWVTNoeno3a3h0WlVRT1RUQllaR0VjREFYeEtqdEhsOUtSSWV3PT0iLCJ2ciI6InAyRUNrYUJrZjZlYzVEb1U1SkVrUDZPdFVtbkFZY3pLdkJyUit3SW8yWVhiNkRLeUJXeE00aWpWem4raFFTTkdqQ0hLTmNmRlpWcWlRYWMzbXQzVXZnPT0iLCJ4cHIiOjIyMn0.cRStJX5U0KGkFvoUzY6Hvi0Oxql3RT10msYD3oo5FvE",
+    "country": "CA",
+    "subdivision": "QC",
+    "gameSessionId": "7eff5fe4-5636-4459-b71e-eb5f4cad109f",
+    "disableAdUnitExperiments": false,
+    "ageGateLimit": 0,
+    "coppaCompliant": false,
+    "gamePrivacy": {
+      "method": "default"
+    },
+    "gdprEnabled": false,
+    "legalFramework": "none",
+    "optOutEnabled": false,
+    "optOutRecorded": false,
+    "srcPayoutType": "cpm",
+    "shouldTokenRefresh": true,
+    "experimentation": {
+      "bannerAdUnit": "true",
+      "bannerFix": "excluded",
+      "ctaAdTextAllowList": "[\"Shop Now\"]",
+      "deepLinkDspAllowList": "[9156, 9113, 9112, 9155, 9032, 9710, 9606, 9604, 9603, 9644, 9651, 9652, 9711, 9659, 9655, 9657, 9711, 9269, 9330, 9467, 9467, 9257, 9253, 9673, 9272, 9690, 9215, 9242, 9437, 9612, 9230, 9584, 9585, 9172, 9173, 9723, 1024, 1026, 1008, 1002, 1020, 9125, 9126, 9127, 9201, 9202, 9203, 9204, 9205, 9206, 9249, 9543, 9170, 9250, 9530, 9175, 9073, 9077, 9084, 9085, 9103, 9109, 9110, 9451, 9494, 9495, 9496, 9497, 9498, 9499, 9676, 9678, 9739, 9557, 9734, 9566, 9567, 9736, 9735, 9738, 9568]",
+      "experimentTracing": "false",
+      "forceSentry": "{\"gameIds\":[\"4826867\", \"3383973\", \"3383972\", \"4073479\", \"3827913\", \"3663283\", \"3144640\"]}",
+      "fullScreenCtaExperimentDspList": "[9056, 9061, 9062, 9479, 9480, 9481, 9392, 9393, 9401, 9032, 9155, 9112, 9125, 9628, 9078, 9425, 9685, 9686, 9658, 9242, 9230, 9372, 9380, 9242, 9230, 9437, 9215, 9612, 9253, 9257, 9673, 9716, 9717, 9718, 9719, 9721, 9034, 9375, 9408, 9500, 9073, 9084, 9494, 9496, 9138, 9139, 9017, 9086, 9087, 9268, 9190, 9191, 9310, 9691, 9584, 9585, 9655, 9657, 9659, 9409, 9603, 9604, 9386, 9387, 9570, 9597, 9170, 9249, 9357, 9734, 9735]",
+      "initializeScar": "true",
+      "isKingGameForShowApi": "excluded",
+      "isMoreVisibleExp": "true",
+      "loadLimitFilledPlacements": "5",
+      "loadv5": "excluded",
+      "loadv5Throttling": "rel.7_fp",
+      "lv5Disable": "excluded",
+      "lv5Global": "excluded",
+      "lv5King": "excluded",
+      "lv5UsRollout": "excluded",
+      "machine": "false",
+      "noFillOnMultiLoad": "true",
+      "noGmaEligCheck": "true",
+      "noSplashScreen": "true",
+      "placementsV2Exp": "true",
+      "playableMraidV3": "true",
+      "rrtimu": "-1",
+      "sendShowConsentEvent": "false",
+      "sentry": "false",
+      "shouldInvalidateOnlyCometCampaigns": "true",
+      "shouldResetSessionAndVideoState": "true",
+      "showInvalidationPending": "true",
+      "simple_gameid_test": "nomatch",
+      "staFeatureDspList": "[9078, 9056, 9061, 9062, 9479, 9480, 9481, 9392, 9393, 9401, 9425, 9685, 9686, 9658, 9201, 9205, 9408, 9500, 9073, 9084, 9494, 9496, 9242, 9230, 9437, 9215, 9612, 9253, 9257, 9673, 9716, 9717, 9718, 9719, 9721, 9032, 9155, 9112, 9034, 9375, 9017, 9086, 9087, 9268, 9584, 9585, 9655, 9657, 9659, 9127, 9617, 9125, 9628, 9409, 9021, 9382, 9386, 9387, 9170, 9249, 9357, 9734, 9735, 9045, 9083]",
+      "supportedContentTypes": "{\"comet/campaign\":true, \"programmatic/mraid\":true, \"programmatic/vast\": true, \"programmatic/static-interstitial\": true}",
+      "trackingWithPost": "true",
+      "triggerOnCloseInOpen": "true",
+      "useProgressiveLoad": "true",
+      "useScarWithReload": "false",
+      "useScarWithoutReload": "true",
+      "use_adunits": "false",
+      "volumeFix": "excluded"
+    },
+    "sdkFeatureFlags": {
+      "exampleApp": true
+    },
+    "hasTargets": true,
+    "spm": "None",
+    "pas": true,
+    "sdkv": 4500,
+    "first": true,
+    "unifiedAuctionResponse": "{\"auctionId\":\"1a686d76-d3d0-4f96-bf4a-43eb4ccea03a\",\"correlationId\":\"OCrKPWAhpH9SX6Pr6AWcqI\",\"preloadData\":{\"defaultVideoAndPictureZone\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial_1\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial_5352f1a1_bcd2_4522_819d_f14f9321c82b\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial_5dcc4329_6f77_49e1_9c60_0f81f48495b5\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial_5ea5041d_ecf9_4cdc_acdb_1faa8a29044f\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial_ae8bdfd2_c705_4c44_bc09_4ba3357e5584\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Interstitial_c57cc2b2_c059_40d9_892a_f7dd93841cb1\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Rewarded\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Rewarded_21727e12_7aa4_44f5_af06_f87ab00a4938\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Rewarded_2ce851c6_93ac_41e9_b105_59c5029aa8ea\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Rewarded_6c05b7ec_d85d_4fd7_9bfd_301500c39efb\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Rewarded_93636b95_10b3_4a3d_9300_16cd9c7a2cef\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"iOS_Rewarded_d31e779f_99a9_4e9d_b484_5dacd1e3e76c\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"incentivizedZone\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"rewardedVideo\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"rewardedVideoZone\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"},\"video\":{\"campaignAvailable\":true,\"dataIndex\":\"000000000000000000000000\"}},\"encryptedPreloadData\":{\"000000000000000000000000\":\"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\"}}\n",
+    "store": "GFoaMB8UtcMxj9KFS0SAQ3vQPJkxkfJeS28WOOGVrVuGzkVqyod2RCYny2mDT-fbD5Rvm95bSgcuFb6_jLJDfBeFCUvxMWcEO682_CJVl9OEX0lAUhqfIKlzq3zVUDGdz-tQQAY_BGxPukEuu1QEc4qkK4u-EKo9VZ0WPzUU4lMqKHsnyC2tPoeqxgraYKJb_t4dN0YgQzM3eQxx0Z3UR4ztpFopg-0nWo9DAcbc9AyDiV9SFdxViUrbiYtF4BlfI7iPWIA1-pd_mjBQ68jWszT27GX2pBuiu_R-IuSMVQmqxVEU7P3DROSCLsIw3SXGmpXpC0IgZR4nlLSohVQc6ABOCohGbb3H2fwxzN0tQfW7HqrSSMf2wbV9Ddhq9bibpTGgOy9XXZrk8F8MjthZxwdY7G-9VsTUF9dB8hEebNzWTvPJOpvCea851pGGT6KQkufzx8Ggpcvxie9kFzMiAQlW"
+  }
+}

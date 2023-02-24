@@ -1,32 +1,26 @@
 #import "UADSApiBannerListener.h"
 #import "USRVWebViewCallback.h"
-#import "UADSBannerViewManager.h"
+#import "UADSBannerLoadModule.h"
 
 @implementation UADSApiBannerListener
 
 + (void)WebViewExposed_sendLoadEvent: (NSString *)bannerAdId callback: (USRVWebViewCallback *)callback {
-    [[UADSBannerViewManager sharedInstance] triggerBannerDidLoad: bannerAdId];
+    [[UADSBannerLoadModule sharedInstance] sendAdLoadedForPlacementID:@"" andListenerID:bannerAdId];
     [callback invoke: nil];
 }
 
 + (void)WebViewExposed_sendClickEvent: (NSString *)bannerAdId callback: (USRVWebViewCallback *)callback {
-    [[UADSBannerViewManager sharedInstance] triggerBannerDidClick: bannerAdId];
+    [[UADSBannerLoadModule sharedInstance] sendClickEventForListenerID:bannerAdId];
     [callback invoke: nil];
 }
 
 + (void)WebViewExposed_sendLeaveApplicationEvent: (NSString *)bannerAdId callback: (USRVWebViewCallback *)callback {
-    [[UADSBannerViewManager sharedInstance] triggerBannerDidLeaveApplication: bannerAdId];
+    [[UADSBannerLoadModule sharedInstance] sendLeaveApplicationEventForListenerID:bannerAdId];
     [callback invoke: nil];
 }
 
 + (void)WebViewExposed_sendErrorEvent: (NSString *)bannerAdId code: (NSNumber *)code message: (NSString *)message callback: (USRVWebViewCallback *)callback {
-    UADSBannerError *error = [[UADSBannerError alloc] initWithCode: [code integerValue]
-                                                          userInfo: @{
-                                  NSLocalizedDescriptionKey: message
-    }];
-
-    [[UADSBannerViewManager sharedInstance] triggerBannerDidError: bannerAdId
-                                                            error: error];
+    [[UADSBannerLoadModule sharedInstance] sendAdFailedToLoadForPlacementID:@"" listenerID:bannerAdId message:message error: [code integerValue]];
     [callback invoke: nil];
 }
 

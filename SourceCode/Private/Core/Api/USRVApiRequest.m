@@ -11,7 +11,7 @@
 #import "UADSCommonNetworkErrorProxy.h"
 #import "UADSCorePresenceChecker.h"
 #import "NSDictionary+Headers.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @implementation USRVApiRequest
 static NSString *webRequestEventCategory = @"REQUEST";
@@ -208,7 +208,7 @@ static NSString *webRequestEventCategory = @"REQUEST";
 }
 
 + (UADSCommonNetworkProxy *)network {
-    return UADSServiceProvider.sharedInstance.objBridge.nativeNetworkLayer;
+    return UADSServiceProviderContainer.sharedInstance.serviceProvider.objBridge.nativeNetworkLayer;
 }
 
 @end

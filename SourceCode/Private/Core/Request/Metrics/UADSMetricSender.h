@@ -1,6 +1,7 @@
 #import "USRVSDKMetrics.h"
 #import "UADSConfigurationCRUDBase.h"
 #import "UADSPrivacyStorage.h"
+#import "UADSSharedSessionIdReader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)newWithConfigurationReader: (id<UADSConfigurationReader, UADSConfigurationMetricTagsReader>)configReader
                          andRequestFactory: (id<IUSRVWebRequestFactory>)factory
                              storageReader: (id<UADSJsonStorageReader>)storageReader
-                             privacyReader: (id<UADSPrivacyResponseReader>)privacyReader;
+                             privacyReader: (id<UADSPrivacyResponseReader>)privacyReader
+                     sharedSessionIdReader: (id<UADSSharedSessionIdReader>)sharedSessionIdReader;
 
 
 @end

@@ -22,6 +22,8 @@ typedef void (^USRVWebViewAsyncOperationCompletion)(USRVWebViewAsyncOperationSta
                      waitTime: (int)waitTime;
 
 - (void)execute: (USRVWebViewAsyncOperationCompletion)completion;
+
++ (void)signalLock;
 @end
 
 NS_ASSUME_NONNULL_END

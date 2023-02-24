@@ -36,7 +36,7 @@
            withExpectedCompressedKeys: (NSArray *)keys;
 - (void)validateCreateRequestCalledNumberOfTimes: (NSInteger)count;
 - (void)validateConfigWasSavedToPersistenceNumberOfTimes: (NSInteger)count;
-- (id<UADSClientConfig, UADSPrivacyConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments;
+- (id<UADSClientConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments;
 - (NSString *)                                   expectedHostName;
 - (id<UADSConfigurationLoader>)callSUTExpectingFailWithConfig: (id<UADSClientConfig>)config;
 - (void)callSUTExpectingSuccessWithConfig: (id<UADSClientConfig>)config;

@@ -1,6 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "USRVJsonUtilities.h"
-
+#import "XCTestCase+Convenience.h"
 @interface USRVJsonUtilities (Mock)
 + (void)setMockException: (NSException *)mockException;
 @end
@@ -8,15 +8,18 @@
 @implementation USRVJsonUtilities (Mock)
 
 static NSException * _mockException;
-
+static NSString *lockObject = @"lock";
 + (NSData *)_dataWithJSONObject: (id)obj options: (NSJSONWritingOptions)opt error: (NSError *_Nullable *)error {
-    if (_mockException) {
-        @throw _mockException;
-    } else {
-        return [NSJSONSerialization dataWithJSONObject: obj
-                                               options: opt
-                                                 error: error];
+    @synchronized (lockObject) {
+        if (_mockException) {
+            @throw _mockException;
+        } else {
+            return [NSJSONSerialization dataWithJSONObject: obj
+                                                   options: opt
+                                                     error: error];
+        }
     }
+  
 }
 
 + (void)setMockException: (NSException *)mockException {
@@ -34,6 +37,11 @@ static NSException * _mockException;
 - (void)setUp {
     [super setUp];
     [USRVJsonUtilities setMockException: nil];
+    [self resetUnityAds];
+}
+
+- (void)tearDown {
+    [self resetUnityAds];
 }
 
 - (void)testNilError {

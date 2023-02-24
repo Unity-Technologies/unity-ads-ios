@@ -115,6 +115,21 @@
     }
 }
 
++ (BOOL)loadRequest: (id)webView request:(NSURLRequest *)request {
+    SEL loadUrlSelector = NSSelectorFromString(@"loadRequest:");
+
+    if ([webView respondsToSelector: loadUrlSelector]) {
+        IMP loadUrlImp = [webView methodForSelector: loadUrlSelector];
+
+        if (loadUrlImp) {
+            void (*loadUrlFunc)(id, SEL, NSURLRequest *) = (void *)loadUrlImp;
+            loadUrlFunc(webView, loadUrlSelector, request);
+            return true;
+        }
+    }
+    return false;
+}
+
 + (BOOL)loadFileUrl: (id)webView url: (NSURL *)url allowReadAccess: (NSURL *)allowReadAccess {
     SEL loadFileUrlSelector = NSSelectorFromString(@"loadFileURL:allowingReadAccessToURL:");
 

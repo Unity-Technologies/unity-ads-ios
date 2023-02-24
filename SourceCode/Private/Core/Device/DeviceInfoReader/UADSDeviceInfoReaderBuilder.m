@@ -2,7 +2,6 @@
 #import "UADSDeviceInfoReaderWithStorageInfo.h"
 #import "UADSDeviceInfoReader.h"
 #import "UADSDeviceInfoReaderWithFilter.h"
-#import "UADSDeviceReaderWithPII.h"
 #import "UADSDeviceInfoReaderWithMetrics.h"
 #import "USRVStorageManager.h"
 #import "UADSDeviceIDFIReader.h"
@@ -29,8 +28,7 @@
     deviceInfoReader = [self addStorageDumpDecorator: deviceInfoReader];
 
     if (extendedReader) {
-        deviceInfoReader = [self addPIIDecorator: deviceInfoReader
-                                     usingConfig: self.clientConfig];
+        deviceInfoReader = [self addPIIDecorator: deviceInfoReader];
 
         deviceInfoReader = [self addMetrics: deviceInfoReader
                           usingMetricsSender: self.metricsSender
@@ -44,7 +42,6 @@
 - (id<UADSDeviceInfoReader>)minimalDeviceInfoReader {
     return [UADSMinDeviceInfoReader newWithIDFIReader: self.idfiReader
                                   userContainerReader: self.userStorageReader
-                                withUserNonBehavioral: self.clientConfig.isPrivacyRequestEnabled
                                   gameSessionIdReader: self.gameSessionIdReader
                                          clientConfig: self.clientConfig];
 }
@@ -80,19 +77,11 @@
     return [UADSDeviceInfoExcludeFieldsProvider defaultProvider];
 }
 
-- (id<UADSDeviceInfoReader>)addPIIDecorator: (id<UADSDeviceInfoReader>)original
-                                usingConfig: (id<UADSPrivacyConfig>)config {
-    if (config.isPrivacyRequestEnabled) {
+- (id<UADSDeviceInfoReader>)addPIIDecorator: (id<UADSDeviceInfoReader>)original {
         return [UADSDeviceInfoReaderWithPrivacy decorateOriginal: original
                                                withPrivacyReader: self.privacyReader
                                              withPIIDataProvider: [UADSPIIDataProviderBase new]
                                                 andUserContainer: self.userStorageReader];
-    }
-
-    return [UADSDeviceReaderWithPII newWithOriginal: original
-                                    andDataProvider: [UADSPIIDataProviderBase new]
-                                 andPIIDataSelector: [self dataSelectorWithConfig: config]
-                                     andJsonStorage: self.privateStorage];
 }
 
 - (id<UADSDeviceInfoReader>)addMetrics: (id<UADSDeviceInfoReader>)original
@@ -105,14 +94,6 @@
 
 - (id<UADSPIITrackingStatusReader>)userStorageReader {
     return [UADSPIITrackingStatusReaderBase newWithStorageReader: USRVJsonStorageAggregator.defaultAggregator];
-}
-
-- (id<UADSPIIDataSelector>)dataSelectorWithConfig: (id<UADSPrivacyConfig>)config {
-    UADSPIITrackingStatusReaderBase *statusReader =  [UADSPIITrackingStatusReaderBase newWithStorageReader: USRVJsonStorageAggregator.defaultAggregator];
-
-    return [UADSPIIDataSelectorBase newWithJsonStorage: self.privateStorage
-                                       andStatusReader: statusReader
-                                          andPIIConfig: config];
 }
 
 - (id<UADSJsonStorageReader>)privateStorage {

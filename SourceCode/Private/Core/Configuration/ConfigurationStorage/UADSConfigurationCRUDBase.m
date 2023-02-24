@@ -4,6 +4,8 @@
 #import "UADSServiceProviderProxy.h"
 #import "NSMutableDictionary+SafeOperations.h"
 
+NSString *const kMetricsContainerSessionTokenKey = @"sTkn";
+
 @interface UADSConfigurationCRUDBase ()
 @property (nonatomic, assign) BOOL localRead;
 @property (nonatomic, strong) USRVConfiguration *localConfig;
@@ -13,7 +15,7 @@
 @end
 
 @implementation UADSConfigurationCRUDBase
-
+@synthesize remoteConfig = _remoteConfig;
 - (instancetype)init {
     SUPER_INIT;
     self.syncQueue = dispatch_queue_create("com.dispatch.UADSConfigurationReaderBase", DISPATCH_QUEUE_SERIAL);
@@ -40,6 +42,20 @@
     }
 
     return [self localConfiguration];
+}
+
+- (USRVConfiguration *)remoteConfig {
+    __block USRVConfiguration *cfg;
+    dispatch_sync(self.syncQueue, ^{
+        cfg = _remoteConfig;
+    });
+    return  cfg;
+}
+
+- (void)setRemoteConfig:(USRVConfiguration *)remoteConfig {
+    dispatch_sync(self.syncQueue, ^{
+        _remoteConfig = remoteConfig;
+    });
 }
 
 - (NSString *)getCurrentMetricsUrl {
@@ -86,7 +102,7 @@
     return tags;
 }
 
-- (NSDictionary *)metricInfo {
+- (NSDictionary *)metricContainerConfigurationInfo {
     USRVConfiguration *currentConfig = [self getCurrentConfiguration];
 
     if (currentConfig == nil) {
@@ -94,8 +110,10 @@
     }
     NSMutableDictionary *info = [NSMutableDictionary new];
     info[kUnityServicesConfigValueMetricSamplingRate] = [@(currentConfig.metricSamplingRate) stringValue];
+    
     [info uads_setValueIfNotNil: currentConfig.sessionToken
-                         forKey: @"sTkn"];
+                         forKey: kMetricsContainerSessionTokenKey];
+
     return info;
 }
 
@@ -109,11 +127,7 @@
 }
 
 - (void)saveConfiguration: (USRVConfiguration *)configuration notifyBridge: (bool)notify {
-    dispatch_sync(self.syncQueue, ^{
-        
-        self.remoteConfig = configuration;
-    });
-    
+    self.remoteConfig = configuration;
     if (notify) {
         [self.serviceProviderBridge saveConfiguration: configuration.originalJSON];
     }
@@ -135,5 +149,47 @@
 
     return nil;
 }
+
+
+#pragma mark - scar hb
+const NSString* kDefaultScarURL = @"https://scar.unityads.unity3d.com/v1/capture-scar-signals";
+- (NSString *)getCurrentScarHBURL {
+    NSString *scarURL;
+    if (![self.remoteConfig.scarHbUrl isEqualToString: @""]) {
+        scarURL = self.remoteConfig.scarHbUrl;
+    } else {
+        scarURL = self.localConfiguration.scarHbUrl;
+    }
+
+
+    return scarURL ?: kDefaultScarURL;
+}
+
+- (UADSSCARHBStrategyType) selectedSCARHBStrategyType {
+    USRVConfiguration *config = [ self getCurrentConfiguration];
+    if (!config.experiments.json) {
+        return UADSSCARHeaderBiddingStrategyTypeDisabled;
+    }
+    NSDictionary* strategyDictionary = config.experiments.json[@"scar_bm"];
+    if (![strategyDictionary isKindOfClass:[NSDictionary class]]) {
+        return UADSSCARHeaderBiddingStrategyTypeDisabled;
+    }
+    NSString* strategyValue = strategyDictionary[@"value"];
+    return [self selectedStrategyTypeForString:strategyValue];
+}
+
+- (UADSSCARHBStrategyType) selectedStrategyTypeForString:(NSString*)stringValue {
+    if ([stringValue isEqualToString:@"eag"]) {
+        return UADSSCARHeaderBiddingStrategyTypeEager;
+    }
+    if ([stringValue isEqualToString:@"laz"]) {
+        return UADSSCARHeaderBiddingStrategyTypeLazy;
+    }
+    if ([stringValue isEqualToString:@"hyb"]) {
+        return UADSSCARHeaderBiddingStrategyTypeHybrid;
+    }
+    return UADSSCARHeaderBiddingStrategyTypeDisabled;
+}
+
 
 @end

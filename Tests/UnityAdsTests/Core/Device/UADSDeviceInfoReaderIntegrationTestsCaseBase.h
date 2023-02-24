@@ -22,7 +22,6 @@
 - (NSArray *)expectedKeysWithPIIIncludeNonBehavioral: (BOOL)include;
 - (NSArray *)expectedKeysMinIncludeNonBehavioral: (BOOL)include;
 - (NSArray *)expectedKeysNoPIIIncludeNonBehavioral: (BOOL)include;
-- (id<UADSPrivacyConfig, UADSClientConfig>)privacyConfig;
 - (NSDictionary *)                         piiFullContentData;
 @end
 

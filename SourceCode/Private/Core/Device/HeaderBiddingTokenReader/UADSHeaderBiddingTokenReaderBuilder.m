@@ -7,8 +7,10 @@
 #import "UADSTools.h"
 #import "UADSHeaderBiddingTokenReaderWithMetrics.h"
 #import "USRVDataGzipCompressor.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "UADSHBTokenReaderWithPrivacyWait.h"
+#import "UADSHeaderBiddingTokenReaderWithSCARSignals.h"
+#import "UADSUUIDStringGenerator.h"
 
 static NSString *const kDefaultTokenPrefix = @"1:";
 
@@ -39,6 +41,16 @@ static NSString *const kDefaultTokenPrefix = @"1:";
                                                            andStatusReader: self.sdkInitializationStatusReader
                                                              metricsSender: self.metricsSender
                                                      privacyResponseReader: self.privacyStorage];
+
+        if (self.scar.isAvailable) {
+            UADSHeaderBiddingTokenReaderSCARSignalsConfig* tools = [UADSHeaderBiddingTokenReaderSCARSignalsConfig new];
+            tools.signalService = self.scar.rawSignalService;
+            tools.requestFactory = self.requestFactory;
+            tools.compressor = self.bodyCompressor;
+            tools.configurationReader = self.sdkConfigReader;
+            tools.metricsSender = self.metricsSender;
+            reader = [UADSHeaderBiddingTokenReaderWithSCARSignals decorateOriginal:reader withConfig:tools];
+        }
 
         _tokenReader = reader;
     }
@@ -81,15 +93,16 @@ static NSString *const kDefaultTokenPrefix = @"1:";
     if (!_tokenGenerator) {
         _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
                                                                       andCompressor: self.bodyCompressor
-                                                                    withTokenPrefix: self.nativeTokenPrefix];
+                                                                    withTokenPrefix: self.nativeTokenPrefix
+                                                              withUniqueIdGenerator:self.uniqueIdGenerator ?: [UADSUUIDStringGenerator new]];
     }
-
+    
     if (self.experiments.isPrivacyWaitEnabled) {
         _tokenGenerator = [UADSHBTokenReaderWithPrivacyWait newWithOriginal: _tokenGenerator
                                                           andPrivacySubject: self.privacyStorage
                                                                     timeout: self.currentConfig.privacyWaitTimeout / 1000];
     }
-
+    
     return _tokenGenerator;
 }
 

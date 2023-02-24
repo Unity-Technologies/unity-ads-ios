@@ -1,6 +1,7 @@
 disabled_rules: # rule identifiers to exclude from running
   - generic_type_name
   - identifier_name
+  - discouraged_direct_init
   # - type_name
 opt_in_rules: # some rules are only opt-in
   - empty_count

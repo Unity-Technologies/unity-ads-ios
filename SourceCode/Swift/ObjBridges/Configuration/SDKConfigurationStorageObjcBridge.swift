@@ -13,7 +13,7 @@ public final class SDKConfigurationStorageObjcBridge: NSObject {
 
     @objc
     public var configDictionary: [String: Any] {
-        (try? configProvider.config.legacy.asErasedDictionary) ?? [:]
+        (try? configProvider.config.legacy.convertIntoDictionary()) ?? [:]
     }
 
     @objc

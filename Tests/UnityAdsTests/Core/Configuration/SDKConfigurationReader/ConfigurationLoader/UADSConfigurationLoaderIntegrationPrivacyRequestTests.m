@@ -23,12 +23,12 @@
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
-                        andBodyDataKeys: [self appendUserNonBehaviouralAndCommonTo: expectedKeys]];
+                        andBodyDataKeys: [self appendCommonTo: expectedKeys]];
 
 
     NSArray *expectedWithPII = [[self.deviceInfoTester allExpectedKeys] arrayByAddingObjectsFromArray: self.deviceInfoTester.piiDecisionContentData.allKeys];
 
-    expectedWithPII = [self appendUserNonBehaviouralAndCommonTo: expectedWithPII];
+    expectedWithPII = [self appendCommonTo: expectedWithPII];
 
     [self validateCreatedRequestAtIndex: 1
                    withExpectedHostHame: self.expectedHostName
@@ -63,13 +63,13 @@
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
-                        andBodyDataKeys: [self appendUserNonBehaviouralAndCommonTo: expectedKeys]];
+                        andBodyDataKeys: [self appendCommonTo: expectedKeys]];
 
 
     //first config request
     NSArray *expectedWithPII = [[self.deviceInfoTester allExpectedKeys] arrayByAddingObjectsFromArray: self.deviceInfoTester.piiDecisionContentData.allKeys];
 
-    expectedWithPII = [self appendUserNonBehaviouralAndCommonTo: expectedWithPII];
+    expectedWithPII = [self appendCommonTo: expectedWithPII];
 
     [self validateCreatedRequestAtIndex: 1
                    withExpectedHostHame: self.expectedHostName
@@ -108,12 +108,12 @@
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
-                        andBodyDataKeys: [self appendUserNonBehaviouralAndCommonTo: expectedKeys]];
+                        andBodyDataKeys: [self appendCommonTo: expectedKeys]];
 
 
     [self validateCreatedRequestAtIndex: 1
                    withExpectedHostHame: self.expectedHostName
-                        andBodyDataKeys: [self appendUserNonBehaviouralAndCommonTo: self.deviceInfoTester.allExpectedKeys]];
+                        andBodyDataKeys: [self appendCommonTo: self.deviceInfoTester.allExpectedKeys]];
 
     [self validateCreateRequestCalledNumberOfTimes: 2];
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];
@@ -125,8 +125,8 @@
     ]];
 }
 
-- (NSArray<NSString *> *)appendUserNonBehaviouralAndCommonTo: (NSArray<NSString *> *)array {
-    return [self appendCommonKeys: [array arrayByAddingObject: UADSJsonStorageKeyNames.userNonBehavioralFlagKey]];
+- (NSArray<NSString *> *)appendCommonTo: (NSArray<NSString *> *)array {
+    return [self appendCommonKeys: array];
 }
 
 @end

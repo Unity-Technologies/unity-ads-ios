@@ -6,6 +6,7 @@
 #import "USRVInitializeStateLoadCache.h"
 #import "USRVInitializeStateLoadWeb.h"
 #import "USRVInitializeStateCreate.h"
+#import "XCTestCase+Convenience.h"
 
 @interface InitializeTests : XCTestCase
 @end
@@ -23,7 +24,7 @@
 - (void)testInitializeStateConfig {
     USRVConfiguration *config = [[USRVConfiguration alloc] initWithConfigUrl: [USRVSdkProperties getConfigUrl]];
 
-    USRVInitializeStateConfig *initializeState = [[USRVInitializeStateConfig alloc] initWithConfiguration: config];
+    USRVInitializeStateConfig *initializeState = [[USRVInitializeStateConfig alloc] initWithConfiguration: config retries:0 retryDelay:0];
 
     __block id nextState = NULL;
 
@@ -40,8 +41,8 @@
                                  }];
 
     XCTAssertTrue([nextState isKindOfClass: [USRVInitializeStateLoadCache class]], @"Next state should be 'Load Cache'");
-    XCTAssertNotNil([config webViewUrl], @"WebViewUrl should not be nil");
-    XCTAssertNotNil([config webViewHash], @"WebViewHash should not be nil");
+    XCTAssertNotNil([initializeState.configuration webViewUrl], @"WebViewUrl should not be nil");
+    XCTAssertNotNil([initializeState.configuration webViewHash], @"WebViewHash should not be nil");
 } /* testInitializeStateConfig */
 
 - (void)testInitializeStateLoadWeb {

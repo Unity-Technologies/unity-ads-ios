@@ -34,7 +34,7 @@
 }
 
 - (BOOL)shouldGenerateToken {
-    return self.currentExperiments.isHeaderBiddingTokenGenerationEnabled && !self.tokenQueueIsCreated;
+    return !self.tokenQueueIsCreated;
 }
 
 - (UADSConfigurationExperiments *)currentExperiments {

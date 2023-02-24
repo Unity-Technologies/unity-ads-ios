@@ -8,7 +8,6 @@
 @interface UADSMinDeviceInfoReader ()
 @property (nonatomic, strong) id<UADSDeviceIDFIReader>userDefaultsReader;
 @property (nonatomic, strong) id<UADSPIITrackingStatusReader>userContainerReader;
-@property (nonatomic) BOOL includeUserNonBehavioral;
 @property (nonatomic, strong) id<UADSClientConfig> clientConfig;
 @property (nonatomic, strong) id<UADSGameSessionIdReader>gameSessionIdReader;
 @end
@@ -17,14 +16,12 @@
 
 + (id<UADSDeviceInfoReader>)newWithIDFIReader: (id<UADSDeviceIDFIReader>)idfiReader
                           userContainerReader: (id<UADSPIITrackingStatusReader>)userContainerReader
-                        withUserNonBehavioral: (BOOL)includeUserNonBehavioral
                           gameSessionIdReader: (id<UADSGameSessionIdReader>)gameSessionIdReader
                                  clientConfig: (id<UADSClientConfig>)clientConfig {
     UADSMinDeviceInfoReader *base = [UADSMinDeviceInfoReader new];
 
     base.userDefaultsReader = idfiReader;
     base.userContainerReader = userContainerReader;
-    base.includeUserNonBehavioral = includeUserNonBehavioral;
     base.gameSessionIdReader = gameSessionIdReader;
     base.clientConfig = clientConfig;
     return base;
@@ -38,15 +35,14 @@
 
     [info uads_setValueIfNotNil: self.userDefaultsReader.idfi
                          forKey: kUADSDeviceInfoIDFIKey];
-
-    if (_includeUserNonBehavioral) {
-        [info uads_setValueIfNotNil: @(_userContainerReader.userNonBehavioralFlag)
-                             forKey: UADSJsonStorageKeyNames.userNonBehavioralFlagKey];
-    }
-
+    
+    [info uads_setValueIfNotNil: @(_userContainerReader.userNonBehavioralFlag)
+                         forKey: UADSJsonStorageKeyNames.userNonBehavioralFlagKey];
+    
+    
     [info uads_setValueIfNotNil: @([USRVDevice isLimitTrackingEnabled])
                          forKey: kUADSDeviceInfoLimitAdTrackingKey];
-
+    
     [info uads_setValueIfNotNil: @([USRVTrackingManagerProxy.sharedInstance trackingAuthorizationStatus])
                          forKey: kUADSDeviceInfoDeviceTrackingAuthStatusKey];
 

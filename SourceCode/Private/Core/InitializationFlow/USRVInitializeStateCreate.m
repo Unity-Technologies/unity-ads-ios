@@ -3,10 +3,19 @@
 #import "USRVInitializeStateComplete.h"
 #import "USRVInitializeStateError.h"
 
+static BOOL isMocked = false;
+
 @implementation USRVInitializeStateCreate : USRVInitializeState
++ (void)setMocked: (BOOL)isMockedValue {
+    isMocked = isMockedValue;
+}
 - (instancetype)execute {
     USRVLogDebug(@"Unity Ads init: creating webapp");
-
+    if (isMocked) {
+        id nextState = [[USRVInitializeStateComplete alloc] initWithConfiguration: self.configuration];
+        return nextState;
+    }
+   
     [self.configuration setWebViewData: [self webViewData]];
     NSNumber *errorState = [USRVWebViewApp create: self.configuration
                                              view: nil];
@@ -42,6 +51,10 @@
 
 - (void)startWithCompletion:(void (^)(void))completion error:(void (^)(NSError * _Nonnull))error {
     USRVLogDebug(@"Unity Ads init: creating webapp");
+    if (isMocked) {
+        completion();
+        return;
+    }
 
     [self.configuration setWebViewData: [self webViewData]];
     NSNumber *errorState = [USRVWebViewApp create: self.configuration

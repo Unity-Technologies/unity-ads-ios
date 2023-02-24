@@ -99,133 +99,100 @@ static NSCondition *blockCondition = nil;
 
     dispatch_sync(dispatch_get_main_queue(), ^(void) {
         id wkConfiguration = [USRVWKWebViewUtilities getObjectFromClass: "WKWebViewConfiguration"];
-
+        
         if (wkConfiguration) {
             wkConfiguration = [USRVWKWebViewUtilities addUserContentControllerMessageHandlers: wkConfiguration
                                                                                      delegate: webViewApp
                                                                               handledMessages: @[@"handleInvocation", @"handleCallback"]];
-
+            
             if (!wkConfiguration) {
                 return;
             }
         } else {
             return;
         }
-
+        
         SEL setAllowsInlineMediaPlaybackSelector = NSSelectorFromString(@"setAllowsInlineMediaPlayback:");
-
+        
         if ([wkConfiguration respondsToSelector: setAllowsInlineMediaPlaybackSelector]) {
             IMP setAllowsInlineMediaPlaybackImp = [wkConfiguration methodForSelector: setAllowsInlineMediaPlaybackSelector];
-
+            
             if (setAllowsInlineMediaPlaybackImp) {
                 void (*setAllowsInlineMediaPlaybackFunc)(id, SEL, BOOL) = (void *)setAllowsInlineMediaPlaybackImp;
                 setAllowsInlineMediaPlaybackFunc(wkConfiguration, setAllowsInlineMediaPlaybackSelector, true);
                 USRVLogDebug(@"Called setAllowsInlineMediaPlayback")
             }
         }
-
+        
         SEL setMediaPlaybackRequiresUserActionSelector = NSSelectorFromString(@"setMediaPlaybackRequiresUserAction:");
-
+        
         if ([wkConfiguration respondsToSelector: setMediaPlaybackRequiresUserActionSelector]) {
             IMP setMediaPlaybackRequiresUserActionImp = [wkConfiguration methodForSelector: setMediaPlaybackRequiresUserActionSelector];
-
+            
             if (setMediaPlaybackRequiresUserActionImp) {
                 void (*setMediaPlaybackRequiresUserActionFunc)(id, SEL, BOOL) = (void *)setMediaPlaybackRequiresUserActionImp;
                 setMediaPlaybackRequiresUserActionFunc(wkConfiguration, setMediaPlaybackRequiresUserActionSelector, false);
                 USRVLogDebug(@"Called setMediaPlaybackRequiresUserAction");
             }
         }
-
+        
         SEL setMediaTypesRequiringUserActionForPlaybackSelector = NSSelectorFromString(@"setMediaTypesRequiringUserActionForPlayback:");
-
+        
         if ([wkConfiguration respondsToSelector: setMediaTypesRequiringUserActionForPlaybackSelector]) {
             IMP setMediaTypesRequiringUserActionForPlaybackImp = [wkConfiguration methodForSelector: setMediaTypesRequiringUserActionForPlaybackSelector];
-
+            
             if (setMediaTypesRequiringUserActionForPlaybackImp) {
                 void (*setMediaTypesRequiringUserActionForPlaybackFunc)(id, SEL, int) = (void *)setMediaTypesRequiringUserActionForPlaybackImp;
                 setMediaTypesRequiringUserActionForPlaybackFunc(wkConfiguration, setMediaTypesRequiringUserActionForPlaybackSelector, 0);
                 USRVLogDebug(@"Called setMediaTypesRequiringUserActionForPlayback");
             }
         }
-
+        
         id wkWebsiteDataStore = NSClassFromString(@"WKWebsiteDataStore");
-
+        
         if (wkWebsiteDataStore) {
-            SEL nonPersistentDataStoreSelector = NSSelectorFromString(@"nonPersistentDataStore");
-
-            if ([wkWebsiteDataStore respondsToSelector: nonPersistentDataStoreSelector]) {
-                IMP nonPersistentDataStoreImp = [wkWebsiteDataStore methodForSelector: nonPersistentDataStoreSelector];
-                id (*nonPersistentDataStoreFunc)(void) = (void *)nonPersistentDataStoreImp;
-                id nonPersistentDataStore = nonPersistentDataStoreFunc();
-                [wkConfiguration setValue: nonPersistentDataStore
+            SEL dataStoreSelector = [configuration.experiments isWebAdAssetCacheEnabled] ? NSSelectorFromString(@"defaultDataStore") : NSSelectorFromString(@"nonPersistentDataStore");
+            
+            if ([wkWebsiteDataStore respondsToSelector: dataStoreSelector]) {
+                IMP dataStoreImp = [wkWebsiteDataStore methodForSelector: dataStoreSelector];
+                id (*dataStoreFunc)(void) = (void *)dataStoreImp;
+                id dataStore = dataStoreFunc();
+                [wkConfiguration setValue: dataStore
                                    forKey: @"websiteDataStore"];
             }
         } else {
             return;
         }
-
+        
         id webView = view;
-
+        
         if (webView == NULL) {
             webView = [USRVWKWebViewUtilities initWebView: "WKWebView"
                                                     frame: CGRectMake(0, 0, 1024, 768)
                                             configuration: wkConfiguration];
         }
-
+        
         if (webView == NULL) {
             return;
         }
-
+        
         USRVLogDebug(@"Got WebView");
         [(UIView *)webView
          setBackgroundColor: [UIColor clearColor]];
         [(UIView *)webView
          setOpaque: false];
         [webView setValue: @NO
-               forKeyPath : @"scrollView.bounces"];
-
+              forKeyPath : @"scrollView.bounces"];
+        
         [webView setValue: [UADSWebViewNavigationDelegate sharedInstance]
                    forKey: @"navigationDelegate"];
         [webViewApp setWebView: webView];
-
-        NSString *const localWebViewUrl = [USRVSdkProperties getLocalWebViewFile];
-        NSURL *url = [NSURL fileURLWithPath: localWebViewUrl];
-
-        id<UADSBaseURLBuilder> urlBuilder = [UADSWebViewURLBuilder newWithBaseURL: [url absoluteString]
-                                                                 andConfiguration : configuration];
-        NSString *builtURL = urlBuilder.baseURL;
-        url = [NSURL URLWithString: builtURL];
-
-        if (!url) {
-            //falback to old way
-            url = [NSURL fileURLWithPath: localWebViewUrl];
-            NSURLComponents *components = [NSURLComponents componentsWithURL: url
-                                                     resolvingAgainstBaseURL     : NO];
-            NSMutableArray *queryItems = [components.queryItems mutableCopy];
-
-            if (!queryItems) {
-                queryItems = [[NSMutableArray alloc] init];
-            }
-
-            [queryItems addObject: [NSURLQueryItem queryItemWithName: @"platform"
-                                                               value: @"ios"]];
-            [queryItems addObject: [NSURLQueryItem queryItemWithName: @"origin"
-                                                               value: [configuration webViewUrl]]];
-
-            if (configuration.webViewVersion) {
-                [queryItems addObject: [NSURLQueryItem queryItemWithName: @"version"
-                                                                   value: configuration.webViewVersion]];
-            }
-
-            components.queryItems = queryItems;
-            url = components.URL;
-        }
-
+        
         webViewApp.evaluateJavaScriptSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
-
+        
         if ([webView respondsToSelector: webViewApp.evaluateJavaScriptSelector]) {
             IMP evaluateJavaScriptImp = [webView methodForSelector: webViewApp.evaluateJavaScriptSelector];
-
+            
             if (evaluateJavaScriptImp) {
                 webViewApp.evaluateJavaScriptFunc = (void *)evaluateJavaScriptImp;
                 USRVLogDebug(@"Cached selector and function for evaluateJavaScript");
@@ -235,12 +202,33 @@ static NSCondition *blockCondition = nil;
         } else {
             return;
         }
+        
+        NSString *baseURL;
+        if ([configuration.experiments isNativeWebViewCacheEnabled]) {
+            baseURL = configuration.webViewUrl;
+        } else {
+            NSString *const localWebViewUrl = [USRVSdkProperties getLocalWebViewFile];
+            baseURL = [[NSURL fileURLWithPath: localWebViewUrl] absoluteString];
+        }
+        id<UADSBaseURLBuilder> urlBuilder = [UADSWebViewURLBuilder newWithBaseURL: baseURL
+                                                                andConfiguration : configuration];
+        NSString *builtURL = urlBuilder.baseURL;
+        NSURL *url = [NSURL URLWithString: builtURL];
 
         blockCondition = [[NSCondition alloc] init];
 
-        if ([USRVWKWebViewUtilities loadFileUrl: webView
-                                            url: url
-                                allowReadAccess: [NSURL fileURLWithPath: [USRVSdkProperties getCacheDirectory]]]) {
+        BOOL webViewLoaded = false;
+        
+        if ([configuration.experiments isNativeWebViewCacheEnabled]) {
+            NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
+            webViewLoaded = [USRVWKWebViewUtilities loadRequest:webView request:request];
+        
+        } else {
+            webViewLoaded = [USRVWKWebViewUtilities loadFileUrl: webView
+                                                            url: url
+                                                allowReadAccess: [NSURL fileURLWithPath: [USRVSdkProperties getCacheDirectory]]];
+        }
+        if (webViewLoaded) {
             [webViewApp createBackgroundView];
             [webViewApp.backgroundView placeViewToBackground];
             [webViewApp placeWebViewToBackgroundView];

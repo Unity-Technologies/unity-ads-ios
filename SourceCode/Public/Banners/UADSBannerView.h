@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UnityAds/UADSBannerViewDelegate.h>
+#import <UnityAds/UADSLoadOptions.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -12,7 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPlacementId: (NSString *)placementId size: (CGSize)size;
 
-- (void)        load;
+- (void) load;
+- (void) loadWithOptions: (UADSLoadOptions *)options;
 
 @end
 

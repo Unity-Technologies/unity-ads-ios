@@ -58,7 +58,7 @@ class UnityAdsNetworkLayerTestCase: NetworkTestCaseBase {
     func test_contains_metric_object_in_response() throws {
         try execute(request: correctRequestDictionary) { result in
             result.do({ XCTAssertNotNil($0.metrics) })
-                  .onFailure({ _ in  XCTFail("Result is expected to be success") })
+                .onFailure({ _ in  XCTFail("Result is expected to be success") })
         }
     }
 
@@ -110,6 +110,9 @@ class UnityAdsNetworkLayerTestCase: NetworkTestCaseBase {
             XCTAssertFailure(result)
         }
     }
+}
+
+extension UnityAdsNetworkLayerTestCase {
 
     func execute(request: [String: Any],
                  expectedData: MockedResponseObject? = nil,

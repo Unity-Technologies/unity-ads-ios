@@ -4,8 +4,6 @@
 
 @interface USRVBannerBridge : NSObject
 
-+ (void)loadBannerPlacement: (NSString *)placementId bannerAdId: (NSString *)bannerAdId size: (CGSize)size;
-
 + (void)destroyBannerWithId: (NSString *)bannerAdId;
 
 + (void)bannerDidResizeWithBannerId: (NSString *)bannerAdId frame: (CGRect)frame alpha: (CGFloat)alpha;

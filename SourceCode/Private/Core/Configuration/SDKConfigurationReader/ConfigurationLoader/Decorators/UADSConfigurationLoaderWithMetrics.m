@@ -4,14 +4,14 @@
 @interface UADSConfigurationLoaderWithMetrics ()
 
 @property (nonatomic, strong) id<UADSConfigurationLoader> original;
-@property (nonatomic, strong) id<ISDKPerformanceMetricsSender> metricsSender;
+@property (nonatomic, strong) id<ISDKPerformanceMetricsSender, ISDKMetrics> metricsSender;
 @property (nonatomic, strong) id<UADSRetryInfoReader> retryInfoReader;
 @end
 
 @implementation UADSConfigurationLoaderWithMetrics
 
 + (instancetype)decorateOriginal: (id<UADSConfigurationLoader>)original
-                andMetricsSender: (id<ISDKPerformanceMetricsSender>)metricsSender
+                andMetricsSender: (id<ISDKPerformanceMetricsSender, ISDKMetrics>)metricsSender
                  retryInfoReader: (id<UADSRetryInfoReader>)retryInfoReader {
     UADSConfigurationLoaderWithMetrics *decorator = [self new];
 
@@ -37,6 +37,7 @@
         UADSTsiMetric *metric = [UADSTsiMetric newTokenResolutionRequestLatency: 0
                                                                            tags: self.retryInfoReader.retryTags];
         metricsCompletion(metric);
+        [self sendConfigMetrics:config];
         success(config);
     };
 
@@ -52,6 +53,16 @@
 
     [_original loadConfigurationWithSuccess: configSuccess
                          andErrorCompletion: configError];
+}
+
+- (void)sendConfigMetrics: (USRVConfiguration *)config {
+    if (!config.headerBiddingToken) {
+        [self.metricsSender sendMetric: [UADSTsiMetric newMissingToken]];
+    }
+
+    if (!config.stateId) {
+        [self.metricsSender sendMetric: [UADSTsiMetric newMissingStateId]];
+    }
 }
 
 @end

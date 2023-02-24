@@ -4,14 +4,14 @@
 #import "USRVClientProperties.h"
 #import "USRVInitialize.h"
 #import "USRVDevice.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @implementation UnityServices
 
 + (void)        initialize: (NSString *)gameId
                   testMode: (BOOL)testMode
     initializationDelegate: (nullable id<UnityAdsInitializationDelegate>)initializationDelegate {
-    if (UADSServiceProvider.sharedInstance.newInitFlowEnabled) {
+    if (UADSServiceProviderContainer.sharedInstance.serviceProvider.newInitFlowEnabled) {
         [self newStart: gameId testMode: testMode delegate: initializationDelegate];
     } else {
         [self legacyStart: gameId testMode: testMode delegate: initializationDelegate];
@@ -90,9 +90,9 @@
         [USRVSdkProperties setInitializationTime: [[USRVDevice getElapsedRealtime] longLongValue]];
 
         if (testMode) {
-            USRVLogInfo(@"Initializing Unity Ads %@ (%d) with game id %@ in test mode", [USRVSdkProperties getVersionName], [USRVSdkProperties getVersionCode], gameId);
+            USRVLogInfo(@"Initializing Unity Ads %@ (%d) with game id %@ in test mode, session %@", [USRVSdkProperties getVersionName], [USRVSdkProperties getVersionCode], gameId, UADSServiceProviderContainer.sharedInstance.serviceProvider.sharedSessionId);
         } else {
-            USRVLogInfo(@"Initializing Unity Ads %@ (%d) with game id %@ in production mode", [USRVSdkProperties getVersionName], [USRVSdkProperties getVersionCode], gameId);
+            USRVLogInfo(@"Initializing Unity Ads %@ (%d) with game id %@ in production mode, session %@", [USRVSdkProperties getVersionName], [USRVSdkProperties getVersionCode], gameId, UADSServiceProviderContainer.sharedInstance.serviceProvider.sharedSessionId);
         }
 
         if ([USRVEnvironmentProperties isEnvironmentOk]) {
@@ -125,21 +125,14 @@
         [USRVClientProperties setGameId: gameId];
         [USRVSdkProperties setTestMode: testMode];
 
-        [UADSServiceProvider.sharedInstance.sdkInitializer initializeWithGameID: gameId
+        [UADSServiceProviderContainer.sharedInstance.serviceProvider.sdkInitializer initializeWithGameID: gameId
                                                                        testMode:testMode
                                                                      completion:^{
                     [USRVSdkProperties setInitializationState: INITIALIZED_SUCCESSFULLY];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [USRVSdkProperties notifyInitializationComplete];
-                    });
             
                 } error:^(NSError * _Nonnull error) {
                     
                     [USRVSdkProperties setInitializationState: INITIALIZED_FAILED];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [USRVSdkProperties notifyInitializationFailed: error.code
-                                                     withErrorMessage: error.localizedDescription];
-                    });
                 }];
     }
 }

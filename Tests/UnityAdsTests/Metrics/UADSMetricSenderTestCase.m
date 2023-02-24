@@ -6,9 +6,11 @@
 #import "NSDate+Mock.h"
 #import "UADSPrivacyStorageMock.h"
 #import "USRVDevice.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "UADSMediationMetaData.h"
 #import "USRVStorageManager.h"
+#import "NSDictionary+Merge.h"
+#import "USRVClientProperties.h"
 
 @interface UADSMetricSenderTestCase : XCTestCase
 @property (nonatomic, strong) UADSServiceProvider *serviceProvider;
@@ -24,6 +26,7 @@ NSString *const VALID_URL = @"http://valid.url";
 - (void)setUp {
     [super setUp];
     [self deleteConfigFile];
+    [USRVClientProperties setGameId:@"54321"];
     self.privacyMock = [[UADSPrivacyStorageMock alloc] init];
     _serviceProvider = [UADSServiceProvider new];
     _serviceProvider.privacyStorage = _privacyMock;
@@ -96,20 +99,19 @@ NSString *const VALID_URL = @"http://valid.url";
 
     [self waitForExpectations: @[exp]
                       timeout: 0.5];
-
+    
     XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 1);
     NSDictionary *expected = @{
         @"m": @[
             @{ @"n": @"event1" },
             @{ @"n": @"event2" }],
-        @"t": [self commonTags],
-        @"msr": @"100"
-    };
-
+        @"t": [self commonTags] };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
+    
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
-
+    
     [self sendMetricEvent: @"event3"];
-
+    
     exp = self.defaultExpectation;
 
     self.requestFactoryMock.exp = exp;
@@ -121,8 +123,8 @@ NSString *const VALID_URL = @"http://valid.url";
     expected = @{
         @"m": @[ @{ @"n": @"event3" }],
         @"t": [self commonTags],
-        @"msr": @"100"
     };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
 }
 
@@ -167,9 +169,9 @@ NSString *const VALID_URL = @"http://valid.url";
             @{
                 @"n": @"test_event",
         }],
-        @"t": [self commonTags],
-        @"msr": @"100"
+        @"t": [self commonTags]
     };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
 
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
 }
@@ -201,9 +203,9 @@ NSString *const VALID_URL = @"http://valid.url";
                 }
         }],
         @"t": [self commonTagsWithTestMode: true
-                              privacyState: kUADSPrivacyResponseDenied],
-        @"msr": @"100"
+                              privacyState: kUADSPrivacyResponseDenied]
     };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
 
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
 }
@@ -231,9 +233,9 @@ NSString *const VALID_URL = @"http://valid.url";
                 @"v": @(1)
         }],
         @"t": [self commonTagsWithTestMode: true
-                              privacyState: kUADSPrivacyResponseAllowed],
-        @"msr": @"100"
+                              privacyState: kUADSPrivacyResponseAllowed]
     };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
 
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
 }
@@ -286,9 +288,9 @@ NSString *const VALID_URL = @"http://valid.url";
                 @"t": @{ @"tag": @"1" }
             }
         ],
-        @"t": [self commonTags],
-        @"msr": @"100"
+        @"t": [self commonTags]
     };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
 
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
     XCTAssertEqualObjects(VALID_URL, self.mockRequest.url);
@@ -320,9 +322,9 @@ NSString *const VALID_URL = @"http://valid.url";
                 @"n": @"test_event",
                 @"v": @(1)
         }],
-        @"t": commonTags,
-        @"msr": @"100"
+        @"t": commonTags
     };
+    expected = [NSDictionary uads_dictionaryByMerging:expected secondary:[self commonMetricInfo]];
 
     XCTAssertEqualObjects(expected, self.requestBodyDictionary);
 }
@@ -398,9 +400,13 @@ NSString *const VALID_URL = @"http://valid.url";
     };
 }
 
-- (NSDictionary *)configTagsWithSampleRate: (int)rate {
+- (NSDictionary *)commonMetricInfo {
     return @{
-        @"msr": @(rate)
+        @"msr": @"100",
+        @"deviceMake": @"Apple",
+        @"deviceModel": USRVDevice.getModel,
+        @"gameId": USRVClientProperties.getGameId,
+        @"shSid": [_serviceProvider sharedSessionId]
     };
 }
 

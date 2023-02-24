@@ -27,8 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UADSHeaderBiddingTokenReaderBuilder *tokenBuilder;
 @property (nonatomic, strong) id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader, UADSPrivacyResponseSubject> privacyStorage;
 @property (nonatomic, strong) id<UADSRetryInfoReader> retryReader;
-
-+ (instancetype)                         sharedInstance;
+@property (nonatomic, strong) USRVInitializeStateFactory* stateFactory;
 - (id<UADSHeaderBiddingAsyncTokenReader>)nativeTokenGenerator;
 - (id<UADSConfigurationSaver>) configurationSaver;
 - (id<UADSPerformanceLogger>)  performanceLogger;
@@ -37,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (USRVInitializeStateFactory *)stateFactory;
 
 - (BOOL)newInitFlowEnabled;
+- (NSString *)sharedSessionId;
 @end
 
 NS_ASSUME_NONNULL_END

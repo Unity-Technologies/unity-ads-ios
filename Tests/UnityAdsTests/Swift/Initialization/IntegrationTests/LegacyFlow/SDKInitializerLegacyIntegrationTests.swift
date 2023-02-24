@@ -16,6 +16,36 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
             .init(data: configMockFactory.webViewFakeData)
         ]
 
+        let testConfig = TestConfig(responses: responses,
+                                    sdkConfig: expectedConfig,
+                                    expectedNumberOfRequests: responses.count,
+                                    multithreadCount: 1,
+                                    metrics: ExpectedMetrics.NewInitLegacyFlow.HappyPath,
+                                    expectDiagnostic: true)
+        try executeTest(with: testConfig,
+                        resultValidation: { XCTAssertSuccess($0) },
+                        final: {
+
+            XCTAssertEqual(self.tester.sdkState, .initialized)
+            self.verifyWebExposedGetTrrData(expectedConfig)
+        })
+
+    }
+
+    func test_no_diagnostic_metrics_sent_when_config_flag_set_to_false() throws {
+        let overrideJSON = ["ntwd": false]
+        let returnedConfigData = try configMockFactory.defaultConfigData(experiments: defaultExperiments,
+                                                                         overrideJSON: overrideJSON)
+        let privacyData = returnedConfigData
+        let expectedConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments,
+                                                                         overrideJSON: overrideJSON)
+
+        let responses: [URLProtocolResponseStub] = [
+            .init(data: privacyData),
+            .init(data: returnedConfigData),
+            .init(data: configMockFactory.webViewFakeData)
+        ]
+
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
             .legacy(.latency(.intoCollection)),
@@ -43,7 +73,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    expectDiagnostic: true)
+                                    expectDiagnostic: false)
         try executeTest(with: testConfig,
                         resultValidation: { XCTAssertSuccess($0) },
                         final: {
@@ -54,11 +84,10 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
     }
 
-    func test_init_fails_with_error_when_config_has_corrupted_data_with_fallback() throws {
-
+    func test_init_fails_with_error_when_config_has_corrupted_data() throws {
         let corruptedConfig = try ["key": "value"].serializedData()
         let expectedConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments)
-        let expectedNumberOfRequests = expectedConfig.network.request.retry.maxCount * 2 + 2 // Config Request + fallback + retries
+        let expectedNumberOfRequests = expectedConfig.network.request.retry.maxCount + 1 // Config Request + retries
 
         let privacyResponsesData = try configMockFactory.defaultConfigData(experiments: defaultExperiments)
         let configResponses = createSimilarRequests(numberOfRequests: expectedNumberOfRequests,
@@ -73,11 +102,10 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
         let configRequestMetrics: [SDKMetricType] = [
             .legacy(.latency(.intoCollection)),
             .legacy(.latency(.infoCompression)),
-            .legacy(.latency(.configRequestFailure)),
-            .legacy(.switchOff)
+            .legacy(.latency(.configRequestFailure))
 
         ]
-        let allConfigMetrics = stride(from: 0, to: configResponses.count / 2, by: 1).flatMap({_ in
+        let allConfigMetrics = stride(from: 0, to: configResponses.count, by: 1).flatMap({_ in
             configRequestMetrics
         })
 
@@ -97,6 +125,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
+                                    configRetried: expectedConfig.network.request.retry.maxCount,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -108,7 +137,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
     func test_config_state_legacy_retries_n_number_of_times_and_fails() throws {
 
-        let sut = tester.uadsServiceProvider.stateFactory().state(for: .configFetch)
+        let sut = tester.uadsServiceProvider.stateFactory.state(for: .configFetch)
         let expectation = defaultExpectation
         let defaultConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments)
         let expectedNumberOfRequests = defaultConfig.network.request.retry.maxCount + 1
@@ -165,6 +194,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
+                                    configRetried: expectedConfig.network.request.retry.maxCount,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -265,7 +295,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                                     expectedNumberOfRequests: expectedNumberOfRequests,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    webviewRetried: true,
+                                    webviewRetried: webViewRetries,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -444,5 +474,34 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                         resultValidation: {
             XCTAssertFailure($0, expectedError: "The operation couldn’t be completed. (UnityAdsTests.MockedError error 1.)")
         })
+    }
+
+    func test_webview_download_skipped_when_native_webview_cache_is_on() throws {
+        let expectedConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments, currentExperiments: ["nwc": true])
+        let returnedConfigData = try expectedConfig.legacy.convertIntoDictionary().serializedData()
+        let privacyData = returnedConfigData
+        let responses: [URLProtocolResponseStub] = [
+            .init(data: privacyData),
+            .init(data: returnedConfigData)
+        ]
+
+        let testConfig = TestConfig(responses: responses,
+                                    sdkConfig: expectedConfig,
+                                    expectedNumberOfRequests: responses.count,
+                                    multithreadCount: 1,
+                                    metrics: ExpectedMetrics.NewInitLegacyFlow.HappyPath,
+                                    expectDiagnostic: true)
+        try executeTest(with: testConfig,
+                        resultValidation: { XCTAssertSuccess($0) },
+                        final: {
+
+            XCTAssertEqual(self.tester.sdkState, .initialized)
+        })
+    }
+}
+
+extension UnityAdsConfig: Equatable {
+    public static func == (lhs: UnityAdsConfig, rhs: UnityAdsConfig) -> Bool {
+        lhs.network == rhs.network && lhs.legacy.json.sortedDescription == rhs.legacy.json.sortedDescription
     }
 }

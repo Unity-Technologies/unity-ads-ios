@@ -1,7 +1,7 @@
 #import "UADSApiToken.h"
 #import "USRVWebViewCallback.h"
 #import "UADSTokenStorage.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "UADSWebViewEvent.h"
 
 NSString *const kTokenEventName = @"TOKEN_NATIVE_DATA";
@@ -44,7 +44,7 @@ NSString *const kTokenCategoryName = @"TOKEN";
 }
 
 + (UADSServiceProvider *)serviceProvider {
-    return UADSServiceProvider.sharedInstance;
+    return UADSServiceProviderContainer.sharedInstance.serviceProvider;
 }
 
 + (id<UADSWebViewEventSender>)webViewEventSender {

@@ -83,7 +83,7 @@
     XCTAssertEqual(_saverMock.receivedConfig.count, count);
 }
 
-- (id<UADSClientConfig, UADSPrivacyConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments {
+- (id<UADSClientConfig>)factoryConfigWithExperiments: (NSDictionary *)experiments {
     return [UADSCClientConfigBase defaultWithExperiments: [UADSConfigurationExperiments newWithJSON: experiments]];
 }
 

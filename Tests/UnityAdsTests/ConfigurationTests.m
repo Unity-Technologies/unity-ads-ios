@@ -143,7 +143,8 @@
         @"url": @"fake-webview-url",
         @"fake-field": @"fake-stuff",
         @"fake-field1": @"fake-stuff",
-        @"fake-field2": @"fake-stuff"
+        @"fake-field2": @"fake-stuff",
+        @"exp": @{ @"test": @"test" },
     };
 
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject: configDictionary

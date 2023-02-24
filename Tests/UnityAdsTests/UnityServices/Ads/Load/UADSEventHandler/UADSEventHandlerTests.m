@@ -24,27 +24,39 @@
     self.statusMock.currentState = INITIALIZED_SUCCESSFULLY;
     [self verifySendsStartAndSuccessTimeForType: kUADSEventHandlerTypeLoadModule];
     [self verifySendsStartAndSuccessTimeForType: kUADSEventHandlerTypeShowModule];
+    [self verifySendsStartAndSuccessTimeForType: kUADSEventHandlerTypeBannerLoadModule];
 }
 
 - (void)test_sends_failure_time_for_callback_timeout {
     self.statusMock.currentState = INITIALIZING;
     [self verifySendsStartAndCallbackTimeoutFailureTimeForType: kUADSEventHandlerTypeLoadModule];
     [self verifySendsStartAndCallbackTimeoutFailureTimeForType: kUADSEventHandlerTypeShowModule];
+    [self verifySendsStartAndCallbackTimeoutFailureTimeForType: kUADSEventHandlerTypeBannerLoadModule];
 }
 
 - (void)test_sends_failure_time_for_callback_error {
     self.statusMock.currentState = INITIALIZED_FAILED;
     [self verifySendsStartAndCallbackErrorFailureTimeForType: kUADSEventHandlerTypeLoadModule];
     [self verifySendsStartAndCallbackErrorFailureTimeForType: kUADSEventHandlerTypeShowModule];
+    [self verifySendsStartAndCallbackErrorFailureTimeForType: kUADSEventHandlerTypeBannerLoadModule];
 }
 
 - (void)test_sends_failure_time_for_timeout {
     [self verifySendsStartAndTimeoutErrorFailureTimeForType: kUADSEventHandlerTypeLoadModule];
     [self verifySendsStartAndTimeoutErrorFailureTimeForType: kUADSEventHandlerTypeShowModule];
+    [self verifySendsStartAndCallbackErrorFailureTimeForType: kUADSEventHandlerTypeBannerLoadModule];
 }
 
 - (void)test_sends_failure_time_when_load_fails {
     [self verifySendsStartAndFailureTimeForType: kUADSEventHandlerTypeLoadModule
+                                          error: [UADSInternalError newWithErrorCode: kUADSInternalErrorLoadModule
+                                                                           andReason: kUnityAdsLoadErrorNoFill
+                                                                          andMessage: @"no fill"]
+                                         reason: @"no_fill"];
+}
+
+- (void)test_sends_failure_time_when_banner_load_fails {
+    [self verifySendsStartAndFailureTimeForType: kUADSEventHandlerTypeBannerLoadModule
                                           error: [UADSInternalError newWithErrorCode: kUADSInternalErrorLoadModule
                                                                            andReason: kUnityAdsLoadErrorNoFill
                                                                           andMessage: @"no fill"]
@@ -123,6 +135,7 @@
 
     XCTAssertEqual(_metricsMock.callCount, 2);
     XCTAssertEqualObjects(_metricsMock.sentMetrics, expected);
+    [self verifyMetricsHaveTypeTagIfNeeded:_metricsMock.sentMetrics type:type];
 }
 
 - (void)verifySendsStartAndCallbackTimeoutFailureTimeForType: (UADSEventHandlerType)type {
@@ -163,6 +176,19 @@
 
     XCTAssertEqual(_metricsMock.callCount, 2);
     XCTAssertEqualObjects(_metricsMock.sentMetrics, expected);
+    [self verifyMetricsHaveTypeTagIfNeeded:_metricsMock.sentMetrics type:type];
+}
+
+- (void)verifyMetricsHaveTypeTagIfNeeded:(NSArray*)metrics type: (UADSEventHandlerType)type {
+    NSString* loadType;
+    if (type == kUADSEventHandlerTypeLoadModule) {
+        loadType = @"video";
+    } else if (type == kUADSEventHandlerTypeBannerLoadModule) {
+        loadType = @"banner";
+    }
+    for (UADSMetric *metric in metrics) {
+        XCTAssertEqualObjects(metric.dictionary[@"t"][@"type"], loadType);
+    }
 }
 
 - (void)asyncCallEventStarted: (int)count with: (UADSEventHandlerBase *)sut {

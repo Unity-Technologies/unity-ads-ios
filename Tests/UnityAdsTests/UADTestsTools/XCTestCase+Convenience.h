@@ -13,6 +13,8 @@ typedef void (^ErrorCompletion)(id<UADSError>);
 - (void)runBlockAsync: (int)count block: (UADSVoidClosure)closureToPerform;
 - (void)               postDidBecomeActive;
 - (void)               postDidEnterBackground;
+
+- (void)resetUnityAds;
 @end
 
 NS_ASSUME_NONNULL_END

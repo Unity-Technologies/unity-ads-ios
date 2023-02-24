@@ -17,7 +17,7 @@
 - (NSDictionary *)getDataFromSut {
     UADSDeviceInfoReaderBuilder *builder = [UADSDeviceInfoReaderBuilder new];
 
-    builder.clientConfig = self.privacyConfig;
+    builder.clientConfig = [UADSFactoryConfigMock new];
     builder.metricsSender = self.metricsMock;
     builder.extendedReader = self.isDeviceInfoReaderExtended;
     builder.privacyReader = self.privacyStorageMock;
@@ -26,10 +26,6 @@
     id<UADSDeviceInfoReader> reader = builder.defaultReader;
 
     return [reader getDeviceInfoForGameMode: UADSGameModeMix];
-}
-
-- (id<UADSPrivacyConfig, UADSClientConfig>)privacyConfig {
-    return [UADSFactoryConfigMock new];
 }
 
 - (BOOL)isDeviceInfoReaderExtended {
@@ -64,13 +60,7 @@
 }
 
 - (NSArray *)expectedKeysNoPIIIncludeNonBehavioral: (BOOL)include  {
-    NSArray *allKeys = [_tester allExpectedKeys];
-
-    if (include) {
-        allKeys = [allKeys arrayByAddingObject: UADSJsonStorageKeyNames.userNonBehavioralFlagKey];
-    }
-
-    return allKeys;
+    return [_tester allExpectedKeys];
 }
 
 - (NSArray *)expectedKeysNoPII {
@@ -81,14 +71,14 @@
     NSArray *allKeys = self.expectedKeysNoPII;
 
     allKeys = [allKeys arrayByAddingObjectsFromArray: self.piiExpectedData.allKeys];
-    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKeysWitNonBehavioral: include]];
+    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKey]];
     return allKeys;
 }
 
 - (NSArray *)expectedKeysMinIncludeNonBehavioral: (BOOL)include {
     NSArray *allKeys = self.tester.allExpectedKeysFromMinInfo;
 
-    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKeysWitNonBehavioral: include]];
+    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKey]];
     return allKeys;
 }
 

@@ -5,6 +5,8 @@
 
 + (void)loadUrl: (id)webView url: (NSURLRequest *)url;
 
++ (BOOL)loadRequest: (id)webView request:(NSURLRequest *)request;
+
 + (BOOL)loadFileUrl: (id)webView url: (NSURL *)url allowReadAccess: (NSURL *)allowReadAccess;
 
 + (BOOL)loadData: (id)webView data: (NSData *)data mimeType: (NSString *)mimeType encoding: (NSString *)encoding baseUrl: (NSURL *)baseUrl;

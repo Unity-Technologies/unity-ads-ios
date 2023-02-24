@@ -3,7 +3,7 @@
 #import "UADSConfigurationExperimentValue.h"
 
 @interface UADSConfigurationExperiments ()
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *json;
+@property (nonatomic, strong) NSDictionary<NSString *, NSDictionary *> *json;
 @property (nonatomic, strong) NSDictionary<NSString *, UADSConfigurationExperimentValue *> *experimentObjects;
 @end
 
@@ -24,34 +24,6 @@
     return obj;
 }
 
-- (BOOL)isTwoStageInitializationEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi" defaultValue: true];
-}
-
-- (BOOL)isForcedUpdatePIIEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_upii"];
-}
-
-- (BOOL)isPOSTMethodInConfigRequestEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_p"];
-}
-
-- (BOOL)isForwardExperimentsToWebViewEnabled {
-    return [self isExperimentEnabledWithKey: @"fff"];
-}
-
-- (BOOL)isHeaderBiddingTokenGenerationEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_nt" defaultValue: true];
-}
-
-- (BOOL)isPrivacyRequestEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_prr" defaultValue: true];
-}
-
-- (BOOL)isPrivacyWaitEnabled {
-    return [self isExperimentEnabledWithKey: @"tsi_prw"];
-}
-
 - (BOOL)isExperimentEnabledWithKey: (NSString *)key {
     return [self isExperimentEnabledWithKey: key defaultValue: false];
 }
@@ -62,6 +34,10 @@
         return experiment.enabled;
     }
     return defaulValue;
+}
+
+- (BOOL)isPrivacyWaitEnabled {
+    return [self isExperimentEnabledWithKey: @"tsi_prw"];
 }
 
 - (BOOL)isSwiftDownloadEnabled {
@@ -89,6 +65,14 @@
     return [self isExperimentEnabledWithKey: @"s_pte"];
 }
 
+- (BOOL)isNativeWebViewCacheEnabled {
+    return [self isExperimentEnabledWithKey: @"nwc"];
+}
+
+- (BOOL)isWebAdAssetCacheEnabled {
+    return [self isExperimentEnabledWithKey: @"wac"];
+}
+
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
     return [self flattenFlagsWith:^BOOL (id key) {
         return [self isExperimentForNextSession: key];
@@ -102,7 +86,7 @@
 }
 
 - (NSDictionary<NSString *, NSString *> *)flattenFlagsWith: (BOOL (^)(id key))block {
-    NSDictionary *flags = [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSString *_Nonnull obj) {
+    NSDictionary *flags = [self.json uads_filter:^BOOL (NSString *_Nonnull key, NSDictionary *_Nonnull obj) {
         return block(key);
     }];
 

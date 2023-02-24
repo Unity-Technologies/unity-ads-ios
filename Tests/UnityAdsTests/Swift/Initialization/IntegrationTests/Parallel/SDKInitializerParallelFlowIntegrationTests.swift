@@ -2,7 +2,6 @@ import XCTest
 @testable import UnityAds
 // swiftlint:disable type_body_length
 // swiftlint:disable file_length
-// swiftlint:disable function_body_length
 final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyIntegrationTestsBase {
 
     override var defaultExperiments: [String: Bool] {
@@ -21,34 +20,11 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
             .init(data: configMockFactory.webViewFakeData, url: expectedConfig.network.webView.url)
         ]
 
-        var sdkMetrics: [SDKMetricType] =  [
-            .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
-            .legacy(.missed(.token)),
-            .legacy(.missed(.stateID))
-        ]
-
-        let sdkPerformanceMetrics: [SDKMetricType] = [
-            .systemPerformance(.success(.compression)),
-            .requestPerformance(.success(.privacy)),
-            .requestPerformance(.success(.config)),
-            .taskPerformance(.success(.loadLocalConfig)),
-            .taskPerformance(.success(.privacyFetch)),
-            .taskPerformance(.success(.configFetch)),
-            .taskPerformance(.success(.webViewDownload)),
-            .taskPerformance(.success(.webViewCreate)),
-            .taskPerformance(.success(.initModules)),
-            .taskPerformance(.success(.reset)),
-            .taskPerformance(.success(.complete)),
-            .taskPerformance(.success(.initializer))
-        ]
-
-        sdkMetrics += sdkPerformanceMetrics
         let testConfig = TestConfig(responses: responses,
                                     sdkConfig: expectedConfig,
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
-                                    metrics: sdkMetrics,
+                                    metrics: ExpectedMetrics.ParallelFlow.HappyPath,
                                     expectDiagnostic: true)
         try executeTest(with: testConfig,
                         resultValidation: { XCTAssertSuccess($0) },
@@ -137,7 +113,7 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    configRetried: true,
+                                    configRetried: expectedConfig.network.request.retry.maxCount,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -228,7 +204,7 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
                                     expectedNumberOfRequests: expectedNumberOfRequests,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    webviewRetried: true,
+                                    webviewRetried: webViewRetries,
                                     expectDiagnostic: true)
 
         try executeTest(with: testConfig,
@@ -406,7 +382,7 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
     func test_uses_privacy_response_url_if_there_is_no_cached_config() throws {
         let expectedConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments)
         let returnedConfigData = try configMockFactory.defaultConfigData(experiments: defaultExperiments)
-        var privacyDictionary = try expectedConfig.legacy.asErasedDictionary
+        var privacyDictionary = try expectedConfig.legacy.convertIntoDictionary()
         let expectedURL = "https://webviewURLFromPrivacy"
         privacyDictionary["url"] = expectedURL
         privacyDictionary["hash"] = configMockFactory.webViewFakeDataPrivacyHash

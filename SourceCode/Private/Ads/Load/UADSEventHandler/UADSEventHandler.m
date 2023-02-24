@@ -3,7 +3,7 @@
 #import "UnityAdsLoadError.h"
 #import "UnityAdsShowError.h"
 #import "UADSPerformanceMeasurer.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "UADSCurrentTimestampBase.h"
 
 NSString * uads_loadErrorToString(UnityAdsLoadError error) {
@@ -64,7 +64,7 @@ NSString * uads_showErrorToString(UnityAdsShowError error) {
 
 + (instancetype)newDefaultWithType: (UADSEventHandlerType)type {
     return [UADSEventHandlerBase newWithType: type
-                                metricSender: [UADSServiceProvider sharedInstance].metricSender
+                                metricSender: UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender
                              timestampReader: [UADSCurrentTimestampBase new]
                             initStatusReader: [UADSInitializationStatusReaderBase new]];
 }

@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "UADSDeviceInfoProvider.h"
 #import "UADSDeviceInfoReader.h"
-#import "UADSPIIDataSelector.h"
 #import "USRVSDKMetrics.h"
 #import "UADSDeviceInfoExcludeFieldsProvider.h"
 #import "UADSPrivacyStorage.h"

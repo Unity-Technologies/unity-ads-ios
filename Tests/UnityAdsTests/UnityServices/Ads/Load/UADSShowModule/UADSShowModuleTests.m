@@ -33,6 +33,7 @@ typedef void (^VoidCompletion)(void);
 
 - (void)test_calls_invoker_if_sdk_initialized {
     [self executeTestFlowToTestEvent: true
+                 andFulfillmentCount: 2
                         andTestEvent: ^{
                             [self emulateSendStartEvent];
                         }];
@@ -47,6 +48,7 @@ typedef void (^VoidCompletion)(void);
 - (void)test_null_placementID_returns_error {
     [self executeTestFlowToTestEvent: true
                      withPlacementID: nil
+                 andFulfillmentCount: 1
                         andTestEvent: ^{}];
     [self validateEventHandlerIsCalledOnceWithError];
     XCTAssertEqual(_invokerMock.invokerCalledNumberOfTimes, 0);
@@ -59,6 +61,7 @@ typedef void (^VoidCompletion)(void);
 
 - (void)test_should_not_call_invoker_if_sdk_not_initialized {
     [self executeTestFlowToTestEvent: false
+                 andFulfillmentCount: 1
                         andTestEvent: ^{
                             [self emulateSendStartEvent];
                         }];
@@ -74,6 +77,7 @@ typedef void (^VoidCompletion)(void);
 
 - (void)test_passes_failure_to_a_delegate {
     [self executeTestFlowToTestEvent: true
+                 andFulfillmentCount: 2
                         andTestEvent: ^{
                             [self emulateSendFailure];
                         }];
@@ -89,6 +93,7 @@ typedef void (^VoidCompletion)(void);
 
 - (void)test_sends_click_event_to_a_delegate {
     [self executeTestFlowToTestEvent: true
+                 andFulfillmentCount: 2
                         andTestEvent: ^{
                             [self emulateSendComplete];
                         }];
@@ -104,6 +109,7 @@ typedef void (^VoidCompletion)(void);
 
 - (void)test_sends_complete_event_to_a_delegate {
     [self executeTestFlowToTestEvent: true
+                 andFulfillmentCount: 2
                         andTestEvent: ^{
                             [self emulateSendClick];
                         }];
@@ -139,17 +145,20 @@ typedef void (^VoidCompletion)(void);
 }
 
 - (void)executeTestFlowToTestEvent: (BOOL)initialized
+               andFulfillmentCount: (NSInteger)fulfillmentCount
                       andTestEvent: (NS_NOESCAPE VoidCompletion)testEvent {
     [self executeTestFlowToTestEvent: initialized
                      withPlacementID: kUADSShowModuleTestsPlacementID
+                 andFulfillmentCount: fulfillmentCount
                         andTestEvent: testEvent];
 }
 
 - (void)executeTestFlowToTestEvent: (BOOL)initialized
                    withPlacementID: (NSString *)placementID
+               andFulfillmentCount: (NSInteger)fulfillmentCount
                       andTestEvent: (NS_NOESCAPE VoidCompletion)testEvent {
     [self setDefaultConfiguration];
-    [self setExpectationInDelegate];
+    [self setExpectationInDelegateWithCount: fulfillmentCount];
     [self setInitialized: initialized];
     [self emulateShowCallWithPlacementID: placementID];
     testEvent();
@@ -242,12 +251,16 @@ typedef void (^VoidCompletion)(void);
 }
 
 - (void)await {
-    [self waitForExpectationsWithTimeout: DEFAULT_TEST_WAIT_TIME
-                                 handler: nil];
+    [self waitForExpectations:@[_showDelegateMock.expectation]
+                      timeout: DEFAULT_TEST_WAIT_TIME];
 }
 
-- (void)setExpectationInDelegate {
-    _showDelegateMock.expectation = self.defaultExpectation;
+- (void)setExpectationInDelegateWithCount: (NSUInteger)count {
+    XCTestExpectation *exp = self.defaultExpectation;
+    _showDelegateMock.expectation = exp;
+    _invokerMock.expectation = exp;
+    exp.expectedFulfillmentCount = count;
+
 }
 
 - (void)emulateSendStartEvent {
@@ -260,7 +273,7 @@ typedef void (^VoidCompletion)(void);
 }
 
 - (XCTestExpectation *)defaultExpectation {
-    return [self expectationWithDescription: @"UADSLoadModuleTests.Expectation"];
+    return [self expectationWithDescription: @"UADSShowModuleTests.Expectation"];
 }
 
 - (void)waitForTimeInterval: (NSTimeInterval)waitTime {

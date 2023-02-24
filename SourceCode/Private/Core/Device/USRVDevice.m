@@ -222,6 +222,9 @@ static NSNumber *uadsBootTime = nil;
 + (NSNumber *)getFreeSpaceInKilobytes {
     unsigned long long freeSpace = [[[[NSFileManager defaultManager] attributesOfFileSystemForPath: NSHomeDirectory()
                                                                                              error: nil] objectForKey: NSFileSystemFreeSize] unsignedLongLongValue];
+    if (freeSpace == ULONG_MAX) {
+        return [NSNumber numberWithInt:0];
+    }
 
     return [NSNumber numberWithUnsignedLongLong: freeSpace / 1024];
 }

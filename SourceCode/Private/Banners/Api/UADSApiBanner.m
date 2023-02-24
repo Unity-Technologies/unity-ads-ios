@@ -2,11 +2,11 @@
 #import "USRVWebViewCallback.h"
 #import "UADSBannerWebPlayerContainer.h"
 #import "UADSWebPlayerSettingsManager.h"
-#import "UADSBannerViewManager.h"
 #import "UADSBannerView+UADSBannerWebPlayerContainerDelegate.h"
 #import "USRVBannerBridge.h"
 #import "UADSBannerRefreshInfo.h"
 #import "UADSBannerWebPlayerContainerType.h"
+#import "UADSBannerLoadModule.h"
 
 @implementation UADSApiBanner
 
@@ -17,12 +17,13 @@
         case UADSBannerWebPlayerContainerTypeWebPlayer: {
             NSDictionary *webPlayerSettings = [[UADSWebPlayerSettingsManager sharedInstance] getWebPlayerSettings: bannerAdId];
             NSDictionary *webPlayerEventSettings = [[UADSWebPlayerSettingsManager sharedInstance] getWebPlayerEventSettings: bannerAdId];
-            UADSBannerView *bannerView = [[UADSBannerViewManager sharedInstance] getBannerViewWithBannerAdId: bannerAdId];
+            
+            UADSBannerView *bannerView = [[UADSBannerLoadModule sharedInstance] bannerViewWithID:bannerAdId];  
 
             if (bannerView) {
-                if ([bannerView getBannerWebPlayerContainer]) {
+                UADSBannerWebPlayerContainer *bannerWebPlayerContainer = [bannerView getBannerWebPlayerContainer];
+                if (bannerWebPlayerContainer) {
                     // if there is already a web player re-use it
-                    UADSBannerWebPlayerContainer *bannerWebPlayerContainer = [bannerView getBannerWebPlayerContainer];
                     dispatch_async(dispatch_get_main_queue(), ^{
                         // update banner view settings
                         [bannerWebPlayerContainer.webPlayer setWebPlayerSettings: webPlayerSettings];

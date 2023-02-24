@@ -2,6 +2,7 @@
 #import "XCTestCase+Convenience.h"
 #import "XCTestAssert+Fail.h"
 #import "UADSTools.h"
+#import "UnityAds+Testability.h"
 @implementation XCTestCase (Category)
 - (XCTestExpectation *)defaultExpectation {
     return [self expectationWithDescription: NSStringFromClass([self class])];
@@ -54,6 +55,10 @@
 - (void)postDidEnterBackground {
     [[NSNotificationCenter defaultCenter] postNotificationName: UIApplicationDidEnterBackgroundNotification
                                                         object: nil];
+}
+
+- (void)resetUnityAds {
+    [UnityAds resetForTest];
 }
 
 @end

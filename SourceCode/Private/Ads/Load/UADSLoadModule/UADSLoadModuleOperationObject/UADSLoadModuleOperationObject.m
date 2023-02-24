@@ -5,4 +5,8 @@
     return @"load";
 }
 
+- (nonnull NSString *)className {
+    return kWebViewClassName;
+}
+
 @end

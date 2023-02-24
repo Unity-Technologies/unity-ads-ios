@@ -6,6 +6,7 @@
 #import "UADSShowModule.h"
 #import "UIViewControllerMock.h"
 #import "UnityAdsShowCompletionState.h"
+#import "XCTestCase+Convenience.h"
 
 static NSString *const kUADSLoadModuleTestsPlacementID = @"kUADSLoadModuleTestsPlacementID";
 static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
@@ -22,6 +23,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 @implementation UADSShowModuleIntegrationTests
 
 - (void)setUp {
+    [self resetUnityAds];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
     [self setConfigurationWithShorterTimeouts];
@@ -35,6 +37,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     [self emulateSDKInitialized: false];
     [USRVWebViewApp setCurrentApp: nil];
     [UADSShowModule setConfiguration: [USRVConfiguration new]];
+    [self resetUnityAds];
 }
 
 - (UADSShowModule *)moduleToTest {

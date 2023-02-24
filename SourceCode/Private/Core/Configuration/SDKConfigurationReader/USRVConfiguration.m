@@ -6,6 +6,7 @@
 #import "UADSTools.h"
 #import "UADSTokenStorage.h"
 #import "NSDictionary+Merge.h"
+#import "NSMutableDictionary+SafeOperations.h"
 
 NSString *const kUnityServicesConfigValueHash = @"hash";
 NSString *const kUnityServicesConfigValueUrl = @"url";
@@ -35,6 +36,8 @@ NSString *const kUnityServicesConfigValueSource = @"src";
 NSString *const kUnityServicesConfigHeaderBiddingTimeout = @"tto";
 NSString *const kUnityServicesConfigPrivacyWaitTimeout = @"prwto";
 NSString *const kUnityServicesConfigSessionToken = @"sTkn";
+
+NSString *const kUnityServicesConfigValueScarHbUrl = @"scurl";
 
 @interface USRVConfiguration ()
 @property (nonatomic, strong) NSDictionary *originalJSON;
@@ -174,6 +177,9 @@ NSString *const kUnityServicesConfigSessionToken = @"sTkn";
     self.enableNativeMetrics = self.metricSamplingRate >= (arc4random_uniform(99) + 1);
     self.originalJSON = [NSDictionary uads_dictionaryByMerging: @{@"enableNativeMetrics": @(self.enableNativeMetrics)}
                                                      secondary: configDictionary];
+    
+    
+    self.scarHbUrl = configDictionary[kUnityServicesConfigValueScarHbUrl] ? : nil;
 }
 
 - (NSArray<NSString *> *)getWebAppApiClassList {
@@ -212,14 +218,22 @@ NSString *const kUnityServicesConfigSessionToken = @"sTkn";
         kUnityServicesConfigValueWebViewAppCreateTimeout: [NSNumber numberWithLong: self.webViewAppCreateTimeout],
         kUnityServicesConfigHeaderBiddingTimeout: [NSNumber numberWithLong: self.hbTokenTimeout],
         kUnityServicesConfigValueSdkVersion: self.sdkVersion ? : [NSNull null],
-        kUnityServicesConfigValueExperiments: self.experiments.json ? : [NSNull null],
         kUnityServicesConfigHeaderBiddingTimeout: [NSNumber numberWithLong: self.hbTokenTimeout],
         kUnityServicesConfigPrivacyWaitTimeout: [NSNumber numberWithLong: self.privacyWaitTimeout],
         kUnityServicesConfigValueSource: self.source ? : [NSNull null]
     };
 
+    NSMutableDictionary *mConfigDictionary = [NSMutableDictionary dictionaryWithDictionary: configDictionary];
+    [mConfigDictionary uads_setValueIfNotNil:[_originalJSON valueForKey: kUnityServicesConfigValueExperiments]
+                                      forKey:kUnityServicesConfigValueExperiments];
+    [mConfigDictionary uads_setValueIfNotNil:[_originalJSON valueForKey: kUnityServicesConfigValueExperimentsObject]
+                                      forKey:kUnityServicesConfigValueExperimentsObject];
+    
+    [mConfigDictionary uads_setValueIfNotNil:self.scarHbUrl
+                                      forKey:kUnityServicesConfigValueScarHbUrl];
+    
     // TODO: Handle JSON Serialization Error
-    return [NSJSONSerialization dataWithJSONObject: configDictionary
+    return [NSJSONSerialization dataWithJSONObject: mConfigDictionary
                                            options: kNilOptions
                                              error: &error];
 } /* toJson */

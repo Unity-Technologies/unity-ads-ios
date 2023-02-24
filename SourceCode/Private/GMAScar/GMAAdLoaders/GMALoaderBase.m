@@ -1,6 +1,7 @@
 #import "GMALoaderBase.h"
 #import "GADAdInfoBridge.h"
 #import "GADRequestBridge.h"
+#import "GADRequestBridgeV85.h"
 #import "GADResponseInfoBridge.h"
 
 @interface GMALoaderBase ()
@@ -17,10 +18,17 @@
 }
 
 + (BOOL)isSupported {
-    return [GADRequestBridge exists] &&
-           [GADAdInfoBridge exists] &&
-           [GADQueryInfoBridge exists] &&
+    return [GADQueryInfoBridge exists] &&
+           ([self isGADRequestSupported] || [self isGADRequestV85Supported]) &&
            [GADResponseInfoBridge exists];
+}
+
++ (BOOL)isGADRequestV85Supported {
+    return [GADRequestBridgeV85 exists];
+}
+
++ (BOOL)isGADRequestSupported {
+    return [GADRequestBridge exists] && [GADAdInfoBridge exists];
 }
 
 - (instancetype)initWithRequestFactory: (id<GADRequestFactory>)requestFactory

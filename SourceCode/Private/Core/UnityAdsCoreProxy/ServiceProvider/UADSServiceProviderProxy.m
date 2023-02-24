@@ -1,5 +1,6 @@
 #import "UADSServiceProviderProxy.h"
 #import "NSInvocation+Convenience.h"
+#import "NSPrimitivesBox.h"
 
 static NSString *const INIT_INSTANCE_SELECTOR = @"init:";
 static NSString *const SHARED_INSTANCE_SELECTOR = @"shared";
@@ -8,6 +9,11 @@ static NSString *const MAIN_NETWORK_LAYER_KVO = @"nativeNetworkLayer";
 static NSString *const METRICS_NETWORK_LAYER_KVO = @"nativeMetricsNetworkLayer";
 static NSString *const SAVE_CONFIGURATION_SELECTOR = @"saveSDKConfigFrom:";
 static NSString *const GET_CONFIGURATION_SELECTOR = @"configDictionary";
+static NSString *const SET_DEBUG_MODE_SELECTOR = @"setDebugMode:";
+static NSString *const CURRENT_STATE_KVO = @"currentState";
+
+
+
 @implementation UADSServiceProviderProxy
 + (NSString *)className {
     return @"UnityAds.ServiceProviderObjCBridge";
@@ -41,6 +47,17 @@ static NSString *const GET_CONFIGURATION_SELECTOR = @"configDictionary";
         [self callInstanceMethod: SAVE_CONFIGURATION_SELECTOR
                             args: @[configDictionary]];
     }
+}
+
+- (void)setDebugMode: (BOOL)isDebugMode {
+    NSPrimitivesBox *box = [NSPrimitivesBox newWithBytes: &isDebugMode objCType: @encode(BOOL)];
+    [self callInstanceMethod: SET_DEBUG_MODE_SELECTOR
+                        args: @[box]];
+}
+
+- (InitializationState)currentState {
+    NSNumber *state = [self callInstanceMethodWithReturn:CURRENT_STATE_KVO args:@[]];
+    return state.intValue;
 }
 
 

@@ -1,12 +1,12 @@
 #import "USRVSDKMetrics.h"
 #import "UADSMetricSender.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @implementation USRVSDKMetrics
 
 
 + (id <ISDKMetrics>)getInstance {
-    return UADSServiceProvider.sharedInstance.metricSender;
+    return UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender;
 }
 
 @end

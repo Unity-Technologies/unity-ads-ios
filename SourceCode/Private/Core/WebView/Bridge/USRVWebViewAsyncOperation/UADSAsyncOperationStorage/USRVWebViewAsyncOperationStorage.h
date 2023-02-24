@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSCondition *_Nullable lock;
 
 + (instancetype)sharedInstance;
+- (void)resetForTesting;
 @end
 
 NS_ASSUME_NONNULL_END

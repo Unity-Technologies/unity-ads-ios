@@ -7,7 +7,7 @@
 #import "USRVInitializeStateError.h"
 #import "USRVInitializeStateRetry.h"
 #import "USRVInitializeStateNetworkError.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @interface USRVInitializeStateLoadWeb ()
 
@@ -17,6 +17,8 @@
 
 @implementation USRVInitializeStateLoadWeb : USRVInitializeState
 
+
+
 - (instancetype)initWithConfiguration: (USRVConfiguration *)configuration retries: (int)retries retryDelay: (long)retryDelay {
     self = [super initWithConfiguration: configuration];
     
@@ -25,7 +27,7 @@
         [self setRetries: retries];
         [self setRetryDelay: retryDelay];
         if (self.useNewDownloadNetwork) {
-            self.networkLayer = UADSServiceProvider.sharedInstance.objBridge.nativeNetworkLayer;
+            self.networkLayer = self.serviceProvider.objBridge.nativeNetworkLayer;
         }
     }
     
@@ -33,8 +35,18 @@
 }
 
 - (instancetype)execute {
-    return self.useNewDownloadNetwork ? [self new_implementation] : [self old_implementation];
+    if ([self.configuration.experiments isNativeWebViewCacheEnabled]) {
+        id nextState = [[USRVInitializeStateCreate alloc] initWithConfiguration: self.configuration
+                                                                    webViewData: @""];
+        return nextState;
+    } else {
+        return self.useNewDownloadNetwork ? [self new_implementation] : [self old_implementation];
+    }
 } /* execute */
+
+- (UADSServiceProvider *)serviceProvider {
+    return UADSServiceProviderContainer.sharedInstance.serviceProvider;
+}
 
 - (instancetype)old_implementation {
     NSString *urlString = [NSString stringWithFormat: @"%@", [self.configuration webViewUrl]];
@@ -52,10 +64,10 @@
         return nextState;
     }
     
-    id<USRVWebRequest> webRequest = [USRVWebRequestFactory create: urlString
-                                                      requestType: @"GET"
-                                                          headers: NULL
-                                                   connectTimeout: 30000];
+    id<USRVWebRequest> webRequest = [self.serviceProvider.webViewRequestFactory create: urlString
+                                                                           requestType: @"GET"
+                                                                               headers: NULL
+                                                                        connectTimeout: 30000];
     NSData *responseData = [webRequest makeRequest];
     
     if (!webRequest.error) {
@@ -158,8 +170,19 @@
     if ([nextState isKindOfClass:[USRVInitializeStateCreate class]]) {
         completion();
     } else {
-        [nextState startWithCompletion:completion error:error]; // error or retry states
+        [nextState startWithCompletion:^{
+            if ([nextState isKindOfClass:[USRVInitializeStateRetry class]]) {
+                self.retries = [(USRVInitializeStateLoadWeb*)[(USRVInitializeStateRetry*)nextState retryState] retries];
+            }
+            completion();
+        } error:^(NSError * _Nonnull er) {
+            error(er);
+        }]; // error or retry states
     }
+}
+
+- (NSInteger)retryCount {
+    return self.retries;
 }
 
 @end

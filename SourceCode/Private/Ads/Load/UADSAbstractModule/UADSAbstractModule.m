@@ -66,32 +66,33 @@ static USRVConfiguration *configuration = nil;
     return self;
 }
 
-- (void)executeForPlacement: (NSString *)placementId
-                withOptions: (id<UADSDictionaryConvertible>)options
-                andDelegate: (id<UADSAbstractModuleDelegate>)delegate {
+- (NSString *)executeForPlacement: (NSString *)placementId
+                      withOptions: (id<UADSDictionaryConvertible>)options
+                      andDelegate: (id<UADSAbstractModuleDelegate>)delegate {
     NSString *safePlacementID = placementId ? : kUADSAbstractModuleEmptyPlacementID;
-
+    
     UADSInternalError *error = [self executionErrorForPlacementID: safePlacementID];
-
+    
     if (error) {
         [self logErrorAndNotifyDelegate: delegate
                             errorParams: error
                          forPlacementID: safePlacementID];
-        return;
+        return @"";
     }
-
+    
     id<UADSAbstractModuleOperationObject> operation =  [self createEventWithPlacementID: safePlacementID
                                                                             withOptions: options
                                                                                   timer: [self.timerFactory timerWithAppLifeCycle]
                                                                            withDelegate: delegate];
-
+    
     [_eventHandler eventStarted: operation.id];
     [self saveOperation: operation];
-
-
+    
+    
     dispatch_async(_invokeQueue, ^{
         [self invokeOperation: operation];
     });
+    return operation.id;
 } /* executeForPlacement */
 
 - (NSInteger)operationOperationTimeoutMs {

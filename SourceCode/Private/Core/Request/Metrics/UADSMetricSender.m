@@ -17,7 +17,8 @@
 + (instancetype)newWithConfigurationReader: (id<UADSConfigurationReader, UADSConfigurationMetricTagsReader>)configReader
                          andRequestFactory: (id<IUSRVWebRequestFactory>)factory
                              storageReader: (id<UADSJsonStorageReader>)storageReader
-                             privacyReader: (id<UADSPrivacyResponseReader>)privacyReader {
+                             privacyReader: (id<UADSPrivacyResponseReader>)privacyReader
+                     sharedSessionIdReader: (id<UADSSharedSessionIdReader>)sharedSessionIdReader {
     UADSMetricSender *sender = [UADSMetricSender new];
 
     sender.configurationReader = configReader;
@@ -25,7 +26,8 @@
     sender.metricQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     sender.commonTagsProvider = [UADSMetricCommonTagsProviderBase newWithTagsReader: configReader
                                                                       storageReader: storageReader
-                                                                      privacyReader: privacyReader];
+                                                                      privacyReader: privacyReader
+                                                              sharedSessionIdReader: sharedSessionIdReader];
     return sender;
 }
 
@@ -76,7 +78,7 @@
             
             UADSMetricsContainer *container = [[UADSMetricsContainer alloc] initWithCommonTags: self.commonTagsProvider.commonTags
                                                                                        metrics: metrics
-                                                                                          info: self.commonTagsProvider.commonInfo];
+                                                                                          info: self.commonTagsProvider.containerInfo];
             NSString *postBody = [[container dictionary] uads_jsonEncodedString];
 
             id<USRVWebRequest> request = [self.requestFactory create: self.metricEndpoint

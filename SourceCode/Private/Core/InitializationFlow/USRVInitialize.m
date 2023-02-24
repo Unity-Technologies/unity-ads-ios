@@ -5,7 +5,7 @@
 #import "USRVInitializeStateForceReset.h"
 #import "USRVInitializeStateCheckForCachedWebViewUpdate.h"
 #import "UADSInitializeEventsMetricSender.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "USRVInitializeStateRetry.h"
 
 @implementation USRVInitialize
@@ -68,14 +68,14 @@ static dispatch_once_t onceToken;
     NSString *metricName = [self metricName];
 
     if (![self isRetryState]) {
-        [UADSServiceProvider.sharedInstance.performanceMeasurer startMeasureForSystemIfNeeded: metricName];
+        [UADSServiceProviderContainer.sharedInstance.serviceProvider.performanceMeasurer startMeasureForSystemIfNeeded: metricName];
     }
 
     id nextState = [self execute];
 
     if (![self isRetryState] && ![nextState isRetryState]) {
-        NSNumber *duration = [UADSServiceProvider.sharedInstance.performanceMeasurer endMeasureForSystem: metricName];
-        [UADSServiceProvider.sharedInstance.metricSender sendMetric: [UADSMetric newWithName: metricName
+        NSNumber *duration = [UADSServiceProviderContainer.sharedInstance.serviceProvider.performanceMeasurer endMeasureForSystem: metricName];
+        [UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender sendMetric: [UADSMetric newWithName: metricName
                                                                                        value: duration
                                                                                         tags: UADSInitializeEventsMetricSender.sharedInstance.retryTags]];
     }
@@ -118,6 +118,10 @@ static dispatch_once_t onceToken;
 
 - (void)startWithCompletion:(nonnull void (^)(void))completion error:(nonnull void (^)(NSError * _Nonnull))error {
     
+}
+
+- (NSInteger)retryCount {
+    return 0;
 }
 
 @end

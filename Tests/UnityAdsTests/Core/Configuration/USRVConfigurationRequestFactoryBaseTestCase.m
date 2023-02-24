@@ -37,8 +37,6 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
 - (void)test_selects_post_method {
     self.infoReaderMock.expectedInfo = @{};
     id<USRVWebRequest> request = [self getWebRequestUsingCompression: true
-                                                     usingPostMethod: true
-                                                        isTSIEnabled: true
                                                               ofType: USRVInitializationRequestTypeToken];
 
     XCTAssertEqualObjects(request.requestType, @"POST");
@@ -48,8 +46,6 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
 - (void)test_post_request_contains_proper_url {
     self.infoReaderMock.expectedInfo = @{};
     id<USRVWebRequest> request = [self getWebRequestUsingCompression: true
-                                                     usingPostMethod: true
-                                                        isTSIEnabled: true
                                                               ofType: USRVInitializationRequestTypeToken];
 
     XCTAssertEqualObjects(request.url, kUnityMockedBaseURL);
@@ -59,8 +55,6 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
 - (void)test_post_request_contains_gzip_headers {
     self.infoReaderMock.expectedInfo = @{};
     id<USRVWebRequest> request = [self getWebRequestUsingCompression: true
-                                                     usingPostMethod: true
-                                                        isTSIEnabled: true
                                                               ofType: USRVInitializationRequestTypeToken];
 
     NSDictionary *expectedHeaders = @{ @"Content-Encoding": @[@"gzip"],
@@ -73,8 +67,6 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
 - (void)test_body_contains_gzip_data_for_token_type {
     self.infoReaderMock.expectedInfo = self.expectedDeviceInfo;
     id<USRVWebRequest> request = [self getWebRequestUsingCompression: true
-                                                     usingPostMethod: true
-                                                        isTSIEnabled: true
                                                               ofType: USRVInitializationRequestTypeToken];
 
     NSDictionary *dict =  [self expectedPostDataWithCallType: USRVInitializationRequestTypeToken];
@@ -88,8 +80,6 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
 - (void)test_body_contains_gzip_data_for_privacy_type {
     self.infoReaderMock.expectedInfo = self.expectedDeviceInfo;
     id<USRVWebRequest> request = [self getWebRequestUsingCompression: true
-                                                     usingPostMethod: true
-                                                        isTSIEnabled: true
                                                               ofType: USRVInitializationRequestTypePrivacy];
 
     NSDictionary *dict =  [self expectedPostDataWithCallType: USRVInitializationRequestTypePrivacy];
@@ -100,24 +90,11 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
     [self validateCompressionLatencyMetricSent: YES];
 }
 
-- (void)test_body_contains_creates_gzip_encoded_string_of_the_info {
-    id<USRVWebRequest> request = [self getWebRequestUsingCompression: true
-                                                     usingPostMethod: false
-                                                        isTSIEnabled: true
-                                                              ofType: USRVInitializationRequestTypeToken];
-
-    XCTAssertEqualObjects(request.body, NULL);
-    [self validateCompressionLatencyMetricSent: NO];
-}
 
 - (id<USRVWebRequest>)getWebRequestUsingCompression: (BOOL)compressed
-                                    usingPostMethod: (BOOL)isPostMethod
-                                       isTSIEnabled: (BOOL)isTSIEnabled
                                              ofType: (USRVInitializationRequestType)type {
     UADSFactoryConfigMock *config = [UADSFactoryConfigMock new];
 
-    config.isPOSTMethodInConfigRequestEnabled = isPostMethod;
-    config.isTwoStageInitializationEnabled = isTSIEnabled;
     id<USRVInitializationRequestFactory> sut = [self sutWithMockedInfoReaderCompressed: compressed
                                                                              andConfig: config
                                                                             andBaseURL: kUnityMockedBaseURL];

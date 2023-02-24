@@ -4,7 +4,6 @@
 #import "UADSConfigurationCRUDBase.h"
 #import "USRVConfigurationRequestFactoryWithLogs.h"
 #import "UADSHeaderBiddingTokenReaderBuilder.h"
-#import "UADSConfigurationLegacyLoader.h"
 #import "UADSConfigurationLoaderWithPrivacy.h"
 #import "USRVStorageManager.h"
 #import "UADSDeviceInfoReaderBuilder.h"
@@ -13,8 +12,7 @@
 #import "UADSWebRequestFactorySwiftAdapter.h"
 #import "UADSPrivacyLoaderWithMetrics.h"
 #import "UADSConfigurationLoaderWithMetrics.h"
-#import "UADSConfigurationLoaderStrategy.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @interface UADSConfigurationLoaderBuilder ()
 @property (nonatomic, strong) id<UADSClientConfig> config;
@@ -37,21 +35,11 @@
 }
 
 - (id<UADSConfigurationLoader>)configurationLoader {
-    id<UADSConfigurationLoader> loaderToReturn = self.baseStrategy;
-
-    loaderToReturn = [self decorateWithSaving: loaderToReturn];
-    return loaderToReturn;
-}
-
-
-- (id<UADSConfigurationLoader>)baseStrategy {
-    id<UADSConfigurationLoader>mainLoader = self.mainLoader;
-
+    id<UADSConfigurationLoader> mainLoader = self.mainLoader;
     mainLoader = [self decorateWithMetrics: mainLoader];
-    mainLoader = [self decorateLoaderWithPrivacyIfNeed: mainLoader];
-    return [UADSConfigurationLoaderStrategy newWithMainLoader: mainLoader
-                                            andFallbackLoader: self.fallbackLoader
-                                                 metricSender: self.metricsSender];
+    mainLoader = [self decorateLoaderWithPrivacy: mainLoader];
+    mainLoader = [self decorateWithSaving: mainLoader];
+    return mainLoader;
 }
 
 - (id<UADSConfigurationLoader>)decorateWithSaving: (id<UADSConfigurationLoader>)original {
@@ -72,9 +60,6 @@
                                                 retryInfoReader: _retryInfoReader];
 }
 
-- (id<UADSConfigurationLoader>)fallbackLoader {
-    return [UADSConfigurationLegacyLoader newWithRequestFactory: self.webRequestFactory];
-}
 
 - (id<USRVInitializationRequestFactory>)getMainFactory {
     if (_mainRequestFactory) {
@@ -116,14 +101,10 @@
     return [USRVConfigurationRequestFactoryWithLogs newWithOriginal: factory];
 }
 
-- (id<UADSConfigurationLoader>)decorateLoaderWithPrivacyIfNeed: (id<UADSConfigurationLoader>)loader {
-    if (_config.isPrivacyRequestEnabled) {
-        return [UADSConfigurationLoaderWithPrivacy newWithOriginal: loader
-                                                  andPrivacyLoader: self.getMainPrivacyLoader
-                                                andResponseStorage: self.privacyResponseStorage];
-    }
-
-    return loader;
+- (id<UADSConfigurationLoader>)decorateLoaderWithPrivacy: (id<UADSConfigurationLoader>)loader {
+    return [UADSConfigurationLoaderWithPrivacy newWithOriginal: loader
+                                              andPrivacyLoader: self.getMainPrivacyLoader
+                                            andResponseStorage: self.privacyResponseStorage];
 }
 
 - (id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader>)privacyResponseStorage {

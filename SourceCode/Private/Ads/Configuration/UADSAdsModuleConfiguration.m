@@ -2,7 +2,7 @@
 #import "UADSWebViewShowOperation.H"
 #import "UADSTokenStorage.h"
 #import "UADSAbstractModule.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 @implementation UADSAdsModuleConfiguration
 
 - (NSArray<NSString *> *)getWebAppApiClassList {
@@ -20,7 +20,7 @@
 
 - (BOOL)resetState: (USRVConfiguration *)configuration {
     [self setConfigurationToRequiredModules: configuration];
-    [UADSServiceProvider.sharedInstance.hbTokenReader deleteTokens];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.hbTokenReader deleteTokens];
     return true;
 }
 
@@ -30,8 +30,8 @@
 }
 
 - (BOOL)initErrorState: (USRVConfiguration *)configuration code: (UADSErrorState)stateCode message: (NSString *)message {
-    [UADSServiceProvider.sharedInstance.hbTokenReader setInitToken: nil];
-    [UADSServiceProvider.sharedInstance.hbTokenReader deleteTokens];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.hbTokenReader setInitToken: nil];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.hbTokenReader deleteTokens];
 
     return true;
 }

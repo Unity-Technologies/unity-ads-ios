@@ -6,9 +6,9 @@ class UADSWebRequestSwiftAdapterTests: XCTestCase {
     var objServiceProvider: ServiceProviderObjCBridge {
         networkTester.objServiceProvider
     }
-    var networkTester = SDKNetworkTestsHelper()
+    var networkTester = SDKNetworkTestsHelper(useExampleConfig: false)
     override func setUp() {
-        networkTester = .init()
+        networkTester = .init(useExampleConfig: false)
     }
 
     override func tearDownWithError() throws {
@@ -27,6 +27,47 @@ class UADSWebRequestSwiftAdapterTests: XCTestCase {
 
     var expectedHeaders: [String: String] {
         ["header1": "value1", "header2": "value2"]
+    }
+
+    func test_adapter_sends_correct_request() {
+        executeWithSuccess(type: "GET")
+    }
+
+    func test_adapter_sends_correct_post_request_with_string_body() {
+        executeWithSuccess(type: "POST", body: "test")
+    }
+
+    func test_adapter_sends_correct_post_request_with_data_body() {
+        executeWithSuccess(type: "POST", bodyData: "test".data(using: .utf8))
+    }
+
+    func test_adapter_set_error_if_request_fails() {
+        setExpectedError(NSError(domain: "UnityAds.HTTPURLResponseError", code: 100))
+        let request = createRequest(type: "GET")
+        let data = request?.make()
+        XCTAssertNotNil(request)
+        XCTAssertNil(data)
+        XCTAssertNil(request?.receivedData)
+        XCTAssertNotNil(request?.error)
+    }
+
+    let expectedData = "expected data".data(using: .utf8)
+    let successCode = 200
+    let timeout: TimeInterval = 20_000 // obj-c requests in ms
+    let testUrl = "https://www.test.com/params?c=324jr4"
+}
+
+extension UADSWebRequestSwiftAdapterTests {
+    func setExpectedData(_ data: Data?) {
+        networkTester.setMetricsResponseExpectedData(data, at: 0)
+    }
+
+    func setExpectedError(_ error: Error?) {
+        networkTester.setMetricsResponseExpectedError(error, at: 0)
+    }
+
+    func setExpectedStatus(_ status: Int) {
+        networkTester.setMetricsResponseExpectedStatus(200, at: 0)
     }
 
     func executeWithSuccess(type: String,
@@ -71,43 +112,4 @@ class UADSWebRequestSwiftAdapterTests: XCTestCase {
         request?.bodyData = bodyData
         return request
     }
-
-    func test_adapter_sends_correct_request() {
-        executeWithSuccess(type: "GET")
-    }
-
-    func test_adapter_sends_correct_post_request_with_string_body() {
-       executeWithSuccess(type: "POST", body: "test")
-    }
-
-    func test_adapter_sends_correct_post_request_with_data_body() {
-        executeWithSuccess(type: "POST", bodyData: "test".data(using: .utf8))
-    }
-
-    func test_adapter_set_error_if_request_fails() {
-        setExpectedError(NSError(domain: "UnityAds.HTTPURLResponseError", code: 100))
-        let request = createRequest(type: "GET")
-        let data = request?.make()
-        XCTAssertNotNil(request)
-        XCTAssertNil(data)
-        XCTAssertNil(request?.receivedData)
-        XCTAssertNotNil(request?.error)
-    }
-
-    func setExpectedData(_ data: Data?) {
-        networkTester.setMetricsResponseExpectedData(data, at: 0)
-    }
-
-    func setExpectedError(_ error: Error?) {
-        networkTester.setMetricsResponseExpectedError(error, at: 0)
-    }
-
-    func setExpectedStatus(_ status: Int) {
-        networkTester.setMetricsResponseExpectedStatus(200, at: 0)
-    }
-
-    let expectedData = "expected data".data(using: .utf8)
-    let successCode = 200
-    let timeout: TimeInterval = 20_000 // obj-c requests in ms
-    let testUrl = "https://www.test.com/params?c=324jr4"
 }

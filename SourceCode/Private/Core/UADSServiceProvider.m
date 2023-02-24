@@ -10,18 +10,16 @@
 #import "UADSGameSessionIdReader.h"
 #import "UADSWebRequestFactorySwiftAdapter.h"
 #import "UADSDeviceInfoReaderBuilder.h"
+#import "UADSSharedSessionIdReader.h"
 
 @interface UADSServiceProvider ()
 @property (nonatomic, strong) id<UADSPerformanceLogger>performanceLogger;
 @property (nonatomic, strong) UADSPerformanceMeasurer *performanceMeasurer;
 @property (nonatomic, strong) id<UADSGameSessionIdReader> gameSessionIdReader;
+@property (nonatomic, strong) id<UADSSharedSessionIdReader> sharedSessionIdReader;
 @end
 
 @implementation UADSServiceProvider
-_uads_custom_singleton_imp(UADSServiceProvider, ^{
-    return [self new];
-})
-
 
 - (instancetype)init {
     SUPER_INIT
@@ -39,6 +37,7 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     
     crudBase.serviceProviderBridge = self.objBridge;
     self.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
+    self.sharedSessionIdReader = [UADSSharedSessionIdReaderBase new];
     return self;
 }
 
@@ -50,6 +49,10 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
 -(NSDictionary *)getDeviceInfoWithExtended: (BOOL)extended {
     
     return [[self deviceInfoBuilderWithMetrics: true] getDeviceInfoWithExtended: extended];
+}
+
+- (NSString *)sharedSessionId {
+    return self.sharedSessionIdReader.sessionId;
 }
 
 -(void)didCompleteInit: (NSDictionary *)config {
@@ -97,6 +100,8 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
     tokenReaderBuilder.sdkConfigReader = self.configurationStorage;
     tokenReaderBuilder.tokenCRUD =  [UADSTokenStorage sharedInstance];
     tokenReaderBuilder.gameSessionIdReader = self.gameSessionIdReader;
+    tokenReaderBuilder.scar = [UADSGMAScar sharedInstance];
+    tokenReaderBuilder.requestFactory = self.webViewRequestFactory;
     return tokenReaderBuilder;
 }
 
@@ -111,7 +116,8 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
             _metricSender = [UADSMetricSender newWithConfigurationReader: self.configurationStorage
                                                        andRequestFactory: self.metricsRequestFactory
                                                            storageReader: [USRVStorageManager getStorage: kUnityServicesStorageTypePublic]
-                                                           privacyReader: self.privacyStorage];
+                                                           privacyReader: self.privacyStorage
+                                                   sharedSessionIdReader: self.sharedSessionIdReader];
             _metricSender = [UADSMetricSenderWithBatch decorateWithMetricSender: self.metricSender
                                                         andConfigurationSubject: self.configurationStorage
                                                                       andLogger: self.logger];
@@ -182,6 +188,9 @@ _uads_custom_singleton_imp(UADSServiceProvider, ^{
 }
 
 - (USRVInitializeStateFactory *)stateFactory {
+    if (_stateFactory) {
+        return _stateFactory;
+    }
     return [USRVInitializeStateFactory newWithBuilder: self
                                       andConfigReader: self.configurationStorage];
 }

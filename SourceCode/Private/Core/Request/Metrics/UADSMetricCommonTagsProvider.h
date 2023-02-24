@@ -3,12 +3,13 @@
 #import "UADSConfigurationMetricTagsReader.h"
 #import "USRVJsonStorage.h"
 #import "UADSPrivacyStorage.h"
+#import "UADSSharedSessionIdReader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol UADSMetricCommonTagsProvider <NSObject>
 - (UADSMetricCommonTags *) commonTags;
-- (nullable NSDictionary *)commonInfo;
+- (nullable NSDictionary *)containerInfo;
 @end
 
 
@@ -16,7 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)       newWithTagsReader: (id<UADSConfigurationMetricTagsReader>)tagsReader
                            storageReader: (id<UADSJsonStorageReader>)storageReader
-                           privacyReader: (id<UADSPrivacyResponseReader>)privacyReader;
+                           privacyReader: (id<UADSPrivacyResponseReader>)privacyReader
+                   sharedSessionIdReader: (id<UADSSharedSessionIdReader>)sharedSessionIdReader;
 
 @end
 

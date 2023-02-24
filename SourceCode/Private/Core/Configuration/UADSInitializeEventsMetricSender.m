@@ -3,7 +3,7 @@
 #import "UADSConfigurationCRUDBase.h"
 #import "UADSCurrentTimestampBase.h"
 #import "USRVInitializationNotificationCenter.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @interface UADSInitializeEventsMetricSender ()<USRVInitializationDelegate>
 @property (nonatomic, assign) CFTimeInterval startTime;
@@ -19,7 +19,7 @@
 @implementation UADSInitializeEventsMetricSender
 
 _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
-    return [[UADSInitializeEventsMetricSender alloc] initWithMetricSender: UADSServiceProvider.sharedInstance.metricSender
+    return [[UADSInitializeEventsMetricSender alloc] initWithMetricSender: UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender
                                                          currentTimestamp: [UADSCurrentTimestampBase new]
                                                               initSubject: USRVInitializationNotificationCenter.sharedInstance];
 })
@@ -135,4 +135,18 @@ _uads_custom_singleton_imp(UADSInitializeEventsMetricSender, ^{
     };
 }
 
+
+- (void)resetForTests {
+    @synchronized (self) {
+        _initMetricSent = false;
+        _tokenMetricSent = false;
+        _webviewRetryCount = 0;
+        _configRetryCount = 0;
+        _startTime = 0;
+        _epochStartTime = 0;
+        
+    }
+ 
+    
+}
 @end

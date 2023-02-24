@@ -3,6 +3,7 @@ import Foundation
 @objc
 protocol ServiceProviderObjCBridgeDelegate: AnyObject {
     func getDeviceInfo(extended: Bool) -> [String: Any]
+    func getGameSessionId() -> String
     func didCompleteInit(_ config: [String: Any])
     func didReceivePrivacy(_ privacy: [String: Any])
 }
@@ -51,9 +52,9 @@ final class ServiceProviderObjCBridge: NSObject {
 
     @objc
     init(_ delegate: ServiceProviderObjCBridgeDelegate?) {
-            super.init()
-            self.delegate = delegate
-            subscribeDelegate()
+        super.init()
+        self.delegate = delegate
+        subscribeDelegate()
     }
 
     @objc
@@ -61,7 +62,30 @@ final class ServiceProviderObjCBridge: NSObject {
         configStorage.saveSDKConfig(from: dictionary)
     }
 
-    private func subscribeDelegate() {
+    @objc
+    func setDebugMode(_ debugMode: Bool) {
+        serviceProvider.logLevel = debugMode ? .trace : .fatal
+    }
+}
+
+extension ServiceProviderObjCBridge {
+    @objc var currentState: String {
+        switch serviceProvider.sdkStateStorage.currentState {
+        case .notInitialized:
+            return "0"
+        case .inProcess:
+            return "1"
+        case .failed:
+            return "3"
+        case .initialized:
+            return "2"
+        }
+    }
+}
+
+private extension ServiceProviderObjCBridge {
+
+    func subscribeDelegate() {
         serviceProvider.setLegacyInfoClosure({ [weak delegate] in
             return delegate?.getDeviceInfo(extended: $0) ?? [:]
         })
@@ -73,6 +97,6 @@ final class ServiceProviderObjCBridge: NSObject {
         serviceProvider.subscribeToConfigAndInitComplete { [weak delegate] config in
             delegate?.didCompleteInit(config)
         }
-    }
 
+    }
 }

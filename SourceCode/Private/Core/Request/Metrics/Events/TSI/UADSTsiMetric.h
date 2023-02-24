@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)newTokenAvailabilityLatencyWebview: (NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags;
 + (instancetype)newTokenResolutionRequestLatency: (nullable NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags;
 + (instancetype)newTokenResolutionRequestFailureLatency: (NSDictionary<NSString *, NSString *> *)tags;
-+ (instancetype)newEmergencySwitchOff;
 + (instancetype)newDeviceInfoCollectionLatency: (NSNumber *)value;
 + (instancetype)newDeviceInfoCompressionLatency: (NSNumber *)value;
 + (instancetype)newNativeGeneratedTokenAvailableWithTags: (nullable NSDictionary<NSString *, NSString *> *)tags;

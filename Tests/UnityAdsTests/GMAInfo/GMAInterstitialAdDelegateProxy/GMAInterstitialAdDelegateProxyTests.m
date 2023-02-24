@@ -22,6 +22,7 @@
 @implementation GMAInterstitialAdDelegateProxyTests
 
 - (void)setUp {
+    [self resetUnityAds];
     _timerFactoryMock = [UADSTimerFactoryMock new];
     _webAppMock = [USRVWebViewAppMock new];
     [USRVWebViewApp setCurrentApp: _webAppMock];
@@ -30,6 +31,7 @@
 - (void)tearDown {
     _webAppMock = nil;
     [USRVWebViewApp setCurrentApp: _webAppMock];
+    [self resetUnityAds];
 }
 
 - (void)test_will_present_for_the_first_time_triggers_events {

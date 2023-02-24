@@ -5,9 +5,10 @@
 #import "UADSConfigurationReaderMock.h"
 #import "XCTestCase+Convenience.h"
 #import "UADSPrivacyStorageMock.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "UADSApiToken.h"
 #import "UADSEventSenderMock.h"
+#import "UADSUniqueIdGeneratorMock.h"
 
 NSString *const kTokenEventName = @"TOKEN_NATIVE_DATA";
 NSString *const kTokenCategoryName = @"TOKEN";
@@ -25,15 +26,18 @@ NSString *const kTokenCategoryName = @"TOKEN";
 - (void)setUp {
     [super setUp];
     self.readerMock = [UADSDeviceReaderMock new];
-    self.readerMock.expectedInfo = @{ @"test": @"info" };
+    self.readerMock.expectedInfo = @{ @"test": @"info", @"tid": @"uuid" };
     self.metricSenderMock = [SDKMetricsSenderMock new];
     self.privacyMock = [UADSPrivacyStorage new];
     self.eventSenderMock = [UADSEventSenderMock new];
     UADSHeaderBiddingTokenReaderBuilder *builder = [UADSHeaderBiddingTokenReaderBuilder new];
+    UADSUniqueIdGeneratorMock *idGeneratorMock = [UADSUniqueIdGeneratorMock new];
+    idGeneratorMock.expectedValue = @"uuid";
+    builder.uniqueIdGenerator = idGeneratorMock;
 
-    UADSServiceProvider.sharedInstance.tokenBuilder = builder;
-    UADSServiceProvider.sharedInstance.metricSender = self.metricSenderMock;
-    UADSServiceProvider.sharedInstance.webViewEventSender = self.eventSenderMock;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider.tokenBuilder = builder;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender = self.metricSenderMock;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider.webViewEventSender = self.eventSenderMock;
     builder.sdkConfigReader = self.configReaderMock;
     builder.privacyStorage = self.privacyMock;
     builder.tokenCRUD = [UADSTokenStorage new];
@@ -44,14 +48,15 @@ NSString *const kTokenCategoryName = @"TOKEN";
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
 
-    UADSServiceProvider.sharedInstance.tokenBuilder = nil;
-    UADSServiceProvider.sharedInstance.metricSender = nil;
-    UADSServiceProvider.sharedInstance.webViewEventSender = nil;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider.tokenBuilder = nil;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender = nil;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider.webViewEventSender = nil;
 
 #pragma clang diagnostic pop
 }
 
 - (void)test_token_doesnt_have_prefix {
+    [_privacyMock saveResponse:[UADSInitializationResponse newFromDictionary:@{}]];
     [UADSApiToken WebViewExposed_getNativeGeneratedToken: [USRVWebViewCallback new]];
     id<UADSWebViewEvent> lastEvent = _eventSenderMock.receivedEvents.lastObject;
     id<UADSWebViewEvent> expectedEvent = self.expectedEvent;
@@ -67,12 +72,12 @@ NSString *const kTokenCategoryName = @"TOKEN";
 }
 
 - (UADSWebViewEventBase *)expectedEvent {
-    // encoded device info: @{ @"test": @"info" };
-    NSString *token = @"H4sIAAAAAAAAE6tWKkktLlGyUsrMS8tXqgUAIuq+TA8AAAA=";
+    // encoded device info: @{ @"test": @"info", @"tid": @"uuid" };
+    NSString *tokenString = @"H4sIAAAAAAAAE6tWKslMUbJSKi0FUjpKJanFJUBeZl5avlItAPQMbt8cAAAA";
 
     return [UADSWebViewEventBase newWithCategory: kTokenCategoryName
                                        withEvent: kTokenEventName
-                                      withParams: @[token]];
+                                      withParams: @[tokenString]];
 }
 
 @end

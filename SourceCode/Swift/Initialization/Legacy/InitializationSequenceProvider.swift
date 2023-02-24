@@ -36,8 +36,8 @@ final class InitializationSequence {
 
     private var newSequential: [State] {
         [
-            .loadLocalConfig,
             .reset,
+            .loadLocalConfig,
             .initModules,
             .privacyFetch,
             .configFetch,
@@ -49,8 +49,8 @@ final class InitializationSequence {
 
     private var newParallel: [State] {
         [
-            .sync(.loadLocalConfig),
             .sync(.reset),
+            .sync(.loadLocalConfig),
             .sync(.initModules),
             .sync(.privacyFetch),
             .async([.configFetch, .webViewDownload]),

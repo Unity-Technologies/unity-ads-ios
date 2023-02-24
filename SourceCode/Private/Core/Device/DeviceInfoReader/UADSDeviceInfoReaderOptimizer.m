@@ -2,7 +2,7 @@
 #import "WKWebView+UserAgent.h"
 #import <AVFoundation/AVFoundation.h>
 #import "UADSUserAgentStorage.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 @interface UADSDeviceInfoReaderOptimizer ()
 @property (nonatomic, strong) dispatch_queue_t queue;
 @property (nonatomic, strong) UADSUserAgentStorage *userAgentReader;

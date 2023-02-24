@@ -52,4 +52,12 @@
     });
 }
 
+
+- (void)resetForTesting {
+    dispatch_sync(_syncQueue, ^{
+        internalLock = nil;
+        internalStatus = kUSRVWebViewAsyncOperationStatusIdle;
+        
+    });
+}
 @end

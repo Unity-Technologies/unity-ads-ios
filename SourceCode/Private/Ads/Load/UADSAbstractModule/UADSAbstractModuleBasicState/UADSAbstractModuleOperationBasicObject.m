@@ -31,6 +31,11 @@
     return nil;
 }
 
+- (nonnull NSString *)className {
+    NSAssert(NO, @"Cannot use abstract class");
+    return nil;
+}
+
 - (void)startListeningOperationTTLExpiration: (UADSVoidClosure)operationExpired {
     _operationExpired = operationExpired;
 

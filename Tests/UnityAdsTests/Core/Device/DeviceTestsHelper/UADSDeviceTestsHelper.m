@@ -272,12 +272,6 @@
     };
 }
 
-- (NSDictionary *)piiDecisionContentDataWithUserBehavioral: (BOOL)flag {
-    return [self.piiDecisionContentData uads_newdictionaryByMergingWith: @{
-                [UADSJsonStorageKeyNames userNonBehavioralFlagKey]: @(flag)
-    }];
-}
-
 - (void)setPIIDataToStorage {
     [self saveExpectedContentToJSONStorage: self.fullStorageMockData];
 }
@@ -307,7 +301,8 @@
         kUADSDeviceInfoGameIDKey,
         UADSJsonStorageKeyNames.webViewDataGameSessionIdKey,
         kUADSDeviceInfoReaderSDKVersionNameKey,
-        kUADSDeviceInfoReaderSDKVersionKey
+        kUADSDeviceInfoReaderSDKVersionKey,
+        UADSJsonStorageKeyNames.userNonBehavioralFlagKey
     ];
 }
 
@@ -379,14 +374,8 @@
     }
 }
 
-- (NSArray *)expectedPrivacyModeKeysWitNonBehavioral: (BOOL)include {
-    NSArray *keys = @[@"privacy.mode"];
-
-    if (include) {
-        keys = [keys arrayByAddingObject: UADSJsonStorageKeyNames.userNonBehavioralFlagKey];
-    }
-
-    return keys;
+- (NSArray *)expectedPrivacyModeKey {
+    return @[@"privacy.mode"];
 }
 
 - (NSArray <UADSMetric *> *)missedDataMetrics {
@@ -398,10 +387,6 @@
 
 - (UADSMetric *)tsiNoSessionIDMetrics {
     return [UADSTsiMetric newMissingGameSessionId];
-}
-
-- (UADSMetric *)emergencyOffMetrics {
-    return [UADSTsiMetric newEmergencySwitchOff];
 }
 
 - (UADSMetric *)infoCollectionLatencyMetrics {

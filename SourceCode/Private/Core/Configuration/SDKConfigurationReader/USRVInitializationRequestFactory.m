@@ -110,19 +110,6 @@ NSString * uads_requestTypeString(USRVInitializationRequestType type) {
     return bodyDictionary;
 }
 
-- (NSDictionary *)queryAttributes {
-    NSDictionary *newDictionary = [NSDictionary new];
-
-    if (!_config.isTwoStageInitializationEnabled) {
-        NSMutableDictionary *mDictionary = [NSMutableDictionary new];
-        mDictionary[@"ts"] = self.currentTimeStamp;
-        mDictionary[@"sdkVersion"] = _config.sdkVersion ? : @"";
-        newDictionary = [self appendCommonValuesTo: mDictionary];
-    }
-
-    return newDictionary;
-}
-
 - (NSDictionary *)appendCommonValuesTo: (NSDictionary *)dictionary {
     NSMutableDictionary *mDictionary = [[NSMutableDictionary alloc] initWithDictionary: dictionary];
 

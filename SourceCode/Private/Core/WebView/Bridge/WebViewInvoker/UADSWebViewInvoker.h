@@ -6,11 +6,12 @@ typedef void (^UADSWebViewInvokerCompletion)(void);
 
 static NSString *const kUnityAdsShowErrorKey = @"error";
 static NSString *const kUnityAdsShowErrorMessageKey = @"errorMessage";
-
+static NSString *const kWebViewClassName = @"webview";
 
 
 @protocol UADSWebViewInvokerOperation <NSObject, UADSDictionaryConvertible>
 - (NSString *)methodName;
+- (NSString *)className;
 @end
 
 @protocol UADSWebViewInvoker <NSObject>

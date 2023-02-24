@@ -1,5 +1,5 @@
 #import "USRVInitializeStateWithMeasurement.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 
 @interface USRVInitializeStateWithMeasurement()
 @property (nonatomic, strong) id<USRVInitializeTask> original;
@@ -35,15 +35,15 @@
 }
 
 - (void)startPerformanceMeasurement {
-    [UADSServiceProvider.sharedInstance.performanceMeasurer startMeasureForSystemIfNeeded: self.systemName];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.performanceMeasurer startMeasureForSystemIfNeeded: self.systemName];
 }
 
 - (void)calculateAndSendDuration {
-    NSNumber *duration = [UADSServiceProvider.sharedInstance.performanceMeasurer endMeasureForSystem: self.systemName];
+    NSNumber *duration = [UADSServiceProviderContainer.sharedInstance.serviceProvider.performanceMeasurer endMeasureForSystem: self.systemName];
     UADSMetric *metric = [UADSMetric newWithName: self.systemName
                                            value: duration
                                             tags: UADSInitializeEventsMetricSender.sharedInstance.retryTags];
-    [UADSServiceProvider.sharedInstance.metricSender sendMetric: metric];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.metricSender sendMetric: metric];
     
 }
 @end

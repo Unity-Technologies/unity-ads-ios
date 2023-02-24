@@ -1,28 +1,8 @@
 #import "USRVBannerBridge.h"
 #import "USRVWebViewApp.h"
 #include "USRVWebViewEventCategory.h"
-#import "UADSBannerViewManager.h"
 
 @implementation USRVBannerBridge
-
-+ (void)loadBannerPlacement: (NSString *)placementId bannerAdId: (NSString *)bannerAdId size: (CGSize)size {
-    USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];
-
-    if (app) {
-        NSNumber *width = [NSNumber numberWithFloat: size.width];
-        NSNumber *height = [NSNumber numberWithFloat: size.height];
-        [app sendEvent: UADSNSStringFromBannerEvent(UADSBannerEventLoadPlacement)
-              category: USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryBanner)
-                params: @[placementId, bannerAdId, width, height]];
-    } else {
-        UADSBannerError *error = [[UADSBannerError alloc] initWithCode: UADSBannerErrorCodeNativeError
-                                                              userInfo: @{
-                                      NSLocalizedDescriptionKey: @"WebViewApp was not available, this is likely because UnityAds has not been initialized"
-        }];
-        [[UADSBannerViewManager sharedInstance] triggerBannerDidError: bannerAdId
-                                                                error: error];
-    }
-}
 
 + (void)destroyBannerWithId: (NSString *)bannerAdId {
     USRVWebViewApp *app = [USRVWebViewApp getCurrentApp];

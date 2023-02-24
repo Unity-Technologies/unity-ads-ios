@@ -3,7 +3,6 @@
 #import "UADSTools.h"
 #import "UnityAdsShowError.h"
 
-static NSString *const kWebViewShowClassName = @"webview";
 static NSString *const kShowStateSenderErrorMessage = @"Failed invoke WebView the method: ";
 static NSString *const kCallbackStatusKey = @"cbs";
 
@@ -24,7 +23,7 @@ static NSString *const kCallbackStatusKey = @"cbs";
          withCompletion: (UADSWebViewInvokerCompletion)completion
      andErrorCompletion: (UADSWebViewInvokerErrorCompletion)errorCompletion {
     USRVWebViewAsyncOperation *asyncOperation = [USRVWebViewAsyncOperation newWithMethod: operation.methodName
-                                                                            webViewClass: kWebViewShowClassName
+                                                                            webViewClass: operation.className
                                                                               parameters: @[operation.dictionary]
                                                                                 waitTime: _waitingTime];
 

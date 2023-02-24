@@ -3,6 +3,7 @@
 #import "UADSConfigurationMetricTagsReader.h"
 #import "UADSGenericMediator.h"
 #import "UADSServiceProviderProxy.h"
+#import "UADSSCARHBConfigurationReader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -14,7 +15,7 @@ typedef void (^UADSConfigurationObserver)(USRVConfiguration *);
 - (void)triggerSaved: (USRVConfiguration *)config;
 @end
 
-@protocol UADSConfigurationReader <NSObject>
+@protocol UADSConfigurationReader <UADSSCARHBConfigurationReader>
 
 - (USRVConfiguration *)getCurrentConfiguration;
 - (NSDictionary *)     currentSessionExperimentsAsDictionary;

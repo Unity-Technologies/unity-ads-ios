@@ -27,6 +27,8 @@ typedef NS_ENUM (NSInteger, UADSTokenAvailabilityType) {
 - (void)sendTokenAvailabilityLatencyOnceOfType: (UADSTokenAvailabilityType)type;
 - (void)          didRetryConfig;
 - (void)          didRetryWebview;
+
+- (void)resetForTests; // consider removing singleton idea
 @end
 
 NS_ASSUME_NONNULL_END

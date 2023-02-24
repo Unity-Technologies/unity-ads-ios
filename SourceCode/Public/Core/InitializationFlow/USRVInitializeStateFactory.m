@@ -7,7 +7,7 @@
 #import "USRVInitializeStateComplete.h"
 #import "UADSConfigurationCRUDBase.h"
 #import "USRVInitializeStateWithMeasurement.h"
-#import "UADSServiceProvider.h"
+#import "UADSServiceProviderContainer.h"
 #import "USRVInitializeStateLoadConfigFile.h"
 
 @interface USRVInitializeStateFactory()

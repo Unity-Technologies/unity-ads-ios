@@ -22,5 +22,6 @@
 
 - (instancetype)                   execute;
 - (instancetype)initWithConfiguration: (USRVConfiguration *)configuration;
+- (NSString *)metricName;
 
 @end

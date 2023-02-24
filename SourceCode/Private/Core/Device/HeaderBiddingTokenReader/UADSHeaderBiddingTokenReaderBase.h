@@ -18,7 +18,8 @@ typedef void (^UADSHeaderBiddingTokenCompletion)(UADSHeaderBiddingToken *_Nullab
 
 + (instancetype)newWithDeviceInfoReader: (id<UADSDeviceInfoReader>)deviceInfoReader
                           andCompressor: (id<USRVStringCompressor>)compressor
-                        withTokenPrefix: (NSString *)prefix;
+                        withTokenPrefix: (NSString *)prefix
+                  withUniqueIdGenerator: (id<UADSUniqueIdGenerator>) uniqueIdGenerator;
 
 @end
 

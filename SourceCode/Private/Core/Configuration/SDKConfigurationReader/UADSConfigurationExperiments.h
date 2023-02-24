@@ -1,23 +1,20 @@
 #import <Foundation/Foundation.h>
-#import "UADSPIIDataSelector.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSConfigurationExperiments : NSObject
-@property (readonly) NSDictionary<NSString *, NSString *> *json;
-+ (instancetype)newWithJSON: (NSDictionary<NSString *, NSString *> *)json;
-- (BOOL)        isTwoStageInitializationEnabled;
-- (BOOL)        isPOSTMethodInConfigRequestEnabled;
-- (BOOL)        isForwardExperimentsToWebViewEnabled;
-- (BOOL)        isForcedUpdatePIIEnabled;
-- (BOOL)        isHeaderBiddingTokenGenerationEnabled;
-- (BOOL)        isPrivacyRequestEnabled;
-- (BOOL)        isPrivacyWaitEnabled;
+
+@property (readonly) NSDictionary<NSString *, NSDictionary *> *json;
++ (instancetype)newWithJSON: (NSDictionary<NSString *, NSDictionary *> *)json;
+
 - (BOOL)        isSwiftDownloadEnabled;
 - (BOOL)        isSwiftNativeRequestsEnabled;
 - (BOOL)        isSwiftWebViewRequestsEnabled;
 - (BOOL)        isSwiftInitFlowEnabled;
 - (BOOL)        isUseNewTasksEnabled;
 - (BOOL)        isParallelExecutionEnabled;
+- (BOOL)        isPrivacyWaitEnabled;
+- (BOOL)        isNativeWebViewCacheEnabled;
+- (BOOL)        isWebAdAssetCacheEnabled;
 
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags;
 - (NSDictionary<NSString *, NSString *> *)currentSessionFlags;

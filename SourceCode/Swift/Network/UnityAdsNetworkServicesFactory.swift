@@ -23,7 +23,12 @@ final class UnityAdsNetworkServicesFactory: MetricsSenderProvider {
     typealias ConfigProvider = UnityAdsConfigurationProvider &
                                MetricsSenderBatchConditionSubject &
                                ExperimentsReader &
-                               SessionTokenReader
+                               SessionTokenReader &
+                               RetriesInfoStorage
+    typealias SettingsProvider = LoggerSettingsReader &
+                                 NetworkSettingsProvider &
+                                 SDKGameIdProvider
+
     private let configurationProvider: ConfigProvider
     private let metricsCollector: URLSessionTaskMetricCollector = URLSessionTaskMetricCollectorBase()
     private var metricSession: URLSession
@@ -33,17 +38,16 @@ final class UnityAdsNetworkServicesFactory: MetricsSenderProvider {
     private let metricsAdapter: MetricsAdapter
     private let performanceMeasurer: PerformanceMeasurer<String>
     let metricsSender: MetricSender
+    let diagnosticMetricsSender: MetricSender
     let deviceInfoReader: DeviceInfoReader & LegacyDeviceInfoReader
-    let retriesInfoStorage: RetriesInfoWriter & RetriesInfoReader
 
     private let configEndpointProvider: ConfigEndpointProvider
 
-    init(settingsProvider: NetworkSettingsProvider,
+    init(settingsProvider: SettingsProvider,
          configurationProvider: ConfigProvider,
          deviceInfoReader: DeviceInfoReader & LegacyDeviceInfoReader,
          performanceMeasurer: PerformanceMeasurer<String>,
-         logger: Logger,
-         retriesInfoStorage: RetriesInfoWriter & RetriesInfoReader) {
+         logger: Logger) {
         self.configurationProvider = configurationProvider
         self.deviceInfoReader = deviceInfoReader
         self.allowedCodes = settingsProvider.responseSuccessCodes
@@ -54,16 +58,22 @@ final class UnityAdsNetworkServicesFactory: MetricsSenderProvider {
         self.metricsAdapter = MetricsAdapter(deviceInfoReader: deviceInfoReader,
                                              metricsMetaDataReader: self.configurationProvider,
                                              allowedResourceTypes: settingsProvider.metricsResourceTypes,
-                                             retriesInfoReader: retriesInfoStorage)
+                                             retriesInfoReader: configurationProvider,
+                                             gameId: settingsProvider.gameID,
+                                             sessionId: SharedSessionIdReaderBase().sessionId)
         self.configEndpointProvider = EndpointProviderBase(worldZoneReader: WorldZoneReaderBase(countryCodeProvider: deviceInfoReader))
-        metricsSender = createMetricsSender(session: metricSession,
-                                            configProvider: configurationProvider,
-                                            metricsAdapter: self.metricsAdapter,
-                                            deviceInfoReader: deviceInfoReader,
-                                            logger: logger)
+        let metricSenderBuilder = createMetricsSenderBuilder(session: metricSession,
+                                                             configProvider: configurationProvider,
+                                                             metricsAdapter: self.metricsAdapter,
+                                                             deviceInfoReader: deviceInfoReader,
+                                                             logger: logger)
+        metricsSender = metricSenderBuilder.metricsSender
+        diagnosticMetricsSender = metricSenderBuilder.networkDiagnosticMetricsSender
         self.performanceMeasurer = performanceMeasurer
-        self.retriesInfoStorage = retriesInfoStorage
     }
+}
+
+extension UnityAdsNetworkServicesFactory {
 
     var webViewDownLoader: WebViewDownloader {
         webViewDownloaderBuilder.webViewDownloader
@@ -72,9 +82,8 @@ final class UnityAdsNetworkServicesFactory: MetricsSenderProvider {
     var webViewDownloaderBuilder: WebViewDownloadBuilder {
         WebViewDownloadBuilder(unityAdsDownloader: unityAdsDownloader,
                                webViewDestination: filePaths.webviewURL,
-                               retriesInfoWriter: retriesInfoStorage)
+                               retriesInfoWriter: configurationProvider)
     }
-
 }
 
 extension UnityAdsNetworkServicesFactory: UnityAdsNetworkSenderProvider {
@@ -143,7 +152,7 @@ extension UnityAdsNetworkServicesFactory {
         .init(session: mainSession,
               configurationProvider: configurationProvider,
               metricsCollector: metricsCollector,
-              metricsSender: metricsSender)
+              metricsSender: diagnosticMetricsSender)
     }
 
     private var metricsNetworkServicesBuilder: CoreNetworkServicesBuilder {
@@ -180,4 +189,30 @@ private func createMetricsSender(session: URLSession,
                                                      logger: logger,
                                                      metricAdapter: metricsAdapter)
     return metricsSenderBuilder.networkDiagnosticMetricsSender
+}
+
+private func createMetricsSenderBuilder(session: URLSession,
+                                        configProvider: UnityAdsConfigurationProvider & MetricsSenderBatchConditionSubject,
+                                        metricsAdapter: MetricsAdapter,
+                                        deviceInfoReader: DeviceInfoReader & LegacyDeviceInfoReader,
+                                        logger: Logger,
+                                        codes: [Int] = Array((200...299))) -> MetricsSenderBuilder {
+
+    let networkBuilder = CoreNetworkServicesBuilder(session: session,
+                                                    configurationProvider: configProvider,
+                                                    metricsCollector: nil,
+                                                    metricsSender: nil)
+
+    let unityAdsRequestFactory = UnityAdsRequestFactory(configurationProvider: configProvider,
+                                                        adapter: metricsAdapter,
+                                                        deviceInfoReader: deviceInfoReader,
+                                                        bodyCompressor: GZipCompressor())
+    let networkSenderBuilder = networkBuilder.createNetworkSenderBuilder(with: codes)
+
+    return MetricsSenderBuilder(metricsConfigReader: configProvider,
+                                unityAdsRequestFactory: unityAdsRequestFactory,
+                                networkBuilder: networkSenderBuilder,
+                                conditionSubject: configProvider,
+                                logger: logger,
+                                metricAdapter: metricsAdapter)
 }

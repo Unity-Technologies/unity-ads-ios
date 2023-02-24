@@ -8,7 +8,11 @@ protocol PrivacyResponseSaver {
     func save(response: PrivacyResponse)
 }
 
-final class SDKSettingsStorage: LoggerLevelReader, LoggerSettingsReader, NetworkSettingsProvider {
+final class SDKSettingsStorage: LoggerLevelReader,
+                                LoggerSettingsReader,
+                                NetworkSettingsProvider,
+                                SDKGameIdProvider {
+
     var metricSessionConfiguration: URLSessionConfiguration = .ephemeral
 
     var mainSessionConfiguration: URLSessionConfiguration = .default
@@ -17,13 +21,16 @@ final class SDKSettingsStorage: LoggerLevelReader, LoggerSettingsReader, Network
 
     var metricsResourceTypes: [Int] = [1] // corresponds to .networkLoad
 
-    @Atomic var allowDumpToFile: Bool = true
+    @Atomic var allowDumpToFile: Bool = false
     @Atomic var currentLevel: LogLevel = .fatal
     @Atomic var currentInitConfig: SDKInitializerConfig = .init(gameID: "")
 
     var logsFileURL: URL { filePaths.diagnosticDump }
     let filePaths = FilePaths()
 
+    var gameID: String {
+        currentInitConfig.gameID
+    }
 }
 
 struct FilePaths: ConfigurationPathProvider {

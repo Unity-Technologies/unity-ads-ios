@@ -33,25 +33,7 @@
     return config;
 }
 
-- (BOOL)isPOSTMethodInConfigRequestEnabled {
-    return _experiments.isPOSTMethodInConfigRequestEnabled;
-}
-
-- (BOOL)isTwoStageInitializationEnabled {
-    return _experiments.isTwoStageInitializationEnabled;
-}
-
 - (BOOL)isSwiftInitEnabled {
     return _experiments.isSwiftNativeRequestsEnabled;
 }
-
-- (BOOL)isForcedUpdatePIIEnabled {
-    return _experiments.isForcedUpdatePIIEnabled;
-}
-
-- (BOOL)isPrivacyRequestEnabled {
-    return _experiments.isPrivacyRequestEnabled;
-}
-
-
 @end
