@@ -124,7 +124,6 @@
     XCTAssertTrue(token.isValid);
     NSArray *expectedKeys = isContextual ? self.contextualTokenKeys : self.behavioralTokenKeys;
     NSMutableArray *fullExpectedKeys = [NSMutableArray arrayWithArray:expectedKeys];
-    [fullExpectedKeys addObject:@"tid"];
 
     [_infoTester validateDataContains: token.tokenDictionary
                               allKeys: fullExpectedKeys];

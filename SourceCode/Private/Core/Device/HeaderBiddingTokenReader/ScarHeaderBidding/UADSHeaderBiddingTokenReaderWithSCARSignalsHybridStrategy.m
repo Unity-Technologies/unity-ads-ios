@@ -22,7 +22,7 @@
     
     dispatch_group_notify(group, queue, ^{
         if (blockToken) {
-            [self.scarSignalSender sendSCARSignalsWithUUIDString:blockToken.uuidString signals:blockSignals];
+            [self.scarSignalSender sendSCARSignalsWithUUIDString:blockToken.uuidString signals:blockSignals isAsync:true];
         }
     });
     
@@ -32,7 +32,7 @@
         dispatch_group_leave(group);
     };
     
-    [self.scarSignalReader requestSCARSignalsWithCompletion:signalCompletion];
+    [self.scarSignalReader requestSCARSignalsWithIsAsync:true completion:signalCompletion];
     
     UADSHeaderBiddingTokenCompletion injectedCompletion = ^(UADSHeaderBiddingToken *_Nullable token) {
         token = [self setUUIDString:token.uuidString ifRemoteToken:token];

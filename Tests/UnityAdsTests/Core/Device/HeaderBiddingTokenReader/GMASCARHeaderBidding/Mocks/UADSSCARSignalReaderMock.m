@@ -14,7 +14,7 @@
     return self;
 }
 
-- (void)requestSCARSignalsWithCompletion:(UADSSuccessCompletion _Nullable)completion {
+- (void)requestSCARSignalsWithIsAsync:(BOOL)async completion:(UADSSuccessCompletion _Nullable)completion {
     _callHistoryCount += 1;
     if (_shouldAutoComplete) {
         completion([self.signals copy]);

@@ -8,13 +8,13 @@
     __block NSString* uuidString;
     
     id signalCompletion = ^(UADSSCARSignals *_Nullable signals) {
-        [self.scarSignalSender sendSCARSignalsWithUUIDString:uuidString signals:signals];
+        [self.scarSignalSender sendSCARSignalsWithUUIDString:uuidString signals:signals isAsync:true];
     };
     
     UADSHeaderBiddingTokenCompletion injectedCompletion = ^(UADSHeaderBiddingToken *_Nullable token) {
         if (token.isValid) {
             uuidString = token.uuidString;
-            [self.scarSignalReader requestSCARSignalsWithCompletion:signalCompletion];
+            [self.scarSignalReader requestSCARSignalsWithIsAsync:true completion:signalCompletion];
             token = [self setUUIDString:uuidString ifRemoteToken:token];
         }
         completion(token);

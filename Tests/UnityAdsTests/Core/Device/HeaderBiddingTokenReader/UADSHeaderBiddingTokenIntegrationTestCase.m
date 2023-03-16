@@ -97,8 +97,8 @@
 - (void)test_adds_prefix_to_native_generated_token {
     self.nativeGeneratorMock = nil;
     self.builder.deviceInfoReader = self.readerMock;
-    // encoded device info: @{ @"test": @"info", @"tid": @"uuid" };
-    NSString *tokenString = @"1:H4sIAAAAAAAAE6tWKslMUbJSKi0FUjpKJanFJUBeZl5avlItAPQMbt8cAAAA";
+    // encoded device info: @{ @"test": @"info" };
+    NSString *tokenString = @"1:H4sIAAAAAAAAE6tWKkktLlGyUsrMS8tXqgUAIuq+TA8AAAA=";
     UADSUniqueIdGeneratorMock *idGeneratorMock = [UADSUniqueIdGeneratorMock new];
     idGeneratorMock.expectedValue = @"uuid";
     _builder.uniqueIdGenerator = idGeneratorMock;

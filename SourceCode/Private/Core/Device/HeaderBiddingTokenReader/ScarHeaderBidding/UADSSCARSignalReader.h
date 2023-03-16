@@ -5,7 +5,7 @@
 
 @protocol UADSSCARSignalReader <NSObject>
 
-- (void) requestSCARSignalsWithCompletion: (_Nullable UADSSuccessCompletion) completion;
+- (void) requestSCARSignalsWithIsAsync:(BOOL)isAsync completion: (_Nullable UADSSuccessCompletion) completion;
 
 @end
 

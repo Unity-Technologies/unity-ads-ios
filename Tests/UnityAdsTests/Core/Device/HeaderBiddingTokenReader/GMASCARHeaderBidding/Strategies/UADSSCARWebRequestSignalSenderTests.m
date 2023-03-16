@@ -59,7 +59,7 @@
 }
 
 - (void)test_send_nil_signal_reference_and_valid_uuid {
-    [self.signalSender sendSCARSignalsWithUUIDString:@"uuid" signals:nil];
+    [self.signalSender sendSCARSignalsWithUUIDString:@"uuid" signals:nil isAsync:true];
     XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 0);
 }
 
@@ -68,7 +68,7 @@
     [signals uads_setValueIfNotNil:rewardedValue forKey:UADSScarRewardedSignal];
     [signals uads_setValueIfNotNil:interstitialValue forKey:UADSScarInterstitialSignal];
     
-    [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals];
+    [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals isAsync:true];
     
     XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 1);
     id<USRVWebRequest> mockRequest = self.requestFactoryMock.createdRequests[0];
@@ -85,7 +85,7 @@
     [signals uads_setValueIfNotNil:rewardedValue forKey:UADSScarRewardedSignal];
     [signals uads_setValueIfNotNil:interstitialValue forKey:UADSScarInterstitialSignal];
     
-    [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals];
+    [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals isAsync:true];
     XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 0);
 }
 

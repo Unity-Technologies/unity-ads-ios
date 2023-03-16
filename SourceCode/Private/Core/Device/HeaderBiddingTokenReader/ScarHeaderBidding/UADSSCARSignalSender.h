@@ -5,7 +5,7 @@
 
 @protocol UADSSCARSignalSender
 
-- (void)sendSCARSignalsWithUUIDString:(NSString* _Nonnull)uuidString signals:(UADSSCARSignals * _Nonnull) signals;
+- (void)sendSCARSignalsWithUUIDString:(NSString* _Nonnull)uuidString signals:(UADSSCARSignals * _Nonnull) signals isAsync:(BOOL)isAsync;
 
 @end
 

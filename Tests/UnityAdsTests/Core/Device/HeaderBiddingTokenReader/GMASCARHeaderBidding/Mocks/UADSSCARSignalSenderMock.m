@@ -20,7 +20,7 @@
     return self;
 }
 
-- (void)sendSCARSignalsWithUUIDString:(NSString * _Nonnull)uuidString signals:(UADSSCARSignals * _Nonnull)signals {
+- (void)sendSCARSignalsWithUUIDString:(NSString * _Nonnull)uuidString signals:(UADSSCARSignals * _Nonnull)signals isAsync:(BOOL)isAsync {
     @synchronized (self) {
         [self.callHistory addObject:[[UADSSCARSignalSenderMockData alloc] initWithUUIDString:uuidString signals:signals]];
         [self.callExpectation fulfill];

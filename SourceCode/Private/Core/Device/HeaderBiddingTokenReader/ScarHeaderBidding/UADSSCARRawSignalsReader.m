@@ -4,13 +4,13 @@
 
 @implementation UADSSCARRawSignalsReader
 
-- (void) requestSCARSignalsWithCompletion: (_Nullable UADSSuccessCompletion) completion {
+- (void) requestSCARSignalsWithIsAsync:(BOOL)isAsync completion: (_Nullable UADSSuccessCompletion) completion {
     
     CFTimeInterval startTime = self.config.timestampReader.currentTimestamp;
-    [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchStarted]];
+    [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchStartedWithIsAsync:isAsync]];
     
     id success = ^(UADSSCARSignals *_Nullable signals) {
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchTimeSuccess:[self durationFromStartTime:startTime]]];
+        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchTimeSuccess:[self durationFromStartTime:startTime] isAsync:isAsync]];
         completion(signals);
     
     };
@@ -19,7 +19,7 @@
         NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
                                          @"reason": error.errorCode
         }];
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchTimeFailure:[self durationFromStartTime:startTime] tags:tags]];
+        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchTimeFailure:[self durationFromStartTime:startTime] tags:tags isAsync:isAsync]];
         completion(nil);
     };
     

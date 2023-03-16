@@ -4,13 +4,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSSCARHeaderBiddingMetric : UADSMetric
 
-+ (instancetype)newScarFetchStarted;
-+ (instancetype)newScarFetchTimeSuccess: (nullable NSNumber *)value;
-+ (instancetype)newScarFetchTimeFailure: (nullable NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags;
++ (instancetype)newScarFetchStartedWithIsAsync:(BOOL)isAsync;
++ (instancetype)newScarFetchTimeSuccess: (nullable NSNumber *)value isAsync:(BOOL)isAsync;
++ (instancetype)newScarFetchTimeFailure: (nullable NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags isAsync:(BOOL)isAsync;
 
-+ (instancetype)newScarSendStarted;
-+ (instancetype)newScarSendTimeSuccess: (nullable NSNumber *)value;
-+ (instancetype)newScarSendTimeFailure: (nullable NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags;
++ (instancetype)newScarSendStartedWithIsAsync:(BOOL)isAsync;
++ (instancetype)newScarSendTimeSuccess: (nullable NSNumber *)value isAsync:(BOOL)isAsync;
++ (instancetype)newScarSendTimeFailure: (nullable NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags isAsync:(BOOL)isAsync;
 
 @end
 

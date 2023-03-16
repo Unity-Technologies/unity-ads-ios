@@ -12,5 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSDictionary *experiments;
 @property (nonatomic, strong) NSString *metricURL;
 @property (nonatomic, strong) NSDictionary *expectedMetricInfo;
+@property (nonatomic) UADSSCARHBStrategyType expectedStrategyType;
 @end
 NS_ASSUME_NONNULL_END

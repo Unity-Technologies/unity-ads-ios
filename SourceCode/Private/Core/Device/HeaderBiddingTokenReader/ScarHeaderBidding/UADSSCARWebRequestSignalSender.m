@@ -14,12 +14,12 @@
     return self;
 }
 
-- (void)sendSCARSignalsWithUUIDString:(NSString*)uuidString signals:(UADSSCARSignals *) signals {
+- (void)sendSCARSignalsWithUUIDString:(NSString* _Nonnull)uuidString signals:(UADSSCARSignals * _Nonnull) signals isAsync:(BOOL)isAsync {
     if (![signals objectForKey:UADSScarRewardedSignal] && ![signals objectForKey:UADSScarInterstitialSignal]) {
         NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
                                          @"reason": @"No SCAR Signals passed along"
         }];
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:0 tags:tags]];
+        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:0 tags:tags isAsync:isAsync]];
         return;
     }
     
@@ -27,10 +27,10 @@
         NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
                                          @"reason": @"Invalid UUID string"
         }];
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:0 tags:tags]];
+        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:0 tags:tags isAsync:isAsync]];
         return;
     }
-    [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendStarted]];
+    [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendStartedWithIsAsync:isAsync]];
     CFTimeInterval startTime = self.config.timestampReader.currentTimestamp;
     
     NSString* scarHbUrl = [self.config.configurationReader getCurrentScarHBURL];
@@ -55,7 +55,7 @@
         NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
                                          @"reason": uads_errorStateString(error.code)
         }];
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:[self durationFromStartTime:startTime] tags:tags]];
+        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:[self durationFromStartTime:startTime] tags:tags isAsync:isAsync]];
         return;
     }
     NSString *jsonString = [[NSString alloc] initWithData:jsonData
@@ -64,7 +64,7 @@
 
     dispatch_async(queue, ^{
         NSData* data = [request makeRequest];
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeSuccess:[self durationFromStartTime:startTime]]];
+        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeSuccess:[self durationFromStartTime:startTime] isAsync:isAsync]];
     });
 }
 

@@ -19,10 +19,10 @@
         @synchronized (nonChangingValue) {
             blockSignals = signals;
         }
-        [self.scarSignalSender sendSCARSignalsWithUUIDString:uuidString signals:blockSignals];
+        [self.scarSignalSender sendSCARSignalsWithUUIDString:uuidString signals:blockSignals isAsync:true];
     };
     
-    [self.scarSignalReader requestSCARSignalsWithCompletion:signalCompletion];
+    [self.scarSignalReader requestSCARSignalsWithIsAsync:true completion:signalCompletion];
     
     UADSHeaderBiddingTokenCompletion injectedCompletion = ^(UADSHeaderBiddingToken *_Nullable token) {
         if (token.isValid) {

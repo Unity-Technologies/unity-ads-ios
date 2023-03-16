@@ -3,6 +3,7 @@
 #import "USRVBodyBase64GzipCompressor.h"
 #import "UADSTokenType.h"
 #import "UADSHeaderBiddingToken.h"
+#import "UADSConfigurationCRUDBase.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,7 +20,8 @@ typedef void (^UADSHeaderBiddingTokenCompletion)(UADSHeaderBiddingToken *_Nullab
 + (instancetype)newWithDeviceInfoReader: (id<UADSDeviceInfoReader>)deviceInfoReader
                           andCompressor: (id<USRVStringCompressor>)compressor
                         withTokenPrefix: (NSString *)prefix
-                  withUniqueIdGenerator: (id<UADSUniqueIdGenerator>) uniqueIdGenerator;
+                  withUniqueIdGenerator: (id<UADSUniqueIdGenerator>) uniqueIdGenerator
+                withConfigurationReader: (id<UADSConfigurationReader>) configurationReader;
 
 @end
 

@@ -94,7 +94,8 @@ static NSString *const kDefaultTokenPrefix = @"1:";
         _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
                                                                       andCompressor: self.bodyCompressor
                                                                     withTokenPrefix: self.nativeTokenPrefix
-                                                              withUniqueIdGenerator:self.uniqueIdGenerator ?: [UADSUUIDStringGenerator new]];
+                                                              withUniqueIdGenerator: self.uniqueIdGenerator ?: [UADSUUIDStringGenerator new]
+                                                            withConfigurationReader: self.sdkConfigReader];
     }
     
     if (self.experiments.isPrivacyWaitEnabled) {

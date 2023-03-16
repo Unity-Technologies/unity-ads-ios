@@ -41,10 +41,10 @@
     NSString* uuidString = [NSUUID new].UUIDString;
     tokenValue = [self uuidPrefixedTokenValueWithUUIDString:uuidString forTokenValue:tokenValue];
     id signalCompletion = ^(UADSSCARSignals *_Nullable signals) {
-        [self.scarSignalSender sendSCARSignalsWithUUIDString:uuidString signals:signals];
+        [self.scarSignalSender sendSCARSignalsWithUUIDString:uuidString signals:signals isAsync:false];
     };
     
-    [self.scarSignalReader requestSCARSignalsWithCompletion:signalCompletion];
+    [self.scarSignalReader requestSCARSignalsWithIsAsync:false completion:signalCompletion];
     
     return tokenValue;
 }

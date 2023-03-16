@@ -11,6 +11,7 @@
 #import "XCTestCase+SCARHBStrategies.h"
 #import "UADSDeviceReaderMock.h"
 #import "USRVDataGzipCompressor.h"
+#import "UADSConfigurationReaderMock.h"
 
 @interface UADSHeaderBiddingTokenReaderWithSCARSignalsEagerStrategyTests : XCTestCase
 @property (nonatomic, strong) UADSHeaderBiddingTokenReaderWithSCARSignalsEagerStrategy *strategyToTest;
@@ -22,8 +23,7 @@
 @property (nonatomic, strong) UADSUniqueIdGeneratorMock* idGeneratorMock;
 @property (nonatomic, strong) UADSUniqueIdGeneratorMock* baseIdGeneratorMock;
 @property (nonatomic, strong) UADSDeviceReaderMock *readerMock;
-
-
+@property (strong, nonatomic) UADSConfigurationReaderMock *configurationReaderMock;
 @end
 
 @implementation UADSHeaderBiddingTokenReaderWithSCARSignalsEagerStrategyTests
@@ -35,6 +35,8 @@
     _signalSenderMock = [UADSSCARSignalSenderMock new];
     _idGeneratorMock = [UADSUniqueIdGeneratorMock new];
     _baseIdGeneratorMock = [UADSUniqueIdGeneratorMock new];
+    _configurationReaderMock = [UADSConfigurationReaderMock new];
+    _configurationReaderMock.expectedStrategyType = UADSSCARHeaderBiddingStrategyTypeEager;
     
     _configMock = [UADSHeaderBiddingTokenReaderSCARSignalsConfig new];
     _configMock.compressor = _compressor;
@@ -48,7 +50,8 @@
     UADSHeaderBiddingTokenReaderBase *base = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: _readerMock
                                                                                          andCompressor: _compressor
                                                                                        withTokenPrefix: @""
-                                                                                 withUniqueIdGenerator: _baseIdGeneratorMock];
+                                                                                 withUniqueIdGenerator: _baseIdGeneratorMock
+                                                                               withConfigurationReader: _configurationReaderMock];
     _originalMock.original = base;
     _strategyToTest = [UADSHeaderBiddingTokenReaderWithSCARSignalsEagerStrategy decorateOriginal:_originalMock config:_configMock];
     _strategyToTest.scarSignalReader = _signalReaderMock;
