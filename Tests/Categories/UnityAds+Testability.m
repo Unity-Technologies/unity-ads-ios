@@ -4,6 +4,7 @@
 #import "USRVWebViewApp.h"
 #import "USRVWebViewAsyncOperationStorage.h"
 #import "USRVWebViewAsyncOperation.h"
+#import "UADSServiceProviderContainer.h"
 @class UnityAds;
 @class USRVSdkProperties;
 
@@ -18,7 +19,16 @@
     [USRVWebViewApp setCurrentApp: nil];
     [USRVWebViewAsyncOperationStorage.sharedInstance resetForTesting];
     [USRVWebViewAsyncOperation signalLock];
-    
+    [USRVInvocation setClassTable: [[USRVConfiguration new] getWebAppApiClassList]];
+    [self deleteConfigFile];
+    [UADSServiceProviderContainer sharedInstance].serviceProvider = [UADSServiceProvider new];
+}
+
++ (void)deleteConfigFile {
+    NSString *fileName = [USRVSdkProperties getLocalConfigFilepath];
+
+    [[NSFileManager defaultManager] removeItemAtPath: fileName
+                                               error: nil];
 }
 
 @end

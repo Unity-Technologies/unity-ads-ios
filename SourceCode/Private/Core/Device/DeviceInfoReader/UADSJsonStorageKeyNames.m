@@ -26,7 +26,7 @@ NSString *const kPrivacySPMKey = @"spm";
 
 NSString *const kUADSStorageAnalyticSessionKey = @"unity.player_sessionid";
 NSString *const kUADSStorageAnalyticUserKey = @"unity.cloud_userid";
-
+NSString *const kUADSStorageAUIDKey = @"auid";
 
 NSString *const kUADSSdkServiceModeKey = @"sdk.mode.value";
 

@@ -71,6 +71,7 @@ final class SDKNetworkTestsHelper {
         metricProtocolStub.requests
     }
 
+    private(set) var timeStampReaderMock = TimeReaderMock()
     let useExampleConfig: Bool
     init(useExampleConfig: Bool) {
 
@@ -86,7 +87,8 @@ final class SDKNetworkTestsHelper {
         settings.metricsResourceTypes = [] // include all types
         settings.allowDumpToFile = false
         settings.currentLevel = .fatal
-        serviceProvider = .init(skdSettingsStorage: settings)
+        serviceProvider = .init(skdSettingsStorage: settings,
+                                timeReader: timeStampReaderMock)
         serviceProvider.legacyStateFactory = initStateFactoryMock
         initStateFactoryMock.original = uadsServiceProvider.stateFactory
 
@@ -96,9 +98,9 @@ final class SDKNetworkTestsHelper {
         resetStubs()
         resetCache()
         serviceProvider.sdkStateStorage.config = .default
-        serviceProvider.skdSettingsStorage.currentInitConfig = .init(gameID: "")
+        serviceProvider.skdSettingsStorage.$currentInitConfig.mutate({ $0 = .init(gameID: "", isTestModeEnabled: false) })
         serviceProvider.sdkStateStorage.currentState = .notInitialized
-        USRVApiSdk.setServiceProviderForTesting(uadsServiceProvider)
+        UADSServiceProviderContainer.sharedInstance().serviceProvider = uadsServiceProvider
     }
 
     func resetStubs() {
@@ -190,7 +192,7 @@ final class SDKNetworkTestsHelper {
                               file: StaticString = #filePath,
                               line: UInt = #line) throws {
         guard !metrics.isEmpty else { return }
-        var tags: [String: String] = ["c_retry": "\(configRetried)",
+        let tags: [String: String] = ["c_retry": "\(configRetried)",
                                       "wv_retry": "\(webViewRetried)"]
 
         let withRetryTags = metrics.filter { type in

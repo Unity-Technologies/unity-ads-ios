@@ -31,9 +31,6 @@
     if (_privacyReader.responseState == kUADSPrivacyResponseAllowed) {
         mInfo[self.vendorIDKey] = _dataProvider.vendorID;
         mInfo[self.advertisingTrackingIdKey] = _dataProvider.advertisingTrackingID;
-
-        [mInfo uads_setValueIfNotNil: @(_userContainer.userNonBehavioralFlag)
-                              forKey: self.userNonBehavioralFlagKey];
     }
 
     return mInfo;

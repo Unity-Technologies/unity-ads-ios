@@ -41,6 +41,7 @@ static NSString *lockObject = @"lock";
 }
 
 - (void)tearDown {
+    [USRVJsonUtilities setMockException: nil];
     [self resetUnityAds];
 }
 

@@ -13,11 +13,26 @@
     return false;
 }
 
-- (void)test_contains_minimum_required_info_include_non_behavioural {
+- (void)test_contains_minimum_required_info_include_non_behavioural_true {
     [self.tester commitAllTestData];
-    [self setExpectedPrivacyModeTo: kUADSPrivacyModeMixed withUserBehaviouralFlag: true];
+    [self setExpectedUserBehaviouralFlag: true];
     [self.tester validateDataContains: [self getDataFromSut]
-                              allKeys: [self expectedKeysMinIncludeNonBehavioral: true]];
+                              allKeys: [self expectedMinKeys]];
+    [self validateMetrics: @[]];
+}
+
+- (void)test_contains_minimum_required_info_include_non_behavioural_false {
+    [self.tester commitAllTestData];
+    [self setExpectedUserBehaviouralFlag: false];
+    [self.tester validateDataContains: [self getDataFromSut]
+                              allKeys: [self expectedMinKeys]];
+    [self validateMetrics: @[]];
+}
+
+- (void)test_contains_minimum_required_info_does_not_include_non_behavioural {
+    [self.tester commitAllTestData];
+    [self.tester validateDataContains: [self getDataFromSut]
+                              allKeys: [self expectedMinKeysWithoutNonBehavioral]];
     [self validateMetrics: @[]];
 }
 

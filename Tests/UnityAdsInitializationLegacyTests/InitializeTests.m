@@ -29,6 +29,7 @@ static NSString *const kUnityAdsWebViewMockURL = @"https://webview.unityads.unit
 @implementation InitializeTests
 
 - (void)setUp {
+    UADSServiceProviderContainer.sharedInstance.serviceProvider = [UADSServiceProvider new];
     [self cleanupCache];
     [super setUp];
 }

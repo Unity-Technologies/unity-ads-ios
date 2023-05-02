@@ -2,6 +2,8 @@
 #import "UADSInitializationResponse.h"
 #import "UADSGenericCompletion.h"
 #import "USRVInitializationRequestFactory.h"
+#import "UADSErrorState.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^UADSPrivacyCompletion)(UADSInitializationResponse *);
@@ -30,6 +32,11 @@ extern NSString *const kPrivacyLoaderErrorDomain;
 #define uads_privacyInvalidResponseCodeError \
     [[NSError alloc] initWithDomain: kPrivacyLoaderErrorDomain \
                                code: kUADSPrivacyLoaderInvalidResponseCode \
+                           userInfo: nil] \
+
+#define uads_privacyGameDisabledError \
+    [[NSError alloc] initWithDomain: kPrivacyLoaderErrorDomain \
+                               code: kPrivacyGameIdDisabledCode \
                            userInfo: nil] \
 
 @protocol UADSPrivacyLoader <NSObject>

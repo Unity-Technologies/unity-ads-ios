@@ -12,7 +12,7 @@ final class SDKInitializerOBJBridge: NSObject {
                     testMode: Bool,
                     completion: @escaping VoidClosure,
                     error: @escaping Closure<Error>) {
-        let config = SDKInitializerConfig(gameID: gameID)
+        let config = SDKInitializerConfig(gameID: gameID, isTestModeEnabled: testMode)
         sdkInitializer.initialize(with: config) { result in
             result.do(completion)
                   .onFailure(error)

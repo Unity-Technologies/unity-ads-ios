@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) NSDictionary *originalJSON;
 @property (nonatomic, assign) long responseCode;
 @property (nonatomic, assign) BOOL allowTracking;
+@property (nonatomic, assign) BOOL shouldSendNonBehavioural;
 
 + (instancetype)newFromDictionary: (NSDictionary *)dictionary;
 

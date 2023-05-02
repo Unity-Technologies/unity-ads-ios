@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)sessionID;
 - (NSString *)userID;
+- (NSString *)auID;
 
 @end
 

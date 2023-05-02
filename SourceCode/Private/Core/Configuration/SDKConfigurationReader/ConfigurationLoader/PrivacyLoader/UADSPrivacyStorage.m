@@ -34,6 +34,10 @@ NSString * uads_privacyResponseStateToString(UADSPrivacyResponseState state) {
     [self.mediator notifyObserversWithObjectAndRemove: response];
 }
 
+- (BOOL)shouldSendUserNonBehavioral {
+    return self.response.shouldSendNonBehavioural;
+}
+
 - (UADSPrivacyResponseState)responseState {
     if (!self.response) {
         return kUADSPrivacyResponseUnknown;

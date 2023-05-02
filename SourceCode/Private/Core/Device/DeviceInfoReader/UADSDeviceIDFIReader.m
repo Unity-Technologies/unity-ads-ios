@@ -10,7 +10,7 @@
 
 
 - (nonnull NSString *)idfi {
-    NSString *currentValue = [USRVPreferences getString: kUADSStorageIDFIKey];
+    NSString *currentValue = [USRVPreferences getString: kUADSStorageIDFIKey] ?: [self auID];
 
     if (currentValue == nil || currentValue.length == 0) {
         currentValue = [[USRVDevice getUniqueEventId] lowercaseString];
@@ -23,6 +23,10 @@
 
 - (NSString *)sessionID {
     return [USRVPreferences getString: kUADSStorageAnalyticSessionKey];
+}
+
+- (NSString *)auID {
+    return [USRVPreferences getString: kUADSStorageAUIDKey];
 }
 
 - (NSString *)userID {

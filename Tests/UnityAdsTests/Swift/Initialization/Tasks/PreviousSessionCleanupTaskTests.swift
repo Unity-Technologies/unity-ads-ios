@@ -4,10 +4,14 @@ import XCTest
 final class PreviousSessionCleanupTaskTests: XCTestCase {
 
     private var loggerSettingsReader: LoggerSettingsReader = SDKSettingsStorage()
+    private var storageMock = KeyValueStorageMock()
+    private var cleanupKeys = ["test", "test2"]
     private var sut: PreviousSessionCleanupTask {
         .init(loggerSettingsReader: loggerSettingsReader,
               fileManager: fileManager,
-              legacyTask: LegacyTaskMock())
+              legacyTask: TaskMock(),
+              storage: storageMock,
+              cleanupKeys: cleanupKeys)
     }
 
     private var fileManager = FileManager.default
@@ -16,12 +20,14 @@ final class PreviousSessionCleanupTaskTests: XCTestCase {
     }
     override func setUpWithError() throws {
         loggerSettingsReader = SDKSettingsStorage()
+        storageMock = KeyValueStorageMock()
         try? fileManager.deleteFile(at: loggerSettingsReader.logsFileURL)
     }
 
     func test_task_deletes_dump_file() throws {
+        verifyNoTestDataSaved()
+        saveTestDataForKeys()
         XCTAssertEqual(dumpFileExists, false)
-
         try fileManager.saveStringToFile("test", toFile: loggerSettingsReader.logsFileURL)
         XCTAssertEqual(dumpFileExists, true)
         let exp = defaultExpectation
@@ -32,16 +38,21 @@ final class PreviousSessionCleanupTaskTests: XCTestCase {
 
         wait(for: [exp], timeout: 1)
         XCTAssertEqual(dumpFileExists, false)
-    }
-}
-
-private class LegacyTaskMock: PerformanceMeasurableTask {
-    func start(completion: @escaping ResultClosure<Void>) {
-        completion(VoidSuccess)
+        verifyNoTestDataSaved()
+        XCTAssertEqual(storageMock.deleteCount, cleanupKeys.count)
     }
 
-    var resultMetrics: ResultMetrics.Type { Constants.Metrics.Task.Reset.self }
+    func verifyNoTestDataSaved() {
+        cleanupKeys.forEach {
+            let data: String? = storageMock.getValue(for: $0)
+            XCTAssertNil(data)
+        }
+    }
 
-    var startEventName: String?
-
+    func saveTestDataForKeys() {
+        cleanupKeys.forEach {
+            storageMock.saveValue(value: "test", forKey: $0)
+            XCTAssertNotNil(storageMock.getValue(for: $0))
+        }
+    }
 }

@@ -36,7 +36,7 @@
     [info uads_setValueIfNotNil: self.userDefaultsReader.idfi
                          forKey: kUADSDeviceInfoIDFIKey];
     
-    [info uads_setValueIfNotNil: @(_userContainerReader.userNonBehavioralFlag)
+    [info uads_setValueIfNotNil: _userContainerReader.userNonBehavioralFlag
                          forKey: UADSJsonStorageKeyNames.userNonBehavioralFlagKey];
     
     

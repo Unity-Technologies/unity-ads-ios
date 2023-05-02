@@ -55,4 +55,8 @@ extern NSString *const kUADSDeviceInfoSKADNVersionsKey;
 extern NSString *const kUADSDeviceInfoAnalyticSessionIDKey;
 extern NSString *const kUADSDeviceInfoAnalyticUserIDKey;
 
+extern NSString *const kUADSDeviceInfoSessionIdKey;
+
+extern NSString *const kUADSDeviceInfoReaderAUIDKey;
+
 NS_ASSUME_NONNULL_END

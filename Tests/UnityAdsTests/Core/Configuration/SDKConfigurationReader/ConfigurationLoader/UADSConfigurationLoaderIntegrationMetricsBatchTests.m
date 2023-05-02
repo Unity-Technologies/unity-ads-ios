@@ -2,6 +2,7 @@
 #import "UADSConfigurationLoaderIntegrationMetricsBatchTests.h"
 #import "UADSMetricSenderWithBatch.h"
 #import "UADSLoggerMock.h"
+#import "XCTestCase+Convenience.h"
 
 @interface UADSConfigurationLoaderIntegrationMetricsBatchTests ()
 @property (nonatomic, strong) id<UADSConfigurationCRUD> configCRUD;
@@ -17,12 +18,14 @@
 }
 
 - (void)test_config_failure_triggers_batcher_to_send_metrics_by_saving_empty_config {
+    
     self.webRequestFactoryMock.expectedRequestData = @[[NSData new], [NSData new],  [NSData new]]; //privacy + config + fallback
 
     id sut = [self callSUTExpectingFailWithConfig:  [self factoryConfigWithExperiments: @{}]];
     [self.saverMock saveConfiguration: [USRVConfiguration newFromJSON: @{}]];
-    
-    [NSThread sleepForTimeInterval: 1];
+    XCTestExpectation *exp =  [self defaultExpectation];
+    self.metricsSenderMock.exp = exp;
+    [self waitForExpectations:@[exp] timeout: 1];
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
                      andExpectedQueries: nil];
@@ -43,6 +46,13 @@
     return [UADSMetricSenderWithBatch decorateWithMetricSender: self.metricsSenderMock
                                   andConfigurationSubject: self.configCRUD
                                                 andLogger: [UADSLoggerMock new]];
+}
+
+- (void)deleteConfigFile {
+    NSString *fileName = [USRVSdkProperties getLocalConfigFilepath];
+
+    [[NSFileManager defaultManager] removeItemAtPath: fileName
+                                               error: nil];
 }
 
 @end

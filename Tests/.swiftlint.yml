@@ -2,6 +2,7 @@ disabled_rules: # rule identifiers to exclude from running
   - generic_type_name
   - identifier_name
   - discouraged_direct_init
+  - blanket_disable_command
   # - type_name
 opt_in_rules: # some rules are only opt-in
   - empty_count
@@ -26,14 +27,13 @@ opt_in_rules: # some rules are only opt-in
   - multiline_function_chains
   - multiline_parameters
   - number_separator
-  - unused_import
-  - unused_capture_list
-  - unused_declaration
   - unused_setter_value
   - yoda_condition
   
 analyzer_rules: # Rules run by `swiftlint analyze` (experimental)
   - explicit_self
+  - unused_import
+  - unused_declaration
 # configurable rules can be customized from this configuration file
 # binary rules can set their severity level
 nesting: 

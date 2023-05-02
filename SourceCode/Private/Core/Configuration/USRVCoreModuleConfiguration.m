@@ -33,8 +33,7 @@
         @"USRVApiPermissions",
         @"USRVApiMainBundle",
         @"USRVApiWebAuth",
-        @"USRVApiTrackingManager",
-        @"USRVApiSKAdNetwork"
+        @"USRVApiTrackingManager"
     ];
 } /* getWebAppApiClassList */
 

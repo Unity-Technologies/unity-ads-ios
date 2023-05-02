@@ -7,16 +7,7 @@
 #import "USRVDevice.h"
 #import "UADSServiceProviderContainer.h"
 
-static UADSServiceProvider* serviceProvider;
 @implementation USRVApiSdk
-
-+ (void)load {
-    serviceProvider = UADSServiceProviderContainer.sharedInstance.serviceProvider;
-}
-
-+ (void)setServiceProviderForTesting: (UADSServiceProvider*)sProvider {
-    serviceProvider = sProvider;
-}
 
 + (void)WebViewExposed_loadComplete: (USRVWebViewCallback *)callback {
     USRVLogDebug(@"Web application loaded");
@@ -114,11 +105,11 @@ static UADSServiceProvider* serviceProvider;
 }
 
 + (void)WebViewExposed_getTrrData: (USRVWebViewCallback *)callback {
-    [callback invoke: serviceProvider.configurationStorage.getCurrentConfiguration.originalJSON, nil];
+    [callback invoke: UADSServiceProviderContainer.sharedInstance.serviceProvider.configurationStorage.getCurrentConfiguration.originalJSON, nil];
 }
 
 + (void)WebViewExposed_getSharedSessionID:(USRVWebViewCallback *)callback {
-    [callback invoke: serviceProvider.sharedSessionId];
+    [callback invoke: UADSServiceProviderContainer.sharedInstance.serviceProvider.sharedSessionId];
 }
 
 @end

@@ -50,3 +50,5 @@ NSString *const kUADSDeviceInfoAppUptimeTimestampKey = @"appUptime";
 NSString *const kUADSDeviceInfoBuiltSDKVersionKey = @"builtSdkVersion";
 NSString *const kUADSDeviceInfoAnalyticSessionIDKey = @"analyticsSessionId";
 NSString *const kUADSDeviceInfoAnalyticUserIDKey = @"analyticsUserId";
+NSString *const kUADSDeviceInfoSessionIdKey = @"sessionId";
+NSString *const kUADSDeviceInfoReaderAUIDKey = @"auid";

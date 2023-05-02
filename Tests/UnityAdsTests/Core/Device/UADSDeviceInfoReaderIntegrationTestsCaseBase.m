@@ -23,6 +23,7 @@
     builder.privacyReader = self.privacyStorageMock;
     builder.currentTimeStampReader = [UADSCurrentTimestampMock new];
     builder.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
+    builder.sharedSessionIdReader = [UADSSharedSessionIdReaderBase new];
     id<UADSDeviceInfoReader> reader = builder.defaultReader;
 
     return [reader getDeviceInfoForGameMode: UADSGameModeMix];
@@ -36,10 +37,8 @@
     XCTAssertEqualObjects(self.metricsMock.sentMetrics, expectedMetrics);
 }
 
-- (void)setExpectedPrivacyModeTo: (UADSPrivacyMode)mode
-         withUserBehaviouralFlag: (BOOL)flag {
-    [self.tester commitPrivacyMode: mode
-                  andNonBehavioral: flag];
+- (void)setExpectedUserBehaviouralFlag: (BOOL)flag {
+    [self.tester commitNonBehavioral: flag];
 }
 
 - (NSDictionary *)piiExpectedData {
@@ -59,31 +58,35 @@
     };
 }
 
-- (NSArray *)expectedKeysNoPIIIncludeNonBehavioral: (BOOL)include  {
+- (NSArray *)allExpectedKeysWithNonBehavioral: (BOOL)withUserNonBehavioral  {
+    return  [_tester allExpectedKeysWithNonBehavioral: withUserNonBehavioral];
+}
+- (NSArray *)allExpectedKeys {
     return [_tester allExpectedKeys];
 }
 
-- (NSArray *)expectedKeysNoPII {
-    return [_tester allExpectedKeys];
-}
-
-- (NSArray *)expectedKeysWithPIIIncludeNonBehavioral: (BOOL)include {
-    NSArray *allKeys = self.expectedKeysNoPII;
-
+- (NSArray *)expectedKeysWithPIIWithNonBehavioral: (BOOL)withUserNonBehavioral {
+    NSArray *allKeys = [self allExpectedKeysWithNonBehavioral: withUserNonBehavioral];
     allKeys = [allKeys arrayByAddingObjectsFromArray: self.piiExpectedData.allKeys];
-    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKey]];
     return allKeys;
 }
 
-- (NSArray *)expectedKeysMinIncludeNonBehavioral: (BOOL)include {
-    NSArray *allKeys = self.tester.allExpectedKeysFromMinInfo;
+- (NSArray *)expectedMinKeys {
+    return [self.tester allExpectedKeysFromMinInfoWithUserNonBehavioral:true];
+}
 
-    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKey]];
-    return allKeys;
+- (NSArray *)expectedMinKeysWithoutNonBehavioral {
+    return [self.tester allExpectedKeysFromMinInfoWithUserNonBehavioral:false];
 }
 
 - (void)setPrivacyResponseState: (UADSPrivacyResponseState)state {
     self.privacyStorageMock.expectedState = state;
 }
+
+- (void)setShouldSendNonBehavioural: (BOOL)flag {
+    self.privacyStorageMock.shouldSendUserNonBehavioral = flag;
+}
+
+
 
 @end

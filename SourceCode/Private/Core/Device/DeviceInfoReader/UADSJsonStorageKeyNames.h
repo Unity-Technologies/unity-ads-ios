@@ -18,6 +18,7 @@ extern NSString *const kUADSUserContainerName;
 extern NSString *const kUADSStorageIDFIKey;
 extern NSString *const kUADSStorageAnalyticSessionKey;
 extern NSString *const kUADSStorageAnalyticUserKey;
+extern NSString *const kUADSStorageAUIDKey;
 
 @interface UADSJsonStorageKeyNames : NSObject
 + (NSString *)webViewContainerKey;

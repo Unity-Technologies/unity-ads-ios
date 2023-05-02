@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)newWebToken: (NSString *)value;
 + (instancetype)newInvalidToken;
 + (instancetype)newInvalidNativeToken;
++ (instancetype)newWithDictionary: (NSDictionary *)dictionary;
 - (BOOL)        isValid;
 
 

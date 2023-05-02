@@ -73,6 +73,10 @@
     return [self isExperimentEnabledWithKey: @"wac"];
 }
 
+- (BOOL)isSwiftTokenEnabled {
+    return [self isExperimentEnabledWithKey: @"s_tkn"];
+}
+
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
     return [self flattenFlagsWith:^BOOL (id key) {
         return [self isExperimentForNextSession: key];

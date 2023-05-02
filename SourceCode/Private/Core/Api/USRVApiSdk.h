@@ -7,6 +7,5 @@ typedef NS_ENUM (NSInteger, USRVDownloadLatestWebViewStatus) {
     kDownloadLatestWebViewStatusMissingLatestConfig,
     kDownloadLatestWebViewStatusBackgroundDownloadStarted
 };
-+ (void)setServiceProviderForTesting: (id)sProvider;
-+ (void)WebViewExposed_getTrrData: (USRVWebViewCallback *)callback;
++ (void)WebViewExposed_getTrrData: (nonnull USRVWebViewCallback *)callback;
 @end

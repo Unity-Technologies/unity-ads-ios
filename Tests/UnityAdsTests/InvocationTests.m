@@ -2,6 +2,7 @@
 #import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
 #import "XCTestCase+Convenience.h"
+#import "UnityAds+Testability.h"
 
 @interface InvocationTestsWebView : WKWebView
 @property (nonatomic, assign) BOOL jsInvoked;
@@ -66,6 +67,8 @@ static NSMutableArray *CALLBACKS;
 
 - (void)setUp {
     [super setUp];
+    
+    [UnityAds resetForTest];
 
     USRVWebViewApp *webViewApp = [[USRVWebViewApp alloc] init];
 
@@ -104,6 +107,8 @@ static NSMutableArray *CALLBACKS;
 
 - (void)tearDown {
     [super tearDown];
+    
+    [UnityAds resetForTest];
 }
 
 - (void)testBasicInvocation {

@@ -1,4 +1,5 @@
 #import "UADSSDKInitializerProxy.h"
+#import "NSPrimitivesBox.h"
 
 static NSString *const kInitializeMethodName = @"initializeWithGameID:testMode:completion:error:";
 
@@ -13,8 +14,9 @@ static NSString *const kInitializeMethodName = @"initializeWithGameID:testMode:c
                  completion: (UADSVoidClosure)completion
                       error: (UADSNSErrorCompletion)error {
  
+    NSPrimitivesBox *box = [NSPrimitivesBox newWithBytes: &testMode objCType: @encode(BOOL)];
     [self callInstanceMethod: kInitializeMethodName
-                        args:@[gameId, @(testMode), completion, error]];
+                        args:@[gameId, box, completion, error]];
 }
 
 

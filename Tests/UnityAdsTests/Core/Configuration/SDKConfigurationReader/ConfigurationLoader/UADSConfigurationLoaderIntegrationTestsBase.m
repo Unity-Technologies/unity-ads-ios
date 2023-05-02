@@ -100,6 +100,7 @@
     builder.currentTimeStampReader = [UADSCurrentTimestampMock new];
     builder.retryInfoReader = [UADSRetryInfoReaderMock newWithInfo: _deviceInfoTester.retryTags];
     builder.gameSessionIdReader = [UADSGameSessionIdReaderBase new];
+    builder.sharedSessionIdReader = [UADSSharedSessionIdReaderBase new];
     return builder;
 }
 

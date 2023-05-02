@@ -1,17 +1,9 @@
 import Foundation
 
-protocol PrivacyStateReader {
-    var privacyState: PrivacyState { get }
-}
-
-protocol PrivacyResponseSaver {
-    func save(response: PrivacyResponse)
-}
-
 final class SDKSettingsStorage: LoggerLevelReader,
                                 LoggerSettingsReader,
                                 NetworkSettingsProvider,
-                                SDKGameIdProvider {
+                                SDKGameSettingsProvider {
 
     var metricSessionConfiguration: URLSessionConfiguration = .ephemeral
 
@@ -21,15 +13,28 @@ final class SDKSettingsStorage: LoggerLevelReader,
 
     var metricsResourceTypes: [Int] = [1] // corresponds to .networkLoad
 
-    @Atomic var allowDumpToFile: Bool = false
-    @Atomic var currentLevel: LogLevel = .fatal
-    @Atomic var currentInitConfig: SDKInitializerConfig = .init(gameID: "")
+    var allowDumpToFile: Bool {
+        get { _logsIntoFile.load() }
+        set { _logsIntoFile.mutate({ $0 = newValue }) }
+    }
+    @Atomic private var logsIntoFile: Bool = false
+    var currentLevel: LogLevel {
+        get { _logLevel.load() }
+        set { _logLevel.mutate({ $0 = newValue }) }
+    }
+    @Atomic private var logLevel: LogLevel = .fatal
+
+    @Atomic var currentInitConfig: SDKInitializerConfig = .init(gameID: "", isTestModeEnabled: true)
 
     var logsFileURL: URL { filePaths.diagnosticDump }
     let filePaths = FilePaths()
 
     var gameID: String {
-        currentInitConfig.gameID
+        _currentInitConfig.load().gameID
+    }
+
+    var isTestModeEnabled: Bool {
+        _currentInitConfig.load().isTestModeEnabled
     }
 }
 

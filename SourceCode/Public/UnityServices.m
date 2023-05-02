@@ -124,17 +124,32 @@
         [UnityServices setDebugMode: [USRVSdkProperties getDebugMode]];
         [USRVClientProperties setGameId: gameId];
         [USRVSdkProperties setTestMode: testMode];
-
+        
         [UADSServiceProviderContainer.sharedInstance.serviceProvider.sdkInitializer initializeWithGameID: gameId
-                                                                       testMode:testMode
-                                                                     completion:^{
-                    [USRVSdkProperties setInitializationState: INITIALIZED_SUCCESSFULLY];
+                                                                                                testMode:testMode
+                                                                                              completion:^{
+            [USRVSdkProperties setInitializationState: INITIALIZED_SUCCESSFULLY];
             
-                } error:^(NSError * _Nonnull error) {
-                    
-                    [USRVSdkProperties setInitializationState: INITIALIZED_FAILED];
-                }];
+        } error:^(NSError * _Nonnull error) {
+            [self onInitError:error];
+        }];
     }
+}
+
++ (void)onInitError: (NSError *)error {
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.hbTokenReader setInitToken: nil];
+    [UADSServiceProviderContainer.sharedInstance.serviceProvider.hbTokenReader deleteTokens];
+    
+    [USRVSdkProperties setInitializationState: INITIALIZED_FAILED];
+    
+    [[USRVInitializationNotificationCenter sharedInstance] triggerSdkInitializeDidFail: @"Unity Ads SDK failed to initialize"
+                                                                                  code: error.code];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [USRVSdkProperties notifyInitializationFailed: kUnityInitializationErrorInternalError
+                                     withErrorMessage: error.localizedDescription];
+    });
+
 }
 
 + (BOOL)getDebugMode {

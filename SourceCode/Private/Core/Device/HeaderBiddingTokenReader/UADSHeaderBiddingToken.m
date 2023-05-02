@@ -46,6 +46,18 @@
     return token;
 }
 
++ (instancetype)newWithDictionary: (NSDictionary *)dictionary {
+    UADSHeaderBiddingToken *token = [self new];
+    token.value = dictionary[@"value"];
+    NSNumber *type = dictionary[@"type"];
+    token.type = type.intValue;
+    token.uuidString = dictionary[@"uuidString"];
+    NSMutableDictionary *info = [NSMutableDictionary dictionaryWithDictionary:dictionary[@"info"]];
+    token.info = info;
+    token.customPrefix = dictionary[@"customPrefix"];
+    return token;
+}
+
 - (BOOL)isValid {
     return _value != nil && ![_value isEqual: @""];
 }

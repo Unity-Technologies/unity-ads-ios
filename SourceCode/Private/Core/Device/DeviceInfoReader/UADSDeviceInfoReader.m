@@ -270,6 +270,12 @@
                                  [info uads_setValueIfNotNil: self.userDefaultsReader.sessionID
                                                       forKey: kUADSDeviceInfoAnalyticSessionIDKey];
                              }];
+    
+    [self measurePerformanceAndLog: @"AUID"
+                             using: ^{
+                                 [info uads_setValueIfNotNil: self.userDefaultsReader.auID
+                                                      forKey: kUADSDeviceInfoReaderAUIDKey];
+                             }];
 
     [self measurePerformanceAndLog: @"userID"
                              using: ^{

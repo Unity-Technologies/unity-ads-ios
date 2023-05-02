@@ -44,7 +44,7 @@ static void soundCompletionCallback(SystemSoundID soundId, void *myself) {
 }
 
 - (bool)writeToMuteDetectionPath: (NSString *)filePath {
-    NSLog(@"MuteSwitch: Attempting to write bytes to file");
+    USRVLogDebug(@"MuteSwitch: Attempting to write bytes to file");
 
     @try {
         NSData *muteFileData = [[NSData alloc] initWithBytesNoCopy: MuteSwitchDetection_aiff
@@ -53,12 +53,12 @@ static void soundCompletionCallback(SystemSoundID soundId, void *myself) {
         [muteFileData writeToFile: filePath
                        atomically: YES];
     } @catch (NSException *exception) {
-        NSLog(@"MuteSwitch: File creation failed.");
+        USRVLogDebug(@"MuteSwitch: File creation failed.");
         self.fileCreated = NO;
         return NO;
     }
 
-    NSLog(@"MuteSwitch: File creation successful");
+    USRVLogDebug(@"MuteSwitch: File creation successful");
     self.fileCreated = YES;
     return YES;
 }
@@ -76,7 +76,7 @@ static void soundCompletionCallback(SystemSoundID soundId, void *myself) {
 }
 
 - (void)sendMuteState: (bool)muteState {
-    NSLog(@"MuteSwitch: Device mute state detected to be %@", muteState ? @"true" : @"false");
+    USRVLogDebug(@"MuteSwitch: Device mute state detected to be %@", muteState ? @"true" : @"false");
 
     if ([USRVWebViewApp getCurrentApp]) {
         [[USRVWebViewApp getCurrentApp] sendEvent: @"MUTE_STATE_RECEIVED"

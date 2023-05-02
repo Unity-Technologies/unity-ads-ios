@@ -5,18 +5,26 @@ final class InitializationTaskFactoryStrategy: TaskFactory {
     private let factoryBase: InitializationTaskFactoryBase
 
     init(downloaderBuilder: WebViewDownloadBuilder,
-         metricSenderProvider: MetricsSenderProvider & UnityAdsNetworkSenderProvider,
+         metricSenderProvider: MetricsSenderProvider,
+         networkSenderProvider: UnityAdsNetworkSenderProvider,
          sdkStateStorage: SDKStateStorage,
          performanceMeasurer: PerformanceMeasurer<String>,
          stateFactoryObjc: USRVInitializeStateFactory = .init(),
-         settingsProvider: SettingsProvider) {
+         settingsProvider: SettingsProvider,
+         keyValueStorage: KeyValueStorage,
+         cleanupKeys: [String],
+         deviceInfoReader: DeviceInfoBodyStrategy) {
 
         self.factoryBase = .init(downloaderBuilder: downloaderBuilder,
                                  metricSenderProvider: metricSenderProvider,
+                                 networkSenderProvider: networkSenderProvider,
                                  sdkStateStorage: sdkStateStorage,
                                  performanceMeasurer: performanceMeasurer,
                                  stateFactoryObjc: stateFactoryObjc,
-                                 settingsProvider: settingsProvider)
+                                 settingsProvider: settingsProvider,
+                                 keyValueStorage: keyValueStorage,
+                                 cleanupKeys: cleanupKeys,
+                                 deviceInfoReader: deviceInfoReader)
     }
 
     func task(of type: InitTaskCategory) -> Task {

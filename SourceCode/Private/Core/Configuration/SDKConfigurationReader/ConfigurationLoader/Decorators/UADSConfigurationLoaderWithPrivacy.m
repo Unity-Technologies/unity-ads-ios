@@ -1,9 +1,11 @@
 #import "UADSConfigurationLoaderWithPrivacy.h"
+#import "UADSErrorState.h"
 
 @interface UADSConfigurationLoaderWithPrivacy ()
 @property (nonatomic, strong) id<UADSConfigurationLoader>original;
 @property (nonatomic, strong) id<UADSPrivacyLoader>privacyLoader;
 @property (nonatomic, strong) id<UADSPrivacyResponseSaver, UADSPrivacyResponseReader>responseStorage;
+@property (nonatomic, strong) NSArray<NSNumber*> *fastFailCodes;
 @end
 
 @implementation UADSConfigurationLoaderWithPrivacy
@@ -17,6 +19,7 @@
     decorator.original = original;
     decorator.privacyLoader = privacyLoader;
     decorator.responseStorage = responseStorage;
+    decorator.fastFailCodes = @[@(kPrivacyGameIdDisabledCode)];
     return decorator;
 }
 
@@ -72,7 +75,7 @@
 }
 
 - (BOOL)shouldProceedWithTheCallForError: (id<UADSError>)error {
-    return error.errorDomain == kPrivacyLoaderErrorDomain;
+    return error.errorDomain == kPrivacyLoaderErrorDomain && ![_fastFailCodes containsObject: error.errorCode];
 }
 
 @end

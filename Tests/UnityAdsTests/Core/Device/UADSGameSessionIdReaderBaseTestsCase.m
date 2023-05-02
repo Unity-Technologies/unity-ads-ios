@@ -3,6 +3,7 @@
 #import "USRVStorageManager.h"
 #import "UADSJsonStorageKeyNames.h"
 #import "XCTestCase+Convenience.h"
+#import "UADSServiceProviderContainer.h"
 
 @interface UADSGameSessionIdReaderBaseTestsCase : XCTestCase
 
@@ -12,6 +13,11 @@
 
 - (void)setUp {
     [self.privateStorage deleteKey: UADSJsonStorageKeyNames.webViewDataGameSessionIdKey];
+    UADSServiceProviderContainer.sharedInstance.serviceProvider = [UADSServiceProvider new];
+}
+
+- (void)tearDown {
+    [self.privateStorage deleteKey: UADSJsonStorageKeyNames.webViewDataGameSessionIdKey];
 }
 
 - (void)test_game_session_id_is_generated_once_and_saved_to_storage {
@@ -19,8 +25,8 @@
     XCTAssertNil([self.privateStorage getValueForKey: UADSJsonStorageKeyNames.webViewDataGameSessionIdKey]);
     
     NSNumber *gameSessionId = [sut gameSessionId];
-    
-    XCTAssertEqual([self.privateStorage getValueForKey: UADSJsonStorageKeyNames.webViewDataGameSessionIdKey], gameSessionId);
+    NSNumber *savedGameSessionId = [self.privateStorage getValueForKey: UADSJsonStorageKeyNames.webViewDataGameSessionIdKey];
+    XCTAssertEqualObjects(savedGameSessionId, gameSessionId, "GameSessionId should be saved to storage");
     XCTAssertEqual(gameSessionId, [sut gameSessionId], "Should not generate a new value");
 }
 

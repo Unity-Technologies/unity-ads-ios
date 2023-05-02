@@ -7,6 +7,7 @@
 
     if (self) {
         self.responses = [NSArray new];
+        self.shouldSendUserNonBehavioral = false;
     }
 
     return self;

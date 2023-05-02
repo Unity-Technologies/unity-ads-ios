@@ -10,8 +10,10 @@
 
 - (void)test_contains_default_device_info {
     [self.tester commitUserDefaultsTestData];
+    [self.tester commitNonBehavioral:true];
+    
     [self.tester validateDataContains: [self getDataFromSut]
-                              allKeys: self.tester.expectedKeysFromDefaultInfo];
+                              allKeys: [self.tester expectedKeysFromDefaultInfoWithUserNonBehavioral: false]];
 
     [self validateMetrics: @[
          self.tester.infoCollectionLatencyMetrics
@@ -20,7 +22,9 @@
 
 - (void)test_contains_attributes_from_the_storage {
     [self.tester commitAllTestData];
-    NSArray *allKeys = [self.tester allExpectedKeys];
+    [self.tester commitNonBehavioral:true];
+    
+    NSArray *allKeys = [self.tester allExpectedKeysWithNonBehavioral: false];
 
     [self.tester validateDataContains: [self getDataFromSut]
                               allKeys: allKeys];
@@ -35,17 +39,10 @@
     [[self.tester privateStorage] set: [UADSJsonStorageKeyNames piiContainerKey]
                                 value : self.piiFullContentData];
 
-    BOOL nonBehaviouralFlag = YES;
-
-    [self setExpectedPrivacyModeTo: kUADSPrivacyModeMixed
-           withUserBehaviouralFlag: nonBehaviouralFlag];
-
-    NSArray *allKeys = [self.tester allExpectedKeys];
-
-    allKeys = [allKeys arrayByAddingObjectsFromArray: [self.tester expectedPrivacyModeKey]];
+    [self setExpectedUserBehaviouralFlag: YES];
 
     [self.tester validateDataContains: [self getDataFromSut]
-                              allKeys: allKeys];
+                              allKeys: [self.tester allExpectedKeysWithNonBehavioral: false]];
 }
 
 @end

@@ -31,7 +31,7 @@ extension SDKMetricType.Legacy {
         case configRequestSuccess
         case privacyRequestSuccess
         case configRequestFailure
-        case intoCollection
+        case infoCollection
         case infoCompression
     }
 
@@ -99,7 +99,7 @@ extension SDKMetricType.Legacy.Latency: LegacyMetricConvertible {
             return UADSTsiMetric.newTokenResolutionRequestLatency(nil, tags: [:])
         case .configRequestFailure:
             return UADSTsiMetric.newTokenResolutionRequestFailureLatency([:])
-        case .intoCollection:
+        case .infoCollection:
             return UADSTsiMetric.newDeviceInfoCollectionLatency(0)
         case .infoCompression:
             return UADSTsiMetric.newDeviceInfoCompressionLatency(0)

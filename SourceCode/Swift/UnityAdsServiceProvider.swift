@@ -1,12 +1,12 @@
 import Foundation
-
-class UnityAdsServiceProvider {
-
+// swiftlint:disable type_body_length
+final class UnityAdsServiceProvider {
+    typealias TimeInfoReader = BootTimeReader & TimeZoneReader & TimeReader
     var sdkStateStorage: SDKStateStorage
     var skdSettingsStorage: SDKSettingsStorage
-    var deviceInfoReader: DeviceInfoReader & LegacyDeviceInfoReader
     var allowedNetworkCodes = Array(200...299)
     var legacyStateFactory = USRVInitializeStateFactory()
+    var sessionInfoStorage: SessionInfoReader
 
     let performanceMeasurer: PerformanceMeasurer<String> // probably should use a struct to represent System?
 
@@ -17,28 +17,65 @@ class UnityAdsServiceProvider {
     var logger: Logger
 
     private let networkServicesFactory: UnityAdsNetworkServicesFactory
-    private let timeReader: TimeReader
+    private let eventsNetworkServicesFactory: UnityAdsEventsNetworkServicesFactory
     private let syncQueue: DispatchQueue = .init(label: "Sync.queue")
-
-    init(skdSettingsStorage: SDKSettingsStorage = .init()) {
-        timeReader = TimeReaderBase()
+    let jsonStorageObjCBridge = JSONStorageBridge()
+    let timeInfoReader: TimeInfoReader
+    let trackingStatusReader: TrackingStatusReader = TrackingStatusReaderBase()
+    let headerBiddingTokenReader: HeaderBiddingTokenReader
+    private let deviceInfoReaderBuilder: DeviceInfoBodyReaderBuilder
+    init(skdSettingsStorage: SDKSettingsStorage = .init(),
+         timeReader: TimeInfoReader = TimeReaderBase(),
+         telephonyProvider: TelephonyInfoProvider & CountryCodeProvider = TelephonyNetworkStatusProvider()) {
         self.skdSettingsStorage = skdSettingsStorage
-
+        self.timeInfoReader = timeReader
         let loggerStrategy = LoggerStrategy(settingsReader: skdSettingsStorage)
         logger = LoggerWithGate(loggerLevelReader: skdSettingsStorage,
                                 original: loggerStrategy)
-        deviceInfoReader = defaultDeviceInfoReader(withLogger: logger)
-        let fileStorage = SDKConfigurationFileStorage(filePaths: skdSettingsStorage.filePaths, logger: logger)
 
+        let fileStorage = SDKConfigurationFileStorage(filePaths: skdSettingsStorage.filePaths,
+                                                      logger: logger)
         let sdkConfigurationStorage = SDKConfigurationInMemoryStorage(fileStorage: fileStorage)
         sdkStateStorage = SDKStateStorage(configProvider: sdkConfigurationStorage)
 
-        performanceMeasurer = .init(timeReader: timeReader)
+        sessionInfoStorage = SessionInfoStorage(settings: .defaultSettings(privateStorage: jsonStorageObjCBridge))
+
+        performanceMeasurer = .init(timeReader: timeInfoReader)
+
+        let eventsServicesConfig = UnityAdsEventsNetworkServicesFactory.Config(configProvider: sdkStateStorage,
+                                                                               metricsDataReader: sdkStateStorage,
+                                                                               retriesReader: sdkStateStorage,
+                                                                               logger: logger,
+                                                                               settingsReader: skdSettingsStorage,
+                                                                               sessionInfoReader: sessionInfoStorage)
+
+        eventsNetworkServicesFactory = UnityAdsEventsNetworkServicesFactory(config: eventsServicesConfig)
+        let builderConfig = DeviceInfoBodyReaderBuilder.Config(sessionInfoStorage: sessionInfoStorage,
+                                                               trackingStatusReader: trackingStatusReader,
+                                                               gameSettingsReader: skdSettingsStorage,
+                                                               sdkStateStorage: sdkStateStorage,
+                                                               persistenceStorage: jsonStorageObjCBridge,
+                                                               logger: logger,
+                                                               timeReader: timeReader,
+                                                               telephonyInfoProvider: telephonyProvider,
+                                                               performanceMeasurer: performanceMeasurer,
+                                                               metricsSender: eventsNetworkServicesFactory.metricsSender)
+        deviceInfoReaderBuilder = DeviceInfoBodyReaderBuilder(baseConfig: builderConfig)
+
         networkServicesFactory = .init(settingsProvider: skdSettingsStorage,
                                        configurationProvider: sdkStateStorage,
-                                       deviceInfoReader: deviceInfoReader,
+                                       deviceInfoReaderProvider: deviceInfoReaderBuilder,
                                        performanceMeasurer: performanceMeasurer,
-                                       logger: logger)
+                                       logger: logger,
+                                       metricSenderProvider: eventsNetworkServicesFactory)
+
+        let hbTokenConfig = HeaderBiddingTokenReaderBase.Config(
+            deviceInfoReader: deviceInfoReaderBuilder.deviceInfoBodyReader,
+            compressor: Base64GzipCompressor(dataCompressor: GZipCompressor()),
+            customPrefix: "1:",
+            uniqueIdGenerator: IdentifiersGeneratorBase(),
+            experiments: sdkConfigurationStorage)
+        headerBiddingTokenReader = HeaderBiddingTokenReaderBase(hbTokenConfig)
     }
 
     private var _sdkInitializer: SDKInitializer?
@@ -46,13 +83,27 @@ class UnityAdsServiceProvider {
     var sdkInitializer: SDKInitializer {
         syncQueue.sync { getOrCreateInitializer() }
     }
+}
 
+extension UnityAdsServiceProvider {
     func updateConfiguration(_ config: UnityAdsConfig) {
         sdkStateStorage.config = config
     }
 
     func setLegacyInfoClosure(_ closure: ClosureWithReturn<Bool, [String: Any]>?) {
-        deviceInfoReader.setLegacyInfoGetter(closure)
+        deviceInfoReaderBuilder.setLegacyInfoGetter(closure)
+    }
+
+    func setLegacyJSONReaderClosure(_ closure: ClosureWithReturn<String, Any?>?) {
+        jsonStorageObjCBridge.jsonStorageReaderClosure = closure
+    }
+
+    func setLegacyJSONSaverClosure(_ closure: Closure<(String, Any?)>?) {
+        jsonStorageObjCBridge.jsonStorageSaverClosure = closure
+    }
+
+    func setLegacyJSONKeyDeleteClosure(_ closure: Closure<String>?) {
+        jsonStorageObjCBridge.jsonStorageDeleteClosure = closure
     }
 }
 
@@ -109,19 +160,25 @@ extension UnityAdsServiceProvider {
     }
 
     var unityAdsMetricsNativeNetwork: UnityAdsWebViewNetwork {
-        networkServicesFactory.unityAdsMetricsNativeNetwork
+        eventsNetworkServicesFactory.unityAdsMetricsNativeNetwork
     }
 }
 
 extension UnityAdsServiceProvider {
     private var initTaskRunner: Task {
         TaskPerformanceDecorator(original: mainTask,
-                                 metricSender: networkServicesFactory.metricsSender,
+                                 metricSender: eventsNetworkServicesFactory.metricsSender,
                                  performanceMeasurer: performanceMeasurer)
     }
 
     private var mainTask: PerformanceMeasurableTask {
-        StartInitTask(factory: initTaskFactory, sequence: sequence)
+        StartInitTask(factory: initTaskFactory,
+                      sequence: sequence,
+                      timeReader: timeInfoReader,
+                      appStartTimeSaver: sdkStateStorage,
+                      logger: logger,
+                      settingProvider: skdSettingsStorage,
+                      sessionInfoReader: sessionInfoStorage)
     }
 
     private var sequence: [InitTaskCategory] {
@@ -137,17 +194,29 @@ extension UnityAdsServiceProvider {
 
     var initTaskFactory: InitializationTaskFactoryStrategy {
         .init(downloaderBuilder: networkServicesFactory.webViewDownloaderBuilder,
-              metricSenderProvider: networkServicesFactory,
+              metricSenderProvider: eventsNetworkServicesFactory,
+              networkSenderProvider: networkServicesFactory,
               sdkStateStorage: sdkStateStorage,
               performanceMeasurer: performanceMeasurer,
               stateFactoryObjc: legacyStateFactory,
-              settingsProvider: skdSettingsStorage)
+              settingsProvider: skdSettingsStorage,
+              keyValueStorage: jsonStorageObjCBridge,
+              cleanupKeys: [JSONStorageKeys.GameSessionID],
+              deviceInfoReader: deviceInfoReaderBuilder.deviceInfoBodyReader)
     }
 
 }
 
-private func defaultDeviceInfoReader(withLogger logger: Logger) -> DeviceInfoReader & LegacyDeviceInfoReader {
-    let webUserAgent = WebUserAgentReaderBase(lastKnownOSKey: Constants.UserDefaultsKeys.LastKnownSystemVersion,
-                                              userAgentValueKey: Constants.UserDefaultsKeys.LastKnownUserAgentKey)
-    return DeviceInfoReaderBase(logger: logger, userAgentReader: webUserAgent)
+extension SessionInfoStorage.Settings {
+    static func defaultSettings(privateStorage: KeyValueStorage,
+                                idGenerator: IdentifiersGenerator = IdentifiersGeneratorBase()) -> Self {
+        .init(privateStorage: privateStorage,
+              gameSessionIDKey: JSONStorageKeys.GameSessionID,
+              sessionIDKey: JSONStorageKeys.SessionID,
+              userIDKey: JSONStorageKeys.UserID,
+              idfiIDKey: JSONStorageKeys.IDFI,
+              auIDKey: JSONStorageKeys.AUID,
+              userNonBehavioralFlagKey: JSONStorageKeys.UserNonBehavioralValue,
+              idGenerator: idGenerator)
+    }
 }

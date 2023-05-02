@@ -5,6 +5,7 @@
 #import "UADSPrivacyStorage.h"
 #import "UADSGameSessionIdReader.h"
 #import "UADSGMAScar.h"
+#import "UADSSharedSessionIdReader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -22,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<IUSRVWebRequestFactory> requestFactory;
 @property (nonatomic, weak) UADSGMAScar* scar;
 @property (nonatomic) id<UADSUniqueIdGenerator> uniqueIdGenerator;
+@property (nonatomic, strong) id<UADSSharedSessionIdReader> sharedSessionIdReader;
 
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)defaultReader;

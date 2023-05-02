@@ -40,6 +40,7 @@
     response.originalJSON = dictionary;
 
     response.allowTracking = [dictionary[@"pas"] boolValue] ? : false;
+    response.shouldSendNonBehavioural = [dictionary[@"snb"] boolValue] ?: false;
     return response;
 }
 

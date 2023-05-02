@@ -40,13 +40,13 @@ final class InitializationPerformanceTest: SDKInitializerLegacyIntegrationTestsB
     }
 
     func test_get_token_during_swift_new_task_initializing() throws {
-        try run_get_token_during_initializing(with: ["s_init": true, "s_ntf": true],
+        try run_get_token_during_initializing(with: ["s_init": true, "s_ntf": true, "s_din": true],
                                               metrics: ExpectedMetrics.SequentialFlow.HappyPath,
                                               expectedDiagnostic: true)
     }
 
     func test_get_token_during_swift_parallel_initializing() throws {
-        try run_get_token_during_initializing(with: ["s_init": true, "s_pte": true],
+        try run_get_token_during_initializing(with: ["s_init": true, "s_pte": true, "s_din": true],
                                               metrics: ExpectedMetrics.ParallelFlow.HappyPath,
                                               expectedDiagnostic: true)
     }
@@ -59,7 +59,7 @@ final class InitializationPerformanceTest: SDKInitializerLegacyIntegrationTestsB
         var metrics = metrics
         metrics.append(contentsOf: [
             .legacy(.nativeTokenAvailable),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression))])
         try? runFlow(sdkMetrics: metrics,
                      experiments: experiments,
@@ -81,7 +81,8 @@ final class InitializationPerformanceTest: SDKInitializerLegacyIntegrationTestsB
             try? runFlow(sdkMetrics: ExpectedMetrics.LegacyFlow.HappyPath,
                          experiments: [:],
                          expectNetworkDiagnostic: false,
-                         legacyFlow: true)
+                         legacyFlow: true,
+                         validateTimeStamp: false)
         }
     }
 
@@ -99,7 +100,7 @@ final class InitializationPerformanceTest: SDKInitializerLegacyIntegrationTestsB
         measure(metrics: metrics,
                 options: testOptions) {
             try? runFlow(sdkMetrics: ExpectedMetrics.SequentialFlow.HappyPath,
-                         experiments: ["s_init": true, "s_ntf": true],
+                         experiments: ["s_init": true, "s_ntf": true, "s_din": true],
                          expectNetworkDiagnostic: true)
         }
 
@@ -109,7 +110,7 @@ final class InitializationPerformanceTest: SDKInitializerLegacyIntegrationTestsB
         measure(metrics: metrics,
                 options: testOptions) {
             try? runFlow(sdkMetrics: ExpectedMetrics.ParallelFlow.HappyPath,
-                         experiments: ["s_init": true, "s_pte": true],
+                         experiments: ["s_init": true, "s_pte": true, "s_din": true],
                          expectNetworkDiagnostic: true)
         }
     }
@@ -133,6 +134,7 @@ extension InitializationPerformanceTest {
                  expectNetworkDiagnostic: Bool,
                  legacyFlow: Bool = false,
                  parallelToInit: VoidClosure? = nil,
+                 validateTimeStamp: Bool = true,
                  line: UInt = #line,
                  file: StaticString = #file) throws {
         let overrideJson = ["hash": configMockFactory.longWebViewDataDataHash]
@@ -154,7 +156,8 @@ extension InitializationPerformanceTest {
                                     expectedNumberOfRequests: responses.count,
                                     multithreadCount: 1,
                                     metrics: sdkMetrics,
-                                    expectDiagnostic: expectNetworkDiagnostic)
+                                    expectDiagnostic: expectNetworkDiagnostic,
+                                    validateStartTimeStamp: validateTimeStamp)
         try executeTest(with: testConfig,
                         file: file,
                         line: line,

@@ -16,10 +16,6 @@
     return [[USRVStorageManager sharedInstance] getStorage: storageType];
 }
 
-+ (void)removeStorage: (UnityServicesStorageType)storageType {
-    [[USRVStorageManager sharedInstance] removeStorage: storageType];
-}
-
 _uads_custom_singleton_imp(USRVStorageManager, ^{
     return [self new];
 })
@@ -96,13 +92,6 @@ _uads_custom_singleton_imp(USRVStorageManager, ^{
                       forKey: [NSNumber numberWithInteger: storageType]];
     }
 } /* initStorage */
-
-- (void)removeStorage: (UnityServicesStorageType)storageType {
-    dispatch_sync(_syncQueue, ^{
-        [_storageLocations removeObjectForKey: [NSNumber numberWithInteger: storageType]];
-        [_storages removeObjectForKey: [NSNumber numberWithInteger: storageType]];
-    });
-}
 
 - (USRVStorage *)getStorage: (UnityServicesStorageType)storageType {
     __block USRVStorage *result = NULL;

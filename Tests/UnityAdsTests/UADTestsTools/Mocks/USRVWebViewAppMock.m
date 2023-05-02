@@ -43,7 +43,6 @@
 
 - (BOOL)sendEvent: (NSString *)eventId category: (NSString *)category params: (NSArray *)params {
     [_expectation fulfill];
-    _expectation = nil;
     _categoryNames = [_categoryNames arrayByAddingObject: category];
     _eventNames = [_eventNames arrayByAddingObject: eventId];
 

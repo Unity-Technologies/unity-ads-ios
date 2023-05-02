@@ -1,2 +1,0 @@
-@interface USRVApiSKAdNetwork : NSObject
-@end

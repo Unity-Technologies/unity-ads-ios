@@ -13,3 +13,5 @@ typedef NS_ENUM (NSInteger, UADSErrorState) {
 
 NSString * uads_errorStateString(UADSErrorState state);
 BOOL uads_isWebViewErrorState(UADSErrorState state);
+
+extern const int kPrivacyGameIdDisabledCode;

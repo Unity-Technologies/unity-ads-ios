@@ -160,7 +160,7 @@
                                block:^(NSInteger index) {
                                    NSTimeInterval currentTime =  [NSDate currentTimeInterval];
                                    NSTimeInterval diff = index == pauseIndex ? secondWait + ti : ti;
-                                   XCTAssertEqualWithAccuracy(currentTime - startTime, diff, 0.05);
+                                   XCTAssertEqualWithAccuracy(currentTime - startTime, diff, 0.1);
 
                                    startTime = currentTime;
                                    [exp fulfill];

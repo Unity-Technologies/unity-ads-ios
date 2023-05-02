@@ -3,25 +3,37 @@ import Foundation
 final class InitializationTaskFactoryBase: TaskFactory {
     typealias SettingsProvider =  LoggerSettingsReader
     private let downloaderBuilder: WebViewDownloadBuilder
-    private let networkSenderProvider: MetricsSenderProvider & UnityAdsNetworkSenderProvider
+    private let metricSenderProvider: MetricsSenderProvider
     private let objcFactory: USRVInitializeStateFactory
     private let performanceMeasurer: PerformanceMeasurer<String>
     private let sdkStateStorage: SDKStateStorage
     private let settingsProvider: SettingsProvider
     private var networkConfig: UnityAdsConfig.Network { sdkStateStorage.networkConfig }
+    private let keyValueStorage: KeyValueStorage
+    private let cleanupKeys: [String]
+    private let deviceInfoReader: DeviceInfoBodyStrategy
+    private let networkSenderProvider: UnityAdsNetworkSenderProvider
 
     init(downloaderBuilder: WebViewDownloadBuilder,
-         metricSenderProvider: MetricsSenderProvider & UnityAdsNetworkSenderProvider,
+         metricSenderProvider: MetricsSenderProvider,
+         networkSenderProvider: UnityAdsNetworkSenderProvider,
          sdkStateStorage: SDKStateStorage,
          performanceMeasurer: PerformanceMeasurer<String>,
          stateFactoryObjc: USRVInitializeStateFactory = .init(),
-         settingsProvider: SettingsProvider) {
+         settingsProvider: SettingsProvider,
+         keyValueStorage: KeyValueStorage,
+         cleanupKeys: [String],
+         deviceInfoReader: DeviceInfoBodyStrategy) {
         self.downloaderBuilder = downloaderBuilder
         self.objcFactory = stateFactoryObjc
-        self.networkSenderProvider = metricSenderProvider
+        self.metricSenderProvider = metricSenderProvider
+        self.networkSenderProvider = networkSenderProvider
         self.performanceMeasurer = performanceMeasurer
         self.sdkStateStorage = sdkStateStorage
         self.settingsProvider = settingsProvider
+        self.keyValueStorage = keyValueStorage
+        self.cleanupKeys = cleanupKeys
+        self.deviceInfoReader = deviceInfoReader
     }
 
     func task(of type: InitTaskState) -> Task {
@@ -51,7 +63,7 @@ extension InitializationTaskFactoryBase {
 
 extension InitializationTaskFactoryBase {
     var metricSender: MetricSender {
-        networkSenderProvider.metricsSender
+        metricSenderProvider.metricsSender
     }
 
     var requestRetryConfig: RetriableOperationConfig {
@@ -76,7 +88,13 @@ extension InitializationTaskFactoryBase {
         case .reset:
             let legacy = taskForObjcType(type)
             return useNewTasksFlow ? PreviousSessionCleanupTask(loggerSettingsReader: settingsProvider,
-                                                                legacyTask: legacy) : legacy
+                                                                legacyTask: legacy,
+                                                                storage: keyValueStorage,
+                                                                cleanupKeys: cleanupKeys) : legacy
+        case .initModules:
+            let legacy = taskForObjcType(type)
+            return useNewTasksFlow ? InitModulesTask(legacyTask: legacy,
+                                                     deviceInfoReader: deviceInfoReader) : legacy
         default:
             return taskForObjcType(type)
         }

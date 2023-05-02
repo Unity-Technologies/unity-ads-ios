@@ -63,6 +63,14 @@
             return nextState;
         }
     } else if (configError && self.retries < [self.configuration maxRetries]) {
+        if (configError.code == kPrivacyGameIdDisabledCode) {
+            id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
+                                                                      erroredState: self
+                                                                              code: kUADSErrorStateNetworkConfigRequest
+                                                                           message: @"GameId disabled"];
+            return nextState;
+        }
+    
         self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
         self.retries++;
         [[UADSInitializeEventsMetricSender sharedInstance] didRetryConfig];
@@ -114,26 +122,34 @@
        andCompletion: (void (^)(void))completion
                error:(void (^)(NSError * _Nonnull))error  {
     if (configError && self.retries < [self.configuration maxRetries]) {
-        self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
-        self.retries++;
-        [[UADSInitializeEventsMetricSender sharedInstance] didRetryConfig];
-        USRVInitializeStateConfig *retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig];
-        retryState.configuration = self.localConfig;
-        retryState.localConfig = self.localConfig;
-        [retryState setRetries: self.retries];
-        [retryState setRetryDelay: self.retryDelay];
-        retryState.configLoader = self.configLoader;
+        if (configError.code == kPrivacyGameIdDisabledCode) {
+            id nextState = [[USRVInitializeStateError alloc] initWithConfiguration: self.configuration
+                                                                      erroredState: self
+                                                                              code: kUADSErrorStateNetworkConfigRequest
+                                                                           message: @"GameId disabled"];
+            [nextState startWithCompletion:completion error:error];
+        } else {
+            self.retryDelay = self.retryDelay * [self.configuration retryScalingFactor];
+            self.retries++;
+            [[UADSInitializeEventsMetricSender sharedInstance] didRetryConfig];
+            USRVInitializeStateConfig *retryState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig];
+            retryState.configuration = self.localConfig;
+            retryState.localConfig = self.localConfig;
+            [retryState setRetries: self.retries];
+            [retryState setRetryDelay: self.retryDelay];
+            retryState.configLoader = self.configLoader;
 
-        id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration: self.localConfig
-                                                                    retryState: retryState
-                                                                    retryDelay: self.retryDelay];
-        [nextState startWithCompletion:^{
-            self.retries = retryState.retries;
-            completion();
-        } error:^(NSError * _Nonnull er) {
-            self.retries = retryState.retries;
-            error(er);
-        }];
+            id nextState = [[USRVInitializeStateRetry alloc] initWithConfiguration: self.localConfig
+                                                                        retryState: retryState
+                                                                        retryDelay: self.retryDelay];
+            [nextState startWithCompletion:^{
+                self.retries = retryState.retries;
+                completion();
+            } error:^(NSError * _Nonnull er) {
+                self.retries = retryState.retries;
+                error(er);
+            }];
+        }
     } else {
         USRVInitializeStateConfig *erroredState = [[USRVInitializeStateConfig alloc] initWithConfiguration: self.localConfig
                                                                            retries: self.retries

@@ -130,13 +130,8 @@
                        value : @(true)];
 }
 
-- (void)commitPrivacyMode: (UADSPrivacyMode)mode
-         andNonBehavioral: (BOOL)flag {
+- (void)commitNonBehavioral: (BOOL)flag {
     UADSMetaData *privacyData = [UADSMetaData new];
-
-    [privacyData set: @"privacy.mode"
-               value : uads_privacyModeString(mode)];
-
     [privacyData set: @"user.nonBehavioral"
                value : @(flag)];
     [privacyData commit];
@@ -170,6 +165,7 @@
     [self setIDFI];
     [self setAnalyticSessionID];
     [self setAnalyticUserID];
+    [self setAUID];
 }
 
 - (USRVStorage *)privateStorage {
@@ -207,8 +203,8 @@
     }];
 }
 
-- (NSArray *)allExpectedKeysFromMinInfo {
-    return [self.expectedKeysFromDefaultMinInfo arrayByAddingObjectsFromArray: self.expectedMinimumDataRealStorage.allKeys];
+- (NSArray *)allExpectedKeysFromMinInfoWithUserNonBehavioral:(BOOL)withUserNonBehavioral {
+    return [[self expectedKeysFromDefaultMinInfoWithUserNonBehavioral:withUserNonBehavioral] arrayByAddingObjectsFromArray: self.expectedMinimumDataRealStorage.allKeys];
 }
 
 - (NSDictionary *)expectedMinimumDataRealStorage {
@@ -258,10 +254,16 @@
                         forKey: kUADSStorageAnalyticUserKey];
 }
 
+- (void)setAUID {
+    [USRVPreferences setString: self.analyticUserMockValue
+                        forKey: kUADSStorageAUIDKey];
+}
+
 - (void)resetUserDefaults {
     [USRVPreferences removeKey: kUADSStorageAnalyticSessionKey];
     [USRVPreferences removeKey: kUADSStorageAnalyticUserKey];
     [USRVPreferences removeKey: kUADSStorageIDFIKey];
+    [USRVPreferences removeKey: kUADSStorageAUIDKey];
     [NSUserDefaults resetStandardUserDefaults];
 }
 
@@ -292,8 +294,8 @@
     }
 }
 
-- (NSArray *)expectedKeysFromDefaultMinInfo {
-    return @[
+- (NSArray *)expectedKeysFromDefaultMinInfoWithUserNonBehavioral:(BOOL)withUserNonBehavioral {
+    NSArray * keys = @[
         kUADSDeviceInfoIDFIKey,
         kUADSDeviceInfoReaderPlatformKey,
         kUADSDeviceInfoLimitAdTrackingKey,
@@ -301,73 +303,85 @@
         kUADSDeviceInfoGameIDKey,
         UADSJsonStorageKeyNames.webViewDataGameSessionIdKey,
         kUADSDeviceInfoReaderSDKVersionNameKey,
-        kUADSDeviceInfoReaderSDKVersionKey,
-        UADSJsonStorageKeyNames.userNonBehavioralFlagKey
+        kUADSDeviceInfoReaderSDKVersionKey
     ];
+    
+    if (withUserNonBehavioral) {
+        keys = [keys arrayByAddingObject:UADSJsonStorageKeyNames.userNonBehavioralFlagKey];
+    }
+    
+    return keys;
 }
-
-- (NSArray *)expectedKeysFromDefaultInfo {
-    return [self.expectedKeysFromDefaultMinInfo arrayByAddingObjectsFromArray: @[
-                kUADSDeviceInfoReaderBundleIDKey,
-                kUADSDeviceInfoReaderBundleVersionKey,
-                kUADSDeviceInfoReaderConnectionTypeKey,
-                kUADSDeviceInfoReaderNetworkTypeKey,
-                kUADSDeviceInfoReaderScreenHeightKey,
-                kUADSDeviceInfoReaderScreenWidthKey,
-                kUADSDeviceInfoReaderEncryptedKey,
-                kUADSDeviceInfoReaderRootedKey,
-                kUADSDeviceInfoReaderOSVersionKey,
-                kUADSDeviceInfoReaderDeviceModelKey,
-                kUADSDeviceInfoReaderLanguageKey,
-                kUADSDeviceInfoReaderIsTestModeKey,
-                kUADSDeviceInfoReaderFreeMemoryKey,
-                kUADSDeviceInfoReaderBatteryStatusKey,
-                kUADSDeviceInfoReaderBatteryLevelKey,
-                kUADSDeviceInfoReaderScreenBrightnessKey,
-                kUADSDeviceInfoReaderVolumeKey,
-                kUADSDeviceInfoDeviceFreeSpaceKey,
-                kUADSDeviceInfoDeviceTotalSpaceKey,
-                kUADSDeviceInfoDeviceTotalMemoryKey,
-                kUADSDeviceInfoDeviceDeviceNameKey,
-                kUADSDeviceInfoDeviceLocaleListKey,
-                kUADSDeviceInfoDeviceCurrentUiThemeKey,
-                kUADSDeviceInfoDeviceAdNetworkPlistKey,
-                kUADSDeviceInfoDeviceIsWiredHeadsetOnKey,
-                kUADSDeviceInfoDeviceSystemBootTimeKey,
-                kUADSDeviceInfoDeviceNetworkOperatorKey,
-                kUADSDeviceInfoDeviceNetworkOperatorNameKey,
-                kUADSDeviceInfoDeviceScreenScaleKey,
-                kUADSDeviceInfoIsSimulatorKey,
-                kUADSDeviceInfoLimitTimeZoneKey,
-                kUADSDeviceInfoLimitStoresKey,
-                kUADSDeviceInfoCPUCountKey,
-                kUADSDeviceInfoWebViewAgentKey,
-                kUADSDeviceInfoAppStartTimestampKey,
-                kUADSDeviceInfoAppInForegroundKey,
-                kUADSDeviceInfoCurrentTimestampKey,
-                kUADSDeviceInfoTimeZoneOffsetKey,
-                kUADSDeviceInfoBuiltSDKVersionKey,
-                kUADSDeviceInfoAnalyticSessionIDKey,
-                kUADSDeviceInfoAnalyticUserIDKey
+- (NSArray *) expectedKeysFromDefaultInfoWithUserNonBehavioral:(BOOL)withUserNonBehavioral {
+    return [[self expectedKeysFromDefaultMinInfoWithUserNonBehavioral:withUserNonBehavioral] arrayByAddingObjectsFromArray: @[
+        kUADSDeviceInfoReaderBundleIDKey,
+        kUADSDeviceInfoReaderBundleVersionKey,
+        kUADSDeviceInfoReaderConnectionTypeKey,
+        kUADSDeviceInfoReaderNetworkTypeKey,
+        kUADSDeviceInfoReaderScreenHeightKey,
+        kUADSDeviceInfoReaderScreenWidthKey,
+        kUADSDeviceInfoReaderEncryptedKey,
+        kUADSDeviceInfoReaderRootedKey,
+        kUADSDeviceInfoReaderOSVersionKey,
+        kUADSDeviceInfoReaderDeviceModelKey,
+        kUADSDeviceInfoReaderLanguageKey,
+        kUADSDeviceInfoReaderIsTestModeKey,
+        kUADSDeviceInfoReaderFreeMemoryKey,
+        kUADSDeviceInfoReaderBatteryStatusKey,
+        kUADSDeviceInfoReaderBatteryLevelKey,
+        kUADSDeviceInfoReaderScreenBrightnessKey,
+        kUADSDeviceInfoReaderVolumeKey,
+        kUADSDeviceInfoDeviceFreeSpaceKey,
+        kUADSDeviceInfoDeviceTotalSpaceKey,
+        kUADSDeviceInfoDeviceTotalMemoryKey,
+        kUADSDeviceInfoDeviceDeviceNameKey,
+        kUADSDeviceInfoDeviceLocaleListKey,
+        kUADSDeviceInfoDeviceCurrentUiThemeKey,
+        kUADSDeviceInfoDeviceAdNetworkPlistKey,
+        kUADSDeviceInfoDeviceIsWiredHeadsetOnKey,
+        kUADSDeviceInfoDeviceSystemBootTimeKey,
+        kUADSDeviceInfoDeviceNetworkOperatorKey,
+        kUADSDeviceInfoDeviceNetworkOperatorNameKey,
+        kUADSDeviceInfoDeviceScreenScaleKey,
+        kUADSDeviceInfoIsSimulatorKey,
+        kUADSDeviceInfoLimitTimeZoneKey,
+        kUADSDeviceInfoLimitStoresKey,
+        kUADSDeviceInfoCPUCountKey,
+        kUADSDeviceInfoWebViewAgentKey,
+        kUADSDeviceInfoAppStartTimestampKey,
+        kUADSDeviceInfoAppInForegroundKey,
+        kUADSDeviceInfoCurrentTimestampKey,
+        kUADSDeviceInfoTimeZoneOffsetKey,
+        kUADSDeviceInfoBuiltSDKVersionKey,
+        kUADSDeviceInfoAnalyticSessionIDKey,
+        kUADSDeviceInfoAnalyticUserIDKey,
+        kUADSDeviceInfoSessionIdKey,
+        kUADSDeviceInfoReaderAUIDKey
     ]];
 }
+- (NSArray *)expectedKeysFromDefaultInfo {
+    return [self expectedKeysFromDefaultInfoWithUserNonBehavioral: true];
+}
 
+- (NSArray *)allExpectedKeysWithNonBehavioral: (BOOL)withUserNonBehavioral {
+    return [[self expectedKeysFromDefaultInfoWithUserNonBehavioral: withUserNonBehavioral] arrayByAddingObjectsFromArray:self.expectedMergedDataRealStorage.allKeys];
+};
 - (NSArray *)allExpectedKeys {
-    return [self.expectedKeysFromDefaultInfo arrayByAddingObjectsFromArray: self.expectedMergedDataRealStorage.allKeys];
+    return [self allExpectedKeysWithNonBehavioral: true];
 }
 
 - (void)validateDataContains: (NSDictionary *)data allKeys: (NSArray *)keys {
     NSUInteger counter = data.allKeys.count > keys.count ? data.allKeys.count : keys.count;
     NSArray *inputSorted = data.allKeys.defaultSorted;
     NSArray *expected = keys.defaultSorted;
-
+    
     for (int i = 0; i < counter; i++) {
         id receivedElement = [inputSorted uads_getItemSafelyAtIndex: i];
         id expectedElement = [expected uads_getItemSafelyAtIndex: i];
         XCTAssertEqualObjects(receivedElement,
                               expectedElement,
                               @"Expect %@ to be equal to %@ at index: %i", receivedElement, expectedElement, i);
-
+        
         if (![receivedElement isEqual: expectedElement]) {
             break;
         }
@@ -399,7 +413,7 @@
 
 - (UADSMetric *)privacyRequestFailureWithReason: (UADSPrivacyLoaderError)reason {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-
+    
     tags[@"reason"] = uads_privacyErrorTypeToString(reason);
     [tags addEntriesFromDictionary: self.retryTags];
     return [UADSPrivacyMetrics newPrivacyRequestErrorLatency: tags];

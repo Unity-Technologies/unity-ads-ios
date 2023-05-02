@@ -4,7 +4,7 @@
 
 + (instancetype) sharedInstance;
 + (USRVStorage *)getStorage: (UnityServicesStorageType)storageType;
-+ (void)removeStorage: (UnityServicesStorageType)storageType;
+
 - (void)commit: (NSDictionary *)storageContents;
 
 @end

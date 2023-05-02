@@ -126,6 +126,7 @@ NSString *const kUnityConfigURLHost = @"https://ads-sdk-configuration.unityads.u
     builder.currentTimeStampReader = _timestampMock;
     builder.noCompression = !compressed;
     builder.configurationSaver =  [UADSConfigurationCRUDBase new];
+    builder.sharedSessionIdReader = [UADSSharedSessionIdReaderBase new];
     return [builder requestFactoryWithExtendedInfo: true];
 }
 

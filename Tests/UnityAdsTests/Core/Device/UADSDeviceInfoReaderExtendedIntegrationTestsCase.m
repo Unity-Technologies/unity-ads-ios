@@ -21,7 +21,9 @@
 
 - (void)test_contains_default_device_info {
     [self.tester commitUserDefaultsTestData];
-    NSArray *allKeys = self.tester.expectedKeysFromDefaultInfo;
+    [self setExpectedUserBehaviouralFlag: NO];
+    
+    NSArray *allKeys = [self.tester expectedKeysFromDefaultInfoWithUserNonBehavioral: false];
 
     [self.tester validateDataContains: [self getDataFromSut]
                               allKeys: allKeys];
@@ -33,19 +35,21 @@
 
 - (void)test_contains_attributes_from_the_storage {
     [self.tester commitAllTestData];
+    [self setExpectedUserBehaviouralFlag: NO];
 
     [self.tester validateDataContains: [self getDataFromSut]
-                              allKeys: [self expectedKeysNoPIIIncludeNonBehavioral: YES]];
+                              allKeys: [self allExpectedKeysWithNonBehavioral: false]];
     [self validateMetrics: @[
          self.tester.infoCollectionLatencyMetrics
     ]];
 }
 
-- (void)test_tracking_is_disabled_doesnt_contain_pii_attributes {
+- (void)test_tracking_is_disabled_doesnt_contain_pii_attributes_no_nonbehavioural {
     [self.tester commitAllTestData];
+    [self setExpectedUserBehaviouralFlag: NO];
 
     [self setPrivacyResponseState: kUADSPrivacyResponseDenied];
-    NSArray *allKeys = [self expectedKeysNoPIIIncludeNonBehavioral: YES];
+    NSArray *allKeys =  [self allExpectedKeysWithNonBehavioral: false];
 
     [self.tester validateDataContains: [self getDataFromSut]
                               allKeys: allKeys];
@@ -54,14 +58,44 @@
     ]];
 }
 
-- (void)test_tracking_is_enabled_contains_pii_attributes {
+
+- (void)test_tracking_is_disabled_doesnt_contain_pii_attributes_with_nonbehavioural {
+    [self.tester commitAllTestData];
+    [self setExpectedUserBehaviouralFlag: NO];
+    [self setShouldSendNonBehavioural: true];
+    [self setPrivacyResponseState: kUADSPrivacyResponseDenied];
+    NSArray *allKeys =  [self allExpectedKeysWithNonBehavioral: true];
+
+    [self.tester validateDataContains: [self getDataFromSut]
+                              allKeys: allKeys];
+    [self validateMetrics: @[
+         self.tester.infoCollectionLatencyMetrics
+    ]];
+}
+
+- (void)test_tracking_is_enabled_contains_pii_attributes_no_nonbehavioral {
     [self.tester commitAllTestData];
     [self setPrivacyResponseState: kUADSPrivacyResponseAllowed];
 
-    [self setExpectedPrivacyModeTo: kUADSPrivacyModeMixed
-           withUserBehaviouralFlag: NO];
+    [self setExpectedUserBehaviouralFlag: NO];
 
-    NSArray *allKeys = [self expectedKeysWithPIIIncludeNonBehavioral: YES];
+    NSArray *allKeys = [self expectedKeysWithPIIWithNonBehavioral: false];
+
+    [self.tester validateDataContains: [self getDataFromSut]
+                              allKeys: allKeys];
+
+    [self validateMetrics: @[
+         self.tester.infoCollectionLatencyMetrics
+    ]];
+}
+
+- (void)test_tracking_is_enabled_contains_pii_attributes_with_nonbehavioral {
+    [self.tester commitAllTestData];
+    [self setPrivacyResponseState: kUADSPrivacyResponseAllowed];
+    [self setShouldSendNonBehavioural: true];
+    [self setExpectedUserBehaviouralFlag: NO];
+
+    NSArray *allKeys = [self expectedKeysWithPIIWithNonBehavioral: true];
 
     [self.tester validateDataContains: [self getDataFromSut]
                               allKeys: allKeys];

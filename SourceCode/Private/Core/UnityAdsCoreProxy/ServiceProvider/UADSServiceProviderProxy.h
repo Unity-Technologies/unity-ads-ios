@@ -7,6 +7,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NSDictionary  * _Nonnull  (^UADSInfoGetter)(bool);
+typedef void (^UADSTokenCompletion)(NSDictionary *_Nonnull);
 
 @protocol UADSNativeNetworkLayerProvider <NSObject>
 - (UADSCommonNetworkProxy *)nativeNetworkLayer;
@@ -20,6 +21,9 @@ typedef NSDictionary  * _Nonnull  (^UADSInfoGetter)(bool);
 - (UADSSDKInitializerProxy *)sdkInitializerWithFactory: (USRVInitializeStateFactory *)factory;
 - (void)setDebugMode: (BOOL)isDebugMode;
 - (InitializationState)currentState;
+- (NSNumber *)gameSessionId;
+- (NSString *)sessionId;
+- (void)getToken:(UADSTokenCompletion)completion;
 @end
 
 NS_ASSUME_NONNULL_END

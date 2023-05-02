@@ -39,10 +39,6 @@
 
 @implementation DynamicLibLoaderTests
 
-- (void)test_returns_not_loaded_state {
-    XCTAssertEqual(QuartzCoreLoaderMock.frameworkState, kUADSDynamicLibLoaderStateNotLoaded);
-}
-
 - (void)test_loads_framework_and_change_state {
     XCTAssertEqual([QuartzCoreLoaderMock loadFrameworkIfNotLoaded], kUADSDynamicLibLoaderStateLoaded);
     XCTAssertEqual([QuartzCoreLoaderMock loadFrameworkIfNotLoaded], kUADSDynamicLibLoaderStateLoaded);

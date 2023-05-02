@@ -11,6 +11,7 @@
 #import "UADSWebRequestFactorySwiftAdapter.h"
 #import "UADSDeviceInfoReaderBuilder.h"
 #import "UADSSharedSessionIdReader.h"
+#import "USRVJsonStorageAggregator.h"
 
 @interface UADSServiceProvider ()
 @property (nonatomic, strong) id<UADSPerformanceLogger>performanceLogger;
@@ -63,6 +64,21 @@
     [_privacyStorage saveResponse: [UADSInitializationResponse newFromDictionary:privacy]];
 }
 
+- (id)getValueFromJSONStorageFor: (NSString *)key {
+    return [USRVJsonStorageAggregator.defaultAggregator getValueForKey: key];
+}
+
+- (id)storageContent {
+    return [USRVJsonStorageAggregator.defaultAggregator getContents];
+}
+
+- (void)deleteKeyFromJSONStorageFor: (NSString *)key {
+    [[USRVStorageManager getStorage: kUnityServicesStorageTypePrivate] deleteKey:key];
+}
+-(void)setValueToJSONStorage:(id)value for: (NSString *)key {
+    [[USRVStorageManager getStorage: kUnityServicesStorageTypePrivate] set:key value: value];
+}
+
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)hbTokenReader {
     @synchronized (self) {
         if (!_hbTokenReader) {
@@ -102,6 +118,7 @@
     tokenReaderBuilder.gameSessionIdReader = self.gameSessionIdReader;
     tokenReaderBuilder.scar = [UADSGMAScar sharedInstance];
     tokenReaderBuilder.requestFactory = self.webViewRequestFactory;
+    tokenReaderBuilder.sharedSessionIdReader = self.sharedSessionIdReader;
     return tokenReaderBuilder;
 }
 
@@ -162,25 +179,27 @@
     builder.logger = self.logger;
     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
     builder.gameSessionIdReader = self.gameSessionIdReader;
+    builder.sharedSessionIdReader = self.sharedSessionIdReader;
     return builder;
 }
 
 - (id<UADSConfigurationLoader>)configurationLoader {
-     UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: self.experiments];
+    UADSCClientConfigBase *config = [UADSCClientConfigBase defaultWithExperiments: self.experiments];
     
-
-     UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
-                                                                        andWebRequestFactory: self.webViewRequestFactory
-                                                                                metricSender: self.metricSender];
-
-     builder.privacyStorage = self.privacyStorage;
-     builder.logger = self.logger;
-     builder.configurationSaver = self.configurationSaver;
-     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
-     builder.retryInfoReader = self.retryReader;
-     builder.gameSessionIdReader = self.gameSessionIdReader;
-     builder.metricsSender = self.metricSender;
-     return builder.configurationLoader;
+    
+    UADSConfigurationLoaderBuilder *builder = [UADSConfigurationLoaderBuilder newWithConfig: config
+                                                                       andWebRequestFactory: self.webViewRequestFactory
+                                                                               metricSender: self.metricSender];
+    
+    builder.privacyStorage = self.privacyStorage;
+    builder.logger = self.logger;
+    builder.configurationSaver = self.configurationSaver;
+    builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
+    builder.retryInfoReader = self.retryReader;
+    builder.gameSessionIdReader = self.gameSessionIdReader;
+    builder.metricsSender = self.metricSender;
+    builder.sharedSessionIdReader = self.sharedSessionIdReader;
+    return builder.configurationLoader;
  }
 
 - (UADSConfigurationExperiments *)experiments {

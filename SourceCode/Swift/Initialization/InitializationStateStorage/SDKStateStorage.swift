@@ -4,29 +4,39 @@ protocol InitializationStateSubject {
     func subscribe(_ block: @escaping ResultClosure<Void>)
 }
 
+protocol AppStartTimeSaver {
+    func save(startTime: TimeInterval)
+}
 final class SDKStateStorage: GenericMediator<UResult<Void>>,
                              InitializationStateSubject,
                              MetricsSenderBatchConditionSubject,
                              UnityAdsConfigurationProvider,
                              UnityAdsLocalConfigurationLoader,
                              RetriesInfoStorage {
+    let retriesInfoStorage: RetriesInfoWriter & RetriesInfoReader = RetriesInfoStorageBase()
 
     typealias ConfigProvider = UnityAdsConfigurationProvider &
                                UnityAdsLocalConfigurationLoader &
                                UnityAdsConfigSubject &
                                ExperimentsReader
 
-    @Atomic var currentState: SDKInitializerBase.State = .notInitialized {
-        didSet {
-            notifyStateChange()
-        }
+    @Atomic private var startTimeStamp: TimeInterval = 0
+
+    @Atomic private var initializeState: SDKInitializerBase.State = .notInitialized
+
+    private let privacyStorage = PrivacyStateStorage()
+
+    private(set) var configProvider: ConfigProvider
+
+    init(configProvider: ConfigProvider) {
+        self.configProvider = configProvider
     }
 
     var webViewConfig: UnityAdsConfig.Network.WebView {
-        guard !privacyStorage.privacyResponse.webViewConfig.url.isEmpty else {
+        guard !privacyStorage.$privacyResponse.load().webViewConfig.url.isEmpty else {
             return config.network.webView
         }
-        return  privacyStorage.privacyResponse.webViewConfig
+        return  privacyStorage.$privacyResponse.load().webViewConfig
     }
 
     var config: UnityAdsConfig {
@@ -34,13 +44,12 @@ final class SDKStateStorage: GenericMediator<UResult<Void>>,
         set { configProvider.config = newValue }
     }
 
-    private let privacyStorage = PrivacyStateStorage()
-
-    private(set) var configProvider: ConfigProvider
-    let retriesInfoStorage: RetriesInfoWriter & RetriesInfoReader = RetriesInfoStorageBase()
-
-    init(configProvider: ConfigProvider) {
-        self.configProvider = configProvider
+    var currentState: SDKInitializerBase.State {
+        get { _initializeState.load() }
+        set {
+            _initializeState.mutate({ $0 = newValue })
+            notifyStateChange()
+        }
     }
 
     // Metric Condition subscribes to be able to release batch on failure or success.
@@ -67,6 +76,8 @@ final class SDKStateStorage: GenericMediator<UResult<Void>>,
 }
 
 extension SDKStateStorage: PrivacyStateReader, PrivacyResponseSaver {
+    var shouldSendNonBehavioural: Bool { privacyStorage.shouldSendNonBehavioural }
+
     var privacyState: PrivacyState { privacyStorage.privacyState }
 
     func save(response: PrivacyResponse) {
@@ -88,19 +99,6 @@ extension SDKStateStorage: ExperimentsReader, SessionTokenReader {
     }
 }
 
-final class PrivacyStateStorage: GenericMediator<UResult<PrivacyResponse>>,
-                                 PrivacyStateReader,
-                                 PrivacyResponseSaver {
-    @Atomic var privacyResponse: PrivacyResponse = .empty
-
-    var privacyState: PrivacyState { privacyResponse.state }
-
-    func save(response: PrivacyResponse) {
-        privacyResponse = response
-        notifyObservers(with: .success(privacyResponse))
-    }
-}
-
 extension SDKStateStorage {
     func retryInfo() -> [String: String] {
         retriesInfoStorage.retryInfo()
@@ -108,5 +106,16 @@ extension SDKStateStorage {
 
     func set(retried: Int, task: RetriableTask) {
         retriesInfoStorage.set(retried: retried, task: task)
+    }
+}
+
+extension SDKStateStorage: AppStartTimeSaver, AppStartTimeProvider {
+
+    var appStartTime: TimeInterval {
+        _startTimeStamp.load()
+    }
+
+    func save(startTime: TimeInterval) {
+        _startTimeStamp.mutate({ $0 = startTime })
     }
 }

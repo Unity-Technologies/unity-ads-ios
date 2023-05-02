@@ -1,16 +1,6 @@
 import XCTest
 @testable import UnityAds
 
-private struct ExperimentsReaderMock: ExperimentsReader, SessionTokenReader {
-    let expectedExp: [String: Any]
-    let sessionToken = ""
-
-    var experiments: ConfigExperiments? {
-        try? .init(dictionary: expectedExp)
-
-    }
-}
-
 final class InitializationTaskSequenceLegacyTests: XCTestCase {
 
     private func sut(with exp: [String: Any]) -> IndexingIterator<[InitTaskCategory]> {

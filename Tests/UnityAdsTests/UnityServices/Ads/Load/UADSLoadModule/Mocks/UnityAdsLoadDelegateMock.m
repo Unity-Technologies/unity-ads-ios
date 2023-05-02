@@ -26,9 +26,7 @@
 }
 
 - (void)fulfill {
-    if ((_failedPlacements.count + _succeedPlacements.count) == 1) {
-        [self.expectation fulfill];
-    }
+    [self.expectation fulfill];
 }
 
 @end

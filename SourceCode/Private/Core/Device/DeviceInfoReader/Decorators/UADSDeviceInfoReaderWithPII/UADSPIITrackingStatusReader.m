@@ -93,14 +93,14 @@ NSString * uads_privacyModeString(UADSPrivacyMode mode) {
     return uads_privacyModeFromString(privacyMode);
 }
 
-- (BOOL)userNonBehavioralFlag {
+- (NSNumber *)userNonBehavioralFlag {
     id flag = [self.storageReader getValueForKey: [UADSJsonStorageKeyNames userNonBehavioralValueFlagKey]];
 
     if (flag == nil) {
         flag = [self.storageReader getValueForKey: [UADSJsonStorageKeyNames userNonbehavioralValueFlagKey]];
     }
 
-    return [flag boolValue];
+    return flag ? @([flag boolValue]) : nil;
 }
 
 @end

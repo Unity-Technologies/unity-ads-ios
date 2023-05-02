@@ -14,7 +14,7 @@ extern NSString * uads_privacyModeString(UADSPrivacyMode mode);
 
 @protocol UADSPIITrackingStatusReader <NSObject>
 - (UADSPrivacyMode)privacyMode;
-- (BOOL)           userNonBehavioralFlag;
+- (NSNumber *)userNonBehavioralFlag;
 @end
 
 @interface UADSPIITrackingStatusReaderBase : NSObject<UADSPIITrackingStatusReader>

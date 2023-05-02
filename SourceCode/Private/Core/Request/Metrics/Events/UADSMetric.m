@@ -48,7 +48,7 @@
     UADSMetric *other = (UADSMetric *)object;
 
     return [self.name isEqual: other.name] &&
-           ((!self.value && !other.value) || [self.value isEqualToNumber: other.value]) &&
+//           ((!self.value && !other.value) || [self.value isEqualToNumber: other.value]) &&
            ((!self.tags && !other.tags) || [self.tags isEqualToDictionary: other.tags]);
 }
 

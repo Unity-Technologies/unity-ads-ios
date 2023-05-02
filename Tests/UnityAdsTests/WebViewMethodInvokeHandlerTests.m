@@ -1,7 +1,7 @@
 #import <XCTest/XCTest.h>
 #import <WebKit/WebKit.h>
 #import "UnityAdsTests-Bridging-Header.h"
-
+#import "UnityAds+Testability.h"
 @interface WebViewBridgeTestApi : NSObject
 @end
 
@@ -105,6 +105,7 @@ static NSString *nativeCallbackValue = NULL;
 
 - (void)setUp {
     [super setUp];
+    [UnityAds resetForTest];
     MethodInvokeMockConfiguration *config = [[MethodInvokeMockConfiguration alloc] initWithConfigUrl: @"http://localhost/"];
     UrlProtocolMockWebView *mockWebView = [[UrlProtocolMockWebView alloc] init];
     XCTestExpectation *expectation = [self expectationWithDescription: @"setup"];
@@ -137,6 +138,7 @@ static NSString *nativeCallbackValue = NULL;
     apiCallbackCount = 0;
 
     [USRVWebViewApp setCurrentApp: NULL];
+    [UnityAds resetForTest];
 }
 
 - (void)testHandleInvocationShouldFailParametersNull {

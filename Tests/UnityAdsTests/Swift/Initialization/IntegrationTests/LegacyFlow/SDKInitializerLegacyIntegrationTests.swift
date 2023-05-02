@@ -48,7 +48,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID)),
@@ -100,7 +100,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
         ]
 
         let configRequestMetrics: [SDKMetricType] = [
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.latency(.configRequestFailure))
 
@@ -181,7 +181,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         let allConfigMetrics: [SDKMetricType] = stride(from: 0, to: configResponses.count, by: 1).flatMap({_ in
             [
-                .legacy(.latency(.intoCollection)),
+                .legacy(.latency(.infoCollection)),
                 .legacy(.latency(.infoCompression)),
                 .legacy(.latency(.configRequestFailure))
             ]
@@ -218,7 +218,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.latency(.configRequestSuccess)),
             .legacy(.missed(.token)),
@@ -270,7 +270,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.latency(.configRequestSuccess)),
             .legacy(.missed(.token)),
@@ -316,7 +316,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.latency(.configRequestSuccess)),
             .legacy(.missed(.token)),
@@ -367,7 +367,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.latency(.configRequestSuccess)),
             .legacy(.missed(.token)),
@@ -412,7 +412,7 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
+            .legacy(.latency(.infoCollection)),
             .legacy(.latency(.infoCompression)),
             .legacy(.latency(.configRequestSuccess)),
             .legacy(.missed(.token)),
@@ -454,7 +454,8 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                                     expectedNumberOfRequests: 0,
                                     multithreadCount: stressCount,
                                     metrics: [],
-                                    expectDiagnostic: true)
+                                    expectDiagnostic: true,
+                                    validateStartTimeStamp: false)
 
         try executeTest(with: testConfig,
                         resultValidation: { XCTAssertSuccess($0) })
@@ -469,7 +470,8 @@ class SDKInitializerLegacyIntegrationTests: SDKInitializerLegacyIntegrationTests
                                     expectedNumberOfRequests: 0,
                                     multithreadCount: stressCount,
                                     metrics: [],
-                                    expectDiagnostic: true)
+                                    expectDiagnostic: true,
+                                    validateStartTimeStamp: false)
         try executeTest(with: testConfig,
                         resultValidation: {
             XCTAssertFailure($0, expectedError: "The operation couldn’t be completed. (UnityAdsTests.MockedError error 1.)")

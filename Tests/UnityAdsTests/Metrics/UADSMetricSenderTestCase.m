@@ -38,11 +38,13 @@ NSString *const VALID_URL = @"http://valid.url";
     [self clearMediationMetadata];
     [USRVSdkProperties setTestMode: false];
     self.sut = _serviceProvider.metricSender;
+    UADSServiceProviderContainer.sharedInstance.serviceProvider = _serviceProvider;
 }
 
 - (void)tearDown {
     [super tearDown];
     [self deleteConfigFile];
+    UADSServiceProviderContainer.sharedInstance.serviceProvider = [UADSServiceProvider new];
 }
 
 - (void)test_sends_proper_performance_metrics_payload {

@@ -1,11 +1,15 @@
 import Foundation
+// swiftlint:disable type_body_length
 
 @objc
 protocol ServiceProviderObjCBridgeDelegate: AnyObject {
     func getDeviceInfo(extended: Bool) -> [String: Any]
-    func getGameSessionId() -> String
     func didCompleteInit(_ config: [String: Any])
     func didReceivePrivacy(_ privacy: [String: Any])
+    func getValueFromJSONStorage(for key: String) -> Any?
+    func setValueToJSONStorage(_ value: Any?, for key: String)
+    func deleteKeyFromJSONStorage(for key: String)
+    func storageContent() -> [String: Any]
 }
 
 @objc
@@ -13,7 +17,7 @@ final class ServiceProviderObjCBridge: NSObject {
 
     private(set) weak var delegate: ServiceProviderObjCBridgeDelegate?
 
-    var serviceProvider = UnityAdsServiceProvider() {
+    var serviceProvider = UnityAdsServiceProvider(skdSettingsStorage: .init()) {
         didSet {
             // this is required only for tests until we have objc legacy code and swift
             subscribeDelegate()
@@ -64,7 +68,19 @@ final class ServiceProviderObjCBridge: NSObject {
 
     @objc
     func setDebugMode(_ debugMode: Bool) {
-        serviceProvider.logLevel = debugMode ? .trace : .fatal
+        serviceProvider.logLevel = debugMode ? .trace : .info
+    }
+
+    @objc
+    func getToken(_ completion: Closure<[String: Any]>) {
+        do {
+            try serviceProvider.headerBiddingTokenReader.getToken({ token in
+                let tokenDict = (try? token.convertIntoDictionary()) ?? [:]
+                completion(tokenDict)
+            })
+        } catch {
+            completion([:])
+        }
     }
 }
 
@@ -83,12 +99,38 @@ extension ServiceProviderObjCBridge {
     }
 }
 
+extension ServiceProviderObjCBridge {
+    @objc var gameSessionId: String {
+        "\(serviceProvider.sessionInfoStorage.gameSessionID)"
+    }
+
+    @objc var sessionId: String {
+        serviceProvider.sessionInfoStorage.sessionID
+    }
+}
+
 private extension ServiceProviderObjCBridge {
 
     func subscribeDelegate() {
         serviceProvider.setLegacyInfoClosure({ [weak delegate] in
             return delegate?.getDeviceInfo(extended: $0) ?? [:]
         })
+
+        serviceProvider.setLegacyJSONSaverClosure { [weak delegate] in
+            delegate?.setValueToJSONStorage($0.1, for: $0.0)
+        }
+
+        serviceProvider.setLegacyJSONReaderClosure { [weak delegate] in
+            return delegate?.getValueFromJSONStorage(for: $0)
+        }
+
+        serviceProvider.jsonStorageObjCBridge.jsonStorageReaderContentClosure = { [weak delegate] in
+            delegate?.storageContent() ?? [:]
+        }
+
+        serviceProvider.setLegacyJSONKeyDeleteClosure { [weak delegate] in
+            delegate?.deleteKeyFromJSONStorage(for: $0)
+        }
 
         serviceProvider.subscribeToPrivacyComplete { [weak delegate] privacyResponse in
             delegate?.didReceivePrivacy(privacyResponse)

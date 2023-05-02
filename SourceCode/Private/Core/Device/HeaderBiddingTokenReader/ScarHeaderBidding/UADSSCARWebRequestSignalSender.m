@@ -63,8 +63,14 @@
     request.body = jsonString;
 
     dispatch_async(queue, ^{
-        NSData* data = [request makeRequest];
-        [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeSuccess:[self durationFromStartTime:startTime] isAsync:isAsync]];
+        [request makeRequest];
+        if (request.error) {
+            NSMutableDictionary *tags = [NSMutableDictionary new];
+            [tags uads_setValueIfNotNil:[NSString stringWithFormat:@"%li",(long)request.error.code] forKey:@"reason"];
+            [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeFailure:[self durationFromStartTime:startTime] tags:tags isAsync:isAsync]];
+        } else {
+            [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarSendTimeSuccess:[self durationFromStartTime:startTime] isAsync:isAsync]];
+        }
     });
 }
 

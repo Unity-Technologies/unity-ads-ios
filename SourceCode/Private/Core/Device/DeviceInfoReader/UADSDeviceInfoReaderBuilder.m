@@ -11,6 +11,8 @@
 #import "UADSDeviceInfoStorageKeysProviderExtended.h"
 #import "UADSDeviceInfoStorageKeysProviderMinimal.h"
 #import "UADSDeviceInfoReaderWithPrivacy.h"
+#import "UADSDeviceInfoReaderGate.h"
+#import "UADSDeviceInfoReaderWithSessionId.h"
 
 @implementation UADSDeviceInfoReaderBuilder
 - (id<UADSDeviceInfoReader>)defaultReader {
@@ -28,14 +30,19 @@
     deviceInfoReader = [self addStorageDumpDecorator: deviceInfoReader];
 
     if (extendedReader) {
+        deviceInfoReader = [self addGate: deviceInfoReader];
         deviceInfoReader = [self addPIIDecorator: deviceInfoReader];
+        
+        deviceInfoReader = [self addSessionIdDecorator: deviceInfoReader];
 
         deviceInfoReader = [self addMetrics: deviceInfoReader
                           usingMetricsSender: self.metricsSender
                             currentTimestamp: self.currentTimeStampReader];
+        
     }
 
     deviceInfoReader = [self addFilter: deviceInfoReader];
+
     return deviceInfoReader;
 }
 
@@ -69,6 +76,11 @@
                                               andBlockList: self.defaultBlockList];
 }
 
+- (id<UADSDeviceInfoReader>)addGate: (id<UADSDeviceInfoReader>)original {
+    return [UADSDeviceInfoReaderGate decorateOriginal: original
+                                    withPrivacyReader: self.privacyReader];
+}
+
 - (id<UADSDictionaryKeysBlockList>)defaultBlockList {
     if (_storageBlockListProvider) {
         return _storageBlockListProvider;
@@ -82,6 +94,11 @@
                                                withPrivacyReader: self.privacyReader
                                              withPIIDataProvider: [UADSPIIDataProviderBase new]
                                                 andUserContainer: self.userStorageReader];
+}
+
+- (id<UADSDeviceInfoReader>)addSessionIdDecorator: (id<UADSDeviceInfoReader>)original {
+        return [UADSDeviceInfoReaderWithSessionId newWithOriginal: original
+                                               andSessionIdReader: self.sharedSessionIdReader];
 }
 
 - (id<UADSDeviceInfoReader>)addMetrics: (id<UADSDeviceInfoReader>)original

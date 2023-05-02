@@ -14,15 +14,16 @@
 - (NSDictionary *)getDataFromSut;
 - (BOOL)          isDeviceInfoReaderExtended;
 - (void)          validateMetrics: (NSArray<UADSMetric *> *)expectedMetrics;
-- (void)setExpectedPrivacyModeTo: (UADSPrivacyMode)mode
-         withUserBehaviouralFlag: (BOOL)flag;
+- (void)setExpectedUserBehaviouralFlag: (BOOL)flag;
 - (NSDictionary *)                         piiExpectedData;
 - (void)setPrivacyResponseState: (UADSPrivacyResponseState)state;
-- (NSArray *)                              expectedKeysNoPII;
-- (NSArray *)expectedKeysWithPIIIncludeNonBehavioral: (BOOL)include;
-- (NSArray *)expectedKeysMinIncludeNonBehavioral: (BOOL)include;
-- (NSArray *)expectedKeysNoPIIIncludeNonBehavioral: (BOOL)include;
+- (NSArray *)                              allExpectedKeys;
+- (NSArray *)expectedKeysWithPIIWithNonBehavioral: (BOOL)withUserNonBehavioral;
+- (NSArray *)expectedMinKeys;
+- (NSArray *)expectedMinKeysWithoutNonBehavioral;
+- (NSArray *)allExpectedKeysWithNonBehavioral: (BOOL)withUserNonBehavioral;
 - (NSDictionary *)                         piiFullContentData;
+- (void)setShouldSendNonBehavioural: (BOOL)flag;
 @end
 
 #endif /* UADSDeviceInfoReaderIntegrationTestsCaseBase_h */

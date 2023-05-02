@@ -16,17 +16,18 @@
     ];
 
     [self.deviceInfoTester commitAllTestData];
-
+    [self.deviceInfoTester commitNonBehavioral:true];
+    
     [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
 
-    NSArray *expectedKeys = self.deviceInfoTester.allExpectedKeysFromMinInfo;
+    NSArray *expectedKeys = [self.deviceInfoTester allExpectedKeysFromMinInfoWithUserNonBehavioral:true];
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
                         andBodyDataKeys: [self appendCommonTo: expectedKeys]];
 
 
-    NSArray *expectedWithPII = [[self.deviceInfoTester allExpectedKeys] arrayByAddingObjectsFromArray: self.deviceInfoTester.piiDecisionContentData.allKeys];
+    NSArray *expectedWithPII = [[self.deviceInfoTester allExpectedKeysWithNonBehavioral: false] arrayByAddingObjectsFromArray: self.deviceInfoTester.piiDecisionContentData.allKeys];
 
     expectedWithPII = [self appendCommonTo: expectedWithPII];
 
@@ -54,12 +55,13 @@
     ];
 
     [self.deviceInfoTester commitAllTestData];
+    [self.deviceInfoTester commitNonBehavioral:true];
 
     [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
     [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
 
     // privacy request
-    NSArray *expectedKeys = self.deviceInfoTester.allExpectedKeysFromMinInfo;
+    NSArray *expectedKeys = [self.deviceInfoTester allExpectedKeysFromMinInfoWithUserNonBehavioral:true];
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
@@ -67,7 +69,7 @@
 
 
     //first config request
-    NSArray *expectedWithPII = [[self.deviceInfoTester allExpectedKeys] arrayByAddingObjectsFromArray: self.deviceInfoTester.piiDecisionContentData.allKeys];
+    NSArray *expectedWithPII = [[self.deviceInfoTester allExpectedKeysWithNonBehavioral: false] arrayByAddingObjectsFromArray: self.deviceInfoTester.piiDecisionContentData.allKeys];
 
     expectedWithPII = [self appendCommonTo: expectedWithPII];
 
@@ -101,10 +103,11 @@
     ];
 
     [self.deviceInfoTester commitAllTestData];
+    [self.deviceInfoTester commitNonBehavioral:true];
 
     [self callSUTExpectingSuccessWithConfig: [self factoryConfigWithExperiments: @{}]];
 
-    NSArray *expectedKeys = self.deviceInfoTester.allExpectedKeysFromMinInfo;
+    NSArray *expectedKeys = [self.deviceInfoTester allExpectedKeysFromMinInfoWithUserNonBehavioral:true];
 
     [self validateCreatedRequestAtIndex: 0
                    withExpectedHostHame: self.expectedHostName
@@ -113,7 +116,7 @@
 
     [self validateCreatedRequestAtIndex: 1
                    withExpectedHostHame: self.expectedHostName
-                        andBodyDataKeys: [self appendCommonTo: self.deviceInfoTester.allExpectedKeys]];
+                        andBodyDataKeys: [self appendCommonTo: [self.deviceInfoTester allExpectedKeysWithNonBehavioral: false]]];
 
     [self validateCreateRequestCalledNumberOfTimes: 2];
     [self validateConfigWasSavedToPersistenceNumberOfTimes: 1];

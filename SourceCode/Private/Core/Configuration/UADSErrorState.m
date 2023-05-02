@@ -45,3 +45,5 @@ BOOL uads_isWebViewErrorState(UADSErrorState state) {
             return false;
     }
 }
+
+const int kPrivacyGameIdDisabledCode = 423;

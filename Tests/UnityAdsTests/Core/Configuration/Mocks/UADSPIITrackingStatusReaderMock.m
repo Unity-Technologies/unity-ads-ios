@@ -12,9 +12,9 @@
     return self.expectedMode;
 }
 
-- (BOOL)userNonBehavioralFlag {
+- (NSNumber *)userNonBehavioralFlag {
     _userBehavioralCount += 1;
-    return self.expectedUserBehaviouralFlag ? : false;
+    return self.expectedUserBehaviouralFlag ? @(self.expectedUserBehaviouralFlag) : nil;
 }
 
 @end

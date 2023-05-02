@@ -34,6 +34,11 @@
     _configurationReaderMock = [UADSConfigurationReaderMock new];
     [self deleteConfigFile];
     [_infoTester clearAllStorages];
+    UADSServiceProviderContainer.sharedInstance.serviceProvider = _serviceProvider;
+}
+
+- (void)tearDown {
+    UADSServiceProviderContainer.sharedInstance.serviceProvider = [UADSServiceProvider new];
 }
 
 - (void)test_returns_null_invalid_token_when_sdk_not_initialized {
@@ -75,6 +80,7 @@
                     makeConfigFail: (BOOL)configFail
             shouldReturnContextual: (BOOL)isContextual {
     [_infoTester commitAllTestData];
+    [_infoTester commitNonBehavioral:true];
     self.webRequestFactoryMock.expectedRequestData = @[
         privacyFail ? [NSData new] : _configTester.successPayloadPrivacy.uads_jsonData,
         configFail ? [NSData new] : _configTester.successPayload.uads_jsonData
@@ -130,7 +136,7 @@
 }
 
 - (NSArray *)contextualTokenKeys {
-    return _infoTester.allExpectedKeys;
+    return [_infoTester allExpectedKeysWithNonBehavioral: false];
 }
 
 - (NSArray *)behavioralTokenKeys {

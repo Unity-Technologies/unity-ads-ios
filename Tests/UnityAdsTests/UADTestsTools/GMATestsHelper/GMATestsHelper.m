@@ -2,7 +2,7 @@
 #import "UADSTools.h"
 #import "USRVWebViewCallbackMock.h"
 #import "GMAIntegrationTestsConstants.h"
-
+#import "UnityAds+Testability.h"
 #import "NSArray+Map.h"
 
 @implementation GMATestsHelper
@@ -19,8 +19,7 @@
 }
 
 - (void)clear {
-    _webViewMock = nil;
-    [USRVWebViewApp setCurrentApp: _webViewMock];
+    [UnityAds resetForTest];
 }
 
 - (NSString *)apiClassName {

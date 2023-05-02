@@ -1,10 +1,11 @@
 #import "UADSSharedSessionIdReader.h"
-#import "UADSSessionId.h"
+#import "UADSServiceProviderContainer.h"
 
 @implementation UADSSharedSessionIdReaderBase
 
 - (nonnull NSString *)sessionId {
-    return UADSSessionId.shared.sessionId;
+    UADSServiceProvider *provider = UADSServiceProviderContainer.sharedInstance.serviceProvider;
+    return [provider.objBridge sessionId];
 }
 
 @end

@@ -24,15 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)    idfiMockValue;
 - (void)          setAnalyticSessionID;
 - (void)          setAnalyticUserID;
+- (void)setAUID;
 - (NSString *)    analyticSessionMockValue;
 - (NSString *)    analyticUserMockValue;
 - (NSDictionary *)expectedMergedDataRealStorage;
 - (NSArray *)     expectedKeysFromDefaultInfo;
-- (NSArray *)     expectedKeysFromDefaultMinInfo;
+- (NSArray *)     expectedKeysFromDefaultInfoWithUserNonBehavioral:(BOOL)withUserNonBehavioral;
+- (NSArray *)     expectedKeysFromDefaultMinInfoWithUserNonBehavioral:(BOOL)withUserNonBehavioral;
 - (NSArray *)     allExpectedKeys;
+- (NSArray *)allExpectedKeysWithNonBehavioral: (BOOL)withUserNonBehavioral;
 - (void)          setPIIDataToStorage;
-- (void)         commitPrivacyMode: (UADSPrivacyMode)mode
-                  andNonBehavioral: (BOOL)flag;
+- (void)          commitNonBehavioral: (BOOL)flag;
 - (void)validateDataContains: (NSDictionary *)data allKeys: (NSArray *)keys;
 - (NSDictionary *)          piiDecisionContentData;
 - (void)saveExpectedContentToJSONStorage: (NSDictionary *)content;
@@ -43,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (UADSMetric *)            infoCollectionLatencyMetrics;
 - (UADSMetric *)            infoCompressionLatencyMetrics;
 - (UADSMetric *)            privacyRequestLatencyMetrics;
-- (NSArray *)               allExpectedKeysFromMinInfo;
+- (NSArray *)allExpectedKeysFromMinInfoWithUserNonBehavioral:(BOOL)withUserNonBehavioral;
 - (UADSMetric *)privacyRequestFailureWithReason: (UADSPrivacyLoaderError)reason;
 - (UADSMetric *)configLatencyFailureMetricWithReason: (UADSConfigurationLoaderError)reason;
 - (UADSMetric *)            configLatencySuccessMetric;

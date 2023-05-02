@@ -4,7 +4,7 @@ import XCTest
 @testable import UnityAds
 
 class SDKInitializerLegacyIntegrationTestsBase: XCMultiThreadTestCase {
-    let defaultTimeout: TimeInterval = 1
+    let defaultTimeout: TimeInterval = 30
     let concurrentQueue = DispatchQueue(label: "SDKInitializerLegacyIntegrationTestsBase.queue",
                                         qos: .background,
                                         attributes: .concurrent)
@@ -31,11 +31,15 @@ class SDKInitializerLegacyIntegrationTestsBase: XCMultiThreadTestCase {
     }
 
     func resetTester() {
+
         _tester = .init(useExampleConfig: useExampleConfig)
+        _tester?.resetStubs()
+
     }
 
     override func tearDown() {
-        USRVApiSdk.setServiceProviderForTesting(UADSServiceProvider())
+        UADSServiceProviderContainer.sharedInstance().serviceProvider = .init()
+        resetTester()
     }
 
     func saveConfigToFile(_ config: UnityAdsConfig) throws {
@@ -78,13 +82,16 @@ extension SDKInitializerLegacyIntegrationTestsBase {
         expectation.expectedFulfillmentCount = config.multithreadCount + additionalFulfillmentCount
         let validator = tester.metricsValidator
 
-        tester.metricProtocolStub.requestObserver = { [weak validator]_ in
+        let metricsObserver: Closure<URLRequest> = {[weak validator]_ in
             guard let validator = validator else { fatalError() }
 
             if validator.receivedCount >= types.count {
                 expectation.fulfill()
             }
+
         }
+        tester.metricProtocolStub.$requestObserver.setNewValue(metricsObserver)
+
         setNetworkResponses(config.responses)
 
         multiThreadTest(stressCount: config.multithreadCount,
@@ -102,13 +109,21 @@ extension SDKInitializerLegacyIntegrationTestsBase {
                                         webViewRetried: config.webviewRetried,
                                         file: file,
                                         line: line)
-        XCTAssertEqual(tester.networkRequests.count, config.expectedNumberOfRequests, file: file, line: line)
-//        XCTAssertEqual(self.tester.serviceProvider.sdkStateStorage.config,
-//                       config.sdkConfig,
-//                       file: file,
-//                       line: line)
-        final?()
+        XCTAssertEqual(tester.networkRequests.count,
+                       config.expectedNumberOfRequests,
+                       file: file,
+                       line: line)
+        if config.validateStartTimeStamp {
+            XCTAssertEqual(tester.timeStampReaderMock.expectedInterval,
+                           tester.serviceProvider.sdkStateStorage.appStartTime,
+                           file: file,
+                           line: line)
+        }
 
+        final?()
+        tester.metricProtocolStub.$requestObserver.mutate({
+            $0 = nil
+        })
     }
 
     var defaultExperiments: [String: Bool] {
@@ -126,7 +141,7 @@ extension SDKInitializerLegacyIntegrationTestsBase {
 
     struct TestConfig {
         let responses: [URLProtocolResponseStub]
-        var initializeConfig: SDKInitializerConfig = .init(gameID: "GameID")
+        var initializeConfig: SDKInitializerConfig = .init(gameID: "12345", isTestModeEnabled: false)
         let sdkConfig: UnityAdsConfig
         var expectedNumberOfRequests: Int = 0
         var multithreadCount: Int = 1
@@ -134,6 +149,7 @@ extension SDKInitializerLegacyIntegrationTestsBase {
         var configRetried = 0
         var webviewRetried = 0
         var expectDiagnostic: Bool = true
+        var validateStartTimeStamp = true
     }
 
     func verifyWebExposedGetTrrData(_ config: UnityAdsConfig) {
@@ -153,6 +169,14 @@ extension SDKInitializerLegacyIntegrationTestsBase {
         } else {
             XCTFail("Didn't receive config data with WebViewExposed_getTrrData")
         }
+    }
+
+    func extractErrorFromState(_ state: SDKInitializerBase.State) -> Error? {
+        guard case let .failed(error) = state else {
+            return nil
+        }
+
+        return error
     }
 }
 

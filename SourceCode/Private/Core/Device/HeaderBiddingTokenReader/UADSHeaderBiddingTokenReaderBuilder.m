@@ -11,6 +11,7 @@
 #import "UADSHBTokenReaderWithPrivacyWait.h"
 #import "UADSHeaderBiddingTokenReaderWithSCARSignals.h"
 #import "UADSUUIDStringGenerator.h"
+#import "UADSHeaderBiddingTokenReaderSwiftBridge.h"
 
 static NSString *const kDefaultTokenPrefix = @"1:";
 
@@ -71,6 +72,7 @@ static NSString *const kDefaultTokenPrefix = @"1:";
     builder.extendedReader = true;
     builder.currentTimeStampReader = [UADSCurrentTimestampBase new];
     builder.gameSessionIdReader = self.gameSessionIdReader;
+    builder.sharedSessionIdReader = self.sharedSessionIdReader;
     _deviceInfoReader = builder.defaultReader;
     return _deviceInfoReader;
 }
@@ -91,11 +93,15 @@ static NSString *const kDefaultTokenPrefix = @"1:";
 
 - (id<UADSHeaderBiddingAsyncTokenReader>)tokenGenerator {
     if (!_tokenGenerator) {
-        _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
+        if (self.experiments.isSwiftTokenEnabled) {
+            _tokenGenerator = [UADSHeaderBiddingTokenReaderSwiftBridge new];
+        } else {
+            _tokenGenerator = [UADSHeaderBiddingTokenReaderBase newWithDeviceInfoReader: self.deviceInfoReader
                                                                       andCompressor: self.bodyCompressor
                                                                     withTokenPrefix: self.nativeTokenPrefix
                                                               withUniqueIdGenerator: self.uniqueIdGenerator ?: [UADSUUIDStringGenerator new]
                                                             withConfigurationReader: self.sdkConfigReader];
+        }
     }
     
     if (self.experiments.isPrivacyWaitEnabled) {

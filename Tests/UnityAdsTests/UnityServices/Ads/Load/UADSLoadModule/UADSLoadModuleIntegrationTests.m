@@ -185,7 +185,6 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     NSArray *passedArguments = _webAppMock.returnedParams.lastObject;
     NSDictionary *params = passedArguments.firstObject;
     NSString *listenerID = params[kUADSListenerIDKey];
-
     [self.moduleToTest sendAdLoadedForPlacementID: kUADSLoadModuleTestsPlacementID
                                     andListenerID: listenerID];
 }

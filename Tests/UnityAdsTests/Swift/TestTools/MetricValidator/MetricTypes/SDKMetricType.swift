@@ -120,9 +120,11 @@ extension SDKMetricType {
         var resultMetrics: ResultMetrics.Type {
             switch self {
             case .compression: return Constants.Metrics.Compression.self
+            case .infoCollection: return Constants.Metrics.Collection.self
             }
         }
         case compression
+        case infoCollection
 
     }
 

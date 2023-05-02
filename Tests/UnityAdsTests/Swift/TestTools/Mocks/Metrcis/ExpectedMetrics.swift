@@ -6,9 +6,9 @@ struct ExpectedMetrics {
 extension ExpectedMetrics {
     struct LegacyFlow {
         static var HappyPath: [SDKMetricType] {
-            var sdkMetrics: [SDKMetricType] =  [
+            let sdkMetrics: [SDKMetricType] =  [
                 .legacy(.initStarted),
-                .legacy(.latency(.intoCollection)),
+                .legacy(.latency(.infoCollection)),
                 .legacy(.latency(.infoCompression)),
                 .legacy(.missed(.token)),
                 .legacy(.missed(.stateID)),
@@ -34,7 +34,7 @@ extension ExpectedMetrics {
         static var HappyPath: [SDKMetricType] {
             var sdkMetrics: [SDKMetricType] =  [
                 .legacy(.initStarted),
-                .legacy(.latency(.intoCollection)),
+                .legacy(.latency(.infoCollection)),
                 .legacy(.latency(.infoCompression)),
                 .legacy(.missed(.token)),
                 .legacy(.missed(.stateID)),
@@ -64,13 +64,13 @@ extension ExpectedMetrics {
         static var HappyPath: [SDKMetricType] {
             var sdkMetrics: [SDKMetricType] =  [
                 .legacy(.initStarted),
-                .legacy(.latency(.intoCollection)),
                 .legacy(.missed(.token)),
                 .legacy(.missed(.stateID))
             ]
 
             let sdkPerformanceMetrics: [SDKMetricType] = [
                 .systemPerformance(.success(.compression)),
+                .systemPerformance(.success(.infoCollection)),
                 .requestPerformance(.success(.privacy)),
                 .requestPerformance(.success(.config)),
                 .taskPerformance(.success(.loadLocalConfig)),
@@ -96,13 +96,13 @@ extension ExpectedMetrics {
         static var HappyPath: [SDKMetricType] {
             var sdkMetrics: [SDKMetricType] =  [
                 .legacy(.initStarted),
-                .legacy(.latency(.intoCollection)),
                 .legacy(.missed(.token)),
                 .legacy(.missed(.stateID))
             ]
 
             let sdkPerformanceMetrics: [SDKMetricType] = [
                 .systemPerformance(.success(.compression)),
+                .systemPerformance(.success(.infoCollection)),
                 .requestPerformance(.success(.privacy)),
                 .requestPerformance(.success(.config)),
                 .taskPerformance(.success(.loadLocalConfig)),

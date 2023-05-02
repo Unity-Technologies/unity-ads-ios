@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<UADSLogger>logger;
 @property (nonatomic, strong) id<UADSRetryInfoReader> retryInfoReader;
 @property (nonatomic, strong) id<UADSGameSessionIdReader> gameSessionIdReader;
+@property (nonatomic, strong) id<UADSSharedSessionIdReader> sharedSessionIdReader;
 @property (nonatomic) BOOL noCompression;
 
 - (id<USRVInitializationRequestFactory>)requestFactoryWithExtendedInfo: (BOOL)hasExtendedInfo;

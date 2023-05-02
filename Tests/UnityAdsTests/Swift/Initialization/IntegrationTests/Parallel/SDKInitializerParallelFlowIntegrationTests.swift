@@ -7,6 +7,7 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
     override var defaultExperiments: [String: Bool] {
         var dictionary = super.defaultExperiments
         dictionary["s_pte"] = true
+        dictionary["s_din"] = true
         return dictionary
     }
 
@@ -36,6 +37,44 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
     }
 
+    func test_init_fails_when_privacy_fails_with_defined_codes() throws {
+        let expectedFailureCode = 423
+        let expectedConfig = try configMockFactory.defaultUnityAdsConfig(experiments: defaultExperiments)
+        let privacyResponseError = NSError(domain: "network", code: expectedFailureCode)
+        let responses: [URLProtocolResponseStub] = [
+            .init(error: privacyResponseError)
+        ]
+
+        var sdkMetrics: [SDKMetricType] =  [
+            .legacy(.initStarted)
+        ]
+
+        let sdkPerformanceMetrics: [SDKMetricType] = [
+            .requestPerformance(.failure(.privacy)),
+            .taskPerformance(.failure(.initializer)),
+            .taskPerformance(.success(.loadLocalConfig)),
+            .taskPerformance(.failure(.privacyFetch)),
+            .taskPerformance(.success(.initModules)),
+            .taskPerformance(.success(.reset))
+        ]
+
+        sdkMetrics += sdkPerformanceMetrics
+        let testConfig = TestConfig(responses: responses,
+                                    sdkConfig: expectedConfig,
+                                    expectedNumberOfRequests: responses.count,
+                                    multithreadCount: 1,
+                                    metrics: sdkMetrics,
+                                    expectDiagnostic: true)
+        try executeTest(with: testConfig,
+                        resultValidation: { XCTAssertFailure($0) },
+                        final: {
+
+            let error = self.extractErrorFromState(self.tester.sdkState)
+
+            XCTAssertEqual(error as? PrivacyError, .gameIdDisabled)
+        })
+    }
+
     func test_init_fails_with_error_when_config_has_corrupted_data() throws {
 
         let corruptedConfig = try ["key": "value"].serializedData()
@@ -50,8 +89,8 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
         var sdkMetrics: [SDKMetricType] =  [ .legacy(.initStarted) ]
 
         let configRequestMetrics: [SDKMetricType] = [
-            .legacy(.latency(.intoCollection)),
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.failure(.config))
 
         ]
@@ -95,8 +134,8 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.failure(.config)),
             .requestPerformance(.success(.privacy)),
             .taskPerformance(.success(.webViewDownload)),
@@ -135,10 +174,10 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let sdkMetrics: [SDKMetricType] = [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID)),
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
             .taskPerformance(.success(.loadLocalConfig)),
@@ -184,10 +223,10 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let sdkMetrics: [SDKMetricType] = [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID)),
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
             .taskPerformance(.success(.loadLocalConfig)),
@@ -226,10 +265,10 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let sdkMetrics: [SDKMetricType] = [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID)),
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .taskPerformance(.success(.loadLocalConfig)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
@@ -273,10 +312,10 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let sdkMetrics: [SDKMetricType] = [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID)),
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
             .taskPerformance(.success(.loadLocalConfig)),
@@ -314,13 +353,13 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID))
         ]
 
         let sdkPerformanceMetrics: [SDKMetricType] = [
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
             .taskPerformance(.success(.loadLocalConfig)),
@@ -357,7 +396,8 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
                                     expectedNumberOfRequests: 0,
                                     multithreadCount: stressCount,
                                     metrics: [],
-                                    expectDiagnostic: true)
+                                    expectDiagnostic: true,
+                                    validateStartTimeStamp: false)
 
         try executeTest(with: testConfig,
                         resultValidation: { XCTAssertSuccess($0) })
@@ -372,7 +412,8 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
                                     expectedNumberOfRequests: 0,
                                     multithreadCount: stressCount,
                                     metrics: [],
-                                    expectDiagnostic: true)
+                                    expectDiagnostic: true,
+                                    validateStartTimeStamp: false)
         try executeTest(with: testConfig,
                         resultValidation: {
             XCTAssertFailure($0, expectedError: "The operation couldn’t be completed. (UnityAdsTests.MockedError error 1.)")
@@ -397,13 +438,13 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID))
         ]
 
         let sdkPerformanceMetrics: [SDKMetricType] = [
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
             .taskPerformance(.success(.loadLocalConfig)),
@@ -446,8 +487,8 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let configRequestMetrics: [SDKMetricType] = [
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.config)),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID))
         ]
@@ -490,8 +531,8 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         let configRequestMetrics: [SDKMetricType] = [
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.config)),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID))
         ]
@@ -536,13 +577,13 @@ final class SDKInitializerParallelFlowIntegrationTests: SDKInitializerLegacyInte
 
         var sdkMetrics: [SDKMetricType] =  [
             .legacy(.initStarted),
-            .legacy(.latency(.intoCollection)),
             .legacy(.missed(.token)),
             .legacy(.missed(.stateID))
         ]
 
         let sdkPerformanceMetrics: [SDKMetricType] = [
             .systemPerformance(.success(.compression)),
+            .systemPerformance(.success(.infoCollection)),
             .requestPerformance(.success(.privacy)),
             .requestPerformance(.success(.config)),
             .taskPerformance(.success(.loadLocalConfig)),

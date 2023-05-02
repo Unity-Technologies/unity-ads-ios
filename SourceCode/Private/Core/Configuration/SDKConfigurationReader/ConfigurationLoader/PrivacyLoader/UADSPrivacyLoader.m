@@ -68,6 +68,10 @@ NSString * uads_privacyErrorTypeToString(UADSPrivacyLoaderError type) {
     }
 
     if (![request is2XXResponse]) {
+        if (request.responseCode == 423) {
+            errorCompletion(uads_privacyGameDisabledError);
+            return;
+        }
         errorCompletion(uads_privacyInvalidResponseCodeError);
         return;
     }

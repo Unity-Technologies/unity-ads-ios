@@ -1,6 +1,7 @@
 #import "UADSSCARRawSignalsReader.h"
 #import "UADSSCARSignalIdentifiers.h"
 #import "UADSSCARHeaderBiddingMetric.h"
+#import "NSMutableDictionary+SafeOperations.h"
 
 @implementation UADSSCARRawSignalsReader
 
@@ -16,9 +17,8 @@
     };
 
     id error = ^(id<UADSError> _Nonnull error) {
-        NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
-                                         @"reason": error.errorCode
-        }];
+        NSMutableDictionary *tags = [NSMutableDictionary new];
+        [tags uads_setValueIfNotNil:error.errorCode forKey:@"reason"];
         [self.config.metricsSender sendMetric: [UADSSCARHeaderBiddingMetric newScarFetchTimeFailure:[self durationFromStartTime:startTime] tags:tags isAsync:isAsync]];
         completion(nil);
     };

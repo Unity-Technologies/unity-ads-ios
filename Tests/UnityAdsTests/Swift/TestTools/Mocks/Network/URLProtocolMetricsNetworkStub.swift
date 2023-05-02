@@ -10,7 +10,7 @@ final class URLProtocolMetricsNetworkStub: URLProtocolStubBase {
 
     override class func clear() {
         super.clear()
-        requestObserver = nil
+        _requestObserver.mutate({ $0 = nil })
     }
 
     override class func appendRequest(_ urlRequest: URLRequest) {
@@ -38,6 +38,6 @@ final class URLProtocolMetricsNetworkStub: URLProtocolStubBase {
     }
 
     override func beforeResponse() {
-        Self.requestObserver?(request)
+        Self._requestObserver.load()?(request)
     }
 }

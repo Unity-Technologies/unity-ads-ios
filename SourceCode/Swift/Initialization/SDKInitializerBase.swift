@@ -17,8 +17,8 @@ final class SDKInitializerBase: SDKInitializer {
     }
 
     private var initConfig: SDKInitializerConfig {
-        get { settingsStorage.currentInitConfig }
-        set { settingsStorage.currentInitConfig = newValue }
+        get { settingsStorage.$currentInitConfig.load() }
+        set { settingsStorage.$currentInitConfig.mutate({ $0 = newValue })  }
     }
 
     init(task: Task,
@@ -37,6 +37,12 @@ final class SDKInitializerBase: SDKInitializer {
 private extension SDKInitializerBase {
     func startInitialization(with config: SDKInitializerConfig, completion: @escaping ResultClosure<Void>) {
         completions = completions.appended(completion)
+
+        if !isGameIdValid(config) {
+            notifySavedCompletionsAndClean(with: .failure(InvalidGameId()))
+            return
+        }
+
         switch state {
         case .notInitialized:
             changeStatusAndStartTheTask(config: config)
@@ -47,12 +53,15 @@ private extension SDKInitializerBase {
         case .initialized:
             notifySavedCompletionsAndClean(with: VoidSuccess)
         }
-
     }
 
     func changeStatusAndStartTheTask(config: SDKInitializerConfig) {
         setInProgress(for: config)
         startTask()
+    }
+
+    func isGameIdValid(_ config: SDKInitializerConfig) -> Bool {
+        return Int(config.gameID) != nil
     }
 
     func setInProgress(for config: SDKInitializerConfig) {
@@ -85,9 +94,11 @@ private extension SDKInitializerBase {
 
 public struct SDKInitializerConfig {
     public let gameID: String
-
-    public init(gameID: String) {
+    public let isTestModeEnabled: Bool
+    public init(gameID: String,
+                isTestModeEnabled: Bool) {
         self.gameID = gameID
+        self.isTestModeEnabled = isTestModeEnabled
     }
 }
 
@@ -109,5 +120,11 @@ extension SDKInitializerBase {
         case inProcess
         case failed(Error)
         case initialized
+    }
+}
+
+struct InvalidGameId: LocalizedError {
+    var errorDescription: String? {
+        return "GameId should be a number"
     }
 }

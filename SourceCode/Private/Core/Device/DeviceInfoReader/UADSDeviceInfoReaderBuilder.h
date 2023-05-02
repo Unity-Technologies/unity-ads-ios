@@ -6,6 +6,8 @@
 #import "UADSPrivacyStorage.h"
 #import "UADSLogger.h"
 #import "UADSGameSessionIdReader.h"
+#import "UADSSharedSessionIdReader.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSDeviceInfoReaderBuilder : NSObject <UADSDeviceInfoProvider>
@@ -16,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<UADSCurrentTimestamp>currentTimeStampReader;
 @property (nonatomic, strong) id<UADSClientConfig> clientConfig;
 @property (nonatomic, strong) id<UADSGameSessionIdReader>gameSessionIdReader;
+@property (nonatomic, strong) id<UADSSharedSessionIdReader> sharedSessionIdReader;
 @property BOOL extendedReader;
 - (id<UADSDeviceInfoReader>)defaultReader;
 

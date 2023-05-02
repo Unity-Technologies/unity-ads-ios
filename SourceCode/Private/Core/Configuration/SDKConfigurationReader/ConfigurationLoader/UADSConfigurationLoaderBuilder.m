@@ -94,6 +94,7 @@
     builder.logger = self.logger;
     builder.currentTimeStampReader = self.currentTimeStampReader;
     builder.gameSessionIdReader = self.gameSessionIdReader;
+    builder.sharedSessionIdReader = self.sharedSessionIdReader;
     return builder.defaultReader;
 }
 

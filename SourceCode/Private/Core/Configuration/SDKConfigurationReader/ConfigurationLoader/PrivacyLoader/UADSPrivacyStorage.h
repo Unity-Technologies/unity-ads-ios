@@ -21,6 +21,7 @@ NSString * uads_privacyResponseStateToString(UADSPrivacyResponseState);
 @protocol UADSPrivacyResponseReader <NSObject>
 
 - (UADSPrivacyResponseState)responseState;
+- (BOOL)shouldSendUserNonBehavioral;
 
 @end
 

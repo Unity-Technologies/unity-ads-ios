@@ -33,7 +33,7 @@
 }
 
 + (instancetype)newScarSendTimeFailure: (NSNumber *)value tags: (NSDictionary<NSString *, NSString *> *)tags isAsync:(BOOL)isAsync {
-    return [self newWithName: isAsync ? @"native_hb_signals_async_upload_failure" : @"native_hb_signals_sync_upload_success"
+    return [self newWithName: isAsync ? @"native_hb_signals_async_upload_failure" : @"native_hb_signals_sync_upload_failure"
                        value: value
                         tags: tags];
 }

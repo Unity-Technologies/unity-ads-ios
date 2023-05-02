@@ -11,7 +11,9 @@ static NSString *const SAVE_CONFIGURATION_SELECTOR = @"saveSDKConfigFrom:";
 static NSString *const GET_CONFIGURATION_SELECTOR = @"configDictionary";
 static NSString *const SET_DEBUG_MODE_SELECTOR = @"setDebugMode:";
 static NSString *const CURRENT_STATE_KVO = @"currentState";
-
+static NSString *const GAME_SESSION_ID_KVO = @"gameSessionId";
+static NSString *const SESSION_ID_KVO = @"sessionId";
+static NSString *const GET_TOKEN_SELECTOR = @"getToken:";
 
 
 @implementation UADSServiceProviderProxy
@@ -60,5 +62,18 @@ static NSString *const CURRENT_STATE_KVO = @"currentState";
     return state.intValue;
 }
 
+- (NSNumber *)gameSessionId {
+    NSNumber *gameSessionId = [self callInstanceMethodWithReturn:GAME_SESSION_ID_KVO args:@[]];
+    return gameSessionId;
+}
+
+- (NSString *)sessionId {
+    return [self callInstanceMethodWithReturn:SESSION_ID_KVO args:@[]];
+}
+
+
+- (void)getToken:(UADSTokenCompletion)completion {
+    [self callInstanceMethod:GET_TOKEN_SELECTOR args:@[completion]];
+}
 
 @end

@@ -59,10 +59,11 @@ class NetworkTestCaseBase: XCTestCase {
 
     func verifyMetricsRequest(observer: @escaping Closure<URLRequest>) -> XCTestExpectation {
         let expectation = expectation(description: "\(self)-Metrics")
-        networkTester.metricProtocolStub.requestObserver = { request in
+        let requestObserver: Closure<URLRequest> = { request in
             observer(request)
             expectation.fulfill()
         }
+        networkTester.metricProtocolStub.$requestObserver.setNewValue(requestObserver)
 
         return expectation
     }

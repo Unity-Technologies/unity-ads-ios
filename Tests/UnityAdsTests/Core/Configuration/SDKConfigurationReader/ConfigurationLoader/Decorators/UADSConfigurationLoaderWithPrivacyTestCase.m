@@ -44,6 +44,15 @@
                                errorPrivacy: self.privacyErrorMock];
 }
 
+- (void)test_game_disabled_error_doesnt_call_loader_and_saver {
+    [self runFlowWithPrivacyCodeAndValidate: 0
+                          allowTrackingFlag: false
+                         expectedSaverCalls: 0
+                               privacyCalls: 1
+                               loaderCalled: 0
+                               errorPrivacy: uads_privacyGameDisabledError];
+}
+
 - (void)test_privacy_error_doesnt_block_loader_request_but_calls_saver {
     [self runFlowWithPrivacyCodeAndValidate: 0
                           allowTrackingFlag: false
