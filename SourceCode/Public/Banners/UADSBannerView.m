@@ -100,8 +100,10 @@
 
 - (void)dealloc {
     self.delegate = nil;
-    [[UADSBannerLoadModule sharedInstance] getDelegateForIDAndRemove:self.viewId];
-    [USRVBannerBridge destroyBannerWithId: self.viewId];
+    if (self.viewId != nil) {
+        [[UADSBannerLoadModule sharedInstance] getDelegateForIDAndRemove:self.viewId];
+        [USRVBannerBridge destroyBannerWithId: self.viewId];
+    }
 }
 
 @end

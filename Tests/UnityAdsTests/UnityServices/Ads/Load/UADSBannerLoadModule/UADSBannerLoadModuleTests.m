@@ -126,6 +126,12 @@ static NSString *const kUADSLoadModuleTestsPlacementID = @"kUADSLoadModuleTestsP
     [self validateEventHandlerIsCalledOnceWithErrorForIds: @[op1Id, op2Id]];
 }
 
+- (void)test_create_banner_without_load_does_not_crash {
+    @autoreleasepool {
+        UADSBannerView *bannerView = [[UADSBannerView alloc] initWithPlacementId:kUADSLoadModuleTestsPlacementID size:CGSizeMake(320.0, 50.0)];
+    }
+}
+
 - (void)validateEventHandlerIsCalledOnceWithSuccessForIds: (NSArray *)opIds {
     XCTAssertEqual(_eventHandlerMock.startedCalls.count, opIds.count);
     XCTAssertEqual(_eventHandlerMock.onSuccessCalls.count, opIds.count);
