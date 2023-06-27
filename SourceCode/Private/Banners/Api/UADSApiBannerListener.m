@@ -24,4 +24,9 @@
     [callback invoke: nil];
 }
 
++ (void)WebViewExposed_sendShowEvent: (NSString *)bannerAdId callback: (USRVWebViewCallback *)callback {
+    [[UADSBannerLoadModule sharedInstance] sendAdShowedForListenerID:bannerAdId];
+    [callback invoke: nil];
+}
+
 @end

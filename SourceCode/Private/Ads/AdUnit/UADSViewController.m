@@ -5,7 +5,8 @@
 #import "UADSApiWebPlayer.h"
 #import "USRVModuleConfiguration.h"
 #import "UADSAdsModuleConfiguration.h"
-
+#import "USRVClientProperties.h"
+#import "UADSServiceProviderContainer.h"
 #import <sys/utsname.h>
 
 @interface UADSViewController ()
@@ -153,7 +154,16 @@
 }
 
 - (void)setSupportedOrientations: (int)supportedOrientations {
-    _supportedOrientations = supportedOrientations;
+    if ([self isOrientationSafeguardEnabled]) {
+        int currentSupported = [USRVClientProperties getSupportedOrientations];
+        if ((currentSupported & supportedOrientations) == supportedOrientations) {
+            _supportedOrientations = supportedOrientations;
+        } else {
+            _supportedOrientations = currentSupported;
+        }
+    } else {
+        _supportedOrientations = supportedOrientations;
+    }
     [self.view setNeedsLayout];
 }
 
@@ -321,6 +331,10 @@
     [[USRVWebViewApp getCurrentApp] sendEvent: UADSNSStringFromAdUnitEvent(kUnityAdsViewControllerDidReceiveMemoryWarning)
                                      category: USRVNSStringFromWebViewEventCategory(kUnityServicesWebViewEventCategoryAdunit)
                                        param1: nil];
+}
+
+- (BOOL)isOrientationSafeguardEnabled {
+    return [[UADSServiceProviderContainer sharedInstance].serviceProvider isOrientationSafeguardEnabled];
 }
 
 @end

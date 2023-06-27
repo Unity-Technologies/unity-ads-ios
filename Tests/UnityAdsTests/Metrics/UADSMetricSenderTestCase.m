@@ -11,6 +11,7 @@
 #import "USRVStorageManager.h"
 #import "NSDictionary+Merge.h"
 #import "USRVClientProperties.h"
+#import "UnityAds+Testability.h"
 
 @interface UADSMetricSenderTestCase : XCTestCase
 @property (nonatomic, strong) UADSServiceProvider *serviceProvider;
@@ -25,6 +26,7 @@ NSString *const VALID_URL = @"http://valid.url";
 
 - (void)setUp {
     [super setUp];
+    [UnityAds resetForTest];
     [self deleteConfigFile];
     [USRVClientProperties setGameId:@"54321"];
     self.privacyMock = [[UADSPrivacyStorageMock alloc] init];
@@ -45,6 +47,7 @@ NSString *const VALID_URL = @"http://valid.url";
     [super tearDown];
     [self deleteConfigFile];
     UADSServiceProviderContainer.sharedInstance.serviceProvider = [UADSServiceProvider new];
+    [UnityAds resetForTest];
 }
 
 - (void)test_sends_proper_performance_metrics_payload {

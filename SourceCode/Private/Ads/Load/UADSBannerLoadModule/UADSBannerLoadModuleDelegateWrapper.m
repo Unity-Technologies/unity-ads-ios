@@ -29,6 +29,12 @@
     });
 }
 
+- (void)bannerViewDidShow:(UADSBannerView *)bannerView {
+    dispatch_on_main( ^{
+        [self.decorated bannerViewDidShow: self.bannerView];
+    });
+}
+
 - (void)bannerViewDidClick: (UADSBannerView *)bannerView {
     dispatch_on_main( ^{
         [self.decorated bannerViewDidClick: self.bannerView];

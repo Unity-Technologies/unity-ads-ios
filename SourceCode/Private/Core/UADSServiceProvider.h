@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (USRVInitializeStateFactory *)stateFactory;
 
 - (BOOL)newInitFlowEnabled;
+- (BOOL)isOrientationSafeguardEnabled;
 - (NSString *)sharedSessionId;
 @end
 

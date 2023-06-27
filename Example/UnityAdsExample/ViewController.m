@@ -209,6 +209,10 @@ static NSString *const kGameIdKey = @"adsExampleAppGameId";
     NSLog(@"UnityAds Banner loaded for placement: %@", bannerView.placementId);
 }
 
+- (void)bannerViewDidShow:(UADSBannerView *)bannerView {
+    NSLog(@"UnityAds Banner showed for placement: %@", bannerView.placementId);
+}
+
 - (void)bannerViewDidClick: (UADSBannerView *)bannerView {
     // Called when the banner is clicked.
     NSLog(@"UnityAds Banner was clicked for placement: %@", bannerView.placementId);

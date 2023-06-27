@@ -16,6 +16,14 @@
  */
 - (void)bannerViewDidLoad: (UADSBannerView *)bannerView;
 
+@optional
+/**
+ * Called when the banner is showed in the view hierarchy.
+ *
+ * @param bannerView View that was showed
+ */
+- (void)bannerViewDidShow: (UADSBannerView *)bannerView;
+
 /**
  * Called when the user clicks the banner.
  *

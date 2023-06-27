@@ -26,7 +26,9 @@ typedef enum : NSInteger {
     NetworkTypeHSPAP,
     NetworkTypeGSM,
     NetworkTypeTdSCDMA,
-    NetworkTypeIWLAN
+    NetworkTypeIWLAN,
+    NetworkTypeNRNSA,
+    NetworkTypeNR
 } NetworkType;
 
 @interface USRVConnectivityUtils : NSObject

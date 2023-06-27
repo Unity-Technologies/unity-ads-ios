@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)        isNativeWebViewCacheEnabled;
 - (BOOL)        isWebAdAssetCacheEnabled;
 - (BOOL)        isSwiftTokenEnabled;
+- (BOOL)        isOrientationSafeguardEnabled;
 
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags;
 - (NSDictionary<NSString *, NSString *> *)currentSessionFlags;

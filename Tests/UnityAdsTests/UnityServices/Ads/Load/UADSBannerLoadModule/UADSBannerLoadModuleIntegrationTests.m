@@ -60,9 +60,10 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 
 - (void)test_load_after_SDK_is_initialized {
     [self initializeCommonFlowWithSDKInitialized: INITIALIZED_SUCCESSFULLY];
-    _loadDelegateMock.expectation.expectedFulfillmentCount = 3;
+    _loadDelegateMock.expectation.expectedFulfillmentCount = 4;
     [self emulateInvokerSuccessResponse];
     [self emulateSendLoadedForTheLastListener];
+    [self emulateSendShowed];
     [self emulateSendClicked];
     [self emulateSendLeaveApplication];
     [self waitForExpectations: @[_loadDelegateMock.expectation]
@@ -71,6 +72,7 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
     XCTAssertEqual(_loadDelegateMock.failedBanners.count, 0);
     XCTAssertEqual(_loadDelegateMock.clickedBanners.count, 1);
     XCTAssertEqual(_loadDelegateMock.leaveAppBanners.count, 1);
+    XCTAssertEqual(_loadDelegateMock.showedBanners.count, 1);
     XCTAssertEqual(_webAppMock.returnedParams.count, 1);
 }
 
@@ -206,6 +208,10 @@ static NSString *const kSDKInitFailedMessage = @"kSDKInitFailedMessage";
 
 - (void)emulateSendLeaveApplication {
     [self.moduleToTest sendLeaveApplicationEventForListenerID:self.lastListenerID];
+}
+
+- (void)emulateSendShowed {
+    [self.moduleToTest sendAdShowedForListenerID:self.lastListenerID];
 }
 
 - (void)await {

@@ -21,41 +21,52 @@ static CTTelephonyNetworkInfo *netinfo;
 }
 
 + (NSInteger)getNetworkType {
-    if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyGPRS]) {
-        NSLog(@"GPRS");
+    NSString *currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
+    if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyGPRS]) {
+        USRVLogInfo(@"GPRS");
         return NetworkTypeGPRS;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyEdge]) {
-        NSLog(@"Edge");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyEdge]) {
+        USRVLogInfo(@"Edge");
         return NetworkTypeEdge;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyWCDMA]) {
-        NSLog(@"WCDMA");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyWCDMA]) {
+        USRVLogInfo(@"WCDMA");
         return NetworkTypeCDMA;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyHSDPA]) {
-        NSLog(@"HSDPA");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyHSDPA]) {
+        USRVLogInfo(@"HSDPA");
         return NetworkTypeHSDPA;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyHSUPA]) {
-        NSLog(@"HSUPA");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyHSUPA]) {
+        USRVLogInfo(@"HSUPA");
         return NetworkTypeHSUPA;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMA1x]) {
-        NSLog(@"CDMA1x");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMA1x]) {
+        USRVLogInfo(@"CDMA1x");
         return NetworkTypeCDMA;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMAEVDORev0]) {
-        NSLog(@"CDMAEVDO0Rev0");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMAEVDORev0]) {
+        USRVLogInfo(@"CDMAEVDO0Rev0");
         return NetworkTypeEVDO0;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMAEVDORevA]) {
-        NSLog(@"CDMAEVDO0RevA");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMAEVDORevA]) {
+        USRVLogInfo(@"CDMAEVDO0RevA");
         return NetworkTypeEVDOA;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMAEVDORevB]) {
-        NSLog(@"CDMAEVDO0RevB");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyCDMAEVDORevB]) {
+        USRVLogInfo(@"CDMAEVDO0RevB");
         return NetworkTypeEVDOB;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyeHRPD]) {
-        NSLog(@"HRPD");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyeHRPD]) {
+        USRVLogInfo(@"HRPD");
         return NetworkTypeHRPD;
-    } else if ([netinfo.currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyLTE]) {
-        NSLog(@"LTE");
+    } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyLTE]) {
+        USRVLogInfo(@"LTE");
         return NetworkTypeLTE;
     }
-
+    
+    if (@available(iOS 14.1, *)) {
+        if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyNRNSA]) {
+            USRVLogInfo(@"NRNSA")
+            return NetworkTypeNRNSA;
+        } else if ([currentRadioAccessTechnology isEqualToString: CTRadioAccessTechnologyNR]) {
+            USRVLogInfo(@"NR")
+            return NetworkTypeNR;
+        }
+    }
+    
     return NetworkTypeUnknown;
 } /* getNetworkType */
 

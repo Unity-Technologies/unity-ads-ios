@@ -77,6 +77,10 @@
     return [self isExperimentEnabledWithKey: @"s_tkn"];
 }
 
+- (BOOL)isOrientationSafeguardEnabled {
+    return [self isExperimentEnabledWithKey: @"osg"];
+}
+
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
     return [self flattenFlagsWith:^BOOL (id key) {
         return [self isExperimentForNextSession: key];

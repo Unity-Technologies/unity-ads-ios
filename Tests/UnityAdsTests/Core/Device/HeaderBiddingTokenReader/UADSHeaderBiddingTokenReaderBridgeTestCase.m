@@ -7,6 +7,7 @@
 #import "XCTestCase+Convenience.h"
 #import "UADSTools.h"
 #import "NSArray+Map.h"
+#import "UnityAds+Testability.h"
 
 @interface UADSHeaderBiddingTokenReaderBridgeTestCase ()
 
@@ -15,9 +16,14 @@
 @implementation UADSHeaderBiddingTokenReaderBridgeTestCase
 
 - (void)setUp {
+    [UnityAds resetForTest];
     self.nativeGeneratorMock = [UADSHeaderBiddingTokenAsyncReaderMock new];
     self.tokenCRUDMock = [UADSTokenStorage new];
     self.configReaderMock = [UADSConfigurationReaderMock new];
+}
+
+- (void)tearDown {
+    [UnityAds resetForTest];
 }
 
 - (id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)sut {

@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSArray<UADSBannerView *> *failedBanners;
 @property (nonatomic, strong) NSArray<UADSBannerView *> *clickedBanners;
 @property (nonatomic, strong) NSArray<UADSBannerView *> *leaveAppBanners;
+@property (nonatomic, strong) NSArray<UADSBannerView *> *showedBanners;
 @property (nonatomic, strong) NSArray<NSNumber *> *errorCodes;
 @property (nonatomic, strong) NSArray<NSString *> *errorMessages;
 @property (nonatomic, strong, readwrite) XCTestExpectation *expectation;

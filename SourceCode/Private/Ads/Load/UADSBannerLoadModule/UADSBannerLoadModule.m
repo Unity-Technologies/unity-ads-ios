@@ -52,6 +52,12 @@ typedef id<UADSWebViewInvoker> Invoker;
     [delegate bannerViewDidLoad: nil];
 }
 
+- (void)sendAdShowedForListenerID:(NSString *)listenerID {
+    UADSBannerLoadModuleDelegateWrapper *delegate = [self getDelegateForID: listenerID];
+
+    [delegate bannerViewDidShow: nil];
+}
+
 - (void)sendClickEventForListenerID:  (NSString *_Nonnull)listenerID {
     UADSBannerLoadModuleDelegateWrapper *delegate = [self getDelegateForID: listenerID];
 

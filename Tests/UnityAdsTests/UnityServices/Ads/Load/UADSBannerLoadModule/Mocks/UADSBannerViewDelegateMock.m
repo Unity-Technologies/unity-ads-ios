@@ -12,11 +12,17 @@
     self.errorMessages = [NSArray new];
     self.clickedBanners = [NSArray new];
     self.leaveAppBanners = [NSArray new];
+    self.showedBanners = [NSArray new];
     return self;
 }
 
 - (void)bannerViewDidLoad: (UADSBannerView *)bannerView {
     _succeedBanners = [_succeedBanners arrayByAddingObject:bannerView];
+    [self.expectation fulfill];
+}
+
+- (void)bannerViewDidShow:(UADSBannerView *)bannerView {
+    _showedBanners = [_showedBanners arrayByAddingObject:bannerView];
     [self.expectation fulfill];
 }
  

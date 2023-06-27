@@ -1,5 +1,6 @@
 #import <XCTest/XCTest.h>
 #import "UADSHeaderBiddingTokenReaderSwiftBridge.h"
+#import "UnityAds+Testability.h"
 
 @interface UADSHeaderBiddingTokenReaderSwiftBridgeTestCase : XCTestCase
 
@@ -8,10 +9,12 @@
 @implementation UADSHeaderBiddingTokenReaderSwiftBridgeTestCase
 
 - (void)setUp {
+    [UnityAds resetForTest];
     [self saveConfigurationWithSwiftDeviceInfo:true];
 }
 
 - (void)tearDown {
+    [UnityAds resetForTest];
 }
 
 - (void)test_native_generator_in_swift_returns_token {

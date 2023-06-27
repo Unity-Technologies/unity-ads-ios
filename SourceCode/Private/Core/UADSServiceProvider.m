@@ -46,6 +46,9 @@
     return [self.experiments isSwiftInitFlowEnabled];
 }
 
+- (BOOL)isOrientationSafeguardEnabled {
+    return [self.experiments isOrientationSafeguardEnabled];
+}
 
 -(NSDictionary *)getDeviceInfoWithExtended: (BOOL)extended {
     

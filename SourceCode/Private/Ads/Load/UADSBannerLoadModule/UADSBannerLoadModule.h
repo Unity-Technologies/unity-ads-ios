@@ -6,6 +6,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UADSBannerLoadModule : UADSLoadModule
 
+- (void)sendAdShowedForListenerID:(NSString *)listenerID;
+
 - (void)sendClickEventForListenerID:  (NSString *_Nonnull)listenerID;
 
 - (void)sendLeaveApplicationEventForListenerID:  (NSString *_Nonnull)listenerID;
