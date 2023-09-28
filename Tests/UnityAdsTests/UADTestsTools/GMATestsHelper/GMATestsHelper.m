@@ -44,16 +44,16 @@
                  }];
 }
 
-- (void)emulateGetScarSignals: (NSArray *)interstitialPlacements
-           rewardedPlacements: (NSArray *)rewardedPlacements
-                     testCase: (XCTestCase *)testCase
-               expectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents {
+- (void)emulateGetScarSignal: (NSString *)placementId
+                    adFormat: (NSString *)adFormat
+                    testCase: (XCTestCase *)testCase
+              expectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents {
     XCTestExpectation *exp = [testCase expectationWithDescription: @"Signals Integration  test"];
 
     _webViewMock.expectation = exp;
 
-    [self emulateCallOfMethod: @"getSCARSignals"
-                   withParams: @[interstitialPlacements, rewardedPlacements]
+    [self emulateCallOfMethod: @"getSCARSignal"
+                   withParams: @[placementId, adFormat]
                  withCallback:^(NSArray *_Nullable array) {
                  }];
 

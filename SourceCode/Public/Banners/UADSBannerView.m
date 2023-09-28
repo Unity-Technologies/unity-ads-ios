@@ -3,6 +3,7 @@
 #import "UADSBannerWebPlayerContainer.h"
 #import "USRVSdkProperties.h"
 #import "UADSBannerLoadModule.h"
+#import "UADSApiBanner.h"
 
 @interface UADSBannerView ()
 

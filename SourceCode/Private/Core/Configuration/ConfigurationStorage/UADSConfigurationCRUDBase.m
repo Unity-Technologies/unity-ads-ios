@@ -165,31 +165,4 @@ const NSString* kDefaultScarURL = @"https://scar.unityads.unity3d.com/v1/capture
     return scarURL ?: kDefaultScarURL;
 }
 
-- (UADSSCARHBStrategyType) selectedSCARHBStrategyType {
-    USRVConfiguration *config = [ self getCurrentConfiguration];
-    if (!config.experiments.json) {
-        return UADSSCARHeaderBiddingStrategyTypeDisabled;
-    }
-    NSDictionary* strategyDictionary = config.experiments.json[@"scar_bm"];
-    if (![strategyDictionary isKindOfClass:[NSDictionary class]]) {
-        return UADSSCARHeaderBiddingStrategyTypeDisabled;
-    }
-    NSString* strategyValue = strategyDictionary[@"value"];
-    return [self selectedStrategyTypeForString:strategyValue];
-}
-
-- (UADSSCARHBStrategyType) selectedStrategyTypeForString:(NSString*)stringValue {
-    if ([stringValue isEqualToString:@"eag"]) {
-        return UADSSCARHeaderBiddingStrategyTypeEager;
-    }
-    if ([stringValue isEqualToString:@"laz"]) {
-        return UADSSCARHeaderBiddingStrategyTypeLazy;
-    }
-    if ([stringValue isEqualToString:@"hyb"]) {
-        return UADSSCARHeaderBiddingStrategyTypeHybrid;
-    }
-    return UADSSCARHeaderBiddingStrategyTypeDisabled;
-}
-
-
 @end

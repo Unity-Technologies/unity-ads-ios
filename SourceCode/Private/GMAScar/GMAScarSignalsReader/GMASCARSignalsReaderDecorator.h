@@ -1,13 +1,13 @@
 #import "UADSGenericCompletion.h"
 #import "GMASCARSignalsReader.h"
+#import "UADSScarSignalParameters.h"
 
 NS_ASSUME_NONNULL_BEGIN
 typedef UADSGenericCompletion<NSString *> UADSGMAEncodedSignalsCompletion;
 
 @protocol GMAEncodedSCARSignalsReader<NSObject>
-- (void)getSCARSignalsUsingInterstitialList: (NSArray *)interstitialList
-                            andRewardedList: (NSArray *)rewardedList
-                                 completion: (UADSGMAEncodedSignalsCompletion *)completion;
+- (void)getSCARSignals: (NSArray<UADSScarSignalParameters *>*) signalParameters
+            completion: (UADSGMAEncodedSignalsCompletion *)completion;
 @end
 
 

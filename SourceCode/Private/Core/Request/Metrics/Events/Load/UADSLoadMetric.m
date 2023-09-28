@@ -40,7 +40,7 @@
             break;
     }
     return [self newWithName: metricName
-                       value: nil
+                       value: value
                         tags: metricTags];
 }
 
@@ -61,7 +61,7 @@
             break;
     }
     return [self newWithName: metricName
-                       value: nil
+                       value: value
                         tags: metricTags];
 }
 

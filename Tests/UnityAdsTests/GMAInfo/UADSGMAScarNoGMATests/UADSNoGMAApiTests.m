@@ -33,10 +33,7 @@
 - (void)test_returns_internal_error_when_get_signals_is_called {
     GMAError *error = [GMAError newInternalSignalsError];
 
-    [_tester emulateGetScarSignals: @[@"test"]
-                rewardedPlacements: @[]
-                          testCase: self
-                    expectedEvents: @[[error convertToEvent]]];
+    [_tester emulateGetScarSignal:@"test" adFormat:@"banner" testCase:self expectedEvents:@[[error convertToEvent]]];
 }
 
 - (void)test_returns_internal_error_when_load_is_called {

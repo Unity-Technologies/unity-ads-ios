@@ -1,38 +1,16 @@
 #import <XCTest/XCTest.h>
-#import "USRVWebViewAppMock.h"
-#import "USRVWebViewApp.h"
+#import "GMABaseAdDelegateProxyTests.h"
 #import "GMAInterstitialAdDelegateProxy.h"
-#import "GMAWebViewEvent.h"
-#import "NSArray+Map.h"
 #import "XCTestCase+Convenience.h"
 #import "NSError+UADSError.h"
-#import "GMADelegatesFactory.h"
 #import "UADSWebViewErrorHandler.h"
 #import "GMAError.h"
 #import "GMATestCommonConstants.h"
-#import "UADSRepeatableTimerMock.h"
-#import "UADSTimerFactoryMock.h"
-#import "XCTestCase+Convenience.h"
 
-@interface GMAInterstitialAdDelegateProxyTests : XCTestCase
-@property (nonatomic, strong) USRVWebViewAppMock *webAppMock;
-@property (nonatomic, strong) UADSTimerFactoryMock *timerFactoryMock;
+@interface GMAInterstitialAdDelegateProxyTests : GMABaseAdDelegateProxyTests
 @end
 
 @implementation GMAInterstitialAdDelegateProxyTests
-
-- (void)setUp {
-    [self resetUnityAds];
-    _timerFactoryMock = [UADSTimerFactoryMock new];
-    _webAppMock = [USRVWebViewAppMock new];
-    [USRVWebViewApp setCurrentApp: _webAppMock];
-}
-
-- (void)tearDown {
-    _webAppMock = nil;
-    [USRVWebViewApp setCurrentApp: _webAppMock];
-    [self resetUnityAds];
-}
 
 - (void)test_will_present_for_the_first_time_triggers_events {
     GMAInterstitialAdDelegateProxy *delegateToTest = self.defaultProxyToTest;
@@ -269,7 +247,7 @@
     [self validateExpectedEvents: expectedEvents];
 
 
-    NSArray *receivedParams = _webAppMock.params[0];
+    NSArray *receivedParams = self.webAppMock.params[0];
 
     XCTAssertEqualObjects(receivedParams[0], kFakePlacementID);
     XCTAssertEqualObjects(receivedParams[1], kGMAQueryID);
@@ -279,33 +257,6 @@
 
 - (void)simulateQuartilesPlayed: (NSInteger)count {
     [self.timerFactoryMock.lastTimerMock fire: count];
-}
-
-- (void)validateExpectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents {
-    NSArray *expectedEventNames = [expectedEvents uads_mapObjectsUsingBlock: ^id _Nonnull (GMAWebViewEvent *_Nonnull obj) {
-        return obj.eventName;
-    }];
-
-    NSArray *expectedCategoryNames = [expectedEvents uads_mapObjectsUsingBlock: ^id _Nonnull (GMAWebViewEvent *_Nonnull obj) {
-        return obj.categoryName;
-    }];
-
-    XCTAssertEqualObjects(_webAppMock.eventNames, expectedEventNames);
-    XCTAssertEqualObjects(_webAppMock.categoryNames, expectedCategoryNames);
-}
-
-- (void)validateExpectedDefaultParamsInEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents  {
-    NSArray *expectedParams = [NSArray new];
-
-    for (id event in expectedEvents) {
-        expectedParams = [expectedParams arrayByAddingObject: @[kFakePlacementID, kGMAQueryID]];         // creating expected array since default params are the same
-    }
-
-    XCTAssertEqualObjects(_webAppMock.params, expectedParams);
-}
-
-- (id)fakeAdObject {
-    return [NSObject new];
 }
 
 - (GMAInterstitialAdDelegateProxy *)defaultProxyToTest {
@@ -324,14 +275,8 @@
     return meta;
 }
 
-- (id<GMADelegatesFactory>)delegatesFactory {
-    id<UADSWebViewEventSender>eventSender = [UADSWebViewEventSenderBase new];
-
-    id<UADSErrorHandler>errorHandler = [UADSWebViewErrorHandler newWithEventSender: eventSender];
-
-    return [GMADelegatesBaseFactory newWithEventSender: eventSender
-                                          errorHandler: errorHandler
-                                          timerFactory: self.timerFactoryMock];
+- (NSArray *)expectedParams {
+    return @[kFakePlacementID, kGMAQueryID];
 }
 
 - (void)test_factory_not_crash_if_ad_not_started_before_background {

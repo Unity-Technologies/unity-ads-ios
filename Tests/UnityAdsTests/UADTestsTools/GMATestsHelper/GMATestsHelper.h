@@ -11,10 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)clear;
 - (void)emulateIsAvailableCall: (UADSSuccessCompletion)completion;
 - (void)emulateGetVersionCall: (UADSSuccessCompletion)completion;
-- (void)emulateGetScarSignals: (NSArray *)interstitialPlacements
-           rewardedPlacements: (NSArray *)rewardedPlacements
-                     testCase: (XCTestCase *)testCase
-               expectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents;
+- (void)emulateGetScarSignal: (NSString *)placementId
+                    adFormat: (NSString *)adFormat
+                    testCase: (XCTestCase *)testCase
+              expectedEvents: (NSArray<GMAWebViewEvent *> *)expectedEvents;
 
 - (void)emulateLoadWithParams: (NSArray *)params
                      testCase: (XCTestCase *)testCase

@@ -8,6 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)newWithEventName: (NSString *)event
                        andParams: (NSArray *_Nullable)params;
++ (instancetype)newWithEventName: (NSString *)event
+                         andMeta: (GMAAdMetaData *)meta;
 + (instancetype)newAdEarnRewardWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newAdStartedWithMeta: (GMAAdMetaData *)meta;
 + (instancetype)newFirstQuartileWithMeta: (GMAAdMetaData *)meta;

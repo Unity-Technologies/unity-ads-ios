@@ -7,7 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)        isSupported;
 @end
 
-@interface GMAAdLoaderStrategy : NSObject<GMAAdLoader, UADSAdPresenter, GMAVersionChecker>
+@interface GMAAdLoaderStrategy : NSObject<GMAAdLoader, UADSAdPresenter, GMAVersionChecker, GMAAdStorage>
 
 + (instancetype)newWithRequestFactory: (id<GADRequestFactory>)requestFactory
                    andDelegateFactory: (nonnull id<GMADelegatesFactory>)delegatesFactory;

@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface NSPrimitivesBox : NSValue
 + (instancetype)newWithBytes: (nonnull const void *)bytes objCType: (nonnull const char *)type;
+
+- (void)setAsArgumentForInvocation: (NSInvocation *)invocation atIndex:(NSInteger)index;
 @end
 
 NS_ASSUME_NONNULL_END

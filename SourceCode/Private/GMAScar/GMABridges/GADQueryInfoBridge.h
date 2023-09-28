@@ -3,6 +3,7 @@
 #import "UADSGenericCompletion.h"
 
 typedef NS_ENUM (NSInteger, GADQueryInfoAdType) {
+    GADQueryInfoAdTypeBanner       = 0,
     GADQueryInfoAdTypeInterstitial = 1,
     GADQueryInfoAdTypeRewarded     = 2
 };

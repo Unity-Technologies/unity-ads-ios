@@ -35,4 +35,12 @@
     return [_box objCType];
 }
 
+- (void)setAsArgumentForInvocation: (NSInvocation *)invocation atIndex:(NSInteger)index {
+    void *pointerToPrimitives;
+    [self getValue: &pointerToPrimitives];
+    
+    [invocation setArgument: &pointerToPrimitives
+                    atIndex: index];
+}
+
 @end

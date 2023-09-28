@@ -51,4 +51,8 @@
     UADS_ABSTRACT_CLASS_EXCEPTION
 }
 
+- (void)removeAdForPlacement:(NSString *)placementId {
+    [_storage removeObjectForKey: placementId];
+}
+
 @end

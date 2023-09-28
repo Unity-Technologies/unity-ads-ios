@@ -1,6 +1,5 @@
 #import <XCTest/XCTest.h>
 #import "UADSHeaderBiddingTokenReaderSCARSignalsConfig.h"
-#import "UADSSCARHeaderBiddingFetchSendStrategyFactory.h"
 #import "UADSConfigurationReaderMock.h"
 #import "UADSSCARWebRequestSignalSender.h"
 #import "USRVSdkProperties.h"
@@ -35,27 +34,50 @@
 }
 
 - (void)test_send_valid_signals_and_valid_uuid {
-    [self checkSentRequestValuesWithRewardedValue:@"rewarded" interstitialValue:@"interstitial" uuidValue:@"uuid"];
+    [self checkSentRequestValuesWithRewardedValue:@"rewarded"
+                                interstitialValue:@"interstitial"
+                                      bannerValue:@"banner"
+                                        uuidValue:@"uuid"];
 }
 
 - (void)test_send_one_valid_rv_signal_and_valid_uuid {
-    [self checkSentRequestValuesWithRewardedValue:@"rewarded" interstitialValue:nil uuidValue:@"uuid"];
+    [self checkSentRequestValuesWithRewardedValue:@"rewarded"
+                                interstitialValue:nil
+                                      bannerValue:nil
+                                        uuidValue:@"uuid"];
 }
 
 - (void)test_send_one_valid_int_signal_and_valid_uuid {
-    [self checkSentRequestValuesWithRewardedValue:nil interstitialValue:@"interstitial" uuidValue:@"uuid"];
+    [self checkSentRequestValuesWithRewardedValue:nil
+                                interstitialValue:@"interstitial"
+                                      bannerValue:nil
+                                        uuidValue:@"uuid"];
+}
+
+- (void)test_send_one_valid_bn_signal_and_valid_uuid {
+    [self checkSentRequestValuesWithRewardedValue:nil
+                                interstitialValue:nil
+                                      bannerValue:@"banner"
+                                        uuidValue:@"uuid"];
 }
 
 - (void)test_send_nil_signals_and_valid_uuid {
-    [self checkNoSentRequestValuesWithRewardedValue:nil interstitialValue:nil uuidValue:@"uuid"];
+    [self checkNoSentRequestValuesWithSignals: nil
+                                    uuidValue: @"uuid"];
 }
 
 - (void)test_send_valid_signals_and_nil_uuid {
-    [self checkNoSentRequestValuesWithRewardedValue:@"rewarded" interstitialValue:@"interstitial" uuidValue:nil];
+    [self checkNoSentRequestValuesWithSignals: [self signalsWithRewardedValue:@"rewarded"
+                                                            interstitialValue:@"interstitial"
+                                                                  bannerValue:@"banner"]
+                                    uuidValue: nil];
 }
 
 - (void)test_send_valid_signals_and_empty_uuid {
-    [self checkNoSentRequestValuesWithRewardedValue:@"rewarded" interstitialValue:@"interstitial" uuidValue:@""];
+    [self checkNoSentRequestValuesWithSignals: [self signalsWithRewardedValue:@"rewarded"
+                                                            interstitialValue:@"interstitial"
+                                                                  bannerValue:@"banner"]
+                                    uuidValue: @""];
 }
 
 - (void)test_send_nil_signal_reference_and_valid_uuid {
@@ -63,10 +85,14 @@
     XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 0);
 }
 
-- (void)checkSentRequestValuesWithRewardedValue:(NSString*)rewardedValue interstitialValue:(NSString*)interstitialValue uuidValue:(NSString*)uuidValue {
+- (void)checkSentRequestValuesWithRewardedValue:(NSString*)rewardedValue
+                              interstitialValue:(NSString*)interstitialValue
+                                    bannerValue:(NSString*)bannerValue
+                                      uuidValue:(NSString*)uuidValue {
     NSMutableDictionary* signals = [NSMutableDictionary new];
     [signals uads_setValueIfNotNil:rewardedValue forKey:UADSScarRewardedSignal];
     [signals uads_setValueIfNotNil:interstitialValue forKey:UADSScarInterstitialSignal];
+    [signals uads_setValueIfNotNil:bannerValue forKey:UADSScarBannerSignal];
     
     [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals isAsync:true];
     
@@ -77,16 +103,24 @@
     XCTAssertEqualObjects(mockRequestBodyDictionary[UADSScarUUIDKey], uuidValue);
     XCTAssertEqualObjects(mockRequestBodyDictionary[UADSScarRewardedKey], rewardedValue);
     XCTAssertEqualObjects(mockRequestBodyDictionary[UADSScarInterstitialKey], interstitialValue);
+    XCTAssertEqualObjects(mockRequestBodyDictionary[UADSScarBannerKey], bannerValue);
     XCTAssertEqualObjects(mockRequestBodyDictionary[UADSScarIdfiKey], _idfiReaderMock.expectedIdfi);
 }
 
-- (void)checkNoSentRequestValuesWithRewardedValue:(NSString*)rewardedValue interstitialValue:(NSString*)interstitialValue uuidValue:(NSString*)uuidValue {
+- (void)checkNoSentRequestValuesWithSignals: (NSDictionary *)signals
+                                  uuidValue:(NSString*)uuidValue {
+    [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals isAsync:true];
+    XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 0);
+}
+
+- (NSDictionary *)signalsWithRewardedValue:(NSString*)rewardedValue
+                     interstitialValue:(NSString*)interstitialValue
+                           bannerValue:(NSString*)bannerValue {
     NSMutableDictionary* signals = [NSMutableDictionary new];
     [signals uads_setValueIfNotNil:rewardedValue forKey:UADSScarRewardedSignal];
     [signals uads_setValueIfNotNil:interstitialValue forKey:UADSScarInterstitialSignal];
-    
-    [self.signalSender sendSCARSignalsWithUUIDString:uuidValue signals:signals isAsync:true];
-    XCTAssertEqual(self.requestFactoryMock.createdRequests.count, 0);
+    [signals uads_setValueIfNotNil:bannerValue forKey:UADSScarBannerSignal];
+    return signals;
 }
 
 - (NSDictionary*)stringToDictionary:(NSString*)stringValue {

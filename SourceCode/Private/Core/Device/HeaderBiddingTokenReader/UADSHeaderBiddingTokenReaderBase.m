@@ -28,9 +28,7 @@
 - (void)getToken:(UADSHeaderBiddingTokenCompletion)completion {
     NSMutableDictionary *info = [NSMutableDictionary dictionaryWithDictionary:[_deviceInfoReader getDeviceInfoForGameMode: UADSGameModeMix]];
     NSString* uniqueId = [self.uniqueIdGenerator generateId];
-    if (self.configurationReader.selectedSCARHBStrategyType != UADSSCARHeaderBiddingStrategyTypeDisabled) {
-        info[@"tid"] = uniqueId;
-    }
+    info[@"tid"] = uniqueId;
     NSString *tokenValue = [_compressor compressedIntoString: info];
     NSString *prefixedTokenValue = [self.customPrefix stringByAppendingString: tokenValue];
     UADSHeaderBiddingToken *hbToken = [UADSHeaderBiddingToken newNative:prefixedTokenValue];

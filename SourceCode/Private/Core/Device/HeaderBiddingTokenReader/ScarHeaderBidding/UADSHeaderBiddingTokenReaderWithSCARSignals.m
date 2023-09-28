@@ -1,6 +1,6 @@
 #import "UADSHeaderBiddingTokenReaderWithSCARSignals.h"
 #import "UADSServiceProvider.h"
-#import "UADSSCARHeaderBiddingFetchSendStrategyFactory.h"
+#import "UADSHeaderBiddingTokenReaderWithSCARSignalsEagerStrategy.h"
 
 @interface UADSHeaderBiddingTokenReaderWithSCARSignals ()
 @property (nonatomic, strong) id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD> original;
@@ -18,7 +18,7 @@
 }
 
 -(id<UADSHeaderBiddingAsyncTokenReader, UADSHeaderBiddingTokenCRUD>)strategy {
-    return [self.config.strategyFactory strategyWithOriginal:self.original];
+    return [UADSHeaderBiddingTokenReaderWithSCARSignalsEagerStrategy decorateOriginal:self.original config:self.config];
 }
 
 - (void)getToken:(nonnull UADSHeaderBiddingTokenCompletion)completion {

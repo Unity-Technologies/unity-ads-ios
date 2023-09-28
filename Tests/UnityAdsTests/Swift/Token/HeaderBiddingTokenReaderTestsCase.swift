@@ -18,16 +18,9 @@ class HeaderBiddingTokenReaderTestsCase: XCTestCase {
         )
     }
 
-    func test_returns_token_without_tid() throws {
-        deviceInfoBodyReaderMock.expected = ["key": "value"]
-        experimentsDict = [:]
-        try runTestWithExpectedToken("1:H4sIAAAAAAAAE6tWyk6tVLJSKkvMKU1VqgUAv5wYPw8AAAA=")
-    }
-
     func test_returns_token_with_tid() throws {
         deviceInfoBodyReaderMock.expected = [:]
         uniqueGeneratorMock.uniqueID = "1"
-        experimentsDict = ["scar_bm": "eag"]
         try runTestWithExpectedToken("1:H4sIAAAAAAAAE6tWKslMUbJSMlSqBQCgUV/nCwAAAA==")
     }
 

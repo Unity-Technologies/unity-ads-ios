@@ -23,8 +23,12 @@ typedef UADSGenericCompletion<GADBaseAd *> UADSLoadAdCompletion;
 
 @end
 
+@protocol GMAAdStorage<NSObject>
+- (void)removeAdForPlacement: (NSString *)placement;
+@end
 
-@interface GMALoaderBase<__covariant AdType, __covariant DelegateType>: NSObject<GMAAdLoader, UADSAdPresenter>
+
+@interface GMALoaderBase<__covariant AdType, __covariant DelegateType>: NSObject<GMAAdLoader, UADSAdPresenter, GMAAdStorage>
 
 typedef GMAGenericAdsDelegateObject<AdType, DelegateType>            GMALoaderBaseStoredObject;
 typedef NSMutableDictionary<NSString *, GMALoaderBaseStoredObject *> GMALoaderBaseItemStorage;

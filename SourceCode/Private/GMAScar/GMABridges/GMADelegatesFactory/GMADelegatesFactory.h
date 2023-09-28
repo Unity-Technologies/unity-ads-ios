@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "GMAInterstitialAdDelegateProxy.h"
 #import "GMARewardedAdDelegateProxy.h"
+#import "GMABannerViewDelegateProxy.h"
 #import "UADSTimerFactory.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -9,7 +10,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (GMAInterstitialAdDelegateProxy *)interstitialDelegate: (GMAAdMetaData *)meta
                                            andCompletion: (UADSAnyCompletion *)completion;
 - (GMARewardedAdDelegateProxy *)rewardedDelegate: (GMAAdMetaData *)meta;
-
+- (GMABannerViewDelegateProxy *)bannerDelegate: (GMAAdMetaData *)meta
+                                 andCompletion: (nonnull UADSAnyCompletion *)completion;
 @end
 
 @interface GMADelegatesBaseFactory : NSObject<GMADelegatesFactory>

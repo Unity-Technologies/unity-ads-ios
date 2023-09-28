@@ -15,7 +15,7 @@
 }
 
 - (void)sendSCARSignalsWithUUIDString:(NSString* _Nonnull)uuidString signals:(UADSSCARSignals * _Nonnull) signals isAsync:(BOOL)isAsync {
-    if (![signals objectForKey:UADSScarRewardedSignal] && ![signals objectForKey:UADSScarInterstitialSignal]) {
+    if (!signals) {
         NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary: @{
                                          @"reason": @"No SCAR Signals passed along"
         }];
@@ -45,6 +45,7 @@
     [info uads_setValueIfNotNil:uuidString forKey:UADSScarUUIDKey];
     [info uads_setValueIfNotNil:[signals objectForKey:UADSScarRewardedSignal] forKey:UADSScarRewardedKey];
     [info uads_setValueIfNotNil:[signals objectForKey:UADSScarInterstitialSignal] forKey:UADSScarInterstitialKey];
+    [info uads_setValueIfNotNil:[signals objectForKey:UADSScarBannerSignal] forKey:UADSScarBannerKey];
     [info uads_setValueIfNotNil:idfi forKey:UADSScarIdfiKey];
 
     NSError *error;

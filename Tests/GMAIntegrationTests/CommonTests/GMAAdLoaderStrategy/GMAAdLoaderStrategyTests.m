@@ -5,7 +5,8 @@
 #import "GMAError.h"
 #import "XCTestCase+Convenience.h"
 #import "GMAIntegrationTestsConstants.h"
-
+#import "GADBannerViewBridge.h"
+#import "UIViewController+TopController.h"
 #import "AppDelegate.h"
 static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
 
@@ -60,6 +61,10 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
     [self runSuccessTest: GADQueryInfoAdTypeRewarded];
 }
 
+- (void)test_success_flow_for_loading_a_banner {
+    [self runSuccessTest: GADQueryInfoAdTypeBanner];
+}
+
 - (void)test_internal_error_loader_not_found {
     GMAAdMetaData *meta = [GMAAdMetaData new];
 
@@ -79,6 +84,10 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
 
 - (void)test_ad_load_rewarded_error {
     [self runTestAdLoadErrorForType: GADQueryInfoAdTypeRewarded];
+}
+
+- (void)test_ad_load_banner_error {
+    [self runTestAdLoadErrorForType: GADQueryInfoAdTypeBanner];
 }
 
 - (void)runShowAdSuccessFlowForType: (GADQueryInfoAdType)type inViewController:  (UIViewController *)vc {
@@ -197,8 +206,11 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
 }
 
 - (GMAAdMetaData *)defaultMetaForType: (GADQueryInfoAdType)type  {
+    if (type == GADQueryInfoAdTypeBanner) {
+        return self.bannerMetadata;
+    }
+    
     GMAAdMetaData *meta = [GMAAdMetaData new];
-
     meta.adString = @"adString";
     meta.placementID = @"placement";
     meta.adUnitID = kDefaultAdUnitID;
@@ -207,6 +219,22 @@ static NSString *const kGMANullPlacementID = @"NULL_PLACEMENT_ID";
     meta.type = type;
     return meta;
 }
+
+- (GMAAdMetaData *)bannerMetadata  {
+    GMAAdMetaData *meta = [GMAAdMetaData new];
+
+    meta.placementID = @"placement";
+    meta.queryID = @"queryID";
+    meta.adUnitID = @"ca-app-pub-3940256099942544/2934735716";
+    meta.type = GADQueryInfoAdTypeBanner;
+    meta.beforeLoad = ^(GADBaseAd *_Nullable ad) {
+        [(GADBannerViewBridge *)ad setRootViewController:[UIViewController uads_getTopController]];
+    };
+    meta.bannerSize = CGSizeMake(320, 50);
+
+    return meta;
+}
+
 
 - (id<GMADelegatesFactory>)delegatesFactory {
     return [GMADelegatesBaseFactory newWithEventSender: self.eventSender

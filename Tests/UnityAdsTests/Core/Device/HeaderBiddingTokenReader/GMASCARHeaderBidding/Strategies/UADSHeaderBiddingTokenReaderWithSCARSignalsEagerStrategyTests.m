@@ -36,8 +36,7 @@
     _idGeneratorMock = [UADSUniqueIdGeneratorMock new];
     _baseIdGeneratorMock = [UADSUniqueIdGeneratorMock new];
     _configurationReaderMock = [UADSConfigurationReaderMock new];
-    _configurationReaderMock.expectedStrategyType = UADSSCARHeaderBiddingStrategyTypeEager;
-    
+
     _configMock = [UADSHeaderBiddingTokenReaderSCARSignalsConfig new];
     _configMock.compressor = _compressor;
     

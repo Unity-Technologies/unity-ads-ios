@@ -6,12 +6,6 @@
 
 @implementation GMASCARSignalsReaderMock
 
-- (void)getSCARSignalsUsingInterstitialList: (nonnull NSArray *)interstitialList
-                            andRewardedList: (nonnull NSArray *)rewardedList
-                                 completion: (nonnull UADSGMAScarSignalsCompletion *)completion {
-    self.completion = completion;
-}
-
 - (void)emulateReturnOfAnEmptyDictionary {
     [self.completion success: [UADSSCARSignals new]];
 }
@@ -22,6 +16,10 @@
 
 - (void)emulateReturnOfADictionary: (UADSSCARSignals *)dictionary {
     [self.completion success: dictionary];
+}
+
+- (void)getSCARSignals:(nonnull NSArray<UADSScarSignalParameters *> *)signalParameters completion:(nonnull UADSGMAScarSignalsCompletion *)completion {
+    self.completion = completion;
 }
 
 @end

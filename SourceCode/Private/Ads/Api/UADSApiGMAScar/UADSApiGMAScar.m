@@ -35,9 +35,9 @@
     [callback invoke: [NSNumber numberWithBool: present], nil];
 }
 
-+ (void)WebViewExposed_getSCARSignals: (NSArray *)interstitialPlacements
-                   rewardedPlacements: (NSArray *)rewardedPlacements
-                             callback: (USRVWebViewCallback *)callback {
++(void)WebViewExposed_getSCARSignal: (NSString *)placementId
+                           adFormat: (NSString *)adFormat
+                           callback: (USRVWebViewCallback *)callback {
     id success = ^(NSString *_Nullable signals) {
         GMAWebViewEvent *event = [GMAWebViewEvent newSignalsEvent: signals];
         [self sendEvent: event];
@@ -47,14 +47,10 @@
         [self.errorHandler catchError: error];
     };
 
-    UADSGMAEncodedSignalsCompletion *completion =  [UADSGMAEncodedSignalsCompletion newWithSuccess: success
-                                                                                          andError: error];
-
-    [self.facade getSCARSignalsUsingInterstitialList: interstitialPlacements
-                                     andRewardedList: rewardedPlacements
-                                          completion: completion];
-
-    [callback invoke: nil];
+    UADSGMAEncodedSignalsCompletion *completion =  [UADSGMAEncodedSignalsCompletion newWithSuccess: success andError: error];
+    UADSScarSignalParameters *params = [[UADSScarSignalParameters alloc] initWithPlacementId:placementId adFormat: [self getInfoAdTypeFrom:adFormat]];
+    [self.facade getSCARSignals: @[ params ]
+                     completion: completion];
 }
 
 + (void)WebViewExposed_load: (NSString *)placementId
@@ -133,6 +129,16 @@
     } else {
         [self sendEvent: [GMAWebViewEvent newScarNotPresent]];
     }
+}
+
++ (GADQueryInfoAdType)getInfoAdTypeFrom: (NSString *)adFormat {
+    if ([adFormat isEqualToString: @"interstitial"]) {
+        return GADQueryInfoAdTypeInterstitial;
+    }
+    if ([adFormat isEqualToString: @"rewarded"]) {
+        return GADQueryInfoAdTypeRewarded;
+    }
+    return GADQueryInfoAdTypeBanner;
 }
 
 @end

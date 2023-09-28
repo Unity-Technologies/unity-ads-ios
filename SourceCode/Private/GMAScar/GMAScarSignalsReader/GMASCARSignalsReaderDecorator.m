@@ -17,9 +17,8 @@
     return self;
 }
 
-- (void)getSCARSignalsUsingInterstitialList: (nonnull NSArray *)interstitialList
-                            andRewardedList: (nonnull NSArray *)rewardedList
-                                 completion: (nonnull UADSGMAEncodedSignalsCompletion *)completion {
+- (void)getSCARSignals: (NSArray<UADSScarSignalParameters *>*)signalParameters
+            completion: (UADSGMAEncodedSignalsCompletion *)completion {
     __weak typeof(self) weakSelf = self;
     UADSGMAScarSignalsCompletion *scarCompletion = [UADSGMAScarSignalsCompletion newWithSuccess: ^(UADSSCARSignals *_Nullable signals) {
         NSError *error;
@@ -36,9 +35,7 @@
                                                                                            [completion error: error];
                                                                                        }];
 
-    [_signalService getSCARSignalsUsingInterstitialList: interstitialList
-                                        andRewardedList: rewardedList
-                                             completion: scarCompletion];
+    [_signalService getSCARSignals:signalParameters completion:scarCompletion];
 }
 
 - (NSString *)encodeSignals: (UADSSCARSignals *)signals

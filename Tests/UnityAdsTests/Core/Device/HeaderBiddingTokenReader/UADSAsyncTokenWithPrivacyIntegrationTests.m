@@ -136,7 +136,7 @@
 }
 
 - (NSArray *)contextualTokenKeys {
-    return [_infoTester allExpectedKeysWithNonBehavioral: false];
+    return [[_infoTester allExpectedKeysWithNonBehavioral: false]  arrayByAddingObject: @"tid"];
 }
 
 - (NSArray *)behavioralTokenKeys {

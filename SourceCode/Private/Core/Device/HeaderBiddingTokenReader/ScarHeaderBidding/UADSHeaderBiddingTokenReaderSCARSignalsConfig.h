@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<IUSRVWebRequestFactory> requestFactory;
 @property (nonatomic, strong) id<GMASCARSignalService> signalService;
 @property (nonatomic, weak) id<USRVStringCompressor> compressor;
-@property (nonatomic, strong) id<UADSSCARHeaderBiddingStrategyFactory> strategyFactory;
 @property (nonatomic, strong) id<UADSDeviceIDFIReader> idfiReader;
 @property (nonatomic, strong) id<UADSConfigurationReader> configurationReader;
 @property (nonatomic, strong) id<ISDKMetrics> metricsSender;

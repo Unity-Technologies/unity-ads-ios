@@ -7,6 +7,12 @@
 #import "UADSBannerRefreshInfo.h"
 #import "UADSBannerWebPlayerContainerType.h"
 #import "UADSBannerLoadModule.h"
+#import "UADSGMAScar.h"
+#import "GADBannerViewBridge.h"
+#import "GMABannerWebViewEvent.h"
+#import "UADSGADBannerWrapper.h"
+#import "UIViewController+TopController.h"
+#import "UADSTools.h"
 
 @implementation UADSApiBanner
 
@@ -68,6 +74,63 @@
     }
 
     [callback invoke: nil];
+}
+
++ (void)WebViewExposed_loadScar: (NSString *)bannerAd
+                    placementId: (NSString *)placementId
+                        queryId: (NSString *)queryId
+                       adUnitId: (NSString *)adUnitId
+                       adString: (NSString *)adString
+                          width: (NSNumber *)width
+                         height: (NSNumber *)height
+                       callback: (USRVWebViewCallback *)callback {
+ 
+    UADSBannerView *bannerView = [[UADSBannerLoadModule sharedInstance] bannerViewWithID:bannerAd];
+    if (!bannerView) {
+        return;
+    }
+
+    CGSize bannerSize = CGSizeMake(width.floatValue, height.floatValue);
+    GMAAdMetaData *data = [GMAAdMetaData new];
+    data.type = GADQueryInfoAdTypeBanner;
+    data.placementID = placementId;
+    data.adString = adString;
+    data.adUnitID = adUnitId;
+    data.queryID = queryId;
+    data.bannerAdId = bannerAd;
+    data.bannerSize = bannerSize;
+    
+    UADSGADBannerWrapper *wrapper = [UADSGADBannerWrapper newWithMeta: data
+                                                          eventSender: self.eventSender
+                                                              gmaScar: UADSGMAScar.sharedInstance];
+    
+    data.beforeLoad = ^(GADBaseAd *_Nullable ad) {
+        wrapper.gadBanner = (GADBannerViewBridge *)ad;
+        dispatch_on_main_sync(^{
+            [wrapper addToBannerView:bannerView withSize:bannerSize];
+        });
+    };
+    
+    id successHandler = ^(GADBaseAd *_Nullable ad) {
+        [self.eventSender sendEvent: [GMABannerWebViewEvent newBannerLoadedWithMeta: data]];
+    };
+
+    id errorHandler = ^(id<UADSError> _Nonnull error) {
+        [self.eventSender sendEvent: [GMABannerWebViewEvent newBannerLoadFailedWithMeta: data]];
+        dispatch_on_main_sync(^{
+            [wrapper removeFromSuperview]; // remove from UADSBannerView
+        });
+    };
+
+    UADSLoadAdCompletion *completion = [UADSLoadAdCompletion newWithSuccess: successHandler
+                                                                   andError: errorHandler];
+
+    [[UADSGMAScar sharedInstance] loadAdUsingMetaData:data andCompletion:completion];
+    [callback invoke: nil];
+}
+
++ (id<UADSWebViewEventSender>)eventSender {
+    return [UADSWebViewEventSenderBase new];
 }
 
 @end

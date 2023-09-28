@@ -12,8 +12,10 @@ typedef NSMutableArray<GADQueryInfoBridgeCompletion *> CompletionsList;
 @interface GMAQueryInfoReaderMock ()
 @property (nonatomic, assign) NSUInteger rewardCalls;
 @property (nonatomic, assign) NSUInteger intCalls;
+@property (nonatomic, assign) NSUInteger bannerCalls;
 @property (nonatomic, strong) CompletionsList *intCompletions;
 @property (nonatomic, strong) CompletionsList *rewCompletions;
+@property (nonatomic, strong) CompletionsList *bannerCompletions;
 @end
 
 @implementation GMAQueryInfoReaderMock
@@ -27,6 +29,10 @@ typedef NSMutableArray<GADQueryInfoBridgeCompletion *> CompletionsList;
 - (void)getQueryInfoOfFormat: (GADQueryInfoAdType)type
                   completion: (nonnull GADQueryInfoBridgeCompletion *)completion {
     switch (type) {
+        case GADQueryInfoAdTypeBanner:
+            _bannerCalls += 1;
+            [_bannerCompletions addObject: completion];
+            break;
         case GADQueryInfoAdTypeInterstitial:
             _intCalls += 1;
             [_intCompletions addObject: completion];
@@ -60,6 +66,9 @@ typedef NSMutableArray<GADQueryInfoBridgeCompletion *> CompletionsList;
 
 - (CompletionsList *)getListOfType: (GADQueryInfoAdType)type  {
     switch (type) {
+        case GADQueryInfoAdTypeBanner:
+            return _bannerCompletions;
+            
         case GADQueryInfoAdTypeInterstitial:
             return _intCompletions;
 
@@ -70,11 +79,15 @@ typedef NSMutableArray<GADQueryInfoBridgeCompletion *> CompletionsList;
 
 - (NSUInteger)numberOfCallsForType: (GADQueryInfoAdType)type {
     switch (type) {
+        case GADQueryInfoAdTypeBanner:
+            return _bannerCalls;
+            
         case GADQueryInfoAdTypeRewarded:
             return _rewardCalls;
 
         case GADQueryInfoAdTypeInterstitial:
             return _intCalls;
+            
     }
 }
 

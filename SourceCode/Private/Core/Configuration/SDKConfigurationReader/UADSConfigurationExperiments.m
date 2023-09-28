@@ -81,6 +81,10 @@
     return [self isExperimentEnabledWithKey: @"osg"];
 }
 
+- (BOOL) isScarBannerSignalsEnabled {
+    return [self isExperimentEnabledWithKey: @"scar_bn"];
+}
+
 - (NSDictionary<NSString *, NSString *> *)nextSessionFlags {
     return [self flattenFlagsWith:^BOOL (id key) {
         return [self isExperimentForNextSession: key];

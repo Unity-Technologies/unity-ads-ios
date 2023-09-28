@@ -1,5 +1,6 @@
 #import "UADSGenericCompletion.h"
 #import "GMAQuerySignalReader.h"
+#import "UADSScarSignalParameters.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -8,9 +9,8 @@ typedef NSDictionary<NSString *, NSString *>       UADSSCARSignals;
 typedef UADSGenericCompletion<UADSSCARSignals *>   UADSGMAScarSignalsCompletion;
 
 @protocol GMASCARSignalsReader<NSObject>
-- (void)getSCARSignalsUsingInterstitialList: (NSArray *)interstitialList
-                            andRewardedList: (NSArray *)rewardedList
-                                 completion: (UADSGMAScarSignalsCompletion *)completion;
+- (void)getSCARSignals: (NSArray<UADSScarSignalParameters *>*)signalParameters
+            completion: (UADSGMAScarSignalsCompletion *)completion;
 @end
 
 @protocol GMASCARSignalService<NSObject, GMASCARSignalsReader, GADRequestFactory>;

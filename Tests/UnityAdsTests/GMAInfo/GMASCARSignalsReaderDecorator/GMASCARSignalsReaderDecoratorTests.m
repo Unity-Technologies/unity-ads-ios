@@ -27,9 +27,8 @@
         returnedString = string;
     }];
 
-    [_sut getSCARSignalsUsingInterstitialList: EMPTY_ARRAY
-                              andRewardedList: EMPTY_ARRAY
-                                   completion: completion];
+    [_sut getSCARSignals: EMPTY_ARRAY
+              completion: completion];
 
     [_readerMock emulateReturnOfAnEmptyDictionary];
     XCTAssertEqualObjects(returnedString, kUADS_EMPTY_STRING);
@@ -41,9 +40,8 @@
         returnedString = string;
     }];
 
-    [_sut getSCARSignalsUsingInterstitialList: EMPTY_ARRAY
-                              andRewardedList: EMPTY_ARRAY
-                                   completion: completion];
+    [_sut getSCARSignals: EMPTY_ARRAY
+              completion: completion];
 
     [_readerMock emulateReturnOfNil];
     XCTAssertEqualObjects(returnedString, kUADS_EMPTY_STRING);
@@ -59,9 +57,8 @@
         @"key": @"value"
     };
 
-    [_sut getSCARSignalsUsingInterstitialList: EMPTY_ARRAY
-                              andRewardedList: EMPTY_ARRAY
-                                   completion: completion];
+    [_sut getSCARSignals: EMPTY_ARRAY
+              completion: completion];
 
 
     [_readerMock emulateReturnOfADictionary: testDictionary];

@@ -25,31 +25,41 @@
 
 - (void)bannerViewDidLoad: (UADSBannerView *)bannerView {
     dispatch_on_main( ^{
-        [self.decorated bannerViewDidLoad: self.bannerView];
+        if ([self.decorated respondsToSelector: @selector(bannerViewDidLoad:)]) {
+            [self.decorated bannerViewDidLoad: self.bannerView];
+        }
     });
 }
 
 - (void)bannerViewDidShow:(UADSBannerView *)bannerView {
     dispatch_on_main( ^{
-        [self.decorated bannerViewDidShow: self.bannerView];
+        if ([self.decorated respondsToSelector: @selector(bannerViewDidShow:)]) {
+            [self.decorated bannerViewDidShow: self.bannerView];
+        }
     });
 }
 
 - (void)bannerViewDidClick: (UADSBannerView *)bannerView {
     dispatch_on_main( ^{
-        [self.decorated bannerViewDidClick: self.bannerView];
+        if ([self.decorated respondsToSelector: @selector(bannerViewDidClick:)]) {
+            [self.decorated bannerViewDidClick: self.bannerView];
+        }
     });
 }
 
 - (void)bannerViewDidLeaveApplication: (UADSBannerView *)bannerView {
     dispatch_on_main( ^{
-        [self.decorated bannerViewDidLeaveApplication: self.bannerView];
+        if ([self.decorated respondsToSelector: @selector(bannerViewDidLeaveApplication:)]) {
+            [self.decorated bannerViewDidLeaveApplication: self.bannerView];
+        }
     });
 }
 
 - (void)bannerViewDidError: (UADSBannerView *)bannerView error: (UADSBannerError *)error {
     dispatch_on_main( ^{
-        [self.decorated bannerViewDidError: self.bannerView error: error];
+        if ([self.decorated respondsToSelector: @selector(bannerViewDidError:error:)]) {
+            [self.decorated bannerViewDidError: self.bannerView error: error];
+        }
     });
 }
 

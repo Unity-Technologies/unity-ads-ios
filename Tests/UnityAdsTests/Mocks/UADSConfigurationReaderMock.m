@@ -44,8 +44,6 @@
     return @"";
 }
 
-
-
 - (NSDictionary *)metricTags {
     return self.experiments;
 }
@@ -54,13 +52,8 @@
     return _expectedMetricInfo;
 }
 
-
 - (NSString *)getCurrentScarHBURL {
     return @"";
-}
-
-- (UADSSCARHBStrategyType)selectedSCARHBStrategyType {
-    return self.expectedStrategyType ?: UADSSCARHeaderBiddingStrategyTypeDisabled;
 }
 
 @end

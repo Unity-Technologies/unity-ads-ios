@@ -19,7 +19,7 @@ static NSString* kLastQueryInfoRequestId = @"0";
 @interface UADSGMAScar ()
 
 @property (strong, nonatomic) id<GMAEncodedSCARSignalsReader> signalService;
-@property (strong, nonatomic) id<GMAAdLoader, UADSAdPresenter, GMAVersionChecker> loaderStrategy;
+@property (strong, nonatomic) id<GMAAdLoader, UADSAdPresenter, GMAVersionChecker, GMAAdStorage> loaderStrategy;
 @end
 
 @implementation UADSGMAScar
@@ -89,17 +89,14 @@ static NSString* kLastQueryInfoRequestId = @"0";
     return [GADMobileAdsBridge exists];
 }
 
-- (void)getSCARSignalsUsingInterstitialList: (NSArray *)interstitialList
-                            andRewardedList: (NSArray *)rewardedList
-                                 completion: (UADSGMAEncodedSignalsCompletion *)completion {
+- (void)getSCARSignals: (NSArray<UADSScarSignalParameters *>*) signalParameters
+            completion: (UADSGMAEncodedSignalsCompletion *)completion {
     if (!self.isAvailable) {
         [completion error: GMAError.newInternalSignalsError];
         return;
     }
-
-    [_signalService getSCARSignalsUsingInterstitialList: interstitialList
-                                        andRewardedList: rewardedList
-                                             completion: completion];
+    
+    [_signalService getSCARSignals:signalParameters completion:completion];
 }
 
 - (void)loadAdUsingMetaData: (GMAAdMetaData *)meta
@@ -119,6 +116,10 @@ static NSString* kLastQueryInfoRequestId = @"0";
     if (error) {
         [_errorHandler catchError:  error];
     }
+}
+
+- (void)removeAdForPlacement:(NSString *)placementId {
+    [self.loaderStrategy removeAdForPlacement:placementId];
 }
 
 + (UADSGMAScar *)sharedInstance {

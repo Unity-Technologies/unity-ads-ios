@@ -42,10 +42,15 @@
 
     UADSGMAEncodedSignalsCompletion *completion = [UADSGMAEncodedSignalsCompletion newWithSuccess: successHandler
                                                                                          andError: errorHandler];
+    NSMutableArray<UADSScarSignalParameters *>*list = [[NSMutableArray alloc] init];
+    for (NSString *interstitial in interstitialList) {
+        [list addObject:[[UADSScarSignalParameters alloc] initWithPlacementId:interstitial adFormat:GADQueryInfoAdTypeInterstitial]];
+    }
+    for (NSString *rewareded in rewardedList) {
+        [list addObject:[[UADSScarSignalParameters alloc] initWithPlacementId:rewareded adFormat:GADQueryInfoAdTypeRewarded]];
+    }
+    [self getSCARSignals:list completion:completion];
 
-    [self getSCARSignalsUsingInterstitialList: interstitialList
-                              andRewardedList: rewardedList
-                                   completion: completion];
     [testCase waitForExpectations: @[exp]
                           timeout: DEFAULT_WAITING_INTERVAL];
 }

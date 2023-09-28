@@ -7,6 +7,7 @@
 #import "GMAAdMetaData.h"
 #import "UADSWebViewErrorHandler.h"
 #import "GMAAdLoaderStrategy.h"
+#import "UADSScarSignalParameters.h"
 
 @interface UADSGMAScar : NSObject
 @property (strong, nonatomic) id<UADSErrorHandler>errorHandler;
@@ -21,14 +22,16 @@
 - (BOOL)         isGADSupported;
 - (BOOL)         isGADExists;
 
-- (void)getSCARSignalsUsingInterstitialList: (NSArray *)interstitialList
-                            andRewardedList: (NSArray *)rewardedList
-                                 completion: (UADSGMAEncodedSignalsCompletion *)completion;
+- (void)getSCARSignals: (NSArray<UADSScarSignalParameters *>*) signalParameters
+            completion: (UADSGMAEncodedSignalsCompletion *)completion;
+
 - (void)loadAdUsingMetaData: (GMAAdMetaData *)meta
               andCompletion: (UADSAnyCompletion *)completion;
 
 - (void)showAdUsingMetaData: (GMAAdMetaData *)meta
            inViewController: (UIViewController *)viewController;
+
+- (void)removeAdForPlacement:(NSString *)placementId;
 
 // exposed for tests
 - (id<GMAQueryInfoReader>)queryInfoReader;

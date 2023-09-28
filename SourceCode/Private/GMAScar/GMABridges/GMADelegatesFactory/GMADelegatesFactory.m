@@ -45,4 +45,11 @@
                                               andTimer: [_timerFactory timerWithAppLifeCycle]];
 }
 
+- (GMABannerViewDelegateProxy *)bannerDelegate: (GMAAdMetaData *)meta andCompletion: (nonnull UADSAnyCompletion *)completion {
+    return [GMABannerViewDelegateProxy newWithMetaData: meta
+                                       andErrorHandler: _errorHandler
+                                             andSender: _eventSender
+                                         andCompletion:completion ];
+}
+
 @end

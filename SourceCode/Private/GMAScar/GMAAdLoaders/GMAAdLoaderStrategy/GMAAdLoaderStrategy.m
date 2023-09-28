@@ -4,12 +4,14 @@
 #import "GMARewardedAdLoaderV7.h"
 #import "GMARewardedAdLoaderV8.h"
 #import "GMAVersionReaderStrategy.h"
+#import "GMABannerAdLoader.h"
 #import "GMAError.h"
 static NSString *const kGMAAdLoaderStrategyNotFoundError = @"ERROR: Cannot find loader of type: %li";
 
 @interface GMAAdLoaderStrategy ()
 @property (strong, nonatomic) GMALoaderBase *interstitialLoader;
 @property (strong, nonatomic) GMALoaderBase *rewardedLoader;
+@property (strong, nonatomic) GMALoaderBase *bannerLoader;
 @property (strong, nonatomic) GMAVersionReaderStrategy *versionReader;
 @end
 
@@ -22,6 +24,8 @@ static NSString *const kGMAAdLoaderStrategyNotFoundError = @"ERROR: Cannot find 
                                                            andDelegateFactory: delegatesFactory];
     obj.rewardedLoader = [self createRewardedLoaderWithRequestFactory: requestFactory
                                                    andDelegateFactory: delegatesFactory];
+    obj.bannerLoader = [self createBannerLoaderWithRequestFactory: requestFactory
+                                               andDelegateFactory: delegatesFactory];
     obj.versionReader = [[GMAVersionReaderStrategy alloc] init];
     return obj;
 }
@@ -76,17 +80,21 @@ static NSString *const kGMAAdLoaderStrategyNotFoundError = @"ERROR: Cannot find 
     return nil;
 }
 
++ (GMALoaderBase *)createBannerLoaderWithRequestFactory: (id<GADRequestFactory>)requestFactory
+                                     andDelegateFactory: (nonnull id<GMADelegatesFactory>)delegatesFactory {
+    
+    return [GMABannerAdLoader newWithRequestFactory: requestFactory
+                                 andDelegateFactory: delegatesFactory];
+}
+
 - (id<GMAAdLoader, UADSAdPresenter>)strategyForAdType: (GADQueryInfoAdType)type {
     switch (type) {
+        case GADQueryInfoAdTypeBanner:
+            return _bannerLoader;
         case GADQueryInfoAdTypeInterstitial:
             return _interstitialLoader;
-
-            break;
-
         case GADQueryInfoAdTypeRewarded:
             return _rewardedLoader;
-
-            break;
     }
     return nil;
 }
@@ -117,6 +125,12 @@ static NSString *const kGMAAdLoaderStrategyNotFoundError = @"ERROR: Cannot find 
     [presenter showAdUsingMetaData: meta
                   inViewController: viewController
                              error: error];
+}
+
+- (void)removeAdForPlacement:(NSString *)placement {
+    [_interstitialLoader removeAdForPlacement:placement];
+    [_rewardedLoader removeAdForPlacement:placement];
+    [_bannerLoader removeAdForPlacement:placement];
 }
 
 @end

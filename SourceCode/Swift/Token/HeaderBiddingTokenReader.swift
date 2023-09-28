@@ -14,9 +14,7 @@ final class HeaderBiddingTokenReaderBase: HeaderBiddingTokenReader {
     func getToken(_ completion: Closure<HeaderBiddingToken>) throws {
         var info = config.deviceInfoReader.getDeviceInfoBody(of: .extended)
         let uniqueId = config.uniqueIdGenerator.uniqueID
-        if config.experiments.experiments?.scarHbStrategyType != .disabled {
-            info["tid"] = uniqueId
-        }
+        info["tid"] = uniqueId
         let tokenValue = try config.compressor.compressedInfoString(info)
         let prefixedTokenValue = config.customPrefix + tokenValue
         let token = HeaderBiddingToken(value: prefixedTokenValue,

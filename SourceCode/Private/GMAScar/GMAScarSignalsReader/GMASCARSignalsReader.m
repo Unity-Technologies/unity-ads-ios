@@ -21,28 +21,20 @@ typedef NSMutableDictionary<NSString *, NSString *> UADSMutableScarSignals;
     return self;
 }
 
-- (void)getSCARSignalsUsingInterstitialList: (nonnull NSArray *)interstitialList
-                            andRewardedList: (nonnull NSArray *)rewardedList
-                                 completion: (nonnull UADSGMAScarSignalsCompletion *)completion {
+- (void)getSCARSignals: (NSArray<UADSScarSignalParameters *>*)signalParameters
+            completion: (UADSGMAScarSignalsCompletion *)completion {
     __block UADSMutableScarSignals *signals = [[UADSMutableScarSignals alloc] init];
     __block id<UADSError> signalError;
     dispatch_group_t group = dispatch_group_create();
 
-    [self getSignalsOfType: GADQueryInfoAdTypeInterstitial
-                      list: interstitialList
-                signalsMap: signals
-                     group: group
-                     error: ^(id<UADSError> returnedError) {
-                         signalError = returnedError;
-                     }];
-
-    [self getSignalsOfType: GADQueryInfoAdTypeRewarded
-                      list: rewardedList
-                signalsMap: signals
-                     group: group
-                     error: ^(id<UADSError> returnedError) {
-                         signalError = returnedError;
-                     }];
+    for (UADSScarSignalParameters *params in signalParameters) {
+        [self getSignalsWithParameters: params
+                            signalsMap: signals
+                                 group: group
+                                 error: ^(id<UADSError> returnedError) {
+            signalError = returnedError;
+        }];
+    }
 
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         if (signals.count == 0 && signalError) {
@@ -51,6 +43,7 @@ typedef NSMutableDictionary<NSString *, NSString *> UADSMutableScarSignals;
             [completion success: signals];
         }
     });
+    
 }
 
 - (void)updateSignals: (UADSSCARSignals *)signals
@@ -62,22 +55,20 @@ typedef NSMutableDictionary<NSString *, NSString *> UADSMutableScarSignals;
     });
 }
 
-- (void)getSignalsOfType: (GADQueryInfoAdType)adType
-                    list: (NSArray *)list
-              signalsMap: (UADSSCARSignals *)signals
-                   group: (dispatch_group_t)group
-                   error: (ReturnErrorCompletion)error {
-    for (NSString *placementID in list) {
-        dispatch_group_enter(group);
-
-        UADSGMASCARCompletion *completion = [self completionForPlacement: placementID
-                                                              signalsMap: signals
-                                                                   group: group
-                                                                   error: error];
-        [self.signalService getSignalOfAdType: adType
-                               forPlacementId: placementID
-                                   completion: completion];
-    }
+- (void)getSignalsWithParameters: (UADSScarSignalParameters *)params
+                      signalsMap: (UADSSCARSignals *)signals
+                           group: (dispatch_group_t)group
+                           error: (ReturnErrorCompletion)error {
+    dispatch_group_enter(group);
+    
+    UADSGMASCARCompletion *completion = [self completionForPlacement: params.placementId
+                                                          signalsMap: signals
+                                                               group: group
+                                                               error: error];
+    [self.signalService getSignalOfAdType: params.adFormat
+                           forPlacementId: params.placementId
+                               completion: completion];
+    
 }
 
 - (UADSGMASCARCompletion *)completionForPlacement: (NSString *)placementID
